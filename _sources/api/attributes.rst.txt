@@ -44,4 +44,3 @@ capsul.attributes.fom_completion_engine submodule
 
 .. automodule:: capsul.attributes.fom_completion_engine
     :members:
-

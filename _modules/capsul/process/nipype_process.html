@@ -1,7 +1,7 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -18,9 +18,8 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
     
     <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -116,7 +115,7 @@
 <span class="c1">##########################################################################</span>
 
 <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">Utilities to lik Capsul and NiPype interfaces</span>
+<span class="sd">Utilities to link Capsul and NiPype interfaces</span>
 
 <span class="sd">Functions</span>
 <span class="sd">---------</span>
@@ -146,11 +145,11 @@
 
 
 <div class="viewcode-block" id="nipype_factory"><a class="viewcode-back" href="../../../api/process.html#capsul.process.nipype_process.nipype_factory">[docs]</a><span class="k">def</span> <span class="nf">nipype_factory</span><span class="p">(</span><span class="n">nipype_instance</span><span class="p">,</span> <span class="n">base_class</span><span class="o">=</span><span class="n">NipypeProcess</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; From a nipype class instance generate dynamically a process</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; From a nipype class instance generate dynamically a process</span>
 <span class="sd">    instance that encapsulate the nipype instance.</span>
 
-<span class="sd">    This function clone the nipye traits (also convert special traits) and</span>
-<span class="sd">    conect the process and nipype instances traits.</span>
+<span class="sd">    This function clones the nipye traits (also convert special traits) and</span>
+<span class="sd">    connects the process and nipype instances traits.</span>
 
 <span class="sd">    A new &#39;output_directory&#39; nipype input trait is created.</span>
 
@@ -208,7 +207,7 @@
     <span class="c1">####################################################################</span>
 
     <span class="k">def</span> <span class="nf">sync_nypipe_traits</span><span class="p">(</span><span class="n">process_instance</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">old</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Event handler function to update the nipype interface traits</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Event handler function to update the nipype interface traits</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -227,11 +226,19 @@
         <span class="n">inames</span> <span class="o">=</span> <span class="p">[</span><span class="n">iname</span> <span class="k">for</span> <span class="n">iname</span><span class="p">,</span> <span class="n">pname</span> <span class="ow">in</span> <span class="n">trait_map</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">pname</span> <span class="o">==</span> <span class="n">name</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">inames</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">inames</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="nb">setattr</span><span class="p">(</span><span class="n">process_instance</span><span class="o">.</span><span class="n">_nipype_interface</span><span class="o">.</span><span class="n">inputs</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span>
-                <span class="n">value</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;nipype_&quot;</span><span class="p">):</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">process_instance</span><span class="o">.</span><span class="n">_nipype_interface</span><span class="o">.</span><span class="n">inputs</span><span class="p">,</span>
+                    <span class="n">name</span><span class="p">[</span><span class="mi">7</span><span class="p">:],</span>
+                    <span class="n">value</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">process_instance</span><span class="o">.</span><span class="n">_nipype_interface</span><span class="o">.</span><span class="n">inputs</span><span class="p">,</span>
+                    <span class="n">name</span><span class="p">,</span>
+                    <span class="n">value</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_replace_dir</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">directory</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Replace directory in filename(s) in value.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Replace directory in filename(s) in value.</span>
 
 <span class="sd">        value may be a string, or a list</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -244,7 +251,7 @@
         <span class="k">return</span> <span class="n">value</span>
 
     <span class="k">def</span> <span class="nf">sync_process_output_traits</span><span class="p">(</span><span class="n">process_instance</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Event handler function to update the process instance outputs</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Event handler function to update the process instance outputs</span>
 
 <span class="sd">        This callback is only called when an input process instance trait is</span>
 <span class="sd">        modified.</span>
@@ -284,7 +291,7 @@
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;while syncing nipype parameter&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span>
                       <span class="s1">&#39;on&#39;</span><span class="p">,</span> <span class="n">process_instance</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
                 <span class="c1"># when called during exit, the traceback module might have</span>
-                <span class="c1"># already disapeared</span>
+                <span class="c1"># already disappeared</span>
                 <span class="kn">import</span> <span class="nn">traceback</span>
                 <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
                 <span class="n">ex_type</span><span class="p">,</span> <span class="n">ex</span><span class="p">,</span> <span class="n">tb</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
@@ -295,7 +302,7 @@
                         <span class="n">ex_type</span><span class="p">,</span> <span class="n">ex</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_tb</span><span class="p">(</span><span class="n">tb</span><span class="p">))))</span>
                 <span class="n">nipype_outputs</span> <span class="o">=</span> <span class="p">{}</span>
 
-            <span class="c1"># Synchronize traits: check file existance</span>
+            <span class="c1"># Synchronize traits: check file existence</span>
             <span class="k">for</span> <span class="n">out_name</span><span class="p">,</span> <span class="n">out_value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">nipype_outputs</span><span class="p">):</span>
 
                 <span class="n">pname</span> <span class="o">=</span> <span class="n">trait_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">out_name</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span> <span class="o">+</span> <span class="n">out_name</span><span class="p">)</span>
@@ -365,7 +372,7 @@
 
     <span class="c1"># The following function is not shared since it is too specific</span>
     <span class="k">def</span> <span class="nf">clone_nipype_trait</span><span class="p">(</span><span class="n">process_instance</span><span class="p">,</span> <span class="n">nipype_trait</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Create a new trait (cloned and converrted if necessary)</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Create a new trait (cloned and converted if necessary)</span>
 <span class="sd">        from a nipype trait.</span>
 
 <span class="sd">        Parameters</span>
@@ -416,7 +423,7 @@
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">process_instance</span><span class="p">,</span> <span class="n">trait_name</span><span class="p">):</span>
             <span class="n">trait_name</span> <span class="o">=</span> <span class="s2">&quot;nipype_&quot;</span> <span class="o">+</span> <span class="n">trait_name</span>
 
-        <span class="c1"># Relax nipye exists trait contrain</span>
+        <span class="c1"># Relax nipype exists trait constraint</span>
         <span class="n">relax_exists_constraint</span><span class="p">(</span><span class="n">trait</span><span class="p">)</span>
 
         <span class="c1"># Clone the nipype trait</span>
@@ -432,8 +439,16 @@
 
         <span class="c1"># initialize value with nipype interface initial value, (if we can...)</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="nb">setattr</span><span class="p">(</span><span class="n">process_instance</span><span class="p">,</span> <span class="n">trait_name</span><span class="p">,</span>
-                    <span class="nb">getattr</span><span class="p">(</span><span class="n">nipype_instance</span><span class="o">.</span><span class="n">inputs</span><span class="p">,</span> <span class="n">trait_name</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">trait_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;nipype_&quot;</span><span class="p">):</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">process_instance</span><span class="p">,</span>
+                        <span class="n">trait_name</span><span class="p">,</span>
+                        <span class="nb">getattr</span><span class="p">(</span><span class="n">nipype_instance</span><span class="o">.</span><span class="n">inputs</span><span class="p">,</span> <span class="n">trait_name</span><span class="p">[</span><span class="mi">7</span><span class="p">:]))</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">process_instance</span><span class="p">,</span> <span class="n">trait_name</span><span class="p">,</span>
+                        <span class="nb">getattr</span><span class="p">(</span><span class="n">nipype_instance</span><span class="o">.</span><span class="n">inputs</span><span class="p">,</span> <span class="n">trait_name</span><span class="p">))</span>
+
         <span class="k">except</span> <span class="n">TraitError</span><span class="p">:</span>
             <span class="c1"># the value in the nipype trait is actually invalid...</span>
             <span class="k">pass</span>
@@ -459,7 +474,7 @@
     <span class="c1"># &gt; output traits</span>
     <span class="k">for</span> <span class="n">trait_name</span><span class="p">,</span> <span class="n">trait</span> <span class="ow">in</span> <span class="n">nipype_instance</span><span class="o">.</span><span class="n">output_spec</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
 
-        <span class="c1"># Relax nipye exists trait contrain</span>
+        <span class="c1"># Relax nipye exists trait constraint</span>
         <span class="n">relax_exists_constraint</span><span class="p">(</span><span class="n">trait</span><span class="p">)</span>
 
         <span class="c1"># Clone the nipype trait</span>
@@ -528,8 +543,8 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021, Populse team &lt;support@brainvisa.info&gt;.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+        &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     </div>
   </body>
 </html>

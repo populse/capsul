@@ -110,4 +110,3 @@ capsul.pipeline.custom_nodes.reduce_node
 
 .. automodule:: capsul.pipeline.custom_nodes.reduce_node
     :members:
-

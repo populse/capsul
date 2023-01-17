@@ -1,7 +1,7 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -18,9 +18,8 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
     
     <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -138,17 +137,19 @@
         <span class="c1"># Check that batch file exists and raise appropriate error if not</span>
         <span class="nb">open</span><span class="p">(</span><span class="n">spm_batch_filename</span><span class="p">)</span>
         <span class="n">spm_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;SPM_DIRECTORY&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
-        <span class="n">spm_exec_glob</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">spm_directory</span><span class="p">,</span> <span class="s1">&#39;mcr&#39;</span><span class="p">,</span> <span class="s1">&#39;v*&#39;</span><span class="p">)</span>
-        <span class="n">spm_exec</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">spm_exec_glob</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">spm_exec</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Cannot find SPM executable: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">spm_exec_glob</span><span class="p">)</span>
-        <span class="n">spm_exec</span> <span class="o">=</span> <span class="n">spm_exec</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">mcr_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;MCR_HOME&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">mcr_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mcr_glob</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">spm_directory</span><span class="p">,</span> <span class="s1">&#39;mcr&#39;</span><span class="p">,</span> <span class="s1">&#39;v*&#39;</span><span class="p">)</span>
+            <span class="n">mcr_dir</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">mcr_glob</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">mcr_dir</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Cannot find Matlab MCR dir: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">mcr_glob</span><span class="p">)</span>
+            <span class="n">mcr_dir</span> <span class="o">=</span> <span class="n">mcr_dir</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;---- BATCH SMP ----&#39;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">spm_batch_filename</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-------------------&#39;</span><span class="p">)</span>
         <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">spm_directory</span><span class="p">,</span> 
                         <span class="s1">&#39;run_spm</span><span class="si">%s</span><span class="s1">.sh&#39;</span> <span class="o">%</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;SPM_VERSION&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)),</span>
-               <span class="n">spm_exec</span><span class="p">,</span>
+               <span class="n">mcr_dir</span><span class="p">,</span>
                <span class="s1">&#39;batch&#39;</span><span class="p">,</span>
                <span class="n">spm_batch_filename</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
@@ -157,7 +158,7 @@
     <span class="k">return</span> <span class="n">cmd</span>
 
 <div class="viewcode-block" id="SPMPopen"><a class="viewcode-back" href="../../../api/in_context.html#capsul.in_context.spm.SPMPopen">[docs]</a><span class="k">class</span> <span class="nc">SPMPopen</span><span class="p">(</span><span class="n">soma</span><span class="o">.</span><span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Equivalent to Python subprocess.Popen for SPM batch</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spm_batch_filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -165,14 +166,14 @@
         <span class="nb">super</span><span class="p">(</span><span class="n">SPMPopen</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
         
 <div class="viewcode-block" id="spm_call"><a class="viewcode-back" href="../../../api/in_context.html#capsul.in_context.spm.spm_call">[docs]</a><span class="k">def</span> <span class="nf">spm_call</span><span class="p">(</span><span class="n">spm_batch_filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Equivalent to Python subprocess.call for SPM batch</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">cmd</span> <span class="o">=</span> <span class="n">spm_command</span><span class="p">(</span><span class="n">spm_batch_filename</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">soma</span><span class="o">.</span><span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="spm_check_call"><a class="viewcode-back" href="../../../api/in_context.html#capsul.in_context.spm.spm_check_call">[docs]</a><span class="k">def</span> <span class="nf">spm_check_call</span><span class="p">(</span><span class="n">spm_batch_filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Equivalent to Python subprocess.check_call for SPM batch</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">cmd</span> <span class="o">=</span> <span class="n">spm_command</span><span class="p">(</span><span class="n">spm_batch_filename</span><span class="p">)</span>
@@ -180,7 +181,7 @@
 
 
 <div class="viewcode-block" id="spm_check_output"><a class="viewcode-back" href="../../../api/in_context.html#capsul.in_context.spm.spm_check_output">[docs]</a><span class="k">def</span> <span class="nf">spm_check_output</span><span class="p">(</span><span class="n">spm_batch_filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Equivalent to Python subprocess.check_output for SPM batch</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">cmd</span> <span class="o">=</span> <span class="n">spm_command</span><span class="p">(</span><span class="n">spm_batch_filename</span><span class="p">)</span>
@@ -225,8 +226,8 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021, Populse team &lt;support@brainvisa.info&gt;.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+        &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     </div>
   </body>
 </html>

@@ -77,7 +77,7 @@ The program is a python module/script:
 
     python -m capsul <parameters>
 
-It can accept a variety of options to control configuration settings, processing modes, iterations, and process parameters either through file names or via attributes and paramters completion system.
+It can accept a variety of options to control configuration settings, processing modes, iterations, and process parameters either through file names or via attributes and parameters completion system.
 
 To get help, you may run it with the ``-h`` or ``--help`` option:
 
@@ -166,4 +166,3 @@ Advanced usage
 
     advanced_usage
     xml_spec
-

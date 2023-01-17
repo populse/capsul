@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   
     <title>CAPSUL &#8212; CAPSUL - Chain algorithm in pipelines and execute in many contexts</title>
@@ -19,12 +19,11 @@
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
     
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "document", "processHtmlClass": "math|output_area"}}</script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -217,10 +216,11 @@ div.nboutput.container div.prompt > div {
     }
 }
 
-/* disable scrollbars on prompts */
+/* disable scrollbars and line breaks on prompts */
 div.nbinput.container div.prompt pre,
 div.nboutput.container div.prompt pre {
     overflow: hidden;
+    white-space: pre;
 }
 
 /* input/output area */
@@ -317,11 +317,12 @@ div.nboutput.container div.output_area > div[class^='highlight']{
 }
 
 /* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
-.prompt a.copybtn {
+.prompt .copybtn {
     display: none;
 }
 
 /* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
 div.rendered_html table {
   border: none;
   border-collapse: collapse;
@@ -330,10 +331,14 @@ div.rendered_html table {
   font-size: 12px;
   table-layout: fixed;
 }
+.jp-RenderedHTMLCommon thead,
 div.rendered_html thead {
   border-bottom: 1px solid black;
   vertical-align: bottom;
 }
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
 div.rendered_html tr,
 div.rendered_html th,
 div.rendered_html td {
@@ -345,33 +350,35 @@ div.rendered_html td {
   max-width: none;
   border: none;
 }
+.jp-RenderedHTMLCommon th,
 div.rendered_html th {
   font-weight: bold;
 }
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
 div.rendered_html tbody tr:nth-child(odd) {
   background: #f5f5f5;
 }
+.jp-RenderedHTMLCommon tbody tr:hover,
 div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
 <section id="CAPSUL:-chain-algorithms-in-pipelines">
-<h1>CAPSUL: chain algorithms in pipelines<a class="headerlink" href="#CAPSUL:-chain-algorithms-in-pipelines" title="Permalink to this headline">¶</a></h1>
+<h1>CAPSUL: chain algorithms in pipelines<a class="headerlink" href="#CAPSUL:-chain-algorithms-in-pipelines" title="Permalink to this heading">¶</a></h1>
 <p><p>Capsul is a simple and efficient Python tool that aims to organize a set of processings. It is accessible to everybody, and is reusable in various contexts. The project is hosted on github: <a class="reference external" href="https://github.com/populse/capsul">https://github.com/populse/capsul</a>.</p>
 </p><p><p>Documentation: <a class="reference external" href="http://populse.github.io/capsul">http://populse.github.io/capsul</a></p>
 </p><p><p>The following examples are using CAPSUL, and PyQt (or PySide). To get the GUI running in a non-blocking way, the IPython notebook should be started with the option –gui=qt:</p>
 <pre>ipython notebook --gui=qt</pre><p>Otherwise calls to the Qt loop will be blocking until windows are closed at each demo step.</p>
 </p><p><p>Definitions</p>
 <ul style="list-style-type:disc;"><li><p>A Process is a processing that can derived directly from a Python function and that can be used as a building block of a pipeline.</p>
-</li><li><p>A Pipeline is a serie of connected processes.</p>
+</li><li><p>A Pipeline is a series of connected processes.</p>
 </li></ul></p><p><p>First check</p>
 <p>In order to test if capsul is installed on your machine, you can ask the the Capsul version:</p>
 </p><div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># just to ensure compatibility of this notebook with python 2 and 3</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># just to ensure compatibility of this notebook with python 2 and 3</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
 <span class="c1"># the following to avoid display when this notebook is converted to sphinx doc</span>
 <span class="kn">import</span> <span class="nn">os</span>
@@ -389,8 +396,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">capsul</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">capsul</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">capsul</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -400,7 +406,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2.3.0
+2.4.0
 </pre></div></div>
 </div>
 <h1><p>Process and pipeline creation API</p>
@@ -410,8 +416,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># Capsul import</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Capsul import</span>
 <span class="kn">from</span> <span class="nn">capsul.api</span> <span class="kn">import</span> <span class="n">Process</span>
 
 <span class="c1"># Trait import</span>
@@ -455,8 +460,7 @@ Process result = 145.9
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">traits.api</span> <span class="kn">import</span> <span class="n">Str</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">traits.api</span> <span class="kn">import</span> <span class="n">Str</span>
 
 <span class="k">class</span> <span class="nc">Process2</span><span class="p">(</span><span class="n">Process</span><span class="p">):</span>
 
@@ -467,8 +471,7 @@ Process result = 145.9
 
     <span class="k">def</span> <span class="nf">get_commandline</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;echo&#39;</span><span class="p">,</span> <span class="s1">&#39;Process2 execution, a: </span><span class="si">%f</span><span class="s1">, b: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">)]</span>
-
-</pre></div>
+<br/></pre></div>
 </div>
 </div>
 <h2><p>Use a function as a building block</p>
@@ -477,8 +480,7 @@ Process result = 145.9
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">capsul.process.xml</span> <span class="kn">import</span> <span class="n">xml_process</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">capsul.process.xml</span> <span class="kn">import</span> <span class="n">xml_process</span>
 <span class="kn">from</span> <span class="nn">capsul.api</span> <span class="kn">import</span> <span class="n">get_process_instance</span>
 
 <span class="nd">@xml_process</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
@@ -499,12 +501,10 @@ Process result = 145.9
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">capsul.api</span> <span class="kn">import</span> <span class="n">get_process_instance</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">capsul.api</span> <span class="kn">import</span> <span class="n">get_process_instance</span>
 
 <span class="n">process</span> <span class="o">=</span> <span class="n">get_process_instance</span><span class="p">(</span><span class="s1">&#39;__main__.add&#39;</span><span class="p">)</span>
-
-</pre></div>
+<br/></pre></div>
 </div>
 </div>
 <p>We can set some input parameters and execute the process:</p>
@@ -512,13 +512,11 @@ Process result = 145.9
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">process</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="mi">40</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">process</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="mi">40</span>
 <span class="n">process</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="mi">2</span>
 <span class="n">process</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">process</span><span class="o">.</span><span class="n">b</span><span class="p">,</span> <span class="s1">&#39;=&#39;</span><span class="p">,</span> <span class="n">process</span><span class="o">.</span><span class="n">addition</span><span class="p">)</span>
-
-</pre></div>
+<br/></pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -530,13 +528,12 @@ Process result = 145.9
 </pre></div></div>
 </div>
 <h3><p>Output files</p>
-</h3><p>There is a particular case for output files: a file is a filename (string) and the file itself. When the file itself is an output, the filename may in some cases be an input, when the output filename is specified in advance, or an ouput when the filename itself is generated by the process and output by it. For the case output file + input filename, we have to specify that the filename is actually an input, and to which parameter it is attached:</p>
+</h3><p>There is a particular case for output files: a file is a filename (string) and the file itself. When the file itself is an output, the filename may in some cases be an input, when the output filename is specified in advance, or an output when the filename itself is generated by the process and output by it. For the case output file + input filename, we have to specify that the filename is actually an input, and to which parameter it is attached:</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="nd">@xml_process</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@xml_process</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
 <span class="s1">&lt;process capsul_xml=&quot;2.0&quot;&gt;</span>
 <span class="s1">    &lt;input name=&quot;a&quot; type=&quot;file&quot; doc=&quot;A file&quot;/&gt;</span>
 <span class="s1">    &lt;input name=&quot;b&quot; type=&quot;file&quot; doc=&quot;Another file&quot;/&gt;</span>
@@ -559,8 +556,7 @@ Process result = 145.9
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">capsul.api</span> <span class="kn">import</span> <span class="n">Pipeline</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">capsul.api</span> <span class="kn">import</span> <span class="n">Pipeline</span>
 
 <span class="k">class</span> <span class="nc">Pipeline1</span><span class="p">(</span><span class="n">Pipeline</span><span class="p">):</span>
 
@@ -579,8 +575,7 @@ Process result = 145.9
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;use_gui&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;use_gui&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
     <span class="kn">import</span> <span class="nn">sys</span>
     <span class="c1"># note that the qt backend may be either PyQt4 or PySide.</span>
     <span class="kn">from</span> <span class="nn">soma.qt_gui.qt_backend</span> <span class="kn">import</span> <span class="n">QtGui</span>
@@ -607,13 +602,12 @@ Process result = 145.9
 </div>
 <p>It should display something like this: <img alt="capsul pipeline view" src="../_images/capsul_pipeline1.jpg" /></p>
 <section id="Entering-parameters">
-<h2>Entering parameters<a class="headerlink" href="#Entering-parameters" title="Permalink to this headline">¶</a></h2>
+<h2>Entering parameters<a class="headerlink" href="#Entering-parameters" title="Permalink to this heading">¶</a></h2>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;use_gui&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;use_gui&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
     <span class="kn">from</span> <span class="nn">soma.qt_gui.controller_widget</span> <span class="kn">import</span> <span class="n">ControllerWidget</span>
 
     <span class="n">controller1</span> <span class="o">=</span> <span class="n">ControllerWidget</span><span class="p">(</span><span class="n">pipeline1</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -627,13 +621,12 @@ Process result = 145.9
 </div>
 <p><img alt="controller views" src="../_images/capsul_controller1.jpg" /></p>
 <section id="Links-and-exportations">
-<h3>Links and exportations<a class="headerlink" href="#Links-and-exportations" title="Permalink to this headline">¶</a></h3>
+<h3>Links and exportations<a class="headerlink" href="#Links-and-exportations" title="Permalink to this heading">¶</a></h3>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="k">class</span> <span class="nc">Pipeline2</span><span class="p">(</span><span class="n">Pipeline</span><span class="p">):</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Pipeline2</span><span class="p">(</span><span class="n">Pipeline</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="nf">pipeline_definition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Create processes</span>
@@ -650,8 +643,7 @@ Process result = 145.9
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">pipeline2</span> <span class="o">=</span> <span class="n">Pipeline2</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pipeline2</span> <span class="o">=</span> <span class="n">Pipeline2</span><span class="p">()</span>
 <span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;use_gui&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
     <span class="n">view2</span> <span class="o">=</span> <span class="n">PipelineDevelopperView</span><span class="p">(</span><span class="n">pipeline2</span><span class="p">)</span>
     <span class="n">view2</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
@@ -665,8 +657,7 @@ Process result = 145.9
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">pipeline2</span><span class="o">.</span><span class="n">f</span> <span class="o">=</span> <span class="mf">13.2</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pipeline2</span><span class="o">.</span><span class="n">f</span> <span class="o">=</span> <span class="mf">13.2</span>
 <span class="n">pipeline2</span><span class="o">.</span><span class="n">node_string</span> <span class="o">=</span> <span class="s2">&quot;blop&quot;</span>
 <span class="n">pipeline2</span><span class="p">()</span>
 </pre></div>
@@ -677,17 +668,17 @@ Process result = 145.9
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
+Process2 execution, a: 0.000000, b: blop
 Process1 execution, f: 13.2 , ff: 0.0
 </pre></div></div>
 </div>
 <h3><p>Defining a Pipeline from XML a file</p>
-</h3><p>A Pipeline can be described from an xml file. For the documentation of the description glossary, please refere to the capsul documentation. In the following example we will use the ‘xml_pipeline.xml’ test description. See XML specifications for more information.</p>
+</h3><p>A Pipeline can be described from an xml file. For the documentation of the description glossary, please refer to the capsul documentation. In the following example we will use the ‘xml_pipeline.xml’ test description. See XML specifications for more information.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">os</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">capsul.process.test</span> <span class="k">as</span> <span class="nn">test</span>
 
 <span class="n">xmldesc</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;xml_pipeline.xml&quot;</span><span class="p">)</span>
@@ -738,8 +729,7 @@ Process1 execution, f: 13.2 , ff: 0.0
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">capsul.api</span> <span class="kn">import</span> <span class="n">get_process_instance</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">capsul.api</span> <span class="kn">import</span> <span class="n">get_process_instance</span>
 
 <span class="n">xmlpipe</span> <span class="o">=</span> <span class="n">get_process_instance</span><span class="p">(</span><span class="s2">&quot;capsul.process.test.xml_pipeline&quot;</span><span class="p">)</span>
 <span class="n">xmlpipe</span><span class="o">.</span><span class="n">help</span><span class="p">()</span>
@@ -768,8 +758,7 @@ Inputs
 
 nodes_activation: a legal value ([&#39;ControllerTrait&#39;] - mandatory)
     No description.
-pdirectory: a directory name or an object implementing the os.PathLike
-    interface ([&#39;Directory&#39;] - mandatory)
+pdirectory: a string or os.PathLike object ([&#39;Directory&#39;] - mandatory)
     test
 value: a float ([&#39;Float&#39;] - mandatory)
     test
@@ -777,8 +766,7 @@ enum: a string ([&#39;String&#39;] - mandatory)
     test
 list_of_str: a legal value ([&#39;List_String&#39;] - mandatory)
     test
-fname: a filename or object implementing the os.PathLike interface
-    ([&#39;File&#39;] - mandatory)
+fname: a string or os.PathLike object ([&#39;File&#39;] - mandatory)
     test
 
 Outputs
@@ -794,8 +782,7 @@ out1: a string ([&#39;String&#39;] - mandatory)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;use_gui&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;use_gui&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
     <span class="kn">import</span> <span class="nn">sys</span>
     <span class="kn">from</span> <span class="nn">soma.qt_gui.qt_backend</span> <span class="kn">import</span> <span class="n">QtGui</span>
     <span class="kn">from</span> <span class="nn">capsul.qt_gui.widgets</span> <span class="kn">import</span> <span class="n">PipelineDevelopperView</span>
@@ -812,18 +799,17 @@ out1: a string ([&#39;String&#39;] - mandatory)
 </div>
 <p><img alt="xml pipeline" src="../_images/capsul_pipeline_xml2.jpg" /> <img alt="xml pipeline controller" src="../_images/capsul_pipeline_xml2_controller.jpg" /></p>
 <section id="Switches">
-<h4>Switches<a class="headerlink" href="#Switches" title="Permalink to this headline">¶</a></h4>
+<h4>Switches<a class="headerlink" href="#Switches" title="Permalink to this heading">¶</a></h4>
 <p>In Capsul it is possible to define a building block which aims to select a sequence of processings. It is done with a Switch building block as follows:</p>
 </section>
 </section>
 <section id="Using-the-Python-API">
-<h3>Using the Python API<a class="headerlink" href="#Using-the-Python-API" title="Permalink to this headline">¶</a></h3>
+<h3>Using the Python API<a class="headerlink" href="#Using-the-Python-API" title="Permalink to this heading">¶</a></h3>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="k">class</span> <span class="nc">Pipeline3</span><span class="p">(</span><span class="n">Pipeline</span><span class="p">):</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Pipeline3</span><span class="p">(</span><span class="n">Pipeline</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="nf">pipeline_definition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Create processes</span>
@@ -840,8 +826,7 @@ out1: a string ([&#39;String&#39;] - mandatory)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">pipeline3</span> <span class="o">=</span> <span class="n">Pipeline3</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pipeline3</span> <span class="o">=</span> <span class="n">Pipeline3</span><span class="p">()</span>
 <span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;use_gui&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
     <span class="n">view3</span> <span class="o">=</span> <span class="n">PipelineDevelopperView</span><span class="p">(</span><span class="n">pipeline3</span><span class="p">,</span> <span class="n">allow_open_controller</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_sub_pipelines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">view3</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
@@ -855,8 +840,7 @@ out1: a string ([&#39;String&#39;] - mandatory)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">pipeline3</span><span class="o">.</span><span class="n">switch</span> <span class="o">=</span> <span class="s2">&quot;case2&quot;</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pipeline3</span><span class="o">.</span><span class="n">switch</span> <span class="o">=</span> <span class="s2">&quot;case2&quot;</span>
 
 <span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;use_gui&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
     <span class="n">view3</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
@@ -865,22 +849,28 @@ out1: a string ([&#39;String&#39;] - mandatory)
 </pre></div>
 </div>
 </div>
-<div class="nbinput nblast docutils container">
+<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">pipeline3</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="s1">&#39;yup&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pipeline3</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="s1">&#39;yup&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Process2 execution, a: 0.000000, b: yup
+</pre></div></div>
 </div>
 <h3><p>Using XML definition</p>
 </h3><div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">os</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">capsul.process.test</span> <span class="k">as</span> <span class="nn">test</span>
 
 <span class="n">xmldesc</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;test_pipeline.xml&quot;</span><span class="p">)</span>
@@ -1007,8 +997,7 @@ out1: a string ([&#39;String&#39;] - mandatory)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">capsul.api</span> <span class="kn">import</span> <span class="n">get_process_instance</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">capsul.api</span> <span class="kn">import</span> <span class="n">get_process_instance</span>
 
 <span class="n">xmlpipe</span> <span class="o">=</span> <span class="n">get_process_instance</span><span class="p">(</span><span class="s2">&quot;capsul.process.test.test_pipeline&quot;</span><span class="p">)</span>
 <span class="n">xmlpipe</span><span class="o">.</span><span class="n">help</span><span class="p">()</span>
@@ -1037,8 +1026,7 @@ Inputs
 
 nodes_activation: a legal value ([&#39;ControllerTrait&#39;] - mandatory)
     No description.
-input_image: a filename or object implementing the os.PathLike
-    interface ([&#39;File&#39;] - mandatory)
+input_image: a string or os.PathLike object ([&#39;File&#39;] - mandatory)
     Path of a NIFTI-1 image file.
 select_method: a legal value ([&#39;Enum&#39;] - mandatory)
     No description.
@@ -1046,14 +1034,14 @@ select_method: a legal value ([&#39;Enum&#39;] - mandatory)
 Outputs
 ~~~~~~~
 
-output_1: a filename or object implementing the os.PathLike interface
-    ([&#39;File (filename: output)&#39;] - mandatory)
+output_1: a string or os.PathLike object ([&#39;File (filename: output)&#39;]
+    - mandatory)
     Output file name.
-output_10: a filename or object implementing the os.PathLike interface
-    ([&#39;File (filename: output)&#39;] - mandatory)
+output_10: a string or os.PathLike object ([&#39;File (filename: output)&#39;]
+    - mandatory)
     Output file name.
-output_100: a filename or object implementing the os.PathLike
-    interface ([&#39;File (filename: output)&#39;] - mandatory)
+output_100: a string or os.PathLike object ([&#39;File (filename:
+    output)&#39;] - mandatory)
     Output file name.
 
 </pre></div></div>
@@ -1063,8 +1051,7 @@ output_100: a filename or object implementing the os.PathLike
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;use_gui&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;use_gui&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
     <span class="kn">from</span> <span class="nn">soma.qt_gui.qt_backend</span> <span class="kn">import</span> <span class="n">QtGui</span>
     <span class="kn">from</span> <span class="nn">capsul.qt_gui.widgets</span> <span class="kn">import</span> <span class="n">PipelineDevelopperView</span>
     <span class="kn">from</span> <span class="nn">soma.qt_gui.controller_widget</span> <span class="kn">import</span> <span class="n">ControllerWidget</span>
@@ -1075,20 +1062,18 @@ output_100: a filename or object implementing the os.PathLike
     <span class="n">controller</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">run_qt_loop</span><span class="p">:</span>
         <span class="n">app</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
-
-</pre></div>
+<br/></pre></div>
 </div>
 </div>
 <p><img alt="xml pipeline" src="../_images/capsul_pipeline_xml2.jpg" /> <img alt="xml pipeline controller" src="../_images/capsul_pipeline_xml2_controller.jpg" /></p>
 <section id="Iteration-over-a-process-or-pipeline">
-<h4>Iteration over a process or pipeline<a class="headerlink" href="#Iteration-over-a-process-or-pipeline" title="Permalink to this headline">¶</a></h4>
+<h4>Iteration over a process or pipeline<a class="headerlink" href="#Iteration-over-a-process-or-pipeline" title="Permalink to this heading">¶</a></h4>
 <p>A process can be used several times in parallel: some of its parameters will be changed for lists</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="nd">@xml_process</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;&lt;process capsul_xml=&quot;2.0&quot;&gt;</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@xml_process</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;&lt;process capsul_xml=&quot;2.0&quot;&gt;</span>
 <span class="s1">    &lt;input name=&quot;inputs&quot; type=&quot;list_float&quot; doc=&quot;numbers&quot;/&gt;</span>
 <span class="s1">    &lt;return name=&quot;addition&quot; type=&quot;float&quot; doc=&quot;sum all inputs&quot;/&gt;</span>
 <span class="s1">&lt;/process&gt;</span>
@@ -1110,16 +1095,14 @@ output_100: a filename or object implementing the os.PathLike
         <span class="bp">self</span><span class="o">.</span><span class="n">add_iterative_process</span><span class="p">(</span><span class="s2">&quot;add_12&quot;</span><span class="p">,</span> <span class="s1">&#39;__main__.add_12&#39;</span><span class="p">,</span> <span class="n">iterative_plugs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s2">&quot;sum_node&quot;</span><span class="p">,</span> <span class="s1">&#39;__main__.sum_node&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_link</span><span class="p">(</span><span class="s1">&#39;add_12.b-&gt;sum_node.inputs&#39;</span><span class="p">)</span>
-
-</pre></div>
+<br/></pre></div>
 </div>
 </div>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">pipeline4</span> <span class="o">=</span> <span class="n">Pipeline4</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pipeline4</span> <span class="o">=</span> <span class="n">Pipeline4</span><span class="p">()</span>
 <span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;use_gui&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
     <span class="n">view4</span> <span class="o">=</span> <span class="n">PipelineDevelopperView</span><span class="p">(</span><span class="n">pipeline4</span><span class="p">,</span> <span class="n">allow_open_controller</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_sub_pipelines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">view4</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
@@ -1137,8 +1120,7 @@ output_100: a filename or object implementing the os.PathLike
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">pipeline4</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="mf">4.2</span><span class="p">,</span> <span class="mf">6.8</span><span class="p">,</span> <span class="mf">7.</span><span class="p">]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pipeline4</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="mf">4.2</span><span class="p">,</span> <span class="mf">6.8</span><span class="p">,</span> <span class="mf">7.</span><span class="p">]</span>
 <span class="n">pipeline4</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">pipeline4</span><span class="o">.</span><span class="n">addition</span><span class="p">)</span>
 <span class="k">assert</span><span class="p">(</span><span class="n">pipeline4</span><span class="o">.</span><span class="n">addition</span> <span class="o">==</span> <span class="mi">54</span><span class="p">)</span>
@@ -1159,8 +1141,7 @@ output_100: a filename or object implementing the os.PathLike
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="nd">@xml_process</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;&lt;process capsul_xml=&quot;2.0&quot;&gt;</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@xml_process</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;&lt;process capsul_xml=&quot;2.0&quot;&gt;</span>
 <span class="s1">    &lt;input name=&quot;input&quot; type=&quot;file&quot; doc=&quot;input file&quot;/&gt;</span>
 <span class="s1">    &lt;output name=&quot;output&quot; type=&quot;file&quot; input_filename=&quot;output&quot; doc=&quot;output file&quot;/&gt;</span>
 <span class="s1">&lt;/process&gt;</span>
@@ -1194,8 +1175,7 @@ output_100: a filename or object implementing the os.PathLike
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">pipeline5</span> <span class="o">=</span> <span class="n">Pipeline5</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pipeline5</span> <span class="o">=</span> <span class="n">Pipeline5</span><span class="p">()</span>
 <span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;use_gui&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
     <span class="n">view5</span> <span class="o">=</span> <span class="n">PipelineDevelopperView</span><span class="p">(</span><span class="n">pipeline5</span><span class="p">,</span> <span class="n">allow_open_controller</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_sub_pipelines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">view5</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
@@ -1210,8 +1190,7 @@ output_100: a filename or object implementing the os.PathLike
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">infile</span> <span class="o">=</span> <span class="s1">&#39;/tmp/dummy.txt&#39;</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">infile</span> <span class="o">=</span> <span class="s1">&#39;/tmp/dummy.txt&#39;</span>
 <span class="n">outfile</span> <span class="o">=</span> <span class="s1">&#39;/tmp/dummy_modified.txt&#39;</span>
 <span class="n">intermediate</span> <span class="o">=</span> <span class="s1">&#39;/tmp/dummy_intermediate.txt&#39;</span>
 <span class="nb">open</span><span class="p">(</span><span class="n">infile</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;I ate 5 cakes this morning.</span><span class="se">\n</span><span class="s1">Let</span><span class="se">\&#39;</span><span class="s1">s eat 3 or 4 more.</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -1236,8 +1215,7 @@ output_100: a filename or object implementing the os.PathLike
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># cleanup</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># cleanup</span>
 <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">outfile</span><span class="p">)</span>
 <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">intermediate</span><span class="p">)</span>
 </pre></div>
@@ -1248,8 +1226,7 @@ output_100: a filename or object implementing the os.PathLike
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="k">class</span> <span class="nc">Pipeline6</span><span class="p">(</span><span class="n">Pipeline</span><span class="p">):</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Pipeline6</span><span class="p">(</span><span class="n">Pipeline</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="nf">pipeline_definition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s2">&quot;node1&quot;</span><span class="p">,</span> <span class="s1">&#39;__main__.node_first&#39;</span><span class="p">)</span>
@@ -1265,8 +1242,7 @@ output_100: a filename or object implementing the os.PathLike
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">pipeline6</span> <span class="o">=</span> <span class="n">Pipeline6</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pipeline6</span> <span class="o">=</span> <span class="n">Pipeline6</span><span class="p">()</span>
 <span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;use_gui&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
     <span class="n">view6</span> <span class="o">=</span> <span class="n">PipelineDevelopperView</span><span class="p">(</span><span class="n">pipeline6</span><span class="p">,</span> <span class="n">allow_open_controller</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_sub_pipelines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">view6</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
@@ -1281,8 +1257,7 @@ output_100: a filename or object implementing the os.PathLike
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">pipeline6</span><span class="o">.</span><span class="n">input</span> <span class="o">=</span> <span class="n">infile</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pipeline6</span><span class="o">.</span><span class="n">input</span> <span class="o">=</span> <span class="n">infile</span>
 <span class="n">pipeline6</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="n">outfile</span>
 <span class="n">pipeline6</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">outfile</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
@@ -1302,8 +1277,7 @@ output_100: a filename or object implementing the os.PathLike
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># cleanup</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># cleanup</span>
 <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">outfile</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1312,8 +1286,7 @@ output_100: a filename or object implementing the os.PathLike
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">pipeline6</span><span class="o">.</span><span class="n">intermediate</span> <span class="o">=</span> <span class="n">intermediate</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pipeline6</span><span class="o">.</span><span class="n">intermediate</span> <span class="o">=</span> <span class="n">intermediate</span>
 </pre></div>
 </div>
 </div>
@@ -1321,8 +1294,7 @@ output_100: a filename or object implementing the os.PathLike
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># the switch has been switched on automatically</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># the switch has been switched on automatically</span>
 <span class="c1"># node1.output gets the value assigned to pipeline6.intermediate</span>
 <span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;use_gui&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
     <span class="n">view6</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
@@ -1336,8 +1308,7 @@ output_100: a filename or object implementing the os.PathLike
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">pipeline6</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pipeline6</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">intermediate</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
 </pre></div>
 </div>
@@ -1355,8 +1326,7 @@ output_100: a filename or object implementing the os.PathLike
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># cleanup</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># cleanup</span>
 <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">outfile</span><span class="p">)</span>
 <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">intermediate</span><span class="p">)</span>
 <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">infile</span><span class="p">)</span>
@@ -1364,9 +1334,9 @@ output_100: a filename or object implementing the os.PathLike
 </div>
 </div>
 <h1><p>StudyConfig</p>
-</h1><p><p>StudyConfig is a placeholder for study-wide parameters, settings, paths and so on. It is a modular confifuration tool, which has modules to configure some external software.</p>
-</p><h2><p>A helper to configure state of the art medical softwares</p>
-</h2><p>Capsul propose a module to configure external softwares:</p>
+</h1><p><p>StudyConfig is a placeholder for study-wide parameters, settings, paths and so on. It is a modular configuration tool, which has modules to configure some external software.</p>
+</p><h2><p>A helper to configure state of the art medical software</p>
+</h2><p>Capsul propose a module to configure external software:</p>
 <ul style="list-style-type:disc;"><li><p>FSL</p>
 </li><li><p>SPM</p>
 </li><li><p>FreeSurfer</p>
@@ -1380,9 +1350,8 @@ output_100: a filename or object implementing the os.PathLike
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[40]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">capsul.api</span> <span class="kn">import</span> <span class="n">StudyConfig</span>
-<span class="c1"># optional config modules, need not to be explicitely loaded</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">capsul.api</span> <span class="kn">import</span> <span class="n">StudyConfig</span>
+<span class="c1"># optional config modules, need not to be explicitly loaded</span>
 <span class="c1"># from capsul.study_config.config_modules.freesurfer_config import FreeSurferConfig</span>
 <span class="c1"># from capsul.study_config.config_modules.brainvisa_config import BrainVISAConfig</span>
 
@@ -1408,6 +1377,10 @@ output_directory :   &lt;undefined&gt;
 process_output_directory :   False
 study_name :   &lt;undefined&gt;
 user_level :   0
+afni_path :   &lt;undefined&gt;
+use_afni :   &lt;undefined&gt;
+ants_path :   &lt;undefined&gt;
+use_ants :   &lt;undefined&gt;
 fsl_config :   &lt;undefined&gt;
 fsl_prefix :   &lt;undefined&gt;
 use_fsl :   &lt;undefined&gt;
@@ -1419,13 +1392,13 @@ somaworkflow_computing_resource :   &lt;undefined&gt;
 somaworkflow_config_file :   &lt;undefined&gt;
 somaworkflow_keep_failed_workflows :   True
 somaworkflow_keep_succeeded_workflows :   False
-somaworkflow_computing_resources_config :   &lt;soma.controller.controller.OpenKeyController object at 0x7fccc1d7b4c0&gt;
+somaworkflow_computing_resources_config :   &lt;soma.controller.controller.OpenKeyController object at 0x7f68b02853f0&gt;
 spm_directory :   &lt;undefined&gt;
 spm_standalone :   &lt;undefined&gt;
 spm_version :   &lt;undefined&gt;
 spm_exec :   &lt;undefined&gt;
 use_spm :   &lt;undefined&gt;
-shared_directory :   /home/travis/virtualenv/python3.7.1/lib/python3.7/site-packages/share/brainvisa-share-5.1
+shared_directory :   /opt/hostedtoolcache/Python/3.10.9/x64/lib/python3.10/site-packages/share/brainvisa-share-5.2
 input_fom :
 output_fom :
 shared_fom :
@@ -1445,8 +1418,7 @@ path_completion :   &lt;undefined&gt;
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[41]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">capsul.api</span> <span class="kn">import</span> <span class="n">StudyConfig</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">capsul.api</span> <span class="kn">import</span> <span class="n">StudyConfig</span>
 
 <span class="n">study_config</span> <span class="o">=</span> <span class="n">StudyConfig</span><span class="p">(</span>
     <span class="n">modules</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;FSLConfig&quot;</span><span class="p">],</span>
@@ -1472,7 +1444,7 @@ Method to execute a process or a pipline in a study configuration
          Only pipeline nodes can be filtered on the &#39;execute_qc_nodes&#39;
          attribute.
 
-         A valid output directory is exepcted to execute the process or the
+         A valid output directory is expected to execute the process or the
          pepeline without soma-workflow.
 
         Parameters
@@ -1483,7 +1455,7 @@ Method to execute a process or a pipline in a study configuration
             the output directory to use for process execution. This replaces
             self.output_directory but left it unchanged.
         execute_qc_nodes: bool (optional, default False)
-            if True execute process nodes that are taged as qualtity control
+            if True execute process nodes that are tagged as qualtity control
             process nodes.
         verbose: int
             if different from zero, print console messages.
@@ -1498,8 +1470,7 @@ Method to execute a process or a pipline in a study configuration
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[42]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">study_config</span><span class="o">.</span><span class="n">reset_process_counter</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">study_config</span><span class="o">.</span><span class="n">reset_process_counter</span><span class="p">()</span>
 <span class="n">study_config</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">pipeline2</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1512,6 +1483,7 @@ Method to execute a process or a pipline in a study configuration
 ________________________________________________________________________________
 [Process] Calling __main__.Process2...
 __main__.Process2(b=blop)
+Process2 execution, a: 0.000000, b: blop
 ________________________________________________________________________________
 [Process] Calling __main__.Process1...
 __main__.Process1(f=13.2, ff=0.0)
@@ -1526,8 +1498,7 @@ Process1 execution, f: 13.2 , ff: 0.0
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[43]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="k">class</span> <span class="nc">Process1</span><span class="p">(</span><span class="n">Process</span><span class="p">):</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Process1</span><span class="p">(</span><span class="n">Process</span><span class="p">):</span>
     <span class="n">f</span> <span class="o">=</span> <span class="n">Float</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1565,8 +1536,7 @@ Process1 execution, f: 13.2 , ff: 0.0
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[44]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">capsul.pipeline.pipeline_workflow</span> <span class="kn">import</span> <span class="n">workflow_from_pipeline</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">capsul.pipeline.pipeline_workflow</span> <span class="kn">import</span> <span class="n">workflow_from_pipeline</span>
 
 <span class="n">pipeline2</span> <span class="o">=</span> <span class="n">get_process_instance</span><span class="p">(</span><span class="n">Pipeline2</span><span class="p">)</span>
 <span class="n">workflow</span> <span class="o">=</span> <span class="n">workflow_from_pipeline</span><span class="p">(</span><span class="n">pipeline2</span><span class="p">)</span>
@@ -1580,8 +1550,8 @@ Process1 execution, f: 13.2 , ff: 0.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-jobs: [&lt;soma_workflow.client_types.Job object at 0x7fcce4c3d978&gt;, &lt;soma_workflow.client_types.Job object at 0x7fccdd333908&gt;]
-dependencies: {(&lt;soma_workflow.client_types.Job object at 0x7fccdd333908&gt;, &lt;soma_workflow.client_types.Job object at 0x7fcce4c3d978&gt;)}
+jobs: [&lt;soma_workflow.client_types.Job object at 0x7f68b0352950&gt;, &lt;soma_workflow.client_types.Job object at 0x7f68b03528f0&gt;]
+dependencies: {(&lt;soma_workflow.client_types.Job object at 0x7f68b03528f0&gt;, &lt;soma_workflow.client_types.Job object at 0x7f68b0352950&gt;)}
 </pre></div></div>
 </div>
 <p>The workwlow can be saved and reloaded in soma_workflow_gui, or used in a soma-workflow controller:</p>
@@ -1589,8 +1559,7 @@ dependencies: {(&lt;soma_workflow.client_types.Job object at 0x7fccdd333908&gt;,
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[45]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">soma_workflow</span> <span class="kn">import</span> <span class="n">client</span> <span class="k">as</span> <span class="n">swclient</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">soma_workflow</span> <span class="kn">import</span> <span class="n">client</span> <span class="k">as</span> <span class="n">swclient</span>
 
 <span class="c1"># save workflow to disk in json format</span>
 <span class="n">swclient</span><span class="o">.</span><span class="n">Helper</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="s1">&#39;/tmp/pipeline2.workflow&#39;</span><span class="p">,</span> <span class="n">workflow</span><span class="p">)</span>
@@ -1628,8 +1597,7 @@ True
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[46]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">os</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="s1">&#39;/tmp/pipeline2.workflow&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1639,8 +1607,7 @@ True
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[47]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">study_config</span> <span class="o">=</span> <span class="n">StudyConfig</span><span class="p">(</span><span class="n">modules</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;SomaWorkflowConfig&#39;</span><span class="p">])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">study_config</span> <span class="o">=</span> <span class="n">StudyConfig</span><span class="p">(</span><span class="n">modules</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;SomaWorkflowConfig&#39;</span><span class="p">])</span>
 <span class="n">study_config</span><span class="o">.</span><span class="n">use_soma_workflow</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="n">study_config</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">pipeline2</span><span class="p">)</span>
 <span class="c1"># if execution fails, an exception should be raised.</span>
@@ -1661,8 +1628,7 @@ Workflow controller initialised
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[48]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">study_config</span><span class="o">.</span><span class="n">somaworkflow_keep_succeeded_workflows</span> <span class="o">=</span> <span class="kc">True</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">study_config</span><span class="o">.</span><span class="n">somaworkflow_keep_succeeded_workflows</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="n">wc</span> <span class="o">=</span> <span class="n">study_config</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s1">&#39;SomaWorkflowConfig&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get_workflow_controller</span><span class="p">()</span>
 <span class="k">if</span> <span class="n">wc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">init_wf_list</span> <span class="o">=</span> <span class="n">wc</span><span class="o">.</span><span class="n">workflows</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
@@ -1696,24 +1662,23 @@ del WorkflowController
 <div class="highlight"><pre>
 <span class="ansi-red-fg">---------------------------------------------------------------------------</span>
 <span class="ansi-red-fg">IndexError</span>                                Traceback (most recent call last)
-<span class="ansi-green-fg">&lt;ipython-input-1-7fbfd67432c5&gt;</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
-<span class="ansi-green-intense-fg ansi-bold">     12</span> wc <span class="ansi-blue-fg">=</span> study_config<span class="ansi-blue-fg">.</span>modules<span class="ansi-blue-fg">[</span><span class="ansi-blue-fg">&#39;SomaWorkflowConfig&#39;</span><span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">.</span>get_workflow_controller<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">     13</span> wf_list <span class="ansi-blue-fg">=</span> wc<span class="ansi-blue-fg">.</span>workflows<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">.</span>keys<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">)</span>
-<span class="ansi-green-fg">---&gt; 14</span><span class="ansi-red-fg"> </span>wf_id <span class="ansi-blue-fg">=</span> <span class="ansi-blue-fg">[</span>wf <span class="ansi-green-fg">for</span> wf <span class="ansi-green-fg">in</span> wf_list <span class="ansi-green-fg">if</span> wf <span class="ansi-green-fg">not</span> <span class="ansi-green-fg">in</span> init_wf_list<span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">[</span><span class="ansi-cyan-fg">0</span><span class="ansi-blue-fg">]</span>
-<span class="ansi-green-intense-fg ansi-bold">     15</span> print<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">&#39;workflow id:&#39;</span><span class="ansi-blue-fg">,</span> wf_id<span class="ansi-blue-fg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">     16</span> wc<span class="ansi-blue-fg">.</span>delete_workflow<span class="ansi-blue-fg">(</span>wf_id<span class="ansi-blue-fg">)</span>
+Cell <span class="ansi-green-fg">In[48], line 14</span>
+<span class="ansi-green-intense-fg ansi-bold">     12</span> wc <span style="color: rgb(98,98,98)">=</span> study_config<span style="color: rgb(98,98,98)">.</span>modules[<span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">SomaWorkflowConfig</span><span style="color: rgb(175,0,0)">&#39;</span>]<span style="color: rgb(98,98,98)">.</span>get_workflow_controller()
+<span class="ansi-green-intense-fg ansi-bold">     13</span> wf_list <span style="color: rgb(98,98,98)">=</span> wc<span style="color: rgb(98,98,98)">.</span>workflows()<span style="color: rgb(98,98,98)">.</span>keys()
+<span class="ansi-green-fg">---&gt; 14</span> wf_id <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">[</span><span class="ansi-yellow-bg">wf</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg ansi-bold" style="color: rgb(0,135,0)">for</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">wf</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg ansi-bold" style="color: rgb(175,0,255)">in</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">wf_list</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg ansi-bold" style="color: rgb(0,135,0)">if</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">wf</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg ansi-bold" style="color: rgb(175,0,255)">not</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg ansi-bold" style="color: rgb(175,0,255)">in</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">init_wf_list</span><span class="ansi-yellow-bg">]</span><span class="ansi-yellow-bg">[</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">0</span><span class="ansi-yellow-bg">]</span>
+<span class="ansi-green-intense-fg ansi-bold">     15</span> <span style="color: rgb(0,135,0)">print</span>(<span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">workflow id:</span><span style="color: rgb(175,0,0)">&#39;</span>, wf_id)
+<span class="ansi-green-intense-fg ansi-bold">     16</span> wc<span style="color: rgb(98,98,98)">.</span>delete_workflow(wf_id)
 
 <span class="ansi-red-fg">IndexError</span>: list index out of range
 </pre></div></div>
 </div>
 <h1><p>Use thirdparty software in Capsul</p>
-</h1><p>Some thirdparty software nedd to be configured before they are called. StudyConfig is used to hold this configuration. There are a set of modules that can be modified to enable/disable configuration of thirdparty software.</p>
+</h1><p>Some thirdparty software need to be configured before they are called. StudyConfig is used to hold this configuration. There are a set of modules that can be modified to enable/disable configuration of thirdparty software.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[49]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">capsul.api</span> <span class="kn">import</span> <span class="n">StudyConfig</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">capsul.api</span> <span class="kn">import</span> <span class="n">StudyConfig</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="n">StudyConfig</span><span class="o">.</span><span class="n">default_modules</span><span class="p">)</span>
 </pre></div>
@@ -1724,43 +1689,29 @@ del WorkflowController
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[&#39;FSLConfig&#39;, &#39;MatlabConfig&#39;, &#39;SmartCachingConfig&#39;, &#39;SomaWorkflowConfig&#39;, &#39;SPMConfig&#39;]
+[&#39;AFNIConfig&#39;, &#39;ANTSConfig&#39;, &#39;FSLConfig&#39;, &#39;MatlabConfig&#39;, &#39;SmartCachingConfig&#39;, &#39;SomaWorkflowConfig&#39;, &#39;SPMConfig&#39;]
 </pre></div></div>
 </div>
 <p>In order to change modules that are used, one must give a full module list to StudyConfig():</p>
-<div class="nbinput docutils container">
+<div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[50]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">study_config</span> <span class="o">=</span> <span class="n">StudyConfig</span><span class="p">(</span><span class="n">modules</span><span class="o">=</span><span class="n">StudyConfig</span><span class="o">.</span><span class="n">default_modules</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;BrainVISAConfig&#39;</span><span class="p">,</span> <span class="s1">&#39;NipypeConfig&#39;</span><span class="p">])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">study_config</span> <span class="o">=</span> <span class="n">StudyConfig</span><span class="p">(</span><span class="n">modules</span><span class="o">=</span><span class="n">StudyConfig</span><span class="o">.</span><span class="n">default_modules</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;BrainVISAConfig&#39;</span><span class="p">,</span> <span class="s1">&#39;NipypeConfig&#39;</span><span class="p">])</span>
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-/home/travis/virtualenv/python3.7.1/lib/python3.7/site-packages/scipy/__init__.py:140: UserWarning: A NumPy version &gt;=1.16.5 and &lt;1.23.0 is required for this version of SciPy (detected version 1.16.4)
-  UserWarning)
-</pre></div></div>
 </div>
 <h2><p>Use FSL in Capsul</p>
 </h2><p>FSL is called via specific subprocess-like functions taking into account a configuration done in StudyConfig. If a StudyConfig is not configured to use FSL, it may be automatically configured. Automatic configuration had been tested in the two following cases :</p>
-<ol><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;li&gt;FSL was installed from the FMRIB site and, at least, FSLDIR
-environment variable is set (fsl.sh can be sourced or not)&lt;/li&gt;
-&lt;li&gt;FSL was installed from Neurodebian packages&lt;/li&gt;
-</pre></div>
-</div>
-</ol><p>Automatic configuration is done lazily. To start it, one must either use <code class="docutils literal notranslate"><span class="pre">StudyConfig(use_fsl=True)</span></code> or use one of the calling functions of <code class="docutils literal notranslate"><span class="pre">capsul.subprocess.fsl</span></code>.</p>
-<p>For calling FSL command with <code class="docutils literal notranslate"><span class="pre">capsul.subprocess.fsl</span></code> module, the first argument of command line must be the FSL executable without any path nor prefix. Prefix are used in Neurodebian install. For instance on Ubuntu 16.04 Neurodebian FSL commands are prefixed with <code class="docutils literal notranslate"><span class="pre">fsl5.0-</span></code>. The appropriate path and eventualy prefix are added from the configuration of the <code class="docutils literal notranslate"><span class="pre">StudyConfig</span></code> instance.</p>
+<ol><li><p>FSL was installed from the FMRIB site and, at least, FSLDIR environment variable is set (fsl.sh can be sourced or not)</p>
+</li><li><p>FSL was installed from Neurodebian packages</p>
+</li></ol><p>Automatic configuration is done lazily. To start it, one must either use <code class="docutils literal notranslate"><span class="pre">StudyConfig(use_fsl=True)</span></code> or use one of the calling functions of <code class="docutils literal notranslate"><span class="pre">capsul.subprocess.fsl</span></code>.</p>
+<p>For calling FSL command with <code class="docutils literal notranslate"><span class="pre">capsul.subprocess.fsl</span></code> module, the first argument of command line must be the FSL executable without any path nor prefix. Prefix are used in Neurodebian install. For instance on Ubuntu 16.04 Neurodebian FSL commands are prefixed with <code class="docutils literal notranslate"><span class="pre">fsl5.0-</span></code>. The appropriate path and eventually prefix are added from the configuration of the <code class="docutils literal notranslate"><span class="pre">StudyConfig</span></code> instance.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[51]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">sys</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
 <span class="kn">import</span> <span class="nn">tempfile</span>
@@ -1771,8 +1722,8 @@ environment variable is set (fsl.sh can be sourced or not)&lt;/li&gt;
 <span class="kn">from</span> <span class="nn">capsul.in_context</span> <span class="kn">import</span> <span class="n">fsl</span>
 
 <span class="k">class</span> <span class="nc">Bet</span><span class="p">(</span><span class="n">Process</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    A process that calls bet command without any parameter except imput and output files.</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    A process that calls bet command without any parameter except input and output files.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">input_image</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">optional</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">output_image</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">optional</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1808,8 +1759,7 @@ environment variable is set (fsl.sh can be sourced or not)&lt;/li&gt;
             <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="n">suffix</span><span class="o">=</span><span class="s1">&#39;.nii.gz&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
                 <span class="n">bet</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">input_image</span><span class="o">=</span><span class="n">test_image</span><span class="p">,</span> <span class="n">output_image</span><span class="o">=</span><span class="n">tmp</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Output file size:&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">bet</span><span class="o">.</span><span class="n">output_image</span><span class="p">)</span><span class="o">.</span><span class="n">st_size</span><span class="p">)</span>
-
-</pre></div>
+<br/></pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1826,8 +1776,7 @@ FSL cannot be configured automatically: FSL command &#34;bet&#34; cannot be foun
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[52]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">capsul.api</span> <span class="kn">import</span> <span class="n">StudyConfig</span><span class="p">,</span> <span class="n">get_process_instance</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">capsul.api</span> <span class="kn">import</span> <span class="n">StudyConfig</span><span class="p">,</span> <span class="n">get_process_instance</span>
 <span class="kn">from</span> <span class="nn">soma.path</span> <span class="kn">import</span> <span class="n">find_in_path</span>
 
 <span class="n">study_config</span> <span class="o">=</span> <span class="n">StudyConfig</span><span class="p">(</span><span class="n">modules</span><span class="o">=</span><span class="n">StudyConfig</span><span class="o">.</span><span class="n">default_modules</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;NipypeConfig&#39;</span><span class="p">])</span>
@@ -1853,13 +1802,12 @@ FSL cannot be configured automatically: FSL command &#34;bet&#34; cannot be foun
 NiPype is not present.
 </pre></div></div>
 </div>
-<p>As shown it is possible to set the BET algorithm input parameters. Note that in capsul the standard nipype outputs are prefixed with underscores. We can execute this Process but unfortunatelly, as mentioned by the nipype warnings, FSL needs to be configured in the study confit, otherwise the pipeline will not run. As we have done it above, we can run it:</p>
+<p>As shown it is possible to set the BET algorithm input parameters. Note that in capsul the standard nipype outputs are prefixed with underscores. We can execute this Process but unfortunately, as mentioned by the nipype warnings, FSL needs to be configured in the study confit, otherwise the pipeline will not run. As we have done it above, we can run it:</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[53]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="k">if</span> <span class="n">betpipe</span><span class="p">:</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">betpipe</span><span class="p">:</span>
     <span class="n">study_config</span><span class="o">.</span><span class="n">reset_process_counter</span><span class="p">()</span>
     <span class="n">study_config</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">betpipe</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
@@ -1871,8 +1819,7 @@ NiPype is not present.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[54]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">capsul.pipeline.xml</span> <span class="kn">import</span> <span class="n">create_xml_pipeline</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">capsul.pipeline.xml</span> <span class="kn">import</span> <span class="n">create_xml_pipeline</span>
 
 <span class="n">xmlstr</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;&lt;pipeline capsul_xml=&quot;2.0&quot;&gt;</span>
 <span class="s1">        &lt;process name=&quot;proc1&quot;</span>
@@ -1939,8 +1886,7 @@ NiPype is not present.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[55]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;use_gui&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;use_gui&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
     <span class="kn">from</span> <span class="nn">capsul.qt_gui.widgets</span> <span class="kn">import</span> <span class="n">PipelineDevelopperView</span>
 
     <span class="n">pv</span> <span class="o">=</span> <span class="n">PipelineDevelopperView</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">allow_open_controller</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_sub_pipelines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1948,20 +1894,18 @@ NiPype is not present.
 
     <span class="k">if</span> <span class="n">run_qt_loop</span><span class="p">:</span>
         <span class="n">app</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
-
-</pre></div>
+<br/></pre></div>
 </div>
 </div>
 <p><img alt="pipeline" src="../_images/capsul_pipeline7.jpg" /></p>
 </section>
 <section id="FOM-definition">
-<h4>FOM definition<a class="headerlink" href="#FOM-definition" title="Permalink to this headline">¶</a></h4>
+<h4>FOM definition<a class="headerlink" href="#FOM-definition" title="Permalink to this heading">¶</a></h4>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[56]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">fom_content</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;{</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fom_content</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;{</span>
 <span class="s1">    &quot;fom_name&quot;: &quot;demo_fom&quot;,</span>
 
 <span class="s1">    &quot;formats&quot;: {</span>
@@ -2002,8 +1946,7 @@ NiPype is not present.
 <span class="k">try</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="s1">&#39;/tmp/capsul_demo&#39;</span><span class="p">)</span>
 <span class="k">except</span><span class="p">:</span> <span class="k">pass</span>
 <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;/tmp/capsul_demo/demo_fom.json&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">fom_content</span><span class="p">)</span>
-
-</pre></div>
+<br/></pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -2021,8 +1964,7 @@ NiPype is not present.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[57]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">sys</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">capsul.api</span> <span class="kn">import</span> <span class="n">StudyConfig</span>
 <span class="kn">from</span> <span class="nn">capsul.attributes.completion_engine</span> <span class="kn">import</span> <span class="n">ProcessCompletionEngine</span>
@@ -2075,8 +2017,7 @@ NiPype is not present.
 
     <span class="k">if</span> <span class="n">run_qt_loop</span><span class="p">:</span>
       <span class="n">app</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
-
-</pre></div>
+<br/></pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -2094,8 +2035,7 @@ completion engine type: FomProcessCompletionEngine
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[58]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">mp</span><span class="o">.</span><span class="n">proc_select2</span> <span class="o">=</span> <span class="s2">&quot;proc3&quot;</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mp</span><span class="o">.</span><span class="n">proc_select2</span> <span class="o">=</span> <span class="s2">&quot;proc3&quot;</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;switch proc_select2 value:&quot;</span><span class="p">,</span> <span class="n">mp</span><span class="o">.</span><span class="n">proc_select2</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;output image_out5:&quot;</span><span class="p">,</span> <span class="n">mp</span><span class="o">.</span><span class="n">image_out5</span><span class="p">)</span>
 <span class="n">mp</span><span class="o">.</span><span class="n">proc_select2</span> <span class="o">=</span> <span class="s2">&quot;proc4&quot;</span>
@@ -2117,14 +2057,13 @@ output image_out5: /data/capsul_demo/subjects_irm2/out_image_irm2_4.nii.gz
 </div>
 <p><img alt="changed pipeline" src="../_images/capsul_fom2.jpg" /> <img alt="changed completion controller" src="../_images/capsul_fom2_compl.jpg" /></p>
 </section>
-<section id="Now-Cleanup-the-files-we-have-created...">
-<h4>Now Cleanup the files we have created…<a class="headerlink" href="#Now-Cleanup-the-files-we-have-created..." title="Permalink to this headline">¶</a></h4>
+<section id="Now-Cleanup-the-files-we-have-created…">
+<h4>Now Cleanup the files we have created…<a class="headerlink" href="#Now-Cleanup-the-files-we-have-created…" title="Permalink to this heading">¶</a></h4>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[59]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">shutil</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">shutil</span>
 <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="s1">&#39;/tmp/capsul_demo&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -2141,8 +2080,9 @@ output image_out5: /data/capsul_demo/subjects_irm2/out_image_irm2_4.nii.gz
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="../index.html">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">CAPSUL: chain algorithms in pipelines</a><ul>
 <li><a class="reference internal" href="#Entering-parameters">Entering parameters</a><ul>
 <li><a class="reference internal" href="#Links-and-exportations">Links and exportations</a><ul>
@@ -2152,7 +2092,7 @@ output image_out5: /data/capsul_demo/subjects_irm2/out_image_irm2_4.nii.gz
 <li><a class="reference internal" href="#Using-the-Python-API">Using the Python API</a><ul>
 <li><a class="reference internal" href="#Iteration-over-a-process-or-pipeline">Iteration over a process or pipeline</a></li>
 <li><a class="reference internal" href="#FOM-definition">FOM definition</a></li>
-<li><a class="reference internal" href="#Now-Cleanup-the-files-we-have-created...">Now Cleanup the files we have created…</a></li>
+<li><a class="reference internal" href="#Now-Cleanup-the-files-we-have-created…">Now Cleanup the files we have created…</a></li>
 </ul>
 </li>
 </ul>
@@ -2161,6 +2101,7 @@ output image_out5: /data/capsul_demo/subjects_irm2/out_image_irm2_4.nii.gz
 </li>
 </ul>
 
+  </div>
         </div>
       </div>
       <div class="clearer"></div>
@@ -2179,8 +2120,8 @@ output image_out5: /data/capsul_demo/subjects_irm2/out_image_irm2_4.nii.gz
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021, Populse team &lt;support@brainvisa.info&gt;.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+        &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     </div>
   </body>
 </html>

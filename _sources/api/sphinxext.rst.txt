@@ -27,5 +27,3 @@ Commands
 * capsul_pipeline_view.py
 * capsul_sphinx_layout.py
 * capsul_usecases_rst.py
-
-

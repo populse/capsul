@@ -13,4 +13,3 @@ capsul.utils module
 
 .. automodule:: capsul.utils.version_utils
     :members:
-

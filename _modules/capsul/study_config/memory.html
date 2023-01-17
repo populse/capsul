@@ -1,7 +1,7 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -18,9 +18,8 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
     
     <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -108,7 +107,7 @@
   <h1>Source code for capsul.study_config.memory</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
 <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">Mamory caching. Probably mostly obsolete, this code is not much used now.</span>
+<span class="sd">Memory caching. Probably mostly obsolete, this code is not much used now.</span>
 
 <span class="sd">Classes</span>
 <span class="sd">=======</span>
@@ -147,15 +146,6 @@
 <span class="c1"># CAPSUL import</span>
 <span class="kn">from</span> <span class="nn">capsul.process.process</span> <span class="kn">import</span> <span class="n">Process</span><span class="p">,</span> <span class="n">ProcessResult</span>
 
-<span class="c1"># NIPYPE import</span>
-<span class="k">try</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">nipype.interfaces.base</span> <span class="kn">import</span> <span class="n">InterfaceResult</span>
-<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-    <span class="c1"># if nipype is not here, we will not really need this but it is used in</span>
-    <span class="c1"># object type checking in CapsulResultEncoder</span>
-    <span class="k">class</span> <span class="nc">InterfaceResult</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-        <span class="k">pass</span>
-
 <span class="c1"># TRAITS import</span>
 <span class="kn">from</span> <span class="nn">traits.api</span> <span class="kn">import</span> <span class="n">Undefined</span>
 
@@ -169,11 +159,11 @@
 <span class="c1">###########################################################################</span>
 
 <div class="viewcode-block" id="UnMemorizedProcess"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.memory.UnMemorizedProcess">[docs]</a><span class="k">class</span> <span class="nc">UnMemorizedProcess</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; This class replaces MemorizedProcess when there is no cache.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; This class replaces MemorizedProcess when there is no cache.</span>
 <span class="sd">    It provides an identical API but does not write anything on disk.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Initialize the UnMemorizedProcess class.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Initialize the UnMemorizedProcess class.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -186,7 +176,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
 
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Call the process.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Call the process.</span>
 
 <span class="sd">        .. note::</span>
 <span class="sd">            matlab process input image headers are saved since matlab</span>
@@ -223,7 +213,7 @@
         <span class="k">return</span> <span class="n">result</span>
 
     <span class="k">def</span> <span class="nf">_get_process_arguments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Get the process arguments.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Get the process arguments.</span>
 
 <span class="sd">        The user process traits are accessed through the user_traits()</span>
 <span class="sd">        method that returns a sorted dictionary.</span>
@@ -256,7 +246,7 @@
         <span class="k">return</span> <span class="n">input_parameters</span>
 
     <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Define behavior for when a user attempts to access an attribute</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Define behavior for when a user attempts to access an attribute</span>
 <span class="sd">        of a MemorizedProcess instance.</span>
 
 <span class="sd">        First check the MemorizedProcess object and then the Process object.</span>
@@ -278,7 +268,7 @@
                 <span class="s2">&quot;&#39;</span><span class="si">{0}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Define behavior for when a user attempts to set an attribute</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Define behavior for when a user attempts to set an attribute</span>
 <span class="sd">        of a MemorizedProcess instance.</span>
 
 <span class="sd">        First check the MemorizedProcess object and then the Process object.</span>
@@ -298,13 +288,13 @@
             <span class="nb">super</span><span class="p">(</span><span class="n">UnMemorizedProcess</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; ProcessFunc class representation.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; ProcessFunc class representation.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">(</span><span class="si">{1}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">id</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="MemorizedProcess"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.memory.MemorizedProcess">[docs]</a><span class="k">class</span> <span class="nc">MemorizedProcess</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Callable object decorating a capsul process for caching its return</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Callable object decorating a capsul process for caching its return</span>
 <span class="sd">    values each time it is called.</span>
 
 <span class="sd">    All values are cached on the filesystem, in a deep directory</span>
@@ -312,7 +302,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">cachedir</span><span class="p">,</span> <span class="n">timestamp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Initialize the MemorizedProcess class.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Initialize the MemorizedProcess class.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -357,7 +347,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
 
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Call wrapped process and cache result, or read cache if</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Call wrapped process and cache result, or read cache if</span>
 <span class="sd">        available.</span>
 
 <span class="sd">        This function returns the wrapped function output and some metadata.</span>
@@ -385,7 +375,7 @@
             <span class="c1"># Create the destination memory folder</span>
             <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">process_dir</span><span class="p">)</span>
 
-            <span class="c1"># Try to execute the process and if an error occured remove the</span>
+            <span class="c1"># Try to execute the process and if an error occurred remove the</span>
             <span class="c1"># cache folder</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="c1"># Run</span>
@@ -433,7 +423,7 @@
         <span class="k">return</span> <span class="n">result</span>
 
     <span class="k">def</span> <span class="nf">_copy_files_to_memory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">python_object</span><span class="p">,</span> <span class="n">process_dir</span><span class="p">,</span> <span class="n">file_mapping</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Copy file items inside the memory.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Copy file items inside the memory.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -468,7 +458,7 @@
                 <span class="n">file_mapping</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">python_object</span><span class="p">,</span> <span class="n">out</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">_call_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process_dir</span><span class="p">,</span> <span class="n">input_parameters</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Call a process.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Call a process.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -520,7 +510,7 @@
         <span class="k">return</span> <span class="n">result</span>
 
     <span class="k">def</span> <span class="nf">_load_process_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process_dir</span><span class="p">,</span> <span class="n">input_parameters</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Load the result of a process.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Load the result of a process.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -556,7 +546,7 @@
         <span class="k">return</span> <span class="n">result_dict</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">_get_process_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Return the directory in which are persisted the result of the</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Return the directory in which are persisted the result of the</span>
 <span class="sd">        process called with the given arguments.</span>
 
 <span class="sd">        Returns</span>
@@ -575,7 +565,7 @@
         <span class="k">return</span> <span class="n">process_dir</span><span class="p">,</span> <span class="n">process_hash</span><span class="p">,</span> <span class="n">input_parameters</span>
 
     <span class="k">def</span> <span class="nf">_get_argument_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Get a hash of the process arguments.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Get a hash of the process arguments.</span>
 
 <span class="sd">        The user process traits are accessed through the user_traits()</span>
 <span class="sd">        method that returns a sorted dictionary.</span>
@@ -633,7 +623,7 @@
         <span class="k">return</span> <span class="n">process_hash</span><span class="p">,</span> <span class="n">input_parameters</span>
 
     <span class="k">def</span> <span class="nf">_add_fingerprints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">python_object</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Add file path fingerprints.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Add file path fingerprints.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -672,7 +662,7 @@
         <span class="k">return</span> <span class="n">out</span>
 
     <span class="k">def</span> <span class="nf">_get_process_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Get the directory corresponding to the cache for the current</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Get the directory corresponding to the cache for the current</span>
 <span class="sd">        process.</span>
 
 <span class="sd">        Returns</span>
@@ -692,13 +682,13 @@
         <span class="k">return</span> <span class="n">process_dir</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; ProcessFunc class representation.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; ProcessFunc class representation.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">(</span><span class="si">{1}</span><span class="s2">, base_dir=</span><span class="si">{2}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cachedir</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Define behavior for when a user attempts to access an attribute</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Define behavior for when a user attempts to access an attribute</span>
 <span class="sd">        of a MemorizedProcess instance.</span>
 
 <span class="sd">        First check the MemorizedProcess object and then the Process object.</span>
@@ -720,7 +710,7 @@
                 <span class="s2">&quot;&#39;</span><span class="si">{0}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Define behavior for when a user attempts to set an attribute</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Define behavior for when a user attempts to set an attribute</span>
 <span class="sd">        of a MemorizedProcess instance.</span>
 
 <span class="sd">        First check the MemorizedProcess object and then the Process object.</span>
@@ -741,7 +731,7 @@
 
 
 <div class="viewcode-block" id="get_process_signature"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.memory.get_process_signature">[docs]</a><span class="k">def</span> <span class="nf">get_process_signature</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">input_parameters</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Generate the process signature.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Generate the process signature.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -762,7 +752,7 @@
 
 <div class="viewcode-block" id="has_attribute"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.memory.has_attribute">[docs]</a><span class="k">def</span> <span class="nf">has_attribute</span><span class="p">(</span><span class="n">trait</span><span class="p">,</span> <span class="n">attribute_name</span><span class="p">,</span> <span class="n">attribute_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                   <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Checks if a given trait has an attribute and optionally if it</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Checks if a given trait has an attribute and optionally if it</span>
 <span class="sd">    is set to particular value.</span>
 
 <span class="sd">    Parameters</span>
@@ -782,7 +772,7 @@
 <span class="sd">        True if input given trait has an attribute and optionally if it</span>
 <span class="sd">        is set to a particular value.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Count the nomber of trait having the target attribute</span>
+    <span class="c1"># Count the number of trait having the target attribute</span>
     <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
 
     <span class="c1"># Check the current trait</span>
@@ -802,7 +792,7 @@
 
 
 <div class="viewcode-block" id="file_fingerprint"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.memory.file_fingerprint">[docs]</a><span class="k">def</span> <span class="nf">file_fingerprint</span><span class="p">(</span><span class="n">afile</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Computes the file fingerprint.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Computes the file fingerprint.</span>
 
 <span class="sd">    Do not consider the file content, just the fingerprint (ie. the mtime,</span>
 <span class="sd">    the size and the file location).</span>
@@ -830,7 +820,7 @@
 
 
 <div class="viewcode-block" id="CapsulResultEncoder"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.memory.CapsulResultEncoder">[docs]</a><span class="k">class</span> <span class="nc">CapsulResultEncoder</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">JSONEncoder</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Deal with ProcessResult in json.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Deal with ProcessResult in json.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="CapsulResultEncoder.default"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.memory.CapsulResultEncoder.default">[docs]</a>    <span class="k">def</span> <span class="nf">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
@@ -852,6 +842,14 @@
             <span class="k">return</span> <span class="s2">&quot;&lt;undefined_trait_value&gt;&quot;</span>
 
         <span class="c1"># InterfaceResult special case</span>
+        <span class="c1"># avoid explicitly loading nipype: it takes much time...</span>
+        <span class="n">nipype</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;nipype.interfaces.base&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">nipype</span><span class="p">:</span>
+            <span class="n">InterfaceResult</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">nipype</span><span class="p">,</span> <span class="s1">&#39;InterfaceResult&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">class</span> <span class="nc">InterfaceResult</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+                <span class="k">pass</span>
+
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">InterfaceResult</span><span class="p">):</span>
             <span class="k">return</span> <span class="s2">&quot;&lt;skip_nipype_interface_result&gt;&quot;</span>
 
@@ -864,7 +862,7 @@
 
 
 <div class="viewcode-block" id="tuple_json_encoder"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.memory.tuple_json_encoder">[docs]</a><span class="k">def</span> <span class="nf">tuple_json_encoder</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Encode a tuple in order to save it in json format.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Encode a tuple in order to save it in json format.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -891,7 +889,7 @@
 
 
 <div class="viewcode-block" id="CapsulResultDecoder"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.memory.CapsulResultDecoder">[docs]</a><span class="k">class</span> <span class="nc">CapsulResultDecoder</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">JSONDecoder</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Deal with ProcessResult in json.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Deal with ProcessResult in json.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
         <span class="n">json</span><span class="o">.</span><span class="n">JSONDecoder</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">object_hook</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">object_object</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span>
@@ -920,7 +918,7 @@
 <span class="c1">############################################################################</span>
 
 <div class="viewcode-block" id="Memory"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.memory.Memory">[docs]</a><span class="k">class</span> <span class="nc">Memory</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Memory context to provide caching for processes.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Memory context to provide caching for processes.</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
@@ -934,7 +932,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cachedir</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Initialize the Memory class.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Initialize the Memory class.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -955,7 +953,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">timestamp</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
 <div class="viewcode-block" id="Memory.cache"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.memory.Memory.cache">[docs]</a>    <span class="k">def</span> <span class="nf">cache</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Create a proxy of the given process in order to only execute</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Create a proxy of the given process in order to only execute</span>
 <span class="sd">        the process for input parameters not cached on disk.</span>
 
 <span class="sd">        Parameters</span>
@@ -1011,7 +1009,7 @@
                                     <span class="n">verbose</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Memory.clear"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.memory.Memory.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">skips</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Remove all the cache appart from those given to the method</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Remove all the cache apart from those given to the method</span>
 <span class="sd">        input.</span>
 
 <span class="sd">        Parameters</span>
@@ -1031,7 +1029,7 @@
             <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Memory class representation.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Memory class representation.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">(cachedir=</span><span class="si">{1}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
                                           <span class="bp">self</span><span class="o">.</span><span class="n">cachedir</span><span class="p">)</span></div>
@@ -1062,8 +1060,8 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021, Populse team &lt;support@brainvisa.info&gt;.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+        &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     </div>
   </body>
 </html>

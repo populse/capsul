@@ -1,7 +1,7 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -18,9 +18,8 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
     
     <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -168,13 +167,13 @@
 
 
 <div class="viewcode-block" id="ProcessMeta"><a class="viewcode-back" href="../../../api/process.html#capsul.process.process.ProcessMeta">[docs]</a><span class="k">class</span> <span class="nc">ProcessMeta</span><span class="p">(</span><span class="n">Controller</span><span class="o">.</span><span class="vm">__class__</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Class used to complete a process docstring</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Class used to complete a process docstring</span>
 
 <span class="sd">    Use a class and not a function for inheritance.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="ProcessMeta.complement_doc"><a class="viewcode-back" href="../../../api/process.html#capsul.process.process.ProcessMeta.complement_doc">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">complement_doc</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">docstr</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; complement the process docstring</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; complement the process docstring</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">docstring</span> <span class="o">=</span> <span class="n">docstr</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 
@@ -208,7 +207,7 @@
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">docstring</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="n">mcls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">attrs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Method to print the full help.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to print the full help.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -219,7 +218,7 @@
 <span class="sd">        bases: tuple (mandatory)</span>
 <span class="sd">            the direct base classes.</span>
 <span class="sd">        attrs: dict (mandatory)</span>
-<span class="sd">            a dictionnary with the class attributes.</span>
+<span class="sd">            a dictionary with the class attributes.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Update the class docstring with the full process help</span>
         <span class="n">docstring</span> <span class="o">=</span> <span class="n">ProcessMeta</span><span class="o">.</span><span class="n">complement_doc</span><span class="p">(</span>
@@ -241,7 +240,7 @@
 
 
 <div class="viewcode-block" id="Process"><a class="viewcode-back" href="../../../api/process.html#capsul.process.process.Process">[docs]</a><span class="k">class</span> <span class="nc">Process</span><span class="p">(</span><span class="n">six</span><span class="o">.</span><span class="n">with_metaclass</span><span class="p">(</span><span class="n">ProcessMeta</span><span class="p">,</span> <span class="n">Controller</span><span class="p">)):</span>
-    <span class="sd">&quot;&quot;&quot; A process is an atomic component that contains a processing.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; A process is an atomic component that contains a processing.</span>
 
 <span class="sd">    A process is typically an object with typed parameters, and an execution</span>
 <span class="sd">    function. Parameters are described using Enthought</span>
@@ -292,7 +291,7 @@
 <span class="sd">    * the file (on the filesystem) is an output, but the filename (string) is</span>
 <span class="sd">      given as an input: this is the classical &quot;commandline&quot; behavior, when we</span>
 <span class="sd">      tell the program where it should write its output file.</span>
-<span class="sd">    * the file is an output, and the filename is also an outut: this is rather a</span>
+<span class="sd">    * the file is an output, and the filename is also an output: this is rather a</span>
 <span class="sd">      &quot;function return value&quot; behavior: the process determines internally where</span>
 <span class="sd">      it should write the file, and tells as an output where it did.</span>
 
@@ -323,7 +322,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Initialize the Process class.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Initialize the Process class.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Inheritance</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Process</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -350,16 +349,19 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">default_values</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
 
     <span class="k">def</span> <span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Remove the _weakref attribute eventually set by </span>
-<span class="sd">        soma.utils.weak_proxy beacause it prevent Process instance</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Remove the _weakref attribute eventually set by </span>
+<span class="sd">        soma.utils.weak_proxy because it prevent Process instance</span>
 <span class="sd">        from being used with pickle.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">state</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">Process</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__getstate__</span><span class="p">()</span>
         <span class="n">state</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;_weakref&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">state</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;_user_traits&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">state</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;__doc__&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">state</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;study_config&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">state</span>
     
 <div class="viewcode-block" id="Process.add_trait"><a class="viewcode-back" href="../../../api/process.html#capsul.process.process.Process.add_trait">[docs]</a>    <span class="k">def</span> <span class="nf">add_trait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">trait</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Ensure that trait.output and trait.optional are set to a</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure that trait.output and trait.optional are set to a</span>
 <span class="sd">        boolean value before calling parent class add_trait.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="s2">&quot;_metadata&quot;</span> <span class="ow">in</span> <span class="n">trait</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">:</span>
@@ -373,7 +375,7 @@
         <span class="nb">super</span><span class="p">(</span><span class="n">Process</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">trait</span><span class="p">)</span></div>
         
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Method to execute the Process.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to execute the Process.</span>
 
 <span class="sd">        Keyword arguments may be passed to set process parameters.</span>
 <span class="sd">        This in turn will allow calling the process like a standard</span>
@@ -412,7 +414,7 @@
 
 
 <div class="viewcode-block" id="Process.run"><a class="viewcode-back" href="../../../api/process.html#capsul.process.process.Process.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Obsolete: use self.__call__ instead</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
@@ -423,7 +425,7 @@
     <span class="c1">####################################################################</span>
 
     <span class="k">def</span> <span class="nf">_run_process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Runs the processings when the instance is called.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Runs the processings when the instance is called.</span>
 
 <span class="sd">        Either this _run_process() or :meth:`get_commandline` must be</span>
 <span class="sd">        defined in derived classes.</span>
@@ -461,30 +463,30 @@
                     <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span>
     
     <span class="k">def</span> <span class="nf">_before_run_process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;This method is called by StudyConfig.run() before calling</span>
-<span class="sd">        _run_process(). By default it does nothing but can be overriden</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;This method is called by StudyConfig.run() before calling</span>
+<span class="sd">        _run_process(). By default it does nothing but can be overridden</span>
 <span class="sd">        in derived classes.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span>
 
     <span class="k">def</span> <span class="nf">_after_run_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_process_result</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;This method is called by StudyConfig.run() after calling</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;This method is called by StudyConfig.run() after calling</span>
 <span class="sd">        _run_process(). It is expected to return the final result of the</span>
-<span class="sd">        process. By default it does nothing but can be overriden</span>
+<span class="sd">        process. By default it does nothing but can be overridden</span>
 <span class="sd">        in derived classes.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">run_process_result</span>
         
 
     <span class="k">def</span> <span class="nf">_get_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exec_info</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Method that generate the logging structure from the execution</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Method that generate the logging structure from the execution</span>
 <span class="sd">        information and class attributes.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        exec_info: dict (mandatory)</span>
-<span class="sd">            the execution informations,</span>
-<span class="sd">            the dictionnary is supposed to contain a runtime attribute.</span>
+<span class="sd">            the execution information,</span>
+<span class="sd">            the dictionary is supposed to contain a runtime attribute.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -511,7 +513,7 @@
         <span class="k">return</span> <span class="n">log</span>
 
     <span class="k">def</span> <span class="nf">_rst_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Create a rst formated table.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Create a rst formatted table.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -521,7 +523,7 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        rsttable: list of str</span>
-<span class="sd">            the rst formated table containing the input data.</span>
+<span class="sd">            the rst formatted table containing the input data.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Output rst table</span>
         <span class="n">rsttable</span> <span class="o">=</span> <span class="p">[]</span>
@@ -569,7 +571,7 @@
     <span class="c1">####################################################################</span>
 
 <div class="viewcode-block" id="Process.save_log"><a class="viewcode-back" href="../../../api/process.html#capsul.process.process.Process.save_log">[docs]</a>    <span class="k">def</span> <span class="nf">save_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">returncode</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Method to save process execution informations in json format.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to save process execution information in json format.</span>
 
 <span class="sd">        If the class attribute `log_file` is not set, a log.json output</span>
 <span class="sd">        file is generated in the process call current working directory.</span>
@@ -596,7 +598,7 @@
 
 <div class="viewcode-block" id="Process.help"><a class="viewcode-back" href="../../../api/process.html#capsul.process.process.Process.help">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">help</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">returnhelp</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Method to print the full help.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to print the full help.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -614,7 +616,7 @@
     <span class="c1">####################################################################</span>
 
 <div class="viewcode-block" id="Process.get_commandline"><a class="viewcode-back" href="../../../api/process.html#capsul.process.process.Process.get_commandline">[docs]</a>    <span class="k">def</span> <span class="nf">get_commandline</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Method to generate a comandline representation of the process.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to generate a commandline representation of the process.</span>
 
 <span class="sd">        If not implemented, it will generate a commandline running python,</span>
 <span class="sd">        instaitiating the current process, and calling its</span>
@@ -632,7 +634,7 @@
         <span class="c1"># file transfers with Soma-Workflow.</span>
 
         <span class="k">class</span> <span class="nc">ArgPicker</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-            <span class="sd">&quot;&quot;&quot; This small object is only here to have a __repr__() representation which will print sys.argv[n] in a list when writing the commandline code.</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; This small object is only here to have a __repr__() representation which will print sys.argv[n] in a list when writing the commandline code.</span>
 <span class="sd">            &quot;&quot;&quot;</span>
             <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">num</span> <span class="o">=</span> <span class="n">num</span>
@@ -700,8 +702,8 @@
         <span class="k">return</span> <span class="n">commandline</span></div>
 
 <div class="viewcode-block" id="Process.params_to_command"><a class="viewcode-back" href="../../../api/process.html#capsul.process.process.Process.params_to_command">[docs]</a>    <span class="k">def</span> <span class="nf">params_to_command</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        Generates a comandline representation of the process.</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Generates a commandline representation of the process.</span>
 
 <span class="sd">        If not implemented, it will generate a commandline running python,</span>
 <span class="sd">        instaitiating the current process, and calling its</span>
@@ -750,12 +752,12 @@
 <span class="sd">            Arguments are in separate elements of the list.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">get_commandline</span> <span class="o">!=</span> <span class="n">Process</span><span class="o">.</span><span class="n">get_commandline</span><span class="p">:</span>
-            <span class="c1"># get_commandline is overriden the old way: use it.</span>
+            <span class="c1"># get_commandline is overridden the old way: use it.</span>
             <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;format_string&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_commandline</span><span class="p">()</span>
         <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;capsul_job&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="Process.make_commandline_argument"><a class="viewcode-back" href="../../../api/process.html#capsul.process.process.Process.make_commandline_argument">[docs]</a>    <span class="k">def</span> <span class="nf">make_commandline_argument</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;This helper function may be used to build non-trivial commandline</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;This helper function may be used to build non-trivial commandline</span>
 <span class="sd">        arguments in get_commandline implementations.</span>
 <span class="sd">        Basically it concatenates arguments, but it also takes care of keeping</span>
 <span class="sd">        track of temporary file objects (if any), and converts non-string</span>
@@ -784,14 +786,14 @@
 
 <div class="viewcode-block" id="Process.run_from_commandline"><a class="viewcode-back" href="../../../api/process.html#capsul.process.process.Process.run_from_commandline">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">run_from_commandline</span><span class="p">(</span><span class="n">process_definition</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Run a process from a commandline call. The process name (with module)</span>
 <span class="sd">        are given in argument, input parameters should be passed through a JSON</span>
 <span class="sd">        file which location is in the ``SOMAWF_INPUT_PARAMS`` environment</span>
 <span class="sd">        variable.</span>
 
 <span class="sd">        If the process has outputs, the ``SOMAWF_OUTUT_PARAMS`` environment</span>
-<span class="sd">        variable should contain the location of an output file which whill be</span>
+<span class="sd">        variable should contain the location of an output file which will be</span>
 <span class="sd">        written with a dict containing output parameters values.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="kn">from</span> <span class="nn">capsul.engine</span> <span class="kn">import</span> <span class="n">capsul_engine</span>
@@ -835,7 +837,7 @@
                   <span class="o">%</span> <span class="n">process</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
             <span class="k">raise</span>
         <span class="c1"># actually run the process</span>
-        <span class="n">ce</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">use_soma_workglow</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">ce</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">use_soma_workflow</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">ce</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">configuration_dict</span><span class="o">=</span><span class="n">configuration</span><span class="p">)</span>
         <span class="c1"># collect output parameers</span>
         <span class="n">out_param_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;SOMAWF_OUTPUT_PARAMS&#39;</span><span class="p">)</span>
@@ -863,7 +865,7 @@
                 <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">json_utils</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">output_params</span><span class="p">),</span> <span class="n">f</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Process.get_log"><a class="viewcode-back" href="../../../api/process.html#capsul.process.process.Process.get_log">[docs]</a>    <span class="k">def</span> <span class="nf">get_log</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Load the logging file.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Load the logging file.</span>
 
 <span class="sd">        .. note:</span>
 
@@ -881,7 +883,7 @@
             <span class="k">return</span> <span class="kc">None</span></div>
 
 <div class="viewcode-block" id="Process.get_input_spec"><a class="viewcode-back" href="../../../api/process.html#capsul.process.process.Process.get_input_spec">[docs]</a>    <span class="k">def</span> <span class="nf">get_input_spec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Method to access the process input specifications.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to access the process input specifications.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -897,7 +899,7 @@
         <span class="k">return</span> <span class="n">output</span></div>
 
 <div class="viewcode-block" id="Process.get_output_spec"><a class="viewcode-back" href="../../../api/process.html#capsul.process.process.Process.get_output_spec">[docs]</a>    <span class="k">def</span> <span class="nf">get_output_spec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Method to access the process output specifications.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to access the process output specifications.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -911,7 +913,7 @@
         <span class="k">return</span> <span class="n">output</span></div>
 
 <div class="viewcode-block" id="Process.get_inputs"><a class="viewcode-back" href="../../../api/process.html#capsul.process.process.Process.get_inputs">[docs]</a>    <span class="k">def</span> <span class="nf">get_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Method to access the process inputs.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to access the process inputs.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -925,7 +927,7 @@
         <span class="k">return</span> <span class="n">output</span></div>
 
 <div class="viewcode-block" id="Process.get_outputs"><a class="viewcode-back" href="../../../api/process.html#capsul.process.process.Process.get_outputs">[docs]</a>    <span class="k">def</span> <span class="nf">get_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Method to access the process outputs.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to access the process outputs.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -938,7 +940,7 @@
         <span class="k">return</span> <span class="n">output</span></div>
 
 <div class="viewcode-block" id="Process.get_help"><a class="viewcode-back" href="../../../api/process.html#capsul.process.process.Process.get_help">[docs]</a>    <span class="k">def</span> <span class="nf">get_help</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">returnhelp</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">use_labels</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Generate description of a process parameters.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Generate description of a process parameters.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1009,12 +1011,12 @@
             <span class="nb">print</span><span class="p">(</span><span class="n">full_help</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Process.get_input_help"><a class="viewcode-back" href="../../../api/process.html#capsul.process.process.Process.get_input_help">[docs]</a>    <span class="k">def</span> <span class="nf">get_input_help</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rst_formating</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Generate description for process input parameters.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Generate description for process input parameters.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        rst_formating: bool (optional, default False)</span>
-<span class="sd">            if True generate a rst table witht the input descriptions.</span>
+<span class="sd">            if True generate a rst table with the input descriptions.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -1084,12 +1086,12 @@
         <span class="k">return</span> <span class="n">helpstr</span></div>
 
 <div class="viewcode-block" id="Process.get_output_help"><a class="viewcode-back" href="../../../api/process.html#capsul.process.process.Process.get_output_help">[docs]</a>    <span class="k">def</span> <span class="nf">get_output_help</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rst_formating</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Generate description for process output parameters.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Generate description for process output parameters.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        rst_formating: bool (optional, default False)</span>
-<span class="sd">            if True generate a rst table witht the input descriptions.</span>
+<span class="sd">            if True generate a rst table with the input descriptions.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -1126,7 +1128,7 @@
         <span class="k">return</span> <span class="n">helpstr</span></div>
 
 <div class="viewcode-block" id="Process.set_parameter"><a class="viewcode-back" href="../../../api/process.html#capsul.process.process.Process.set_parameter">[docs]</a>    <span class="k">def</span> <span class="nf">set_parameter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">protected</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Method to set a process instance trait value.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to set a process instance trait value.</span>
 
 <span class="sd">        For File and Directory traits the None value is replaced by the</span>
 <span class="sd">        special Undefined trait value.</span>
@@ -1138,7 +1140,7 @@
 <span class="sd">        value: object (mandatory)</span>
 <span class="sd">            the trait value we want to set</span>
 <span class="sd">        protected: None or bool (tristate)</span>
-<span class="sd">            if True or Fase, force the &quot;protected&quot; status of the plug. If None,</span>
+<span class="sd">            if True or False, force the &quot;protected&quot; status of the plug. If None,</span>
 <span class="sd">            keep it as is.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># The None trait value is Undefined, do the replacement</span>
@@ -1151,7 +1153,7 @@
         <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Process.get_parameter"><a class="viewcode-back" href="../../../api/process.html#capsul.process.process.Process.get_parameter">[docs]</a>    <span class="k">def</span> <span class="nf">get_parameter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Method to access the value of a process instance.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to access the value of a process instance.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1166,7 +1168,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Process.get_study_config"><a class="viewcode-back" href="../../../api/process.html#capsul.process.process.Process.get_study_config">[docs]</a>    <span class="k">def</span> <span class="nf">get_study_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39; Get (or create) the StudyConfig this process belongs to</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39; Get (or create) the StudyConfig this process belongs to</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># Import cannot be done on module due to circular dependencies</span>
@@ -1175,7 +1177,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span></div>
 
 <div class="viewcode-block" id="Process.set_study_config"><a class="viewcode-back" href="../../../api/process.html#capsul.process.process.Process.set_study_config">[docs]</a>    <span class="k">def</span> <span class="nf">set_study_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">study_config</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39; Set a StudyConfig for the process.</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39; Set a StudyConfig for the process.</span>
 <span class="sd">        Note that it can only be done once: once a non-null StudyConfig has</span>
 <span class="sd">        been assigned to the process, it should not change.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -1187,7 +1189,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span> <span class="o">=</span> <span class="n">study_config</span></div>
 
 <div class="viewcode-block" id="Process.get_missing_mandatory_parameters"><a class="viewcode-back" href="../../../api/process.html#capsul.process.process.Process.get_missing_mandatory_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">get_missing_mandatory_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39; Returns a list of parameters which are not optional, and which</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39; Returns a list of parameters which are not optional, and which</span>
 <span class="sd">        value is Undefined or None, or an empty string for a File or</span>
 <span class="sd">        Directory parameter.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -1218,7 +1220,7 @@
         <span class="k">return</span> <span class="n">missing</span></div>
 
 <div class="viewcode-block" id="Process.requirements"><a class="viewcode-back" href="../../../api/process.html#capsul.process.process.Process.requirements">[docs]</a>    <span class="k">def</span> <span class="nf">requirements</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Requirements needed to run the process. It is a dictionary which keys are config/settings modules and values are requests for them.</span>
 
 <span class="sd">        The default implementation returns an empty dict (no requirements), and</span>
@@ -1231,7 +1233,7 @@
         <span class="k">return</span> <span class="p">{}</span></div>
 
 <div class="viewcode-block" id="Process.check_requirements"><a class="viewcode-back" href="../../../api/process.html#capsul.process.process.Process.check_requirements">[docs]</a>    <span class="k">def</span> <span class="nf">check_requirements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">environment</span><span class="o">=</span><span class="s1">&#39;global&#39;</span><span class="p">,</span> <span class="n">message_list</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Checks the process requirements against configuration settings values</span>
 <span class="sd">        in the attached CapsulEngine. This makes use of the</span>
 <span class="sd">        :meth:`requirements` method and checks that there is one matching</span>
@@ -1263,18 +1265,17 @@
         <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">req</span><span class="p">:</span>
             <span class="n">module_name</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">module_name</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">module_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">module_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config</span> <span class="ow">and</span> <span class="n">message_list</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">message_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;requirement: </span><span class="si">%s</span><span class="s1"> is not met in </span><span class="si">%s</span><span class="s1">&#39;</span>
+                                    <span class="o">%</span> <span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+                <span class="n">success</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">elif</span> <span class="n">module_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
+                <span class="c1"># if no message is expected, then we can return immediately</span>
+                <span class="c1"># without checking further requirements. Otherwise we</span>
+                <span class="c1"># continue to get a full list of unsatisfied requirements.</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;requirement:&#39;</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="s1">&#39;not met in&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;config:&#39;</span><span class="p">,</span> <span class="n">settings</span><span class="o">.</span><span class="n">select_configurations</span><span class="p">(</span><span class="n">environment</span><span class="p">))</span>
-                <span class="k">if</span> <span class="n">message_list</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">message_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;requirement: </span><span class="si">%s</span><span class="s1"> is not met in </span><span class="si">%s</span><span class="s1">&#39;</span>
-                                        <span class="o">%</span> <span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="c1"># if no message is expected, then we can return immediately</span>
-                    <span class="c1"># without checking further requirements. Otherwise we</span>
-                    <span class="c1"># continue to get a full list of unsatisfied requirements.</span>
-                    <span class="k">return</span> <span class="kc">None</span>
-                <span class="n">success</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">return</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">success</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">config</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1282,7 +1283,7 @@
 
 
 <div class="viewcode-block" id="FileCopyProcess"><a class="viewcode-back" href="../../../api/process.html#capsul.process.process.FileCopyProcess">[docs]</a><span class="k">class</span> <span class="nc">FileCopyProcess</span><span class="p">(</span><span class="n">Process</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; A specific process that copies all the input files.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; A specific process that copies all the input files.</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
@@ -1301,7 +1302,7 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">activate_copy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inputs_to_copy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">inputs_to_clean</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">destination</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">inputs_to_symlink</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">use_temp_output_dir</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Initialize the FileCopyProcess class.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Initialize the FileCopyProcess class.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1350,7 +1351,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">use_temp_output_dir</span> <span class="o">=</span> <span class="n">use_temp_output_dir</span>
 
     <span class="k">def</span> <span class="nf">_before_run_process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Method to copy files before executing the process.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to copy files before executing the process.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">FileCopyProcess</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_before_run_process</span><span class="p">()</span>
 
@@ -1390,7 +1391,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">set_parameter</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_after_run_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_process_result</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Method to clean-up temporary workspace after process</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to clean-up temporary workspace after process</span>
 <span class="sd">        execution.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">run_process_result</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">FileCopyProcess</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_after_run_process</span><span class="p">(</span>
@@ -1404,7 +1405,7 @@
 
         <span class="c1"># restore initial values, keeping outputs</span>
         <span class="c1"># The situation here is that:</span>
-        <span class="c1"># * output_directory should drive &quot;final&quot; output valules</span>
+        <span class="c1"># * output_directory should drive &quot;final&quot; output values</span>
         <span class="c1"># * we may have been using a temporary output directory, thus output</span>
         <span class="c1">#   values are already set to this temp dir, not the final one.</span>
         <span class="c1">#   (at least when use_temp_output_dir is set).</span>
@@ -1435,7 +1436,7 @@
         <span class="k">return</span> <span class="n">run_process_result</span>
 
     <span class="k">def</span> <span class="nf">_clean_workspace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Removed some copied inputs that can be deleted at the end of the</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Removed some copied inputs that can be deleted at the end of the</span>
 <span class="sd">        processing.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">inputs_to_clean</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputs_to_clean</span>
@@ -1464,7 +1465,7 @@
 
         <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">tmp_output</span><span class="p">)</span>
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_destination</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">destinaton</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_former_output_directory</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">destination</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_former_output_directory</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;output_directory&#39;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">output_directory</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_former_output_directory</span>
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_former_output_directory</span>
@@ -1513,7 +1514,7 @@
         <span class="k">return</span> <span class="n">value</span>
 
     <span class="k">def</span> <span class="nf">_rm_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">python_object</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Remove a set of copied files from the filesystem.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Remove a set of copied files from the filesystem.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1537,7 +1538,7 @@
                 <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">python_object</span><span class="p">)</span>
 
 <div class="viewcode-block" id="FileCopyProcess._update_input_traits"><a class="viewcode-back" href="../../../api/process.html#capsul.process.process.FileCopyProcess._update_input_traits">[docs]</a>    <span class="k">def</span> <span class="nf">_update_input_traits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Update the process input traits: input files are copied.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Update the process input traits: input files are copied.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Get the new trait values</span>
         <span class="n">input_parameters</span><span class="p">,</span> <span class="n">input_symlinks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_process_arguments</span><span class="p">()</span>
@@ -1551,7 +1552,7 @@
 
 <div class="viewcode-block" id="FileCopyProcess._copy_input_files"><a class="viewcode-back" href="../../../api/process.html#capsul.process.process.FileCopyProcess._copy_input_files">[docs]</a>    <span class="k">def</span> <span class="nf">_copy_input_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">python_object</span><span class="p">,</span> <span class="n">use_symlink</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                           <span class="n">files_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Recursive method that copy the input process files.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Recursive method that copy the input process files.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1656,7 +1657,7 @@
         <span class="k">return</span> <span class="n">out</span></div>
 
 <div class="viewcode-block" id="FileCopyProcess._get_process_arguments"><a class="viewcode-back" href="../../../api/process.html#capsul.process.process.FileCopyProcess._get_process_arguments">[docs]</a>    <span class="k">def</span> <span class="nf">_get_process_arguments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Get the process arguments.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Get the process arguments.</span>
 
 <span class="sd">        The user process traits are accessed through the user_traits()</span>
 <span class="sd">        method that returns a sorted dictionary.</span>
@@ -1694,7 +1695,7 @@
 
 
 <div class="viewcode-block" id="NipypeProcess"><a class="viewcode-back" href="../../../api/process.html#capsul.process.process.NipypeProcess">[docs]</a><span class="k">class</span> <span class="nc">NipypeProcess</span><span class="p">(</span><span class="n">FileCopyProcess</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Base class used to wrap nipype interfaces.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Base class used to wrap nipype interfaces.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -1763,7 +1764,7 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nipype_instance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">use_temp_output_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Initialize the NipypeProcess class.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Initialize the NipypeProcess class.</span>
 
 <span class="sd">        NipypeProcess instance gets automatically an additional user trait</span>
 <span class="sd">        &#39;output_directory&#39;.</span>
@@ -1907,7 +1908,7 @@
 
 
     <span class="k">def</span> <span class="nf">__postinit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        `__postinit__` allows to customize subclasses. the base `NipypeProcess`</span>
 <span class="sd">        implementation does nothing, it is empty.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -1926,7 +1927,7 @@
 
 
 <div class="viewcode-block" id="NipypeProcess.set_output_directory"><a class="viewcode-back" href="../../../api/process.html#capsul.process.process.NipypeProcess.set_output_directory">[docs]</a>    <span class="k">def</span> <span class="nf">set_output_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Set the process output directory.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Set the process output directory.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1936,7 +1937,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">output_directory</span> <span class="o">=</span> <span class="n">out_dir</span></div>
 
 <div class="viewcode-block" id="NipypeProcess.set_usedefault"><a class="viewcode-back" href="../../../api/process.html#capsul.process.process.NipypeProcess.set_usedefault">[docs]</a>    <span class="k">def</span> <span class="nf">set_usedefault</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameter</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Set the value of the usedefault attribute on a given parameter.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Set the value of the usedefault attribute on a given parameter.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1958,7 +1959,7 @@
         <span class="n">inp_npp</span><span class="o">.</span><span class="n">configure_all</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_run_process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Method that do the processings when the instance is called.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Method that do the processings when the instance is called.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -1975,16 +1976,29 @@
         <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_directory</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">synchronize</span> <span class="o">+=</span> <span class="mi">1</span>
 
+        <span class="n">trait_map</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_nipype_trait_mapping&#39;</span><span class="p">,</span> <span class="p">{})</span>
         <span class="c1"># Force nipype update</span>
         <span class="k">for</span> <span class="n">trait_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nipype_interface</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="n">traits</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">trait_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_traits</span><span class="p">():</span>
+            <span class="n">capsul_name</span> <span class="o">=</span> <span class="n">trait_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">trait_name</span><span class="p">,</span> <span class="n">trait_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">capsul_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_traits</span><span class="p">():</span>
                 <span class="n">old</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nipype_interface</span><span class="o">.</span><span class="n">inputs</span><span class="p">,</span> <span class="n">trait_name</span><span class="p">)</span>
-                <span class="n">new</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trait_name</span><span class="p">)</span>
+                <span class="n">new</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">capsul_name</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">old</span> <span class="ow">is</span> <span class="n">Undefined</span> <span class="ow">and</span> <span class="n">old</span> <span class="o">!=</span> <span class="n">new</span><span class="p">:</span>
                     <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nipype_interface</span><span class="o">.</span><span class="n">inputs</span><span class="p">,</span> <span class="n">trait_name</span><span class="p">,</span> <span class="n">new</span><span class="p">)</span>
 
         <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nipype_interface</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">synchronize</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># update outputs from nipype</span>
+        <span class="k">for</span> <span class="n">trait_name</span> \
+                <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nipype_interface</span><span class="o">.</span><span class="n">output_spec</span><span class="p">()</span><span class="o">.</span><span class="n">traits</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">capsul_name</span> <span class="o">=</span> <span class="n">trait_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">trait_name</span><span class="p">,</span> <span class="n">trait_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">capsul_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_traits</span><span class="p">():</span>
+                <span class="n">old</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">capsul_name</span><span class="p">)</span>
+                <span class="n">new</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nipype_interface</span><span class="o">.</span><span class="n">output_spec</span><span class="p">(),</span>
+                              <span class="n">trait_name</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">old</span> <span class="o">!=</span> <span class="n">new</span><span class="p">:</span>
+                    <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">capsul_name</span><span class="p">,</span> <span class="n">new</span><span class="p">)</span>
 
         <span class="c1"># For spm, need to move the batch</span>
         <span class="c1"># (create in cwd: cf nipype.interfaces.matlab.matlab l.181)</span>
@@ -2019,7 +2033,7 @@
 
 <div class="viewcode-block" id="NipypeProcess.help"><a class="viewcode-back" href="../../../api/process.html#capsul.process.process.NipypeProcess.help">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">help</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">nipype_interface</span><span class="p">,</span> <span class="n">returnhelp</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Method to print the full wraped nipype interface help.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to print the full wrapped nipype interface help.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -2036,7 +2050,7 @@
         <span class="k">return</span> <span class="n">cls_instance</span><span class="o">.</span><span class="n">get_help</span><span class="p">(</span><span class="n">returnhelp</span><span class="p">)</span></div></div>
 
 <div class="viewcode-block" id="InteractiveProcess"><a class="viewcode-back" href="../../../api/process.html#capsul.process.process.InteractiveProcess">[docs]</a><span class="k">class</span> <span class="nc">InteractiveProcess</span><span class="p">(</span><span class="n">Process</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Base class for interactive processes. The value of the is_interactive </span>
 <span class="sd">    parameter determine if either the process can be run in background</span>
 <span class="sd">    (eventually remotely) as a standardl process (is_interactive = False)</span>
@@ -2046,7 +2060,7 @@
     <span class="n">is_interactive</span> <span class="o">=</span> <span class="n">Bool</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ProcessResult"><a class="viewcode-back" href="../../../api/process.html#capsul.process.process.ProcessResult">[docs]</a><span class="k">class</span> <span class="nc">ProcessResult</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Object that contains running information a particular Process.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Object that contains running information a particular Process.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -2064,7 +2078,7 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">runtime</span><span class="p">,</span> <span class="n">returncode</span><span class="p">,</span> <span class="n">inputs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">outputs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Initialize the ProcessResult class.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Initialize the ProcessResult class.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">process</span> <span class="o">=</span> <span class="n">process</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">runtime</span> <span class="o">=</span> <span class="n">runtime</span>
@@ -2098,8 +2112,8 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021, Populse team &lt;support@brainvisa.info&gt;.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+        &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     </div>
   </body>
 </html>

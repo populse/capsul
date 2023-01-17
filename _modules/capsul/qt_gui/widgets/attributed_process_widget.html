@@ -1,7 +1,7 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -18,9 +18,8 @@
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css" />
     
     <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
-    <script src="../../../../_static/jquery.js"></script>
-    <script src="../../../../_static/underscore.js"></script>
     <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/sphinx_highlight.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -130,12 +129,12 @@
 
 
 <div class="viewcode-block" id="AttributedProcessWidget"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.attributed_process_widget.AttributedProcessWidget">[docs]</a><span class="k">class</span> <span class="nc">AttributedProcessWidget</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QWidget</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Process interface with attributes completion handling&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Process interface with attributes completion handling&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attributed_process</span><span class="p">,</span> <span class="n">enable_attr_from_filename</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">enable_load_buttons</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">override_control_types</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">separate_outputs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">user_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">userlevel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                  <span class="n">scroll</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        attributed_process: Process instance</span>
@@ -197,7 +196,7 @@
             <span class="n">filename_widget</span><span class="o">.</span><span class="n">setSizePolicy</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Expanding</span><span class="p">,</span>
                                           <span class="n">QtGui</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Fixed</span><span class="p">)</span>
 
-        <span class="c1"># groupbox area to show attributs</span>
+        <span class="c1"># groupbox area to show attributes</span>
         <span class="n">attrib_widget</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QGroupBox</span><span class="p">(</span><span class="s1">&#39;Attributes:&#39;</span><span class="p">)</span>
         <span class="n">attrib_widget</span><span class="o">.</span><span class="n">setFlat</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">attrib_widget</span><span class="o">.</span><span class="n">setAlignment</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">AlignLeft</span><span class="p">)</span>
@@ -298,7 +297,7 @@
                 <span class="n">Controller</span><span class="p">(),</span> <span class="n">override_control_types</span><span class="o">=</span><span class="n">control_types_a</span><span class="p">,</span>
                 <span class="n">user_data</span><span class="o">=</span><span class="n">user_data</span><span class="p">,</span> <span class="n">userlevel</span><span class="o">=</span><span class="n">userlevel</span><span class="p">)</span>
 
-        <span class="c1"># Set controller of attributs and controller of process for each</span>
+        <span class="c1"># Set controller of attributes and controller of process for each</span>
         <span class="c1"># corresponding area</span>
         <span class="n">param_widget</span><span class="o">.</span><span class="n">layout</span><span class="p">()</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">controller_widget</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">separate_outputs</span><span class="p">:</span>
@@ -363,7 +362,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">show_completion</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_show_completion</span><span class="p">)</span>
 
 <div class="viewcode-block" id="AttributedProcessWidget.on_input_filename_changed"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.attributed_process_widget.AttributedProcessWidget.on_input_filename_changed">[docs]</a>    <span class="k">def</span> <span class="nf">on_input_filename_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Input file path to guess completion attributes changed: update</span>
 <span class="sd">        attributes</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -380,7 +379,7 @@
 
 
 <div class="viewcode-block" id="AttributedProcessWidget.on_btn_load_json"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.attributed_process_widget.AttributedProcessWidget.on_btn_load_json">[docs]</a>    <span class="k">def</span> <span class="nf">on_btn_load_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Load attributes from a json file&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load attributes from a json file&quot;&quot;&quot;</span>
         <span class="n">completion_engine</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attributed_process</span><span class="p">,</span>
                                    <span class="s1">&#39;completion_engine&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">completion_engine</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -398,7 +397,7 @@
         <span class="n">completion_engine</span><span class="o">.</span><span class="n">get_attribute_values</span><span class="p">()</span><span class="o">.</span><span class="n">import_from_dict</span><span class="p">(</span><span class="n">attributes</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="AttributedProcessWidget.on_btn_save_json"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.attributed_process_widget.AttributedProcessWidget.on_btn_save_json">[docs]</a>    <span class="k">def</span> <span class="nf">on_btn_save_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Save attributes in a json file&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save attributes in a json file&quot;&quot;&quot;</span>
         <span class="n">completion_engine</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attributed_process</span><span class="p">,</span>
                                    <span class="s1">&#39;completion_engine&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">completion_engine</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -414,7 +413,7 @@
                   <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="AttributedProcessWidget.set_use_fom"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.attributed_process_widget.AttributedProcessWidget.set_use_fom">[docs]</a>    <span class="k">def</span> <span class="nf">set_use_fom</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Setup the FOM doing its job</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;Critical&quot;</span><span class="p">,</span>
@@ -423,7 +422,7 @@
             <span class="n">QtGui</span><span class="o">.</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">Ok</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">Cancel</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">ret</span> <span class="o">==</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">Ok</span><span class="p">:</span>
-            <span class="c1">#reset attributs and trait of process</span>
+            <span class="c1">#reset attributes and trait of process</span>
             <span class="n">process</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">attributed_process</span>
             <span class="n">completion_engine</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attributed_process</span><span class="p">,</span>
                                        <span class="s1">&#39;completion_engine&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -463,8 +462,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">checkbox_fom</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
 
 <div class="viewcode-block" id="AttributedProcessWidget.on_use_fom_change"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.attributed_process_widget.AttributedProcessWidget.on_use_fom_change">[docs]</a>    <span class="k">def</span> <span class="nf">on_use_fom_change</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        Use completion checkbox callabck</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Use completion checkbox callback</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">if</span> <span class="n">state</span> <span class="o">==</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">Checked</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_use_fom</span><span class="p">()</span>
@@ -479,7 +478,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">btn_show_completion</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="AttributedProcessWidget.show_completion"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.attributed_process_widget.AttributedProcessWidget.show_completion">[docs]</a>    <span class="k">def</span> <span class="nf">show_completion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">visible</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Show or hide completion (File, Directory, or Any parameters)</span>
 
 <span class="sd">        Parameters</span>
@@ -508,15 +507,21 @@
                                     <span class="n">trait</span><span class="o">.</span><span class="n">inner_traits</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">trait_type</span><span class="p">,</span>
                                     <span class="p">(</span><span class="n">File</span><span class="p">,</span> <span class="n">Directory</span><span class="p">,</span> <span class="n">Any</span><span class="p">))):</span>
                         <span class="k">continue</span>
-                    <span class="n">hidden</span> <span class="o">=</span> <span class="n">trait</span><span class="o">.</span><span class="n">hidden</span> \
-                          <span class="ow">or</span> <span class="p">(</span><span class="n">trait</span><span class="o">.</span><span class="n">userlevel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-                              <span class="ow">and</span> <span class="n">trait</span><span class="o">.</span><span class="n">userlevel</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">userlevel</span><span class="p">)</span>
-                    <span class="n">control_instance</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="n">visible</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">hidden</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">trait</span><span class="o">.</span><span class="n">forbid_completion</span><span class="p">:</span>
+                        <span class="c1"># when completion is disable, parameters are always</span>
+                        <span class="c1"># visible</span>
+                        <span class="n">is_visible</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">hidden</span> <span class="o">=</span> <span class="n">trait</span><span class="o">.</span><span class="n">hidden</span> \
+                              <span class="ow">or</span> <span class="p">(</span><span class="n">trait</span><span class="o">.</span><span class="n">userlevel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                                  <span class="ow">and</span> <span class="n">trait</span><span class="o">.</span><span class="n">userlevel</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">userlevel</span><span class="p">)</span>
+                        <span class="n">is_visible</span> <span class="o">=</span> <span class="n">visible</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">hidden</span>
+                    <span class="n">control_instance</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="n">is_visible</span><span class="p">)</span>
                     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">control_label</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
                         <span class="k">for</span> <span class="n">cl</span> <span class="ow">in</span> <span class="n">control_label</span><span class="p">:</span>
-                            <span class="n">cl</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="n">visible</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">hidden</span><span class="p">)</span>
+                            <span class="n">cl</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="n">is_visible</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="n">control_label</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="n">visible</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">hidden</span><span class="p">)</span>
+                        <span class="n">control_label</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="n">is_visible</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">group</span><span class="p">,</span> <span class="n">group_widget</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span>
                     <span class="n">controller_widget</span><span class="o">.</span><span class="n">_groups</span><span class="p">):</span>
                 <span class="k">if</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">group_widget</span><span class="o">.</span><span class="n">hideable_widget</span><span class="o">.</span><span class="n">children</span><span class="p">()</span>
@@ -526,7 +531,7 @@
                     <span class="n">group_widget</span><span class="o">.</span><span class="n">hide</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="AttributedProcessWidget.on_show_completion"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.attributed_process_widget.AttributedProcessWidget.on_show_completion">[docs]</a>    <span class="k">def</span> <span class="nf">on_show_completion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">visible</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Toggle the visibility of paths parameters</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">show_completion</span><span class="p">(</span><span class="n">visible</span><span class="p">)</span></div>
@@ -552,7 +557,6 @@
                 <span class="n">QtGui</span><span class="o">.</span><span class="n">qApp</span><span class="o">.</span><span class="n">processEvents</span><span class="p">()</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">progressdialog</span><span class="o">.</span><span class="n">hide</span><span class="p">()</span></div>
-
 </pre></div>
 
             <div class="clearer"></div>
@@ -580,8 +584,8 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021, Populse team &lt;support@brainvisa.info&gt;.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+        &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     </div>
   </body>
 </html>

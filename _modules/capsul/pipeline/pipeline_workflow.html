@@ -1,7 +1,7 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -18,9 +18,8 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
     
     <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -147,11 +146,77 @@
 <span class="kn">from</span> <span class="nn">six.moves</span> <span class="kn">import</span> <span class="nb">range</span>
 
 
+<div class="viewcode-block" id="TempFile"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_workflow.TempFile">[docs]</a><span class="k">class</span> <span class="nc">TempFile</span><span class="p">(</span><span class="nb">str</span><span class="p">):</span>
+    <span class="c1"># class needed temporary to identify temporary paths in the pipeline.</span>
+    <span class="c1"># must inherit a string type since it is used as a trait value</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">string</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+        <span class="c1"># in python3 super(..).__init__() cannot take an argument</span>
+        <span class="c1"># moreover the str value is assigned anyway.</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">TempFile</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="n">TempFile</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pattern</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">pattern</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">value</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ref</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">ref</span> <span class="k">if</span> <span class="n">string</span><span class="o">.</span><span class="n">ref</span> <span class="k">else</span> <span class="n">string</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pattern</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">string</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ref</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">referent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref</span> <span class="k">else</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">referent</span><span class="p">()</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">TempFile</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">other</span><span class="p">))</span>
+        <span class="n">res</span><span class="o">.</span><span class="n">pattern</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pattern</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+        <span class="n">res</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">res</span><span class="o">.</span><span class="n">ref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">referent</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">res</span>
+
+    <span class="k">def</span> <span class="fm">__radd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">TempFile</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">other</span><span class="p">)</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+        <span class="n">res</span><span class="o">.</span><span class="n">pattern</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">other</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">pattern</span>
+        <span class="n">res</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">res</span><span class="o">.</span><span class="n">ref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">referent</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">res</span>
+
+    <span class="k">def</span> <span class="fm">__iadd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pattern</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+        <span class="nb">str</span><span class="p">(</span><span class="n">TempFile</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__iadd__</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">other</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pattern</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_value</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">referent</span><span class="p">()</span><span class="o">.</span><span class="fm">__hash__</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">TempFile</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__hash__</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">TempFile</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">referent</span><span class="p">()</span> <span class="ow">is</span> <span class="n">other</span><span class="o">.</span><span class="n">referent</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">other</span>
+
+    <span class="k">def</span> <span class="fm">__gt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">other</span>
+
+    <span class="k">def</span> <span class="fm">__le__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">other</span>
+
+    <span class="k">def</span> <span class="fm">__ge__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">other</span></div>
+
+
 <div class="viewcode-block" id="workflow_from_pipeline"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_workflow.workflow_from_pipeline">[docs]</a><span class="k">def</span> <span class="nf">workflow_from_pipeline</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">study_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">disabled_nodes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                            <span class="n">jobs_priority</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">create_directories</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                           <span class="n">environment</span><span class="o">=</span><span class="s1">&#39;global&#39;</span><span class="p">,</span>
-                           <span class="n">check_requirements</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Create a soma-workflow workflow from a Capsul Pipeline</span>
+                           <span class="n">environment</span><span class="o">=</span><span class="s1">&#39;global&#39;</span><span class="p">,</span> <span class="n">check_requirements</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                           <span class="n">complete_parameters</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Create a soma-workflow workflow from a Capsul Pipeline</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -182,66 +247,18 @@
 <span class="sd">        if True, check the pipeline nodes requirements in the capsul engine</span>
 <span class="sd">        settings, and issue an exception if they are not met instead of</span>
 <span class="sd">        proceeding with the workflow.</span>
+<span class="sd">    complete_parameters: bool (default: False)</span>
+<span class="sd">        Perform parameters completion on the input pipeline while building</span>
+<span class="sd">        the workflow. The default is False because we should avoid to do things</span>
+<span class="sd">        several times when it&#39;s already done, but in iteration nodes,</span>
+<span class="sd">        completion needs to be done anyway for each iteration, so this option</span>
+<span class="sd">        offers to do the rest of the &quot;parent&quot; pipeline completion.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    workflow: Workflow</span>
 <span class="sd">        a soma-workflow workflow</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">class</span> <span class="nc">TempFile</span><span class="p">(</span><span class="nb">str</span><span class="p">):</span>
-        <span class="c1"># class needed temporary to identify temporary paths in the pipeline.</span>
-        <span class="c1"># must inherit a string type since it is used as a trait value</span>
-        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">string</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
-            <span class="c1"># in python3 super(..).__init__() cannot take an argument</span>
-            <span class="c1"># moreover the str value is assigned anyway.</span>
-            <span class="nb">super</span><span class="p">(</span><span class="n">TempFile</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="n">TempFile</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">pattern</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">pattern</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">value</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">ref</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">ref</span> <span class="k">if</span> <span class="n">string</span><span class="o">.</span><span class="n">ref</span> <span class="k">else</span> <span class="n">string</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">pattern</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">&#39;</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">string</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">ref</span> <span class="o">=</span> <span class="kc">None</span>
-
-        <span class="k">def</span> <span class="nf">referent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref</span> <span class="k">else</span> <span class="bp">self</span>
-
-        <span class="k">def</span> <span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">referent</span><span class="p">()</span><span class="o">.</span><span class="n">value</span>
-
-        <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-            <span class="n">res</span> <span class="o">=</span> <span class="n">TempFile</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">other</span><span class="p">))</span>
-            <span class="n">res</span><span class="o">.</span><span class="n">pattern</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pattern</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
-            <span class="n">res</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
-            <span class="n">res</span><span class="o">.</span><span class="n">ref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">referent</span><span class="p">()</span>
-            <span class="k">return</span> <span class="n">res</span>
-
-        <span class="k">def</span> <span class="fm">__radd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-            <span class="n">res</span> <span class="o">=</span> <span class="n">TempFile</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">other</span><span class="p">)</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
-            <span class="n">res</span><span class="o">.</span><span class="n">pattern</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">other</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">pattern</span>
-            <span class="n">res</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
-            <span class="n">res</span><span class="o">.</span><span class="n">ref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">referent</span><span class="p">()</span>
-            <span class="k">return</span> <span class="n">res</span>
-
-        <span class="k">def</span> <span class="fm">__iadd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">pattern</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
-            <span class="nb">str</span><span class="p">(</span><span class="n">TempFile</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__iadd__</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">other</span><span class="p">))</span>
-
-        <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pattern</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_value</span><span class="p">()</span>
-
-        <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref</span><span class="p">:</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">referent</span><span class="p">()</span><span class="o">.</span><span class="fm">__hash__</span><span class="p">()</span>
-            <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">TempFile</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__hash__</span><span class="p">()</span>
-
-        <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">TempFile</span><span class="p">):</span>
-                <span class="k">return</span> <span class="kc">False</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">referent</span><span class="p">()</span> <span class="ow">is</span> <span class="n">other</span><span class="o">.</span><span class="n">referent</span><span class="p">()</span>
-
 
     <span class="k">def</span> <span class="nf">_files_group</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">merged_formats</span><span class="p">):</span>
         <span class="n">bname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
@@ -284,10 +301,117 @@
                 <span class="k">return</span> <span class="n">item</span>
         <span class="k">return</span> <span class="kc">None</span>
 
+    <span class="k">def</span> <span class="nf">_replace_in_list</span><span class="p">(</span><span class="n">rlist</span><span class="p">,</span> <span class="n">temp_map</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">rlist</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="nb">set</span><span class="p">)):</span>
+                <span class="n">deeperlist</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                <span class="n">_replace_in_list</span><span class="p">(</span><span class="n">deeperlist</span><span class="p">,</span> <span class="n">temp_map</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+                    <span class="n">deeperlist</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">deeperlist</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">set</span><span class="p">):</span>
+                    <span class="n">deeperlist</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">deeperlist</span><span class="p">)</span>
+                <span class="n">rlist</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">deeperlist</span>
+            <span class="c1">#elif item is Undefined:</span>
+                <span class="c1">#rlist[i] = &#39;&#39;</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="n">OrderedDict</span><span class="p">,</span> <span class="n">SortedDictionary</span><span class="p">)):</span>
+                <span class="n">_replace_in_dict</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">temp_map</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">temp_map</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">temp_map</span><span class="p">[</span><span class="n">item</span><span class="p">]</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="s1">&#39;pattern&#39;</span><span class="p">):</span>
+                    <span class="c1"># temp case (differs from shared case)</span>
+                    <span class="n">value</span><span class="o">.</span><span class="n">pattern</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">pattern</span>
+                <span class="n">rlist</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">_replace_in_dict</span><span class="p">(</span><span class="n">rdict</span><span class="p">,</span> <span class="n">temp_map</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">rdict</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="nb">set</span><span class="p">)):</span>
+                <span class="n">deeperlist</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                <span class="n">_replace_in_list</span><span class="p">(</span><span class="n">deeperlist</span><span class="p">,</span> <span class="n">temp_map</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+                    <span class="n">deeperlist</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">deeperlist</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">set</span><span class="p">):</span>
+                    <span class="n">deeperlist</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">deeperlist</span><span class="p">)</span>
+                <span class="n">rdict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">deeperlist</span>
+            <span class="c1">#elif item is Undefined:</span>
+                <span class="c1">#rdict[name] = &#39;&#39;</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="n">OrderedDict</span><span class="p">,</span> <span class="n">SortedDictionary</span><span class="p">)):</span>
+                <span class="n">_replace_in_dict</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">temp_map</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">temp_map</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">temp_map</span><span class="p">[</span><span class="n">item</span><span class="p">]</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="s1">&#39;pattern&#39;</span><span class="p">):</span>
+                    <span class="c1"># temp case (differs from shared case)</span>
+                    <span class="n">value</span><span class="o">.</span><span class="n">pattern</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">pattern</span>
+                <span class="n">rdict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">_get_replaced</span><span class="p">(</span><span class="n">rlist</span><span class="p">,</span> <span class="n">temp_map</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rlist</span><span class="p">,</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="n">OrderedDict</span><span class="p">,</span> <span class="n">SortedDictionary</span><span class="p">)):</span>
+            <span class="k">return</span> <span class="n">_get_replaced</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">rlist</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="n">temp_map</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rlist</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+            <span class="n">l</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="n">_get_replaced</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">temp_map</span><span class="p">)</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">rlist</span><span class="p">]</span>
+                 <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">while</span> <span class="n">l</span><span class="p">:</span>
+                <span class="n">item</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                    <span class="n">l</span> <span class="o">=</span> <span class="n">item</span> <span class="o">+</span> <span class="n">l</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">out</span>
+        <span class="k">if</span> <span class="n">rlist</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">temp_map</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rlist</span><span class="p">,</span> <span class="n">swclient</span><span class="o">.</span><span class="n">SpecialPath</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">rlist</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">temp_map</span><span class="p">[</span><span class="n">rlist</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">rlist</span><span class="p">,</span> <span class="s1">&#39;pattern&#39;</span><span class="p">):</span>
+            <span class="c1"># temp case (differs from shared case)</span>
+            <span class="n">value</span><span class="o">.</span><span class="n">pattern</span> <span class="o">=</span> <span class="n">rlist</span><span class="o">.</span><span class="n">pattern</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">value</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_replace_transfers</span><span class="p">(</span><span class="n">rlist</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">itransfers</span><span class="p">,</span> <span class="n">otransfers</span><span class="p">):</span>
+        <span class="n">param_name</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">rlist</span><span class="p">[</span><span class="mi">3</span><span class="p">:]:</span>
+            <span class="k">if</span> <span class="n">param_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">param_name</span> <span class="o">=</span> <span class="n">item</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">transfer</span> <span class="o">=</span> <span class="n">itransfers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">param_name</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">transfer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">transfer</span> <span class="o">=</span> <span class="n">otransfers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">param_name</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">transfer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">transfer</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+                        <span class="c1"># TODO: handle lists of files [transfers]</span>
+                        <span class="c1">#deeperlist = list(item)</span>
+                        <span class="c1">#_replace_in_list(deeperlist, transfers)</span>
+                        <span class="c1">#rlist[i] = deeperlist</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;*** LIST! ***&#39;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">rlist</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+                <span class="n">param_name</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">_replace_dict_transfers</span><span class="p">(</span><span class="n">rdict</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">itransfers</span><span class="p">,</span> <span class="n">otransfers</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">param_name</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">rdict</span><span class="p">):</span>
+            <span class="n">transfer</span> <span class="o">=</span> <span class="n">itransfers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">param_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">transfer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">transfer</span> <span class="o">=</span> <span class="n">otransfers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">param_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">transfer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">transfer</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+                    <span class="c1"># TODO: handle lists of files [transfers]</span>
+                    <span class="c1">#deeperlist = list(item)</span>
+                    <span class="c1">#_replace_in_list(deeperlist, transfers)</span>
+                    <span class="c1">#rdict[param_name] = deeperlist</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;*** LIST! ***&#39;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">rdict</span><span class="p">[</span><span class="n">param_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
     <span class="k">def</span> <span class="nf">build_job</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">temp_map</span><span class="o">=</span><span class="p">{},</span> <span class="n">shared_map</span><span class="o">=</span><span class="p">{},</span> <span class="n">transfers</span><span class="o">=</span><span class="p">[{},</span> <span class="p">{}],</span>
                   <span class="n">shared_paths</span><span class="o">=</span><span class="p">{},</span> <span class="n">forbidden_temp</span><span class="o">=</span><span class="nb">set</span><span class="p">(),</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                   <span class="n">step_name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">environment</span><span class="o">=</span><span class="s1">&#39;global&#39;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Create a soma-workflow Job from a Capsul Process</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Create a soma-workflow Job from a Capsul Process</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -322,89 +446,6 @@
 <span class="sd">        job: Job</span>
 <span class="sd">            a soma-workflow Job instance that will execute the CAPSUL process</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">def</span> <span class="nf">_replace_in_list</span><span class="p">(</span><span class="n">rlist</span><span class="p">,</span> <span class="n">temp_map</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">rlist</span><span class="p">):</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
-                    <span class="n">deeperlist</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
-                    <span class="n">_replace_in_list</span><span class="p">(</span><span class="n">deeperlist</span><span class="p">,</span> <span class="n">temp_map</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
-                        <span class="n">deeperlist</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">deeperlist</span><span class="p">)</span>
-                    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">set</span><span class="p">):</span>
-                        <span class="n">deeperlist</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">deeperlist</span><span class="p">)</span>
-                    <span class="n">rlist</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">deeperlist</span>
-                <span class="c1">#elif item is Undefined:</span>
-                    <span class="c1">#rlist[i] = &#39;&#39;</span>
-                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="n">OrderedDict</span><span class="p">,</span> <span class="n">SortedDictionary</span><span class="p">)):</span>
-                    <span class="n">_replace_in_dict</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">temp_map</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">temp_map</span><span class="p">:</span>
-                    <span class="n">value</span> <span class="o">=</span> <span class="n">temp_map</span><span class="p">[</span><span class="n">item</span><span class="p">]</span>
-                    <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="s1">&#39;pattern&#39;</span><span class="p">):</span>
-                        <span class="c1"># temp case (differs from shared case)</span>
-                        <span class="n">value</span><span class="o">.</span><span class="n">pattern</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">pattern</span>
-                    <span class="n">rlist</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
-
-        <span class="k">def</span> <span class="nf">_replace_in_dict</span><span class="p">(</span><span class="n">rdict</span><span class="p">,</span> <span class="n">temp_map</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">rdict</span><span class="p">):</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="nb">set</span><span class="p">)):</span>
-                    <span class="n">deeperlist</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
-                    <span class="n">_replace_in_list</span><span class="p">(</span><span class="n">deeperlist</span><span class="p">,</span> <span class="n">temp_map</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
-                        <span class="n">deeperlist</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">deeperlist</span><span class="p">)</span>
-                    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">set</span><span class="p">):</span>
-                        <span class="n">deeperlist</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">deeperlist</span><span class="p">)</span>
-                    <span class="n">rdict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">deeperlist</span>
-                <span class="c1">#elif item is Undefined:</span>
-                    <span class="c1">#rdict[name] = &#39;&#39;</span>
-                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="n">OrderedDict</span><span class="p">,</span> <span class="n">SortedDictionary</span><span class="p">)):</span>
-                    <span class="n">_replace_in_dict</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">temp_map</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">temp_map</span><span class="p">:</span>
-                    <span class="n">value</span> <span class="o">=</span> <span class="n">temp_map</span><span class="p">[</span><span class="n">item</span><span class="p">]</span>
-                    <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="s1">&#39;pattern&#39;</span><span class="p">):</span>
-                        <span class="c1"># temp case (differs from shared case)</span>
-                        <span class="n">value</span><span class="o">.</span><span class="n">pattern</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">pattern</span>
-                    <span class="n">rdict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
-
-        <span class="k">def</span> <span class="nf">_replace_transfers</span><span class="p">(</span><span class="n">rlist</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">itransfers</span><span class="p">,</span> <span class="n">otransfers</span><span class="p">):</span>
-            <span class="n">param_name</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="n">i</span> <span class="o">=</span> <span class="mi">3</span>
-            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">rlist</span><span class="p">[</span><span class="mi">3</span><span class="p">:]:</span>
-                <span class="k">if</span> <span class="n">param_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">param_name</span> <span class="o">=</span> <span class="n">item</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">transfer</span> <span class="o">=</span> <span class="n">itransfers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">param_name</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">transfer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                        <span class="n">transfer</span> <span class="o">=</span> <span class="n">otransfers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">param_name</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">transfer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                        <span class="n">value</span> <span class="o">=</span> <span class="n">transfer</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
-                            <span class="c1"># TODO: handle lists of files [transfers]</span>
-                            <span class="c1">#deeperlist = list(item)</span>
-                            <span class="c1">#_replace_in_list(deeperlist, transfers)</span>
-                            <span class="c1">#rlist[i] = deeperlist</span>
-                            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;*** LIST! ***&#39;</span><span class="p">)</span>
-                        <span class="k">else</span><span class="p">:</span>
-                            <span class="n">rlist</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
-                    <span class="n">param_name</span> <span class="o">=</span> <span class="kc">None</span>
-                <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
-
-        <span class="k">def</span> <span class="nf">_replace_dict_transfers</span><span class="p">(</span><span class="n">rdict</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">itransfers</span><span class="p">,</span> <span class="n">otransfers</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">param_name</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">rdict</span><span class="p">):</span>
-                <span class="n">transfer</span> <span class="o">=</span> <span class="n">itransfers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">param_name</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">transfer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">transfer</span> <span class="o">=</span> <span class="n">otransfers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">param_name</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">transfer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">value</span> <span class="o">=</span> <span class="n">transfer</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
-                        <span class="c1"># TODO: handle lists of files [transfers]</span>
-                        <span class="c1">#deeperlist = list(item)</span>
-                        <span class="c1">#_replace_in_list(deeperlist, transfers)</span>
-                        <span class="c1">#rdict[param_name] = deeperlist</span>
-                        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;*** LIST! ***&#39;</span><span class="p">)</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">rdict</span><span class="p">[</span><span class="n">param_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
-
         <span class="n">job_name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">job_name</span><span class="p">:</span>
             <span class="n">job_name</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">name</span>
@@ -572,7 +613,7 @@
     <span class="k">def</span> <span class="nf">build_custom_job</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">process_cmdline</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span>
                          <span class="n">referenced_input_files</span><span class="p">,</span> <span class="n">referenced_output_files</span><span class="p">,</span>
                          <span class="n">param_dict</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39; Build a custom job (generally running on engine side) from a</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39; Build a custom job (generally running on engine side) from a</span>
 <span class="sd">        custom pipeline node.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s1">&#39;build_job&#39;</span><span class="p">):</span>
@@ -584,7 +625,7 @@
         <span class="k">return</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">build_group</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">jobs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Create a group of jobs</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Create a group of jobs</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -612,7 +653,7 @@
         <span class="k">return</span> <span class="n">jobs</span>
 
     <span class="k">def</span> <span class="nf">assign_temporary_filenames</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">count_start</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39; Find and temporarily assign necessary temporary file names&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39; Find and temporarily assign necessary temporary file names&#39;&#39;&#39;</span>
         <span class="n">temp_filenames</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">find_empty_parameters</span><span class="p">()</span>
         <span class="n">temp_map</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">count</span> <span class="o">=</span> <span class="n">count_start</span>
@@ -659,7 +700,7 @@
         <span class="k">return</span> <span class="n">temp_map</span>
 
     <span class="k">def</span> <span class="nf">restore_empty_filenames</span><span class="p">(</span><span class="n">temporary_map</span><span class="p">):</span>
-      <span class="sd">&#39;&#39;&#39; Set back Undefined values to temporarily assigned file names (using</span>
+<span class="w">      </span><span class="sd">&#39;&#39;&#39; Set back Undefined values to temporarily assigned file names (using</span>
 <span class="sd">      assign_temporary_filenames()</span>
 <span class="sd">      &#39;&#39;&#39;</span>
       <span class="k">for</span> <span class="n">tmp_file</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">temporary_map</span><span class="p">):</span>
@@ -682,7 +723,16 @@
           <span class="k">else</span><span class="p">:</span>
               <span class="nb">setattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">plug_name</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_get_swf_paths</span><span class="p">(</span><span class="n">study_config</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_get_swf_paths</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">environment</span><span class="p">):</span>
+        <span class="n">resource_conf</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">select_configurations</span><span class="p">(</span>
+            <span class="n">environment</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;somaworkflow&#39;</span><span class="p">:</span> <span class="s1">&#39;config_id==&quot;somaworkflow&quot;&#39;</span><span class="p">})</span>
+        <span class="k">if</span> <span class="s1">&#39;capsul.engine.module.somaworkflow&#39;</span> <span class="ow">in</span> <span class="n">resource_conf</span><span class="p">:</span>
+            <span class="n">resource_conf</span> <span class="o">=</span> <span class="n">resource_conf</span><span class="p">[</span><span class="s1">&#39;capsul.engine.module.somaworkflow&#39;</span><span class="p">]</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">resource_conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;transfer_paths&#39;</span><span class="p">,</span> <span class="p">[]),</span>
+                    <span class="n">resource_conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;path_translations&#39;</span><span class="p">,</span> <span class="p">{}))</span>
+
+        <span class="c1"># otherwise fallback to old StudyConfig config -- OBSOLETE...</span>
+        <span class="n">study_config</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">study_config</span>
         <span class="n">computing_resource</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span>
             <span class="n">study_config</span><span class="p">,</span> <span class="s1">&#39;somaworkflow_computing_resource&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">computing_resource</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">):</span>
@@ -732,6 +782,11 @@
                             <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">trait</span><span class="o">.</span><span class="n">trait_type</span><span class="p">,</span> <span class="n">Directory</span><span class="p">):</span>
                         <span class="n">transfers</span><span class="p">[</span><span class="nb">bool</span><span class="p">(</span><span class="n">trait</span><span class="o">.</span><span class="n">output</span><span class="p">)]</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="p">{})[</span>
                             <span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">transfer_item</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">trait</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
+                            <span class="c1"># it&#39;s an output of a &quot;real&quot; process: the transfer</span>
+                            <span class="c1"># will be as output only</span>
+                            <span class="n">transfer_item</span><span class="o">.</span><span class="n">initial_status</span> \
+                                <span class="o">=</span> <span class="n">swclient</span><span class="o">.</span><span class="n">constants</span><span class="o">.</span><span class="n">FILES_DO_NOT_EXIST</span>
                     <span class="c1">#output = not output # invert IO status</span>
 
             <span class="c1">#if plug is None or not plug.enabled or not plug.activated \</span>
@@ -761,7 +816,7 @@
                     <span class="n">todo_plugs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">node</span><span class="p">,</span> <span class="n">param_name</span><span class="p">,</span> <span class="n">output</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">_get_transfers</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">transfer_paths</span><span class="p">,</span> <span class="n">merged_formats</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Create and list FileTransfer objects needed in the pipeline.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Create and list FileTransfer objects needed in the pipeline.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -794,7 +849,8 @@
                         <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">trait</span><span class="o">.</span><span class="n">trait_type</span><span class="p">)</span> <span class="ow">is</span> <span class="n">Any</span><span class="p">:</span>
                     <span class="c1"># is value in paths</span>
                     <span class="n">path</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">param</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">path</span> <span class="ow">is</span> <span class="n">Undefined</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">path</span> <span class="ow">is</span> <span class="n">Undefined</span> \
+                            <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">TempFile</span><span class="p">)</span> <span class="ow">or</span> <span class="n">path</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
                         <span class="k">continue</span>
                     <span class="n">output</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">trait</span><span class="o">.</span><span class="n">output</span><span class="p">)</span>
                     <span class="n">existing_transfers</span> <span class="o">=</span> <span class="n">transfers</span><span class="p">[</span><span class="n">output</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="p">{})</span>
@@ -821,7 +877,7 @@
         <span class="k">return</span> <span class="n">transfers</span>
 
     <span class="k">def</span> <span class="nf">_expand_nodes</span><span class="p">(</span><span class="n">nodes</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Expands the nodes list or set to leaf nodes by replacing pipeline</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Expands the nodes list or set to leaf nodes by replacing pipeline</span>
 <span class="sd">        nodes by their children list.</span>
 
 <span class="sd">        Returns</span>
@@ -843,7 +899,7 @@
         <span class="k">return</span> <span class="n">expanded_nodes</span>
 
     <span class="k">def</span> <span class="nf">_handle_disable_nodes</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">temp_map</span><span class="p">,</span> <span class="n">transfers</span><span class="p">,</span> <span class="n">disabled_nodes</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Take into account disabled nodes by changing FileTransfer outputs</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;Take into account disabled nodes by changing FileTransfer outputs</span>
 <span class="sd">        for such nodes to inputs, and recording output temporary files, so as</span>
 <span class="sd">        to ensure that missing temporary outputs will not be used later in</span>
 <span class="sd">        the workflow.</span>
@@ -886,12 +942,12 @@
                          <span class="n">disabled_nodes</span><span class="p">,</span> <span class="n">remove_temp</span><span class="p">,</span>
                          <span class="n">steps</span><span class="p">,</span> <span class="n">study_config</span><span class="p">,</span> <span class="n">iteration</span><span class="p">,</span> <span class="n">map_job</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                          <span class="n">reduce_job</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">environment</span><span class="o">=</span><span class="s1">&#39;global&#39;</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Build a workflow for a single iteration step of a process/sub-pipeline</span>
 
 <span class="sd">        is called for each iteration by build_iteration()</span>
 
-<span class="sd">        Jobs inserted are tuples (process, interation) because each job will be</span>
+<span class="sd">        Jobs inserted are tuples (process, iteration) because each job will be</span>
 <span class="sd">        converted into as many jobs as the number of iterations.</span>
 
 <span class="sd">        Returns</span>
@@ -937,7 +993,14 @@
             <span class="n">pipeline</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">()</span>
             <span class="n">pipeline</span><span class="o">.</span><span class="n">set_study_config</span><span class="p">(</span><span class="n">study_config</span><span class="p">)</span>
             <span class="n">pipeline</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s1">&#39;iter&#39;</span><span class="p">,</span> <span class="n">process</span><span class="o">.</span><span class="n">process</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">build_iteration</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">step_name</span><span class="p">,</span> <span class="n">study_config</span><span class="p">,</span>
+            <span class="k">return</span> <span class="n">build_iteration</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">step_name</span><span class="p">,</span> <span class="n">temp_map</span><span class="o">=</span><span class="n">temp_map</span><span class="p">,</span>
+                                   <span class="n">shared_map</span><span class="o">=</span><span class="n">shared_map</span><span class="p">,</span>
+                                   <span class="n">transfers</span><span class="o">=</span><span class="n">transfers</span><span class="p">,</span>
+                                   <span class="n">shared_paths</span><span class="o">=</span><span class="n">shared_paths</span><span class="p">,</span>
+                                   <span class="n">disabled_nodes</span><span class="o">=</span><span class="n">disabled_nodes</span><span class="p">,</span>
+                                   <span class="n">remove_temp</span><span class="o">=</span><span class="n">remove_temp</span><span class="p">,</span>
+                                   <span class="n">steps</span><span class="o">=</span><span class="n">steps</span><span class="p">,</span>
+                                   <span class="n">study_config</span><span class="o">=</span><span class="n">study_config</span><span class="p">,</span>
                                    <span class="n">environment</span><span class="o">=</span><span class="n">environment</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># single process</span>
@@ -962,7 +1025,7 @@
                         <span class="n">shared_map</span><span class="p">,</span> <span class="n">transfers</span><span class="p">,</span> <span class="n">shared_paths</span><span class="p">,</span> <span class="n">disabled_nodes</span><span class="p">,</span>
                         <span class="n">remove_temp</span><span class="p">,</span> <span class="n">steps</span><span class="p">,</span> <span class="n">study_config</span><span class="o">=</span><span class="p">{},</span>
                         <span class="n">environment</span><span class="o">=</span><span class="s1">&#39;global&#39;</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Build workflow for an iterative process: the process / sub-pipeline is</span>
 <span class="sd">        filled with appropriate parameters for each iteration, and its</span>
 <span class="sd">        workflow is generated.</span>
@@ -972,39 +1035,45 @@
 <span class="sd">        (jobs, dependencies, groups, root_jobs, links, nodes)</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">it_process</span> <span class="o">=</span> <span class="n">it_node</span><span class="o">.</span><span class="n">process</span>
-        <span class="n">no_output_value</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">size</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">size_error</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">completion_engine</span> <span class="o">=</span> <span class="n">ProcessCompletionEngine</span><span class="o">.</span><span class="n">get_completion_engine</span><span class="p">(</span>
+            <span class="n">it_process</span><span class="p">)</span>
+        <span class="c1"># # check if it is an iterative completion engine</span>
+        <span class="c1"># if hasattr(completion_engine, &#39;complete_iteration_step&#39;):</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="n">completion_engine</span><span class="o">.</span><span class="n">iteration_size</span><span class="p">()</span>
 
-        <span class="c1"># calculate the number of iterations</span>
-        <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">it_process</span><span class="o">.</span><span class="n">iterative_parameters</span><span class="p">:</span>
-            <span class="n">trait</span> <span class="o">=</span> <span class="n">it_process</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span>
-            <span class="n">psize</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">it_process</span><span class="p">,</span> <span class="n">parameter</span><span class="p">))</span>
-            <span class="k">if</span> <span class="n">psize</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">size</span> <span class="o">=</span> <span class="n">psize</span>
-                <span class="k">elif</span> <span class="n">size</span> <span class="o">!=</span> <span class="n">psize</span><span class="p">:</span>
-                    <span class="n">size_error</span> <span class="o">=</span> <span class="kc">True</span>
-                    <span class="k">break</span>
-                <span class="k">if</span> <span class="n">trait</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">no_output_value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                        <span class="n">no_output_value</span> <span class="o">=</span> <span class="kc">False</span>
-                    <span class="k">elif</span> <span class="n">no_output_value</span><span class="p">:</span>
-                        <span class="n">size_error</span> <span class="o">=</span> <span class="kc">True</span>
-                        <span class="k">break</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">trait</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">no_output_value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                        <span class="n">no_output_value</span> <span class="o">=</span> <span class="kc">True</span>
-                    <span class="k">elif</span> <span class="ow">not</span> <span class="n">no_output_value</span><span class="p">:</span>
-                        <span class="n">size_error</span> <span class="o">=</span> <span class="kc">True</span>
-                        <span class="k">break</span>
+        <span class="c1">#no_output_value = None</span>
+        <span class="c1">#size = None</span>
+        <span class="c1">#size_error = False</span>
 
-        <span class="k">if</span> <span class="n">size_error</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Iterative parameter values must be lists of the &#39;</span>
-                <span class="s1">&#39;same size: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">=</span><span class="si">%d</span><span class="s1">&#39;</span>
-                    <span class="o">%</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">it_process</span><span class="p">,</span> <span class="n">n</span><span class="p">)))</span>
-                    <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">it_process</span><span class="o">.</span><span class="n">iterative_parameters</span><span class="p">))</span>
+        <span class="c1">## calculate the number of iterations</span>
+        <span class="c1">#for parameter in it_process.iterative_parameters:</span>
+            <span class="c1">#trait = it_process.trait(parameter)</span>
+            <span class="c1">#psize = len(getattr(it_process, parameter))</span>
+            <span class="c1">#if psize:</span>
+                <span class="c1">#if size is None:</span>
+                    <span class="c1">#size = psize</span>
+                <span class="c1">#elif size != psize:</span>
+                    <span class="c1">#size_error = True</span>
+                    <span class="c1">#break</span>
+                <span class="c1">#if trait.output:</span>
+                    <span class="c1">#if no_output_value is None:</span>
+                        <span class="c1">#no_output_value = False</span>
+                    <span class="c1">#elif no_output_value:</span>
+                        <span class="c1">#size_error = True</span>
+                        <span class="c1">#break</span>
+            <span class="c1">#else:</span>
+                <span class="c1">#if trait.output:</span>
+                    <span class="c1">#if no_output_value is None:</span>
+                        <span class="c1">#no_output_value = True</span>
+                    <span class="c1">#elif not no_output_value:</span>
+                        <span class="c1">#size_error = True</span>
+                        <span class="c1">#break</span>
+
+        <span class="c1">#if size_error:</span>
+            <span class="c1">#raise ValueError(&#39;Iterative parameter values must be lists of the &#39;</span>
+                <span class="c1">#&#39;same size: %s&#39; % &#39;,&#39;.join(&#39;%s=%d&#39;</span>
+                    <span class="c1">#% (n, len(getattr(it_process, n)))</span>
+                    <span class="c1">#for n in it_process.iterative_parameters))</span>
 
         <span class="n">jobs</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">workflows</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1022,47 +1091,49 @@
         <span class="k">if</span> <span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">(</span><span class="n">jobs</span><span class="p">,</span> <span class="n">dependencies</span><span class="p">,</span> <span class="n">groups</span><span class="p">,</span> <span class="n">root_jobs</span><span class="p">,</span> <span class="n">links</span><span class="p">,</span> <span class="n">nodes</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">no_output_value</span><span class="p">:</span>
-            <span class="c1"># this case is a &quot;really&quot; dynamic iteration, the number of</span>
-            <span class="c1"># iterations and parameters are determined in runtime, so we</span>
-            <span class="c1"># cannot handle it at the moment.</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Dynamic iteration is not handled in this &#39;</span>
-                <span class="s1">&#39;version of CAPSUL / Soma-Workflow&#39;</span><span class="p">)</span>
+        <span class="c1">#if no_output_value:</span>
+            <span class="c1">## this case is a &quot;really&quot; dynamic iteration, the number of</span>
+            <span class="c1">## iterations and parameters are determined in runtime, so we</span>
+            <span class="c1">## cannot handle it at the moment.</span>
+            <span class="c1">#raise ValueError(&#39;Dynamic iteration is not handled in this &#39;</span>
+                <span class="c1">#&#39;version of CAPSUL / Soma-Workflow&#39;)</span>
 
-            <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">it_process</span><span class="o">.</span><span class="n">iterative_parameters</span><span class="p">:</span>
-                <span class="n">trait</span> <span class="o">=</span> <span class="n">it_process</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">trait</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
-                    <span class="nb">setattr</span><span class="p">(</span><span class="n">it_process</span><span class="p">,</span> <span class="n">parameter</span><span class="p">,</span> <span class="p">[])</span>
-            <span class="n">outputs</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="k">for</span> <span class="n">iteration</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">size</span><span class="p">):</span>
-                <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">it_process</span><span class="o">.</span><span class="n">iterative_parameters</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">no_output_value</span> \
-                            <span class="ow">or</span> <span class="ow">not</span> <span class="n">it_process</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
-                        <span class="n">values</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">it_process</span><span class="p">,</span> <span class="n">parameter</span><span class="p">)</span>
-                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-                            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">iteration</span><span class="p">:</span>
-                                <span class="nb">setattr</span><span class="p">(</span><span class="n">it_process</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="n">parameter</span><span class="p">,</span>
-                                        <span class="n">values</span><span class="p">[</span><span class="n">iteration</span><span class="p">])</span>
-                            <span class="k">else</span><span class="p">:</span>
-                                <span class="nb">setattr</span><span class="p">(</span><span class="n">it_process</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="n">parameter</span><span class="p">,</span>
-                                        <span class="n">values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="c1">#for parameter in it_process.iterative_parameters:</span>
+                <span class="c1">#trait = it_process.trait(parameter)</span>
+                <span class="c1">#if trait.output:</span>
+                    <span class="c1">#setattr(it_process, parameter, [])</span>
+            <span class="c1">#outputs = {}</span>
+            <span class="c1">#for iteration in range(size):</span>
+                <span class="c1">#for parameter in it_process.iterative_parameters:</span>
+                    <span class="c1">#if not no_output_value \</span>
+                            <span class="c1">#or not it_process.trait(parameter).output:</span>
+                        <span class="c1">#values = getattr(it_process, parameter)</span>
+                        <span class="c1">#if len(values) != 0:</span>
+                            <span class="c1">#if len(values) &gt; iteration:</span>
+                                <span class="c1">#setattr(it_process.process, parameter,</span>
+                                        <span class="c1">#values[iteration])</span>
+                            <span class="c1">#else:</span>
+                                <span class="c1">#setattr(it_process.process, parameter,</span>
+                                        <span class="c1">#values[-1])</span>
 
-                <span class="c1"># operate completion</span>
-                <span class="n">complete_iteration</span><span class="p">(</span><span class="n">it_process</span><span class="p">,</span> <span class="n">iteration</span><span class="p">)</span>
+                <span class="c1">## operate completion</span>
+                <span class="c1">#complete_iteration(it_process, iteration)</span>
 
-                <span class="c1">#workflow = workflow_from_pipeline(it_process.process,</span>
-                                                  <span class="c1">#study_config=study_config)</span>
-                <span class="c1">#workflows.append(workflow)</span>
+                <span class="c1">##workflow = workflow_from_pipeline(it_process.process,</span>
+                                                  <span class="c1">##study_config=study_config)</span>
+                <span class="c1">##workflows.append(workflow)</span>
 
-                <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">it_process</span><span class="o">.</span><span class="n">iterative_parameters</span><span class="p">:</span>
-                    <span class="n">trait</span> <span class="o">=</span> <span class="n">it_process</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">trait</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
-                        <span class="n">outputs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span>
-                            <span class="n">parameter</span><span class="p">,[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">it_process</span><span class="o">.</span><span class="n">process</span><span class="p">,</span>
-                                                         <span class="n">parameter</span><span class="p">))</span>
-            <span class="k">for</span> <span class="n">parameter</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">outputs</span><span class="p">):</span>
-                <span class="nb">setattr</span><span class="p">(</span><span class="n">it_process</span><span class="p">,</span> <span class="n">parameter</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
+                <span class="c1">#for parameter in it_process.iterative_parameters:</span>
+                    <span class="c1">#trait = it_process.trait(parameter)</span>
+                    <span class="c1">#if trait.output:</span>
+                        <span class="c1">#outputs.setdefault(</span>
+                            <span class="c1">#parameter,[]).append(getattr(it_process.process,</span>
+                                                         <span class="c1">#parameter))</span>
+            <span class="c1">#for parameter, value in six.iteritems(outputs):</span>
+                <span class="c1">#setattr(it_process, parameter, value)</span>
+        <span class="c1">#else:</span>
+
+        <span class="k">if</span> <span class="kc">True</span><span class="p">:</span>
 
             <span class="c1"># iterations are built using</span>
             <span class="c1"># * a map job to dispatch input lists</span>
@@ -1080,12 +1151,19 @@
                                 <span class="s1">&#39;protected_parameters&#39;</span><span class="p">,</span> <span class="p">)</span>
             <span class="c1"># copy non-iterative inputs</span>
             <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">trait</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">it_process</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()):</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">trait</span><span class="o">.</span><span class="n">output</span> <span class="ow">and</span> <span class="n">param</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">forbidden_traits</span><span class="p">:</span>
-                    <span class="n">map_param_dict</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">it_process</span><span class="p">,</span> <span class="n">param</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">forbidden_traits</span><span class="p">:</span>
+                    <span class="k">continue</span>  <span class="c1"># skip</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">it_process</span><span class="p">,</span> <span class="n">param</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">trait</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
+                    <span class="n">map_param_dict</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
             <span class="n">in_params</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">it_process</span><span class="o">.</span><span class="n">iterative_parameters</span>
                          <span class="k">if</span> <span class="ow">not</span> <span class="n">it_process</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="o">.</span><span class="n">output</span><span class="p">]</span>
             <span class="n">out_params</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">it_process</span><span class="o">.</span><span class="n">iterative_parameters</span>
                           <span class="k">if</span> <span class="n">it_process</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="o">.</span><span class="n">output</span><span class="p">]</span>
+            <span class="n">in_values</span> <span class="o">=</span> <span class="p">[</span><span class="nb">getattr</span><span class="p">(</span><span class="n">it_process</span><span class="p">,</span> <span class="n">param</span><span class="p">)</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">in_params</span><span class="p">]</span>
+            <span class="n">out_values</span> <span class="o">=</span> <span class="p">[</span><span class="nb">getattr</span><span class="p">(</span><span class="n">it_process</span><span class="p">,</span> <span class="n">param</span><span class="p">)</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">out_params</span><span class="p">]</span>
+
             <span class="c1"># build map and reduce nodes</span>
             <span class="n">map_param_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
                 <span class="s1">&#39;input_names&#39;</span><span class="p">:</span> <span class="n">in_params</span><span class="p">,</span>
@@ -1094,20 +1172,43 @@
             <span class="n">reduce_param_dict</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">trait</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">it_process</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()):</span>
                 <span class="k">if</span> <span class="n">trait</span><span class="o">.</span><span class="n">output</span> <span class="ow">and</span> <span class="n">param</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">forbidden_traits</span><span class="p">:</span>
-                    <span class="n">reduce_param_dict</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">it_process</span><span class="p">,</span> <span class="n">param</span><span class="p">)</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">it_process</span><span class="p">,</span> <span class="n">param</span><span class="p">)</span>
+                    <span class="n">reduce_param_dict</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+                    <span class="k">if</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">out_params</span><span class="p">:</span>
+                        <span class="c1"># set input params of reduce node for a non-dynamic</span>
+                        <span class="c1"># reduce case (outputs are set from outside)</span>
+                        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+                            <span class="n">reduce_param_dict</span><span class="p">[</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">_</span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">i</span><span class="p">)]</span> <span class="o">=</span> <span class="n">p</span>
+
             <span class="n">reduce_param_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
                 <span class="s1">&#39;input_names&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">p</span> <span class="o">+</span> <span class="s1">&#39;_</span><span class="si">%d</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">out_params</span><span class="p">],</span>
                 <span class="s1">&#39;output_names&#39;</span><span class="p">:</span> <span class="n">out_params</span><span class="p">,</span>
                 <span class="s1">&#39;lengths&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">size</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">out_params</span><span class="p">),</span>
             <span class="p">})</span>
+
+            <span class="c1"># replace special paths in map/reduce parameters</span>
+
+            <span class="n">_replace_in_list</span><span class="p">(</span><span class="n">in_values</span><span class="p">,</span> <span class="n">temp_map</span><span class="p">)</span>
+            <span class="n">in_values</span> <span class="o">=</span> <span class="n">_get_replaced</span><span class="p">(</span><span class="n">in_values</span><span class="p">,</span> <span class="n">shared_map</span><span class="p">)</span>
+            <span class="n">_replace_in_list</span><span class="p">(</span><span class="n">out_values</span><span class="p">,</span> <span class="n">temp_map</span><span class="p">)</span>
+            <span class="n">out_values</span> <span class="o">=</span> <span class="n">_get_replaced</span><span class="p">(</span><span class="n">out_values</span><span class="p">,</span> <span class="n">shared_map</span><span class="p">)</span>
+            <span class="n">_replace_in_dict</span><span class="p">(</span><span class="n">map_param_dict</span><span class="p">,</span> <span class="n">temp_map</span><span class="p">)</span>
+            <span class="n">_replace_in_dict</span><span class="p">(</span><span class="n">map_param_dict</span><span class="p">,</span> <span class="n">shared_map</span><span class="p">)</span>
+            <span class="n">_replace_dict_transfers</span><span class="p">(</span>
+                <span class="n">map_param_dict</span><span class="p">,</span> <span class="n">it_process</span><span class="p">,</span> <span class="n">transfers</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">transfers</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">_replace_in_dict</span><span class="p">(</span><span class="n">reduce_param_dict</span><span class="p">,</span> <span class="n">temp_map</span><span class="p">)</span>
+            <span class="n">_replace_in_dict</span><span class="p">(</span><span class="n">reduce_param_dict</span><span class="p">,</span> <span class="n">shared_map</span><span class="p">)</span>
+            <span class="n">_replace_dict_transfers</span><span class="p">(</span>
+                <span class="n">reduce_param_dict</span><span class="p">,</span> <span class="n">it_process</span><span class="p">,</span> <span class="n">transfers</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">transfers</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
             <span class="n">map_job</span> <span class="o">=</span> <span class="n">MapJob</span><span class="p">(</span>
-                <span class="n">referenced_input_files</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># FIXME TODO</span>
-                <span class="n">referenced_output_files</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># FIXME TODO</span>
+                <span class="n">referenced_input_files</span><span class="o">=</span><span class="n">in_values</span><span class="p">,</span>
+                <span class="n">referenced_output_files</span><span class="o">=</span><span class="n">in_values</span><span class="p">,</span>
                 <span class="n">name</span><span class="o">=</span><span class="n">it_process</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;_map&#39;</span><span class="p">,</span>
                 <span class="n">param_dict</span><span class="o">=</span><span class="n">map_param_dict</span><span class="p">)</span>
             <span class="n">reduce_job</span> <span class="o">=</span> <span class="n">ReduceJob</span><span class="p">(</span>
-                <span class="n">referenced_input_files</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># FIXME TODO</span>
-                <span class="n">referenced_output_files</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># FIXME TODO</span>
+                <span class="n">referenced_input_files</span><span class="o">=</span><span class="n">out_values</span><span class="p">,</span>
+                <span class="n">referenced_output_files</span><span class="o">=</span><span class="n">out_values</span><span class="p">,</span>
                 <span class="n">name</span><span class="o">=</span><span class="n">it_process</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;_reduce&#39;</span><span class="p">,</span>
                 <span class="n">param_dict</span><span class="o">=</span><span class="n">reduce_param_dict</span><span class="p">)</span>
             <span class="n">map_job</span><span class="o">.</span><span class="n">process_hash</span> <span class="o">=</span> <span class="nb">id</span><span class="p">(</span><span class="n">it_process</span><span class="p">)</span>
@@ -1184,6 +1285,7 @@
 
             <span class="c1"># iterate the iterates process / pipeline</span>
 
+            <span class="n">iter_values</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="k">for</span> <span class="n">iteration</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">size</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">it_process</span><span class="o">.</span><span class="n">iterative_parameters</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">it_process</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span><span class="o">.</span><span class="n">input_filename</span> \
@@ -1200,6 +1302,15 @@
 
                 <span class="c1"># operate completion</span>
                 <span class="n">complete_iteration</span><span class="p">(</span><span class="n">it_process</span><span class="p">,</span> <span class="n">iteration</span><span class="p">)</span>
+
+                <span class="c1"># get iteration values to set on the parent iter node</span>
+                <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">it_process</span><span class="o">.</span><span class="n">iterative_parameters</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">it_process</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span><span class="o">.</span><span class="n">input_filename</span> \
+                            <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+                        <span class="c1"># dynamic output has no forced value</span>
+                        <span class="k">continue</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">it_process</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="n">parameter</span><span class="p">)</span>
+                    <span class="n">iter_values</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
                 <span class="c1"># build a workflow for the job / pipeline iteration</span>
                 <span class="n">process_name</span> <span class="o">=</span> <span class="n">it_process</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;_</span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">iteration</span>
@@ -1240,6 +1351,11 @@
                                 <span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">dparam</span><span class="p">,</span> <span class="p">[])</span> \
                                 <span class="o">.</span><span class="n">append</span><span class="p">(((</span><span class="n">link</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">iteration</span><span class="p">),</span> <span class="n">link</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
 
+        <span class="c1"># set values on the iter node (what a full completion does, but we&#39;re</span>
+        <span class="c1"># doing it only partially here)</span>
+        <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">iter_values</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">it_process</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
         <span class="c1"># the iteration process is not a single job, but can be reached</span>
         <span class="c1"># (for links) through the map and reduce nodes. So we record a tuple</span>
         <span class="c1"># (map, reduce) here for this special node.</span>
@@ -1261,7 +1377,7 @@
             <span class="n">disabled_nodes</span><span class="o">=</span><span class="nb">set</span><span class="p">(),</span> <span class="n">forbidden_temp</span><span class="o">=</span><span class="nb">set</span><span class="p">(),</span>
             <span class="n">jobs_priority</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">steps</span><span class="o">=</span><span class="p">{},</span> <span class="n">current_step</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
             <span class="n">study_config</span><span class="o">=</span><span class="p">{},</span> <span class="n">with_links</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">environment</span><span class="o">=</span><span class="s1">&#39;global&#39;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Convert a CAPSUL pipeline into a soma-workflow workflow</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Convert a CAPSUL pipeline into a soma-workflow workflow</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1273,7 +1389,7 @@
 <span class="sd">            shared translated paths maps (global to pipeline).</span>
 <span class="sd">            This dict is updated when needed during the process.</span>
 <span class="sd">        transfers: list of 2 dicts (optional)</span>
-<span class="sd">            File transfers dicts (input / ouput), indexed by process, then by</span>
+<span class="sd">            File transfers dicts (input / output), indexed by process, then by</span>
 <span class="sd">            file path.</span>
 <span class="sd">        shared_paths: dict (optional)</span>
 <span class="sd">            holds information about shared resource paths from soma-worflow</span>
@@ -1287,6 +1403,8 @@
 <span class="sd">            the parent node step name</span>
 <span class="sd">        study_config: StydyConfig instance (optional)</span>
 <span class="sd">            used only for iterative nodes, to be passed to create sub-workflows</span>
+<span class="sd">        with_links: bool (optional)</span>
+<span class="sd">            follow links to include other dependencies</span>
 <span class="sd">        environment: str (default: &quot;global&quot;)</span>
 <span class="sd">            configuration environment name (default: &quot;global&quot;). See</span>
 <span class="sd">            :class:`capsul.engine.CapsulEngine` and</span>
@@ -1439,8 +1557,11 @@
                                               <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
                                                   <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span>
                                                       <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ProcessNode</span><span class="p">)]</span>
-                        <span class="k">elif</span> <span class="n">process</span> <span class="ow">is</span> <span class="n">pipeline</span><span class="p">:</span>
-                            <span class="k">continue</span>  <span class="c1"># from main input: no dependency link</span>
+                        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">snode</span><span class="p">,</span> <span class="n">PipelineNode</span><span class="p">):</span>
+                            <span class="c1"># either link from main input, or from an</span>
+                            <span class="c1"># unconnected optional input in a sub-pipeline:</span>
+                            <span class="c1"># no dependency link</span>
+                            <span class="k">continue</span>
                         <span class="k">else</span><span class="p">:</span>  <span class="c1"># ProcessNode</span>
                             <span class="n">sjob</span> <span class="o">=</span> <span class="n">jobs</span><span class="p">[</span><span class="n">process</span><span class="p">]</span>
                             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sjob</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>  <span class="c1"># iteration</span>
@@ -1516,6 +1637,7 @@
 
     <span class="k">if</span> <span class="n">study_config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">study_config</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">get_study_config</span><span class="p">()</span>
+    <span class="n">engine</span> <span class="o">=</span> <span class="n">study_config</span><span class="o">.</span><span class="n">engine</span>
 
     <span class="k">if</span> <span class="n">check_requirements</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">check_requirements</span><span class="p">(</span><span class="n">environment</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1523,21 +1645,30 @@
                 <span class="s1">&#39;The pipeline requirements are not met in the current &#39;</span>
                 <span class="s1">&#39;configuration settings.&#39;</span><span class="p">)</span>
 
+    <span class="n">temp_pipeline</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">Pipeline</span><span class="p">):</span>
-        <span class="c1"># &quot;pipeline&quot; is actally a single process (or should, if it is not a</span>
-        <span class="c1"># pipeline). Get it into a pipeine (with a single node) to make the</span>
+        <span class="c1"># &quot;pipeline&quot; is actually a single process (or should, if it is not a</span>
+        <span class="c1"># pipeline). Get it into a pipeline (with a single node) to make the</span>
         <span class="c1"># workflow.</span>
         <span class="n">new_pipeline</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">()</span>
         <span class="n">new_pipeline</span><span class="o">.</span><span class="n">set_study_config</span><span class="p">(</span><span class="n">study_config</span><span class="p">)</span>
         <span class="n">new_pipeline</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s1">&#39;main&#39;</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">)</span>
         <span class="n">new_pipeline</span><span class="o">.</span><span class="n">autoexport_nodes_parameters</span><span class="p">(</span><span class="n">include_optional</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">pipeline</span> <span class="o">=</span> <span class="n">new_pipeline</span>
+        <span class="n">temp_pipeline</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">if</span> <span class="n">complete_parameters</span><span class="p">:</span>
+        <span class="n">completion</span> <span class="o">=</span> <span class="n">ProcessCompletionEngine</span><span class="o">.</span><span class="n">get_completion_engine</span><span class="p">(</span><span class="n">pipeline</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">completion</span><span class="p">:</span>
+            <span class="n">attributes</span> <span class="o">=</span> <span class="n">completion</span><span class="o">.</span><span class="n">get_attribute_values</span><span class="p">()</span>
+            <span class="n">completion</span><span class="o">.</span><span class="n">complete_parameters</span><span class="p">(</span><span class="n">complete_iterations</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
     <span class="n">temp_map</span> <span class="o">=</span> <span class="n">assign_temporary_filenames</span><span class="p">(</span><span class="n">pipeline</span><span class="p">)</span>
     <span class="n">temp_subst_list</span> <span class="o">=</span> <span class="p">[(</span><span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">temp_map</span><span class="p">)]</span>
     <span class="n">temp_subst_map</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">temp_subst_list</span><span class="p">)</span>
     <span class="n">shared_map</span> <span class="o">=</span> <span class="p">{}</span>
 
-    <span class="n">swf_paths</span> <span class="o">=</span> <span class="n">_get_swf_paths</span><span class="p">(</span><span class="n">study_config</span><span class="p">)</span>
+    <span class="n">swf_paths</span> <span class="o">=</span> <span class="n">_get_swf_paths</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">environment</span><span class="p">)</span>
     <span class="n">transfers</span> <span class="o">=</span> <span class="n">_get_transfers</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">swf_paths</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">merged_formats</span><span class="p">)</span>
     <span class="c1"># get complete list of disabled leaf nodes</span>
     <span class="k">if</span> <span class="n">disabled_nodes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1639,7 +1770,11 @@
 
     <span class="c1"># mark workflow with pipeline</span>
     <span class="n">workflow</span><span class="o">.</span><span class="n">pipeline</span> <span class="o">=</span> <span class="n">weakref</span><span class="o">.</span><span class="n">ref</span><span class="p">(</span><span class="n">pipeline</span><span class="p">)</span>
-    <span class="n">workflow</span><span class="o">.</span><span class="n">_do_not_pickle</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;pipeline&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">temp_pipeline</span><span class="p">:</span>
+        <span class="c1"># the pipeline is temporary - it will be deleted if we don&#39;t save a ref</span>
+        <span class="c1"># to it somewhere else in the workflow</span>
+        <span class="n">workflow</span><span class="o">.</span><span class="n">_pipeline</span> <span class="o">=</span> <span class="n">pipeline</span>
+    <span class="n">workflow</span><span class="o">.</span><span class="n">_do_not_pickle</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;pipeline&#39;</span><span class="p">,</span> <span class="s1">&#39;_pipeline&#39;</span><span class="p">]</span>
     <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="s1">&#39;uuid&#39;</span><span class="p">):</span>
         <span class="n">workflow</span><span class="o">.</span><span class="n">uuid</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">uuid</span>
 
@@ -1647,7 +1782,7 @@
 
 
 <div class="viewcode-block" id="workflow_run"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_workflow.workflow_run">[docs]</a><span class="k">def</span> <span class="nf">workflow_run</span><span class="p">(</span><span class="n">workflow_name</span><span class="p">,</span> <span class="n">workflow</span><span class="p">,</span> <span class="n">study_config</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Create a soma-workflow controller and submit a workflow</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Create a soma-workflow controller and submit a workflow</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -1735,8 +1870,8 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021, Populse team &lt;support@brainvisa.info&gt;.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+        &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     </div>
   </body>
 </html>

@@ -1,7 +1,7 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -18,9 +18,8 @@
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css" />
     
     <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
-    <script src="../../../../_static/jquery.js"></script>
-    <script src="../../../../_static/underscore.js"></script>
     <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/sphinx_highlight.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -136,11 +135,11 @@
 
 
 <div class="viewcode-block" id="ViewerWidget"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.viewer_widget.ViewerWidget">[docs]</a><span class="k">class</span> <span class="nc">ViewerWidget</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QWidget</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; View result class</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; View result class</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">viewer_node_name</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span> <span class="n">study_config</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Method to initialize a ViewerWidget class.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to initialize a ViewerWidget class.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -169,7 +168,7 @@
         <span class="n">button</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">onCreateViewerClicked</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ViewerWidget.onCreateViewerClicked"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.viewer_widget.ViewerWidget.onCreateViewerClicked">[docs]</a>    <span class="k">def</span> <span class="nf">onCreateViewerClicked</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Event to create the viewer</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Event to create the viewer</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Get the viewer node and process</span>
         <span class="n">viewer_node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">viewer_node_name</span><span class="p">]</span>
@@ -250,8 +249,8 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021, Populse team &lt;support@brainvisa.info&gt;.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+        &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     </div>
   </body>
 </html>

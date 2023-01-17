@@ -4,4 +4,3 @@
 
 .. automodule:: capsul.info
     :members:
-

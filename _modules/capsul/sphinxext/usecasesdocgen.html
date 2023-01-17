@@ -1,7 +1,7 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -18,9 +18,8 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
     
     <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -129,10 +128,10 @@
 
 
 <div class="viewcode-block" id="UseCasesHelperWriter"><a class="viewcode-back" href="../../../api/sphinxext.html#capsul.sphinxext.usecasesdocgen.UseCasesHelperWriter">[docs]</a><span class="k">class</span> <span class="nc">UseCasesHelperWriter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; A basic class to convert the pilot codes to rst use cases</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; A basic class to convert the pilot codes to rst use cases</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pilots</span><span class="p">,</span> <span class="n">rst_extension</span><span class="o">=</span><span class="s2">&quot;.rst&quot;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Initialize the UseCasesHelper class</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Initialize the UseCasesHelper class</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -145,7 +144,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">rst_extension</span> <span class="o">=</span> <span class="n">rst_extension</span>
 
 <div class="viewcode-block" id="UseCasesHelperWriter.getsource"><a class="viewcode-back" href="../../../api/sphinxext.html#capsul.sphinxext.usecasesdocgen.UseCasesHelperWriter.getsource">[docs]</a>    <span class="k">def</span> <span class="nf">getsource</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Method that returns the source code of a function</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Method that returns the source code of a function</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -160,7 +159,7 @@
         <span class="k">return</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getsource</span><span class="p">(</span><span class="n">function</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="UseCasesHelperWriter.generate_usecases_doc"><a class="viewcode-back" href="../../../api/sphinxext.html#capsul.sphinxext.usecasesdocgen.UseCasesHelperWriter.generate_usecases_doc">[docs]</a>    <span class="k">def</span> <span class="nf">generate_usecases_doc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src_code</span><span class="p">,</span> <span class="n">module_name</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Make autodoc documentation of pilots</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Make autodoc documentation of pilots</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -170,7 +169,7 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        ad : string</span>
-<span class="sd">            the use case reST formated documentation.</span>
+<span class="sd">            the use case reST formatted documentation.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># First parse the pilot function code</span>
         <span class="n">code_tree</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">src_code</span><span class="p">)</span><span class="o">.</span><span class="n">body</span>
@@ -242,7 +241,7 @@
         <span class="k">return</span> <span class="n">ad</span></div>
 
 <div class="viewcode-block" id="UseCasesHelperWriter.write_usecases_docs"><a class="viewcode-back" href="../../../api/sphinxext.html#capsul.sphinxext.usecasesdocgen.UseCasesHelperWriter.write_usecases_docs">[docs]</a>    <span class="k">def</span> <span class="nf">write_usecases_docs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">returnrst</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Generate Use Cases reST files.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Generate Use Cases reST files.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -299,7 +298,7 @@
 
 <div class="viewcode-block" id="UseCasesHelperWriter.write_index"><a class="viewcode-back" href="../../../api/sphinxext.html#capsul.sphinxext.usecasesdocgen.UseCasesHelperWriter.write_index">[docs]</a>    <span class="k">def</span> <span class="nf">write_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outdir</span><span class="p">,</span> <span class="n">froot</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="n">relative_to</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                     <span class="n">rst_extension</span><span class="o">=</span><span class="s2">&quot;.rst&quot;</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Make a reST API index file from written files</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Make a reST API index file from written files</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -383,8 +382,8 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021, Populse team &lt;support@brainvisa.info&gt;.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+        &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     </div>
   </body>
 </html>

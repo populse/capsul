@@ -19,4 +19,3 @@ capsul.in_context.spm submodule
 
 .. automodule:: capsul.in_context.spm
     :members:
-

@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   
     <title>CAPSUL &#8212; CAPSUL - Chain algorithm in pipelines and execute in many contexts</title>
@@ -19,9 +19,8 @@
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
     
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
@@ -106,24 +105,26 @@
           <div class="body" role="main">
             
   <section id="capsul-study-config-module">
-<h1>capsul.study_config module<a class="headerlink" href="#capsul-study-config-module" title="Permalink to this headline">¶</a></h1>
-<div class="graphviz"><img src="../_images/inheritance-778392b974ccb936fc9ac25731b090c41de9fc74.png" alt="Inheritance diagram of capsul.study_config, capsul.study_config.study_config, capsul.study_config.config_utils, capsul.study_config.memory, capsul.study_config.process_instance, capsul.study_config.run, capsul.study_config.config_modules" usemap="#inheritance20dbe01c75" class="inheritance graphviz" /></div>
+<h1>capsul.study_config module<a class="headerlink" href="#capsul-study-config-module" title="Permalink to this heading">¶</a></h1>
+<div class="graphviz"><img src="../_images/inheritance-ff3928a3d4bbb9b4c0a82793acd49c552ca8aff9.png" alt="Inheritance diagram of capsul.study_config, capsul.study_config.study_config, capsul.study_config.config_utils, capsul.study_config.memory, capsul.study_config.process_instance, capsul.study_config.run, capsul.study_config.config_modules" usemap="#inheritance20dbe01c75" class="inheritance graphviz" /></div>
 <map id="inheritance20dbe01c75" name="inheritance20dbe01c75">
-<area shape="rect" id="node2" href="#capsul.study_config.memory.CapsulResultDecoder" target="_top" title="Deal with ProcessResult in json." alt="" coords="215,252,372,277"/>
-<area shape="rect" id="node4" href="#capsul.study_config.memory.CapsulResultEncoder" target="_top" title="Deal with ProcessResult in json." alt="" coords="216,203,371,228"/>
-<area shape="rect" id="node10" href="#capsul.study_config.study_config.StudyConfig" target="_top" title="Class to store the study parameters and processing options." alt="" coords="552,301,651,327"/>
-<area shape="rect" id="node8" href="#capsul.study_config.memory.MemorizedProcess" target="_top" title="Callable object decorating a capsul process for caching its return" alt="" coords="15,153,157,179"/>
-<area shape="rect" id="node9" href="#capsul.study_config.memory.Memory" target="_top" title="Memory context to provide caching for processes." alt="" coords="49,104,123,129"/>
-<area shape="rect" id="node11" href="#capsul.study_config.study_config.StudyConfigModule" target="_top" title=":class:`StudyConfig` module base class (abstract)" alt="" coords="13,55,159,80"/>
-<area shape="rect" id="node12" href="#capsul.study_config.memory.UnMemorizedProcess" target="_top" title="This class replaces MemorizedProcess when there is no cache." alt="" coords="5,5,167,31"/>
+<area shape="rect" id="node2" href="#capsul.study_config.memory.CapsulResultDecoder" target="_top" title="Deal with ProcessResult in json." alt="" coords="216,252,377,277"/>
+<area shape="rect" id="node4" href="#capsul.study_config.memory.CapsulResultEncoder" target="_top" title="Deal with ProcessResult in json." alt="" coords="217,203,376,228"/>
+<area shape="rect" id="node10" href="#capsul.study_config.study_config.StudyConfig" target="_top" title="Class to store the study parameters and processing options." alt="" coords="560,301,660,327"/>
+<area shape="rect" id="node8" href="#capsul.study_config.memory.MemorizedProcess" target="_top" title="Callable object decorating a capsul process for caching its return" alt="" coords="14,153,159,179"/>
+<area shape="rect" id="node9" href="#capsul.study_config.memory.Memory" target="_top" title="Memory context to provide caching for processes." alt="" coords="49,104,125,129"/>
+<area shape="rect" id="node11" href="#capsul.study_config.study_config.StudyConfigModule" target="_top" title=":class:`StudyConfig` module base class (abstract)" alt="" coords="13,55,161,80"/>
+<area shape="rect" id="node12" href="#capsul.study_config.memory.UnMemorizedProcess" target="_top" title="This class replaces MemorizedProcess when there is no cache." alt="" coords="5,5,168,31"/>
 </map><span class="target" id="module-capsul.study_config"></span><p>Configuration of Capsul and external software operated through capsul.</p>
 <section id="module-capsul.study_config.config_utils">
-<span id="capsul-study-config-config-utils-submodule"></span><h2>capsul.study_config.config_utils submodule<a class="headerlink" href="#module-capsul.study_config.config_utils" title="Permalink to this headline">¶</a></h2>
+<span id="capsul-study-config-config-utils-submodule"></span><h2>capsul.study_config.config_utils submodule<a class="headerlink" href="#module-capsul.study_config.config_utils" title="Permalink to this heading">¶</a></h2>
 <p>Utility functions for configuration</p>
 <section id="functions">
-<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h3>
+<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this heading">¶</a></h3>
 <section id="environment">
-<h4><a class="reference internal" href="#capsul.study_config.config_utils.environment" title="capsul.study_config.config_utils.environment"><code class="xref py py-func docutils literal notranslate"><span class="pre">environment()</span></code></a><a class="headerlink" href="#environment" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.study_config.config_utils.environment" title="capsul.study_config.config_utils.environment"><code class="xref py py-func docutils literal notranslate"><span class="pre">environment()</span></code></a><a class="headerlink" href="#environment" title="Permalink to this heading">¶</a></h4>
+</section>
+</section>
 <dl class="py function">
 <dt class="sig sig-object py" id="capsul.study_config.config_utils.environment">
 <span class="sig-prename descclassname"><span class="pre">capsul.study_config.config_utils.</span></span><span class="sig-name descname"><span class="pre">environment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sh_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/config_utils.html#environment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.config_utils.environment" title="Permalink to this definition">¶</a></dt>
@@ -132,55 +133,55 @@ needed by a program (for instance FSL or FreeSurfer).</p>
 <p>In the configuration file, the variable are expected to be defined
 as ‘VARIABLE_NAME=value’.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>sh_file</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – the path to the sh script used to set up the environment.</p></li>
-<li><p><strong>env</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a><em> (</em><em>optional</em><em>, </em><em>default empty</em><em>)</em>) – the default environment used to parse the configuration sh file.</p></li>
+<li><p><strong>sh_file</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – the path to the sh script used to set up the environment.</p></li>
+<li><p><strong>env</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a><em> (</em><em>optional</em><em>, </em><em>default empty</em><em>)</em>) – the default environment used to parse the configuration sh file.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>environment</strong> – a dict containing the program configuration.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 </section>
-</section>
-</section>
 <section id="module-capsul.study_config.memory">
-<span id="capsul-study-config-memory-submodule"></span><h2>capsul.study_config.memory submodule<a class="headerlink" href="#module-capsul.study_config.memory" title="Permalink to this headline">¶</a></h2>
-<p>Mamory caching. Probably mostly obsolete, this code is not much used now.</p>
+<span id="capsul-study-config-memory-submodule"></span><h2>capsul.study_config.memory submodule<a class="headerlink" href="#module-capsul.study_config.memory" title="Permalink to this heading">¶</a></h2>
+<p>Memory caching. Probably mostly obsolete, this code is not much used now.</p>
 <section id="classes">
-<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h3>
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this heading">¶</a></h3>
 <section id="unmemorizedprocess">
-<h4><a class="reference internal" href="#capsul.study_config.memory.UnMemorizedProcess" title="capsul.study_config.memory.UnMemorizedProcess"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnMemorizedProcess</span></code></a><a class="headerlink" href="#unmemorizedprocess" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.study_config.memory.UnMemorizedProcess" title="capsul.study_config.memory.UnMemorizedProcess"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnMemorizedProcess</span></code></a><a class="headerlink" href="#unmemorizedprocess" title="Permalink to this heading">¶</a></h4>
 </section>
 <section id="memorizedprocess">
-<h4><a class="reference internal" href="#capsul.study_config.memory.MemorizedProcess" title="capsul.study_config.memory.MemorizedProcess"><code class="xref py py-class docutils literal notranslate"><span class="pre">MemorizedProcess</span></code></a><a class="headerlink" href="#memorizedprocess" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.study_config.memory.MemorizedProcess" title="capsul.study_config.memory.MemorizedProcess"><code class="xref py py-class docutils literal notranslate"><span class="pre">MemorizedProcess</span></code></a><a class="headerlink" href="#memorizedprocess" title="Permalink to this heading">¶</a></h4>
 </section>
 <section id="capsulresultencoder">
-<h4><a class="reference internal" href="#capsul.study_config.memory.CapsulResultEncoder" title="capsul.study_config.memory.CapsulResultEncoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">CapsulResultEncoder</span></code></a><a class="headerlink" href="#capsulresultencoder" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.study_config.memory.CapsulResultEncoder" title="capsul.study_config.memory.CapsulResultEncoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">CapsulResultEncoder</span></code></a><a class="headerlink" href="#capsulresultencoder" title="Permalink to this heading">¶</a></h4>
 </section>
 <section id="memory">
-<h4><a class="reference internal" href="#capsul.study_config.memory.Memory" title="capsul.study_config.memory.Memory"><code class="xref py py-class docutils literal notranslate"><span class="pre">Memory</span></code></a><a class="headerlink" href="#memory" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.study_config.memory.Memory" title="capsul.study_config.memory.Memory"><code class="xref py py-class docutils literal notranslate"><span class="pre">Memory</span></code></a><a class="headerlink" href="#memory" title="Permalink to this heading">¶</a></h4>
 </section>
 </section>
 <section id="id1">
-<h3>Functions<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<h3>Functions<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h3>
 <section id="get-process-signature">
-<h4><a class="reference internal" href="#capsul.study_config.memory.get_process_signature" title="capsul.study_config.memory.get_process_signature"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_process_signature()</span></code></a><a class="headerlink" href="#get-process-signature" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.study_config.memory.get_process_signature" title="capsul.study_config.memory.get_process_signature"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_process_signature()</span></code></a><a class="headerlink" href="#get-process-signature" title="Permalink to this heading">¶</a></h4>
 </section>
 <section id="has-attribute">
-<h4><a class="reference internal" href="#capsul.study_config.memory.has_attribute" title="capsul.study_config.memory.has_attribute"><code class="xref py py-func docutils literal notranslate"><span class="pre">has_attribute()</span></code></a><a class="headerlink" href="#has-attribute" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.study_config.memory.has_attribute" title="capsul.study_config.memory.has_attribute"><code class="xref py py-func docutils literal notranslate"><span class="pre">has_attribute()</span></code></a><a class="headerlink" href="#has-attribute" title="Permalink to this heading">¶</a></h4>
 </section>
 <section id="file-fingerprint">
-<h4><a class="reference internal" href="#capsul.study_config.memory.file_fingerprint" title="capsul.study_config.memory.file_fingerprint"><code class="xref py py-func docutils literal notranslate"><span class="pre">file_fingerprint()</span></code></a><a class="headerlink" href="#file-fingerprint" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.study_config.memory.file_fingerprint" title="capsul.study_config.memory.file_fingerprint"><code class="xref py py-func docutils literal notranslate"><span class="pre">file_fingerprint()</span></code></a><a class="headerlink" href="#file-fingerprint" title="Permalink to this heading">¶</a></h4>
+</section>
+</section>
 <dl class="py class">
 <dt class="sig sig-object py" id="capsul.study_config.memory.CapsulResultDecoder">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">capsul.study_config.memory.</span></span><span class="sig-name descname"><span class="pre">CapsulResultDecoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/memory.html#CapsulResultDecoder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.memory.CapsulResultDecoder" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.study_config.memory.</span></span><span class="sig-name descname"><span class="pre">CapsulResultDecoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/memory.html#CapsulResultDecoder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.memory.CapsulResultDecoder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Deal with ProcessResult in json.</p>
 <p><code class="docutils literal notranslate"><span class="pre">object_hook</span></code>, if specified, will be called with the result
 of every JSON object decoded and its return value will be used in
@@ -212,7 +213,7 @@ including <code class="docutils literal notranslate"><span class="pre">'\t'</spa
 
 <dl class="py class">
 <dt class="sig sig-object py" id="capsul.study_config.memory.CapsulResultEncoder">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">capsul.study_config.memory.</span></span><span class="sig-name descname"><span class="pre">CapsulResultEncoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skipkeys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ensure_ascii</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_circular</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_nan</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_keys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">separators</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/memory.html#CapsulResultEncoder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.memory.CapsulResultEncoder" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.study_config.memory.</span></span><span class="sig-name descname"><span class="pre">CapsulResultEncoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skipkeys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ensure_ascii</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_circular</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_nan</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_keys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">separators</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/memory.html#CapsulResultEncoder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.memory.CapsulResultEncoder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Deal with ProcessResult in json.</p>
 <p>Constructor for JSONEncoder, with sensible defaults.</p>
 <p>If skipkeys is false, then it is a TypeError to attempt
@@ -223,7 +224,7 @@ objects with all incoming non-ASCII characters escaped.  If
 ensure_ascii is false, the output can contain non-ASCII characters.</p>
 <p>If check_circular is true, then lists, dicts, and custom encoded
 objects will be checked for circular references during encoding to
-prevent an infinite recursion (which would cause an OverflowError).
+prevent an infinite recursion (which would cause an RecursionError).
 Otherwise, no such check takes place.</p>
 <p>If allow_nan is true, then NaN, Infinity, and -Infinity will be
 encoded as such.  This behavior is not JSON specification compliant,
@@ -268,22 +269,22 @@ implement default like this:</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="capsul.study_config.memory.MemorizedProcess">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">capsul.study_config.memory.</span></span><span class="sig-name descname"><span class="pre">MemorizedProcess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cachedir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/memory.html#MemorizedProcess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.memory.MemorizedProcess" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.study_config.memory.</span></span><span class="sig-name descname"><span class="pre">MemorizedProcess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cachedir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/memory.html#MemorizedProcess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.memory.MemorizedProcess" title="Permalink to this definition">¶</a></dt>
 <dd><p>Callable object decorating a capsul process for caching its return
 values each time it is called.</p>
 <p>All values are cached on the filesystem, in a deep directory
 structure. Methods are provided to inspect the cache or clean it.</p>
 <p>Initialize the MemorizedProcess class.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>process</strong> (<em>capsul process</em>) – the process instance to wrap.</p></li>
 <li><p><strong>cachedir</strong> (<em>string</em>) – the directory in which the computation will be stored</p></li>
-<li><p><strong>timestamp</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em> (</em><em>optional</em><em>)</em>) – The reference time from which times in tracing messages
+<li><p><strong>timestamp</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em> (</em><em>optional</em><em>)</em>) – The reference time from which times in tracing messages
 are reported.</p></li>
 <li><p><strong>callback</strong> (<em>callable</em><em> (</em><em>optional</em><em>)</em>) – an optional callable called each time after the function
 is called.</p></li>
-<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – if different from zero, print console messages.</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – if different from zero, print console messages.</p></li>
 </ul>
 </dd>
 </dl>
@@ -291,14 +292,14 @@ is called.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="capsul.study_config.memory.Memory">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">capsul.study_config.memory.</span></span><span class="sig-name descname"><span class="pre">Memory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cachedir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/memory.html#Memory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.memory.Memory" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.study_config.memory.</span></span><span class="sig-name descname"><span class="pre">Memory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cachedir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/memory.html#Memory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.memory.Memory" title="Permalink to this definition">¶</a></dt>
 <dd><p>Memory context to provide caching for processes.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">`cachedir`</span></span></dt>
 <dd><p>the location for the caching. If None is given, no caching is done.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>string</p>
 </dd>
 </dl>
@@ -316,7 +317,7 @@ is called.</p></li>
 
 <p>Initialize the Memory class.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>base_dir</strong> (<em>string</em>) – the directory name of the location for the caching.</p>
 </dd>
 </dl>
@@ -326,18 +327,18 @@ is called.</p></li>
 <dd><p>Create a proxy of the given process in order to only execute
 the process for input parameters not cached on disk.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>process</strong> (<em>capsul process</em>) – the capsul Process to be wrapped and cached.</p></li>
-<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – if different from zero, print console messages.</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – if different from zero, print console messages.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>proxy_process</strong> – the returned object is a MemorizedProcess object, that behaves
 as a process object, but offers extra methods for cache lookup
 and management.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>MemorizedProcess object</p>
 </dd>
 </dl>
@@ -370,11 +371,11 @@ should be merged.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="id2">
 <span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">skips</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/memory.html#Memory.clear"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id2" title="Permalink to this definition">¶</a></dt>
-<dd><p>Remove all the cache appart from those given to the method
+<dd><p>Remove all the cache apart from those given to the method
 input.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>skips</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – a list of path to keep during the cache deletion.</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>skips</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a>) – a list of path to keep during the cache deletion.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -383,15 +384,15 @@ input.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="capsul.study_config.memory.UnMemorizedProcess">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">capsul.study_config.memory.</span></span><span class="sig-name descname"><span class="pre">UnMemorizedProcess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/memory.html#UnMemorizedProcess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.memory.UnMemorizedProcess" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.study_config.memory.</span></span><span class="sig-name descname"><span class="pre">UnMemorizedProcess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/memory.html#UnMemorizedProcess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.memory.UnMemorizedProcess" title="Permalink to this definition">¶</a></dt>
 <dd><p>This class replaces MemorizedProcess when there is no cache.
 It provides an identical API but does not write anything on disk.</p>
 <p>Initialize the UnMemorizedProcess class.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>process</strong> (<em>capsul process</em>) – the process instance to wrap.</p></li>
-<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – if different from zero, print console messages.</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – if different from zero, print console messages.</p></li>
 </ul>
 </dd>
 </dl>
@@ -404,14 +405,14 @@ It provides an identical API but does not write anything on disk.</p>
 <p>Do not consider the file content, just the fingerprint (ie. the mtime,
 the size and the file location).</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>afile</strong> (<em>string</em>) – the file to process.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>fingerprint</strong> – the file location, mtime and size.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#tuple" title="(in Python v3.7)">tuple</a></p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#tuple" title="(in Python v3.10)">tuple</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -421,16 +422,16 @@ the size and the file location).</p>
 <span class="sig-prename descclassname"><span class="pre">capsul.study_config.memory.</span></span><span class="sig-name descname"><span class="pre">get_process_signature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_parameters</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/memory.html#get_process_signature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.memory.get_process_signature" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate the process signature.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>process</strong> (<a class="reference internal" href="process.html#capsul.process.process.Process" title="capsul.process.process.Process"><em>Process</em></a>) – a capsul process object</p></li>
-<li><p><strong>input_parameters</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – the process input_parameters.</p></li>
+<li><p><strong>input_parameters</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a>) – the process input_parameters.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>signature</strong> – the process signature.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>string</p>
 </dd>
 </dl>
@@ -442,20 +443,20 @@ the size and the file location).</p>
 <dd><p>Checks if a given trait has an attribute and optionally if it
 is set to particular value.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>trait</strong> (<em>Trait</em>) – the input trait object.</p></li>
 <li><p><strong>attribute_name</strong> (<em>string</em>) – the trait attribute name that will be checked.</p></li>
-<li><p><strong>attribute_value</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/functions.html#object" title="(in Python v3.7)"><em>object</em></a><em> (</em><em>optional</em><em>)</em>) – the trait attribute axpected value.</p></li>
-<li><p><strong>recursive</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em> (</em><em>optional</em><em>, </em><em>default True</em><em>)</em>) – check for the attribute in the inner traits.</p></li>
+<li><p><strong>attribute_value</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/functions.html#object" title="(in Python v3.10)"><em>object</em></a><em> (</em><em>optional</em><em>)</em>) – the trait attribute axpected value.</p></li>
+<li><p><strong>recursive</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em> (</em><em>optional</em><em>, </em><em>default True</em><em>)</em>) – check for the attribute in the inner traits.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>res</strong> – True if input given trait has an attribute and optionally if it
 is set to a particular value.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.7/library/functions.html#bool" title="(in Python v3.7)">bool</a></p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -465,40 +466,40 @@ is set to a particular value.</p>
 <span class="sig-prename descclassname"><span class="pre">capsul.study_config.memory.</span></span><span class="sig-name descname"><span class="pre">tuple_json_encoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/memory.html#tuple_json_encoder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.memory.tuple_json_encoder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Encode a tuple in order to save it in json format.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>obj</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/functions.html#object" title="(in Python v3.7)"><em>object</em></a>) – a python object to encode.</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>obj</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/functions.html#object" title="(in Python v3.10)"><em>object</em></a>) – a python object to encode.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>encobj</strong> – the encoded object.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.7/library/functions.html#object" title="(in Python v3.7)">object</a></p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#object" title="(in Python v3.10)">object</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 </section>
-</section>
-</section>
 <section id="module-capsul.study_config.process_instance">
-<span id="capsul-study-config-process-instance-submodule"></span><h2>capsul.study_config.process_instance submodule<a class="headerlink" href="#module-capsul.study_config.process_instance" title="Permalink to this headline">¶</a></h2>
+<span id="capsul-study-config-process-instance-submodule"></span><h2>capsul.study_config.process_instance submodule<a class="headerlink" href="#module-capsul.study_config.process_instance" title="Permalink to this heading">¶</a></h2>
 <p>Process instance factory</p>
 <section id="id3">
-<h3>Functions<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<h3>Functions<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h3>
 <section id="is-process">
-<h4><a class="reference internal" href="#capsul.study_config.process_instance.is_process" title="capsul.study_config.process_instance.is_process"><code class="xref py py-func docutils literal notranslate"><span class="pre">is_process()</span></code></a><a class="headerlink" href="#is-process" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.study_config.process_instance.is_process" title="capsul.study_config.process_instance.is_process"><code class="xref py py-func docutils literal notranslate"><span class="pre">is_process()</span></code></a><a class="headerlink" href="#is-process" title="Permalink to this heading">¶</a></h4>
 </section>
 <section id="is-pipeline-node">
-<h4><a class="reference internal" href="#capsul.study_config.process_instance.is_pipeline_node" title="capsul.study_config.process_instance.is_pipeline_node"><code class="xref py py-func docutils literal notranslate"><span class="pre">is_pipeline_node()</span></code></a><a class="headerlink" href="#is-pipeline-node" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.study_config.process_instance.is_pipeline_node" title="capsul.study_config.process_instance.is_pipeline_node"><code class="xref py py-func docutils literal notranslate"><span class="pre">is_pipeline_node()</span></code></a><a class="headerlink" href="#is-pipeline-node" title="Permalink to this heading">¶</a></h4>
 </section>
 <section id="get-process-instance">
-<h4><a class="reference internal" href="#capsul.study_config.process_instance.get_process_instance" title="capsul.study_config.process_instance.get_process_instance"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_process_instance()</span></code></a><a class="headerlink" href="#get-process-instance" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.study_config.process_instance.get_process_instance" title="capsul.study_config.process_instance.get_process_instance"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_process_instance()</span></code></a><a class="headerlink" href="#get-process-instance" title="Permalink to this heading">¶</a></h4>
 </section>
 <section id="get-node-class">
-<h4><a class="reference internal" href="#capsul.study_config.process_instance.get_node_class" title="capsul.study_config.process_instance.get_node_class"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_node_class()</span></code></a><a class="headerlink" href="#get-node-class" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.study_config.process_instance.get_node_class" title="capsul.study_config.process_instance.get_node_class"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_node_class()</span></code></a><a class="headerlink" href="#get-node-class" title="Permalink to this heading">¶</a></h4>
 </section>
 <section id="get-node-instance">
-<h4><a class="reference internal" href="#capsul.study_config.process_instance.get_node_instance" title="capsul.study_config.process_instance.get_node_instance"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_node_instance()</span></code></a><a class="headerlink" href="#get-node-instance" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.study_config.process_instance.get_node_instance" title="capsul.study_config.process_instance.get_node_instance"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_node_instance()</span></code></a><a class="headerlink" href="#get-node-instance" title="Permalink to this heading">¶</a></h4>
+</section>
+</section>
 <dl class="py function">
 <dt class="sig sig-object py" id="capsul.study_config.process_instance.get_node_class">
 <span class="sig-prename descclassname"><span class="pre">capsul.study_config.process_instance.</span></span><span class="sig-name descname"><span class="pre">get_node_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/process_instance.html#get_node_class"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.process_instance.get_node_class" title="Permalink to this definition">¶</a></dt>
@@ -516,13 +517,13 @@ The configuration contains parameters needed to instantiate the node type.
 Each node class may specify its parameters via its class method
 <cite>configure_node</cite>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>node_type</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em> or </em><em>Node subclass</em><em> or </em><em>Node instance</em>) – node type to be built. Either a class (Node subclass) or a Node
+<li><p><strong>node_type</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> or </em><em>Node subclass</em><em> or </em><em>Node instance</em>) – node type to be built. Either a class (Node subclass) or a Node
 instance (the node will be re-instantiated), or a string
 describing a module and class.</p></li>
 <li><p><strong>pipeline</strong> (<a class="reference internal" href="pipeline.html#capsul.pipeline.pipeline.Pipeline" title="capsul.pipeline.pipeline.Pipeline"><em>Pipeline</em></a>) – pipeline in which the node will be inserted.</p></li>
-<li><p><strong>conf_dict</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a><em> or </em><em>Controller</em>) – configuration dict or Controller defining parameters needed to build
+<li><p><strong>conf_dict</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a><em> or </em><em>Controller</em>) – configuration dict or Controller defining parameters needed to build
 the node. The controller should be obtained using the node class’s
 <cite>configure_node()</cite> static method, then filled with the desired values.
 If not given the node is supposed to be built with no parameters, which
@@ -552,14 +553,15 @@ StudyConfig.get_process_instance()</p>
 <cite>&lt;module&gt;</cite></p></li>
 <li><p>a string description of a pipeline <cite>&lt;module&gt;.&lt;fname&gt;.xml</cite>.</p></li>
 <li><p>an XML filename for a pipeline.</p></li>
+<li><p>a JSON filename for a pipeline.</p></li>
 <li><p>a Python (.py) filename with process name in it:
 <cite>/path/process_source.py#ProcessName</cite>.</p></li>
-<li><p>a Python (.py) filename for a file containg a single process.</p></li>
+<li><p>a Python (.py) filename for a file containing a single process.</p></li>
 </ul>
 </div></blockquote>
 <p>Default values of the process instance are passed as additional parameters.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>process_or_id</strong> (<em>instance</em><em> or </em><em>class description</em><em> (</em><em>mandatory</em><em>)</em>) – a process/nipype interface instance/class or a string description.</p></li>
 <li><p><strong>study_config</strong> (<em>StudyConfig instance</em><em> (</em><em>optional</em><em>)</em>) – A Process instance belongs to a StudyConfig framework. If not specified
@@ -567,10 +569,10 @@ the study_config can be set afterwards.</p></li>
 <li><p><strong>kwargs</strong> – default values of the process instance parameters.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>result</strong> – an initialized process instance.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="process.html#capsul.process.process.Process" title="capsul.process.process.Process">Process</a></p>
 </dd>
 </dl>
@@ -590,32 +592,32 @@ or XML docstring which makes it seen as a process</p>
 </dd></dl>
 
 </section>
-</section>
-</section>
 <section id="module-capsul.study_config.run">
-<span id="capsul-study-config-run-submodule"></span><h2>capsul.study_config.run submodule<a class="headerlink" href="#module-capsul.study_config.run" title="Permalink to this headline">¶</a></h2>
+<span id="capsul-study-config-run-submodule"></span><h2>capsul.study_config.run submodule<a class="headerlink" href="#module-capsul.study_config.run" title="Permalink to this heading">¶</a></h2>
 <p>Process and pipeline execution management</p>
 <section id="id4">
-<h3>Functions<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<h3>Functions<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h3>
 <section id="run-process">
-<h4><a class="reference internal" href="#capsul.study_config.run.run_process" title="capsul.study_config.run.run_process"><code class="xref py py-func docutils literal notranslate"><span class="pre">run_process()</span></code></a><a class="headerlink" href="#run-process" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.study_config.run.run_process" title="capsul.study_config.run.run_process"><code class="xref py py-func docutils literal notranslate"><span class="pre">run_process()</span></code></a><a class="headerlink" href="#run-process" title="Permalink to this heading">¶</a></h4>
+</section>
+</section>
 <dl class="py function">
 <dt class="sig sig-object py" id="capsul.study_config.run.run_process">
 <span class="sig-prename descclassname"><span class="pre">capsul.study_config.run.</span></span><span class="sig-name descname"><span class="pre">run_process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">process_instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generate_logging</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cachedir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/run.html#run_process"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.run.run_process" title="Permalink to this definition">¶</a></dt>
 <dd><p>Execute a capsul process in a specific directory.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>output_dir</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – the folder where the process will write results.</p></li>
-<li><p><strong>process_instance</strong> (<a class="reference internal" href="process.html#capsul.process.process.Process" title="capsul.process.process.Process"><em>Process</em></a><em> (</em><em>madatory</em><em>)</em>) – the capsul process we want to execute.</p></li>
-<li><p><strong>cachedir</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em> (</em><em>optional</em><em>, </em><em>default None</em><em>)</em>) – save in the cache the current process execution.
+<li><p><strong>output_dir</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – the folder where the process will write results.</p></li>
+<li><p><strong>process_instance</strong> (<a class="reference internal" href="process.html#capsul.process.process.Process" title="capsul.process.process.Process"><em>Process</em></a><em> (</em><em>mandatory</em><em>)</em>) – the capsul process we want to execute.</p></li>
+<li><p><strong>cachedir</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> (</em><em>optional</em><em>, </em><em>default None</em><em>)</em>) – save in the cache the current process execution.
 If None, no caching is done.</p></li>
-<li><p><strong>generate_logging</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em> (</em><em>optional</em><em>, </em><em>default False</em><em>)</em>) – if True save the log stored in the process after its execution.</p></li>
-<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – if different from zero, print console messages.</p></li>
-<li><p><strong>configuration_dict</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a><em> (</em><em>optional</em><em>)</em>) – configuration dictionary</p></li>
+<li><p><strong>generate_logging</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em> (</em><em>optional</em><em>, </em><em>default False</em><em>)</em>) – if True save the log stored in the process after its execution.</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – if different from zero, print console messages.</p></li>
+<li><p><strong>configuration_dict</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a><em> (</em><em>optional</em><em>)</em>) – configuration dictionary</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><strong>returncode</strong> (<em>ProcessResult</em>) – contains all execution information.</p></li>
 <li><p><strong>output_log_file</strong> (<em>str</em>) – the path to the process execution log file.</p></li>
@@ -626,38 +628,39 @@ If None, no caching is done.</p></li>
 </dd></dl>
 
 </section>
-</section>
-</section>
 <section id="capsul-study-config-study-config-submodule">
-<h2>capsul.study_config.study_config submodule<a class="headerlink" href="#capsul-study-config-study-config-submodule" title="Permalink to this headline">¶</a></h2>
+<h2>capsul.study_config.study_config submodule<a class="headerlink" href="#capsul-study-config-study-config-submodule" title="Permalink to this heading">¶</a></h2>
 <div class="graphviz"><img src="../_images/inheritance-7d05cf49aa2052c6b4b35b5c08c42c8fa268d6c2.png" alt="Inheritance diagram of capsul.study_config.study_config" usemap="#inheritance75dab25d1b" class="inheritance graphviz" /></div>
 <map id="inheritance75dab25d1b" name="inheritance75dab25d1b">
-<area shape="rect" id="node4" href="#capsul.study_config.study_config.StudyConfig" target="_top" title="Class to store the study parameters and processing options." alt="" coords="459,55,557,80"/>
-<area shape="rect" id="node5" href="#capsul.study_config.study_config.StudyConfigModule" target="_top" title=":class:`StudyConfig` module base class (abstract)" alt="" coords="5,5,151,31"/>
+<area shape="rect" id="node4" href="#capsul.study_config.study_config.StudyConfig" target="_top" title="Class to store the study parameters and processing options." alt="" coords="467,55,567,80"/>
+<area shape="rect" id="node5" href="#capsul.study_config.study_config.StudyConfigModule" target="_top" title=":class:`StudyConfig` module base class (abstract)" alt="" coords="5,5,153,31"/>
 </map><span class="target" id="module-capsul.study_config.study_config"></span><p>Main <a class="reference internal" href="#capsul.study_config.study_config.StudyConfig" title="capsul.study_config.study_config.StudyConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">StudyConfig</span></code></a> class for configuration of Capsul software, directories etc.</p>
 <section id="id5">
-<h3>Classes<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<h3>Classes<a class="headerlink" href="#id5" title="Permalink to this heading">¶</a></h3>
 <section id="studyconfig">
-<h4><a class="reference internal" href="#capsul.study_config.study_config.StudyConfig" title="capsul.study_config.study_config.StudyConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">StudyConfig</span></code></a><a class="headerlink" href="#studyconfig" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.study_config.study_config.StudyConfig" title="capsul.study_config.study_config.StudyConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">StudyConfig</span></code></a><a class="headerlink" href="#studyconfig" title="Permalink to this heading">¶</a></h4>
 </section>
 <section id="studyconfigmodule">
-<h4><a class="reference internal" href="#capsul.study_config.study_config.StudyConfigModule" title="capsul.study_config.study_config.StudyConfigModule"><code class="xref py py-class docutils literal notranslate"><span class="pre">StudyConfigModule</span></code></a><a class="headerlink" href="#studyconfigmodule" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.study_config.study_config.StudyConfigModule" title="capsul.study_config.study_config.StudyConfigModule"><code class="xref py py-class docutils literal notranslate"><span class="pre">StudyConfigModule</span></code></a><a class="headerlink" href="#studyconfigmodule" title="Permalink to this heading">¶</a></h4>
 </section>
 </section>
 <section id="id6">
-<h3>Functions<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<h3>Functions<a class="headerlink" href="#id6" title="Permalink to this heading">¶</a></h3>
 <section id="default-study-config">
-<h4><a class="reference internal" href="#capsul.study_config.study_config.default_study_config" title="capsul.study_config.study_config.default_study_config"><code class="xref py py-func docutils literal notranslate"><span class="pre">default_study_config()</span></code></a><a class="headerlink" href="#default-study-config" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.study_config.study_config.default_study_config" title="capsul.study_config.study_config.default_study_config"><code class="xref py py-func docutils literal notranslate"><span class="pre">default_study_config()</span></code></a><a class="headerlink" href="#default-study-config" title="Permalink to this heading">¶</a></h4>
+</section>
+</section>
 <dl class="py class">
 <dt class="sig sig-object py" id="capsul.study_config.study_config.StudyConfig">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">capsul.study_config.study_config.</span></span><span class="sig-name descname"><span class="pre">StudyConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">study_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modules</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">engine</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">override_config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/study_config.html#StudyConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.study_config.StudyConfig" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.study_config.study_config.</span></span><span class="sig-name descname"><span class="pre">StudyConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">study_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modules</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">engine</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">override_config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/study_config.html#StudyConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.study_config.StudyConfig" title="Permalink to this definition">¶</a></dt>
 <dd><p>Class to store the study parameters and processing options.</p>
 <p>StudyConfig is deprecated and will probably be removed in Capsul 3.
 Please use <a class="reference internal" href="engine.html#capsul.engine.CapsulEngine" title="capsul.engine.CapsulEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">CapsulEngine</span></code></a> instead and its
 construction function, <a class="reference internal" href="engine.html#capsul.engine.capsul_engine" title="capsul.engine.capsul_engine"><code class="xref py py-func docutils literal notranslate"><span class="pre">capsul_engine()</span></code></a> when possible.</p>
 <p>This in turn is used to evaluate a Process instance or a Pipeline.</p>
-<p>StudyConfig has modules (see BrainVISAConfig, FSLConfig, MatlabConfig,
-SmartCachingConfig, SomaWorkflowConfig, SPMConfig, FOMConfig).
+<p>StudyConfig has modules (see BrainVISAConfig, AFNIConfig, FSLConfig,
+MatlabConfig, ANTSConfig, SmartCachingConfig, SomaWorkflowConfig,
+SPMConfig, FOMConfig).
 Modules are initialized in the constructor, so their list has to be setup
 before instantiating StudyConfig. A default modules list is used when no
 modules are specified: StudyConfig.default_modules</p>
@@ -680,8 +683,8 @@ file name is either defined in the global configuration or in
 <span class="sig-name descname"><span class="pre">input_directory</span></span><a class="headerlink" href="#capsul.study_config.study_config.StudyConfig.input_directory" title="Permalink to this definition">¶</a></dt>
 <dd><p>parameter to set the study input directory</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)">str</a></p>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)">str</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -691,8 +694,8 @@ file name is either defined in the global configuration or in
 <span class="sig-name descname"><span class="pre">output_directory</span></span><a class="headerlink" href="#capsul.study_config.study_config.StudyConfig.output_directory" title="Permalink to this definition">¶</a></dt>
 <dd><p>parameter to set the study output directory</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)">str</a></p>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)">str</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -702,8 +705,8 @@ file name is either defined in the global configuration or in
 <span class="sig-name descname"><span class="pre">generate_logging</span></span><a class="headerlink" href="#capsul.study_config.study_config.StudyConfig.generate_logging" title="Permalink to this definition">¶</a></dt>
 <dd><p>parameter to control the log generation</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.7/library/functions.html#bool" title="(in Python v3.7)">bool</a> (default False)</p>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)">bool</a> (default False)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -714,8 +717,8 @@ file name is either defined in the global configuration or in
 <dd><p>Create parent directories of all output File or Directory before
 running a process</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.7/library/functions.html#bool" title="(in Python v3.7)">bool</a> (default True)</p>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)">bool</a> (default True)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -728,8 +731,8 @@ subdirectory to output_directory. This subdirectory is named
 ‘&lt;count&gt;-&lt;name&gt;’ where &lt;count&gt; if self.process_counter and &lt;name&gt;
 is the name of the process.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.7/library/functions.html#bool" title="(in Python v3.7)">bool</a> (default False)</p>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)">bool</a> (default False)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -769,14 +772,14 @@ is the name of the process.</p>
 <span class="sig-name descname"><span class="pre">set_study_configuration</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/study_config.html#StudyConfig.set_study_configuration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.study_config.StudyConfig.set_study_configuration" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<p>Initilize the StudyConfig class</p>
+<p>Initialize the StudyConfig class</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>study_name</strong> (<em>Name of the study to configure. This name is used to</em>) – identify specific configuration for a study.</p></li>
+<li><p><strong>study_name</strong> (<em>Name</em><em> of </em><em>the study to configure. This name is used to</em>) – identify specific configuration for a study.</p></li>
 <li><p><strong>init_config</strong> (<em>if not None</em><em>, </em><em>must contain a dictionary that will be used</em>) – to configure this StudyConfig (instead of reading configuration
 from configuration files).</p></li>
-<li><p><strong>modules</strong> (<em>list of string</em><em> (</em><em>default self.default_modules</em><em>)</em><em></em>) – the names of configuration module classes that will be included
+<li><p><strong>modules</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a><em> of </em><em>string</em><em> (</em><em>default self.default_modules</em><em>)</em><em>.</em>) – the names of configuration module classes that will be included
 in this study configuration.</p></li>
 <li><p><strong>engine</strong> (<a class="reference internal" href="engine.html#capsul.engine.CapsulEngine" title="capsul.engine.CapsulEngine"><em>CapsulEngine</em></a>) – this parameter is temporary, it just helps to handle the transition
 to <a class="reference internal" href="engine.html#capsul.engine.CapsulEngine" title="capsul.engine.CapsulEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">capsul.engine.CapsulEngine</span></code></a>. Don’t use it in client code.</p></li>
@@ -791,9 +794,9 @@ files (or from init_config).</p></li>
 <span class="sig-name descname"><span class="pre">add_trait</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">trait</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/study_config.html#StudyConfig.add_trait"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.study_config.StudyConfig.add_trait" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a new trait.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – the trait name.</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – the trait name.</p></li>
 <li><p><strong>trait</strong> (<em>traits.api</em><em> (</em><em>mandatory</em><em>)</em>) – a valid trait.</p></li>
 </ul>
 </dd>
@@ -813,20 +816,20 @@ configuration.</p>
 <dd><p>Create a pipeline with an iteration node iterating the given
 process.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pipeline_name</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – pipeline name</p></li>
-<li><p><strong>node_name</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – iteration node name in the pipeline</p></li>
+<li><p><strong>pipeline_name</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – pipeline name</p></li>
+<li><p><strong>node_name</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – iteration node name in the pipeline</p></li>
 <li><p><strong>process_or_id</strong> (<em>process description</em>) – as in <a class="reference internal" href="#capsul.study_config.study_config.StudyConfig.get_process_instance" title="capsul.study_config.study_config.StudyConfig.get_process_instance"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_process_instance()</span></code></a></p></li>
-<li><p><strong>iterative_plugs</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a><em> (</em><em>optional</em><em>)</em>) – passed to <code class="xref py py-meth docutils literal notranslate"><span class="pre">Pipeline.add_iterative_process()</span></code></p></li>
-<li><p><strong>do_not_export</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – passed to <code class="xref py py-meth docutils literal notranslate"><span class="pre">Pipeline.add_iterative_process()</span></code></p></li>
-<li><p><strong>make_optional</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – passed to <code class="xref py py-meth docutils literal notranslate"><span class="pre">Pipeline.add_iterative_process()</span></code></p></li>
+<li><p><strong>iterative_plugs</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a><em> (</em><em>optional</em><em>)</em>) – passed to <code class="xref py py-meth docutils literal notranslate"><span class="pre">Pipeline.add_iterative_process()</span></code></p></li>
+<li><p><strong>do_not_export</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a>) – passed to <code class="xref py py-meth docutils literal notranslate"><span class="pre">Pipeline.add_iterative_process()</span></code></p></li>
+<li><p><strong>make_optional</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a>) – passed to <code class="xref py py-meth docutils literal notranslate"><span class="pre">Pipeline.add_iterative_process()</span></code></p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>pipeline</strong></p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code> instance</p>
 </dd>
 </dl>
@@ -852,16 +855,16 @@ process.</p>
 <p>Default values of the process instance are passed as additional
 parameters.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>process_or_id</strong> (<em>instance</em><em> or </em><em>class description</em><em> (</em><em>mandatory</em><em>)</em>) – a process/nipype interface instance/class or a string description.</p></li>
 <li><p><strong>kwargs</strong> – default values of the process instance parameters.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>result</strong> – an initialized process instance.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="process.html#capsul.process.process.Process" title="capsul.process.process.Process">Process</a></p>
 </dd>
 </dl>
@@ -874,13 +877,13 @@ parameters.</p>
 <p class="rubric">Notes</p>
 <p>If the ‘trait_name’ element is not found, return None</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>trait_name</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – the trait name we want to access</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>trait_name</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – the trait name we want to access</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>trait</strong> – the trait we want to access</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>trait</p>
 </dd>
 </dl>
@@ -892,14 +895,14 @@ parameters.</p>
 <dd><p>Method to access the value of the ‘trait_name’ study
 configuration element.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>trait_name</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – the trait name we want to modify</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>trait_name</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – the trait name we want to modify</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>value</strong> – the trait value we want to access</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.7/library/functions.html#object" title="(in Python v3.7)">object</a></p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#object" title="(in Python v3.10)">object</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -908,7 +911,7 @@ configuration element.</p>
 <dt class="sig sig-object py" id="capsul.study_config.study_config.StudyConfig.initialize_modules">
 <span class="sig-name descname"><span class="pre">initialize_modules</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/study_config.html#StudyConfig.initialize_modules"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.study_config.StudyConfig.initialize_modules" title="Permalink to this definition">¶</a></dt>
 <dd><p>Modules initialization, calls initialize_module on each config module.
-This is not done during module instanciation to allow interactions
+This is not done during module instantiation to allow interactions
 between modules (e.g. Matlab configuration can influence Nipype
 configuration). Modules dependencies are taken into account in
 initialization.</p>
@@ -919,10 +922,10 @@ initialization.</p>
 <span class="sig-name descname"><span class="pre">load_module</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_module_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/study_config.html#StudyConfig.load_module"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.study_config.StudyConfig.load_module" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load an optional StudyConfig module.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>config_module_name</strong> (<em>Name of the module to load</em><em> (</em><em>e.g. &quot;FSLConfig&quot;</em><em>)</em><em></em>) – </p></li>
-<li><p><strong>config</strong> (<em>dictionary containing the configuration of the study.</em>) – </p></li>
+<li><p><strong>config_module_name</strong> (<em>Name</em><em> of </em><em>the module to load</em><em> (</em><em>e.g. &quot;FSLConfig&quot;</em><em>)</em><em>.</em>) – </p></li>
+<li><p><strong>config</strong> (<em>dictionary containing the configuration</em><em> of </em><em>the study.</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -965,20 +968,20 @@ or a parallel run, which can involve remote execution (through soma-
 workflow).</p>
 <p>Only pipeline nodes can be filtered on the ‘execute_qc_nodes’
 attribute.</p>
-<p>A valid output directory is exepcted to execute the process or the
+<p>A valid output directory is expected to execute the process or the
 pepeline without soma-workflow.</p>
 </dd>
 </dl>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>process_or_pipeline</strong> (<a class="reference internal" href="process.html#capsul.process.process.Process" title="capsul.process.process.Process"><em>Process</em></a><em> or </em><em>Pipeline instance</em><em> (</em><em>mandatory</em><em>)</em>) – the process or pipeline we want to execute</p></li>
 <li><p><strong>output_directory</strong> (<em>Directory name</em><em> (</em><em>optional</em><em>)</em>) – the output directory to use for process execution. This replaces
 self.output_directory but left it unchanged.</p></li>
-<li><p><strong>execute_qc_nodes</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em> (</em><em>optional</em><em>, </em><em>default False</em><em>)</em>) – if True execute process nodes that are taged as qualtity control
+<li><p><strong>execute_qc_nodes</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em> (</em><em>optional</em><em>, </em><em>default False</em><em>)</em>) – if True execute process nodes that are tagged as qualtity control
 process nodes.</p></li>
-<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – if different from zero, print console messages.</p></li>
-<li><p><strong>configuration_dict</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a><em> (</em><em>optional</em><em>)</em>) – configuration dictionary</p></li>
+<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – if different from zero, print console messages.</p></li>
+<li><p><strong>configuration_dict</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a><em> (</em><em>optional</em><em>)</em>) – configuration dictionary</p></li>
 </ul>
 </dd>
 </dl>
@@ -989,8 +992,8 @@ process nodes.</p></li>
 <span class="sig-name descname"><span class="pre">save_configuration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/study_config.html#StudyConfig.save_configuration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.study_config.StudyConfig.save_configuration" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save study configuration as json file.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>file</strong> (<em>file</em><em> or </em><a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – either a writable opened file or the path to the output json file.</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>file</strong> (<em>file</em><em> or </em><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – either a writable opened file or the path to the output json file.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1002,7 +1005,7 @@ process nodes.</p></li>
 <p>If a study configuration element can’t be updated properly,
 send an error message to the logger.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>new_config</strong> (<em>ordered dict</em><em> (</em><em>mandatory</em><em>)</em>) – the structure that contain the default study configuration:
 see the class attributes to build this structure.</p>
 </dd>
@@ -1014,10 +1017,10 @@ see the class attributes to build this structure.</p>
 <span class="sig-name descname"><span class="pre">set_trait_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trait_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trait_value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/study_config.html#StudyConfig.set_trait_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id12" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method to set the value of a parameter.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>trait_name</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – the trait name we want to modify</p></li>
-<li><p><strong>trait_value</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/functions.html#object" title="(in Python v3.7)"><em>object</em></a><em> (</em><em>madatory</em><em>)</em>) – the trait value we want to set</p></li>
+<li><p><strong>trait_name</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – the trait name we want to modify</p></li>
+<li><p><strong>trait_value</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/functions.html#object" title="(in Python v3.10)"><em>object</em></a><em> (</em><em>mandatory</em><em>)</em>) – the trait value we want to set</p></li>
 </ul>
 </dd>
 </dl>
@@ -1028,8 +1031,8 @@ see the class attributes to build this structure.</p>
 <span class="sig-name descname"><span class="pre">update_study_configuration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">json_fname</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/study_config.html#StudyConfig.update_study_configuration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id13" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update the study configuration from a json file.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>json_fname</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – the path to the output json file.</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>json_fname</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – the path to the output json file.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1038,7 +1041,7 @@ see the class attributes to build this structure.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="capsul.study_config.study_config.StudyConfigModule">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">capsul.study_config.study_config.</span></span><span class="sig-name descname"><span class="pre">StudyConfigModule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">study_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/study_config.html#StudyConfigModule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.study_config.StudyConfigModule" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.study_config.study_config.</span></span><span class="sig-name descname"><span class="pre">StudyConfigModule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">study_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/study_config.html#StudyConfigModule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.study_config.StudyConfigModule" title="Permalink to this definition">¶</a></dt>
 <dd><p><a class="reference internal" href="#capsul.study_config.study_config.StudyConfig" title="capsul.study_config.study_config.StudyConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">StudyConfig</span></code></a> module base class (abstract)</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="capsul.study_config.study_config.StudyConfigModule.initialize_callbacks">
@@ -1050,12 +1053,12 @@ see the class attributes to build this structure.</p>
 <dt class="sig sig-object py" id="capsul.study_config.study_config.StudyConfigModule.initialize_module">
 <span class="sig-name descname"><span class="pre">initialize_module</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/study_config.html#StudyConfigModule.initialize_module"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.study_config.StudyConfigModule.initialize_module" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method called to initialize selected study configuration modules
-on startup. This method does nothing but can be overriden by modules.</p>
+on startup. This method does nothing but can be overridden by modules.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="capsul.study_config.study_config.StudyConfigModule.name">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#capsul.study_config.study_config.StudyConfigModule.name" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#capsul.study_config.study_config.StudyConfigModule.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>The name of a module that can be used in configuration to select
 modules to load.</p>
 </dd></dl>
@@ -1065,46 +1068,46 @@ modules to load.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="capsul.study_config.study_config.default_study_config">
 <span class="sig-prename descclassname"><span class="pre">capsul.study_config.study_config.</span></span><span class="sig-name descname"><span class="pre">default_study_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/study_config.html#default_study_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.study_config.default_study_config" title="Permalink to this definition">¶</a></dt>
-<dd><p>On the first call create a StudyConfig instance with defaut configuration
-(eventualy reading configuration files). Then returns this instance on all
+<dd><p>On the first call create a StudyConfig instance with default configuration
+(eventually reading configuration files). Then returns this instance on all
 subsequent calls.</p>
 </dd></dl>
 
 </section>
-</section>
-</section>
 <section id="capsul-study-config-config-modules-submodule">
-<h2>capsul.study_config.config_modules submodule<a class="headerlink" href="#capsul-study-config-config-modules-submodule" title="Permalink to this headline">¶</a></h2>
+<h2>capsul.study_config.config_modules submodule<a class="headerlink" href="#capsul-study-config-config-modules-submodule" title="Permalink to this heading">¶</a></h2>
 <div class="graphviz"><img src="../_images/inheritance-c26322b89f25833a7eabedb52256b05c4fc4badc.png" alt="Inheritance diagram of capsul.study_config.config_modules.attributes_config, capsul.study_config.config_modules.brainvisa_config, capsul.study_config.config_modules.fom_config, capsul.study_config.config_modules.freesurfer_config, capsul.study_config.config_modules.fsl_config, capsul.study_config.config_modules.matlab_config, capsul.study_config.config_modules.nipype_config, capsul.study_config.config_modules.smartcaching_config, capsul.study_config.config_modules.somaworkflow_config, capsul.study_config.config_modules.spm_config, capsul.study_config.config_modules" usemap="#inheritancefa2d8176f7" class="inheritance graphviz" /></div>
 <map id="inheritancefa2d8176f7" name="inheritancefa2d8176f7">
-<area shape="rect" id="node1" href="#capsul.study_config.config_modules.attributes_config.AttributesConfig" target="_top" title="Attributes&#45;based completion configuration module for StudyConfig" alt="" coords="213,55,339,80"/>
-<area shape="rect" id="node2" href="#capsul.study_config.study_config.StudyConfigModule" target="_top" title=":class:`StudyConfig` module base class (abstract)" alt="" coords="5,277,151,303"/>
-<area shape="rect" id="node3" href="#capsul.study_config.config_modules.brainvisa_config.BrainVISAConfig" target="_top" title="Configuration module allowing to use `BrainVISA / Axon &lt;http://brainvisa.info/axon/user_doc&gt;`_ shared data in Capsul processes." alt="" coords="213,104,339,129"/>
-<area shape="rect" id="node7" href="#capsul.study_config.config_modules.fsl_config.FSLConfig" target="_top" title="`FSL &lt;https://fsl.fmrib.ox.ac.uk/fsl/fslwiki&gt;`_ configuration module" alt="" coords="233,153,319,179"/>
-<area shape="rect" id="node8" href="#capsul.study_config.config_modules.fom_config.FomConfig" target="_top" title="FOM (File Organization Model) configuration module for StudyConfig" alt="" coords="231,203,321,228"/>
-<area shape="rect" id="node9" href="#capsul.study_config.config_modules.freesurfer_config.FreeSurferConfig" target="_top" title="Class to set up freesurfer configuration." alt="" coords="212,252,340,277"/>
-<area shape="rect" id="node10" href="#capsul.study_config.config_modules.matlab_config.MatlabConfig" target="_top" title="Matlab path configuration" alt="" coords="223,301,329,327"/>
-<area shape="rect" id="node11" href="#capsul.study_config.config_modules.nipype_config.NipypeConfig" target="_top" title="Nipype configuration." alt="" coords="223,351,329,376"/>
-<area shape="rect" id="node13" href="#capsul.study_config.config_modules.spm_config.SPMConfig" target="_top" title="SPM configuration." alt="" coords="231,400,321,425"/>
-<area shape="rect" id="node14" href="#capsul.study_config.config_modules.smartcaching_config.SmartCachingConfig" target="_top" title="SmartCachingConfig" alt="" coords="199,449,353,475"/>
-<area shape="rect" id="node15" href="#capsul.study_config.config_modules.somaworkflow_config.SomaWorkflowConfig" target="_top" title="Configuration module for :somaworkflow:`Soma&#45;Workflow &lt;index.html&gt;`" alt="" coords="199,499,353,524"/>
-<area shape="rect" id="node12" href="#capsul.study_config.config_modules.somaworkflow_config.ResourceController" target="_top" title="Configuration options for one Soma&#45;Workflow computing resource" alt="" coords="533,5,676,31"/>
+<area shape="rect" id="node1" href="#capsul.study_config.config_modules.attributes_config.AttributesConfig" target="_top" title="Attributes&#45;based completion configuration module for StudyConfig" alt="" coords="218,55,345,80"/>
+<area shape="rect" id="node2" href="#capsul.study_config.study_config.StudyConfigModule" target="_top" title=":class:`StudyConfig` module base class (abstract)" alt="" coords="5,277,153,303"/>
+<area shape="rect" id="node3" href="#capsul.study_config.config_modules.brainvisa_config.BrainVISAConfig" target="_top" title="Configuration module allowing to use `BrainVISA / Axon &lt;http://brainvisa.info/axon/user_doc&gt;`_ shared data in Capsul processes." alt="" coords="217,104,345,129"/>
+<area shape="rect" id="node7" href="#capsul.study_config.config_modules.fsl_config.FSLConfig" target="_top" title="`FSL &lt;https://fsl.fmrib.ox.ac.uk/fsl/fslwiki&gt;`_ configuration module" alt="" coords="239,153,324,179"/>
+<area shape="rect" id="node8" href="#capsul.study_config.config_modules.fom_config.FomConfig" target="_top" title="FOM (File Organization Model) configuration module for StudyConfig" alt="" coords="236,203,327,228"/>
+<area shape="rect" id="node9" href="#capsul.study_config.config_modules.freesurfer_config.FreeSurferConfig" target="_top" title="Class to set up freesurfer configuration." alt="" coords="216,252,347,277"/>
+<area shape="rect" id="node10" href="#capsul.study_config.config_modules.matlab_config.MatlabConfig" target="_top" title="Matlab path configuration" alt="" coords="227,301,335,327"/>
+<area shape="rect" id="node11" href="#capsul.study_config.config_modules.nipype_config.NipypeConfig" target="_top" title="Nipype configuration." alt="" coords="227,351,336,376"/>
+<area shape="rect" id="node13" href="#capsul.study_config.config_modules.spm_config.SPMConfig" target="_top" title="SPM configuration." alt="" coords="236,400,327,425"/>
+<area shape="rect" id="node14" href="#capsul.study_config.config_modules.smartcaching_config.SmartCachingConfig" target="_top" title="SmartCachingConfig" alt="" coords="204,449,359,475"/>
+<area shape="rect" id="node15" href="#capsul.study_config.config_modules.somaworkflow_config.SomaWorkflowConfig" target="_top" title="Configuration module for :somaworkflow:`Soma&#45;Workflow &lt;index.html&gt;`" alt="" coords="201,499,361,524"/>
+<area shape="rect" id="node12" href="#capsul.study_config.config_modules.somaworkflow_config.ResourceController" target="_top" title="Configuration options for one Soma&#45;Workflow computing resource" alt="" coords="544,5,691,31"/>
 </map><span class="target" id="module-capsul.study_config.config_modules"></span><p><a class="reference internal" href="#capsul.study_config.study_config.StudyConfig" title="capsul.study_config.study_config.StudyConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">StudyConfig</span></code></a> configuration modules implementations</p>
 </section>
 <section id="capsul-study-config-config-modules-attributes-config-submodule">
-<h2>capsul.study_config.config_modules.attributes_config submodule<a class="headerlink" href="#capsul-study-config-config-modules-attributes-config-submodule" title="Permalink to this headline">¶</a></h2>
+<h2>capsul.study_config.config_modules.attributes_config submodule<a class="headerlink" href="#capsul-study-config-config-modules-attributes-config-submodule" title="Permalink to this heading">¶</a></h2>
 <div class="graphviz"><img src="../_images/inheritance-e2b695fac28423fafae56c2f81d537a416bcdb33.png" alt="Inheritance diagram of capsul.study_config.config_modules.attributes_config" usemap="#inheritancef1d6f5a956" class="inheritance graphviz" /></div>
 <map id="inheritancef1d6f5a956" name="inheritancef1d6f5a956">
-<area shape="rect" id="node1" href="#capsul.study_config.config_modules.attributes_config.AttributesConfig" target="_top" title="Attributes&#45;based completion configuration module for StudyConfig" alt="" coords="199,5,324,31"/>
-<area shape="rect" id="node2" href="#capsul.study_config.study_config.StudyConfigModule" target="_top" title=":class:`StudyConfig` module base class (abstract)" alt="" coords="5,5,151,31"/>
+<area shape="rect" id="node1" href="#capsul.study_config.config_modules.attributes_config.AttributesConfig" target="_top" title="Attributes&#45;based completion configuration module for StudyConfig" alt="" coords="201,5,328,31"/>
+<area shape="rect" id="node2" href="#capsul.study_config.study_config.StudyConfigModule" target="_top" title=":class:`StudyConfig` module base class (abstract)" alt="" coords="5,5,153,31"/>
 </map><span class="target" id="module-capsul.study_config.config_modules.attributes_config"></span><p>Attributes completion config module</p>
 <section id="id14">
-<h3>Classes<a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h3>
+<h3>Classes<a class="headerlink" href="#id14" title="Permalink to this heading">¶</a></h3>
 <section id="attributesconfig">
-<h4><a class="reference internal" href="#capsul.study_config.config_modules.attributes_config.AttributesConfig" title="capsul.study_config.config_modules.attributes_config.AttributesConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">AttributesConfig</span></code></a><a class="headerlink" href="#attributesconfig" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.study_config.config_modules.attributes_config.AttributesConfig" title="capsul.study_config.config_modules.attributes_config.AttributesConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">AttributesConfig</span></code></a><a class="headerlink" href="#attributesconfig" title="Permalink to this heading">¶</a></h4>
+</section>
+</section>
 <dl class="py class">
 <dt class="sig sig-object py" id="capsul.study_config.config_modules.attributes_config.AttributesConfig">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">capsul.study_config.config_modules.attributes_config.</span></span><span class="sig-name descname"><span class="pre">AttributesConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">study_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/config_modules/attributes_config.html#AttributesConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.config_modules.attributes_config.AttributesConfig" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.study_config.config_modules.attributes_config.</span></span><span class="sig-name descname"><span class="pre">AttributesConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">study_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/config_modules/attributes_config.html#AttributesConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.config_modules.attributes_config.AttributesConfig" title="Permalink to this definition">¶</a></dt>
 <dd><p>Attributes-based completion configuration module for StudyConfig</p>
 <p>This module adds the following options (traits) in the
 <a class="reference internal" href="#capsul.study_config.study_config.StudyConfig" title="capsul.study_config.study_config.StudyConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">StudyConfig</span></code></a> object:</p>
@@ -1132,18 +1135,18 @@ subsequent calls.</p>
 </dd></dl>
 
 </section>
-</section>
-</section>
 <section id="module-capsul.study_config.config_modules.brainvisa_config">
-<span id="capsul-study-config-config-modules-brainvisa-config-submodule"></span><h2>capsul.study_config.config_modules.brainvisa_config submodule<a class="headerlink" href="#module-capsul.study_config.config_modules.brainvisa_config" title="Permalink to this headline">¶</a></h2>
+<span id="capsul-study-config-config-modules-brainvisa-config-submodule"></span><h2>capsul.study_config.config_modules.brainvisa_config submodule<a class="headerlink" href="#module-capsul.study_config.config_modules.brainvisa_config" title="Permalink to this heading">¶</a></h2>
 <p>Configuration module which links with <a class="reference external" href="http://brainvisa.info/axon/user_doc">Axon</a></p>
 <section id="id15">
-<h3>Classes<a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h3>
+<h3>Classes<a class="headerlink" href="#id15" title="Permalink to this heading">¶</a></h3>
 <section id="brainvisaconfig">
-<h4><a class="reference internal" href="#capsul.study_config.config_modules.brainvisa_config.BrainVISAConfig" title="capsul.study_config.config_modules.brainvisa_config.BrainVISAConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">BrainVISAConfig</span></code></a><a class="headerlink" href="#brainvisaconfig" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.study_config.config_modules.brainvisa_config.BrainVISAConfig" title="capsul.study_config.config_modules.brainvisa_config.BrainVISAConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">BrainVISAConfig</span></code></a><a class="headerlink" href="#brainvisaconfig" title="Permalink to this heading">¶</a></h4>
+</section>
+</section>
 <dl class="py class">
 <dt class="sig sig-object py" id="capsul.study_config.config_modules.brainvisa_config.BrainVISAConfig">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">capsul.study_config.config_modules.brainvisa_config.</span></span><span class="sig-name descname"><span class="pre">BrainVISAConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">study_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/config_modules/brainvisa_config.html#BrainVISAConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.config_modules.brainvisa_config.BrainVISAConfig" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.study_config.config_modules.brainvisa_config.</span></span><span class="sig-name descname"><span class="pre">BrainVISAConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">study_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/config_modules/brainvisa_config.html#BrainVISAConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.config_modules.brainvisa_config.BrainVISAConfig" title="Permalink to this definition">¶</a></dt>
 <dd><p>Configuration module allowing to use <a class="reference external" href="http://brainvisa.info/axon/user_doc">BrainVISA / Axon</a> shared data in Capsul processes.</p>
 <p>This module adds the following options (traits) in the
 <a class="reference internal" href="#capsul.study_config.study_config.StudyConfig" title="capsul.study_config.study_config.StudyConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">StudyConfig</span></code></a> object:</p>
@@ -1165,18 +1168,18 @@ subsequent calls.</p>
 </dd></dl>
 
 </section>
-</section>
-</section>
 <section id="module-capsul.study_config.config_modules.fom_config">
-<span id="capsul-study-config-config-modules-fom-config-submodule"></span><h2>capsul.study_config.config_modules.fom_config submodule<a class="headerlink" href="#module-capsul.study_config.config_modules.fom_config" title="Permalink to this headline">¶</a></h2>
+<span id="capsul-study-config-config-modules-fom-config-submodule"></span><h2>capsul.study_config.config_modules.fom_config submodule<a class="headerlink" href="#module-capsul.study_config.config_modules.fom_config" title="Permalink to this heading">¶</a></h2>
 <p>Config module for <a class="reference internal" href="attributes.html#module-capsul.attributes.fom_completion_engine" title="capsul.attributes.fom_completion_engine"><code class="xref py py-mod docutils literal notranslate"><span class="pre">File</span> <span class="pre">Organization</span> <span class="pre">models</span> <span class="pre">(FOMs)</span></code></a></p>
 <section id="id16">
-<h3>Classes<a class="headerlink" href="#id16" title="Permalink to this headline">¶</a></h3>
+<h3>Classes<a class="headerlink" href="#id16" title="Permalink to this heading">¶</a></h3>
 <section id="fomconfig">
-<h4><a class="reference internal" href="#capsul.study_config.config_modules.fom_config.FomConfig" title="capsul.study_config.config_modules.fom_config.FomConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">FomConfig</span></code></a><a class="headerlink" href="#fomconfig" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.study_config.config_modules.fom_config.FomConfig" title="capsul.study_config.config_modules.fom_config.FomConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">FomConfig</span></code></a><a class="headerlink" href="#fomconfig" title="Permalink to this heading">¶</a></h4>
+</section>
+</section>
 <dl class="py class">
 <dt class="sig sig-object py" id="capsul.study_config.config_modules.fom_config.FomConfig">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">capsul.study_config.config_modules.fom_config.</span></span><span class="sig-name descname"><span class="pre">FomConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">study_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/config_modules/fom_config.html#FomConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.config_modules.fom_config.FomConfig" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.study_config.config_modules.fom_config.</span></span><span class="sig-name descname"><span class="pre">FomConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">study_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/config_modules/fom_config.html#FomConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.config_modules.fom_config.FomConfig" title="Permalink to this definition">¶</a></dt>
 <dd><p>FOM (File Organization Model) configuration module for StudyConfig</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -1221,30 +1224,30 @@ the standard share/foms)</p>
 <dt class="sig sig-object py" id="capsul.study_config.config_modules.fom_config.FomConfig.initialize_module">
 <span class="sig-name descname"><span class="pre">initialize_module</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/config_modules/fom_config.html#FomConfig.initialize_module"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.config_modules.fom_config.FomConfig.initialize_module" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method called to initialize selected study configuration modules
-on startup. This method does nothing but can be overriden by modules.</p>
+on startup. This method does nothing but can be overridden by modules.</p>
 </dd></dl>
 
 </dd></dl>
 
-</section>
-</section>
 </section>
 <section id="module-capsul.study_config.config_modules.freesurfer_config">
-<span id="capsul-study-config-config-modules-freesurfer-config-submodule"></span><h2>capsul.study_config.config_modules.freesurfer_config submodule<a class="headerlink" href="#module-capsul.study_config.config_modules.freesurfer_config" title="Permalink to this headline">¶</a></h2>
+<span id="capsul-study-config-config-modules-freesurfer-config-submodule"></span><h2>capsul.study_config.config_modules.freesurfer_config submodule<a class="headerlink" href="#module-capsul.study_config.config_modules.freesurfer_config" title="Permalink to this heading">¶</a></h2>
 <p>FreeSurfer configuration module</p>
 <section id="id17">
-<h3>Classes<a class="headerlink" href="#id17" title="Permalink to this headline">¶</a></h3>
+<h3>Classes<a class="headerlink" href="#id17" title="Permalink to this heading">¶</a></h3>
 <section id="freesurferconfig">
-<h4><a class="reference internal" href="#capsul.study_config.config_modules.freesurfer_config.FreeSurferConfig" title="capsul.study_config.config_modules.freesurfer_config.FreeSurferConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">FreeSurferConfig</span></code></a><a class="headerlink" href="#freesurferconfig" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.study_config.config_modules.freesurfer_config.FreeSurferConfig" title="capsul.study_config.config_modules.freesurfer_config.FreeSurferConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">FreeSurferConfig</span></code></a><a class="headerlink" href="#freesurferconfig" title="Permalink to this heading">¶</a></h4>
+</section>
+</section>
 <dl class="py class">
 <dt class="sig sig-object py" id="capsul.study_config.config_modules.freesurfer_config.FreeSurferConfig">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">capsul.study_config.config_modules.freesurfer_config.</span></span><span class="sig-name descname"><span class="pre">FreeSurferConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">study_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/config_modules/freesurfer_config.html#FreeSurferConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.config_modules.freesurfer_config.FreeSurferConfig" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.study_config.config_modules.freesurfer_config.</span></span><span class="sig-name descname"><span class="pre">FreeSurferConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">study_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/config_modules/freesurfer_config.html#FreeSurferConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.config_modules.freesurfer_config.FreeSurferConfig" title="Permalink to this definition">¶</a></dt>
 <dd><p>Class to set up freesurfer configuration.</p>
 <p>Parse the ‘SetUpFreeSurfer.sh’ file and update dynamically the system
 environment.</p>
 <p>Initilaize the FreeSurferConfig class.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>study_config</strong> (<em>StudyConfig object</em>) – the study configuration we want to update in order to deal with
 freesurfer functions.</p>
 </dd>
@@ -1265,18 +1268,18 @@ configuration.</p>
 </dd></dl>
 
 </section>
-</section>
-</section>
 <section id="module-capsul.study_config.config_modules.fsl_config">
-<span id="capsul-study-config-config-modules-fsl-config-submodule"></span><h2>capsul.study_config.config_modules.fsl_config submodule<a class="headerlink" href="#module-capsul.study_config.config_modules.fsl_config" title="Permalink to this headline">¶</a></h2>
+<span id="capsul-study-config-config-modules-fsl-config-submodule"></span><h2>capsul.study_config.config_modules.fsl_config submodule<a class="headerlink" href="#module-capsul.study_config.config_modules.fsl_config" title="Permalink to this heading">¶</a></h2>
 <p>FSL configuration module</p>
 <section id="id18">
-<h3>Classes<a class="headerlink" href="#id18" title="Permalink to this headline">¶</a></h3>
+<h3>Classes<a class="headerlink" href="#id18" title="Permalink to this heading">¶</a></h3>
 <section id="fslconfig">
-<h4><a class="reference internal" href="#capsul.study_config.config_modules.fsl_config.FSLConfig" title="capsul.study_config.config_modules.fsl_config.FSLConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">FSLConfig</span></code></a><a class="headerlink" href="#fslconfig" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.study_config.config_modules.fsl_config.FSLConfig" title="capsul.study_config.config_modules.fsl_config.FSLConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">FSLConfig</span></code></a><a class="headerlink" href="#fslconfig" title="Permalink to this heading">¶</a></h4>
+</section>
+</section>
 <dl class="py class">
 <dt class="sig sig-object py" id="capsul.study_config.config_modules.fsl_config.FSLConfig">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">capsul.study_config.config_modules.fsl_config.</span></span><span class="sig-name descname"><span class="pre">FSLConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">study_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/config_modules/fsl_config.html#FSLConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.config_modules.fsl_config.FSLConfig" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.study_config.config_modules.fsl_config.</span></span><span class="sig-name descname"><span class="pre">FSLConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">study_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/config_modules/fsl_config.html#FSLConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.config_modules.fsl_config.FSLConfig" title="Permalink to this definition">¶</a></dt>
 <dd><p><a class="reference external" href="https://fsl.fmrib.ox.ac.uk/fsl/fslwiki">FSL</a> configuration module</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="capsul.study_config.config_modules.fsl_config.FSLConfig.initialize_callbacks">
@@ -1294,18 +1297,18 @@ configuration.</p>
 </dd></dl>
 
 </section>
-</section>
-</section>
 <section id="module-capsul.study_config.config_modules.matlab_config">
-<span id="capsul-study-config-config-modules-matlab-config-submodule"></span><h2>capsul.study_config.config_modules.matlab_config submodule<a class="headerlink" href="#module-capsul.study_config.config_modules.matlab_config" title="Permalink to this headline">¶</a></h2>
+<span id="capsul-study-config-config-modules-matlab-config-submodule"></span><h2>capsul.study_config.config_modules.matlab_config submodule<a class="headerlink" href="#module-capsul.study_config.config_modules.matlab_config" title="Permalink to this heading">¶</a></h2>
 <p>Matlab configuration module</p>
 <section id="id19">
-<h3>Classes<a class="headerlink" href="#id19" title="Permalink to this headline">¶</a></h3>
+<h3>Classes<a class="headerlink" href="#id19" title="Permalink to this heading">¶</a></h3>
 <section id="matlabconfig">
-<h4><a class="reference internal" href="#capsul.study_config.config_modules.matlab_config.MatlabConfig" title="capsul.study_config.config_modules.matlab_config.MatlabConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">MatlabConfig</span></code></a><a class="headerlink" href="#matlabconfig" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.study_config.config_modules.matlab_config.MatlabConfig" title="capsul.study_config.config_modules.matlab_config.MatlabConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">MatlabConfig</span></code></a><a class="headerlink" href="#matlabconfig" title="Permalink to this heading">¶</a></h4>
+</section>
+</section>
 <dl class="py class">
 <dt class="sig sig-object py" id="capsul.study_config.config_modules.matlab_config.MatlabConfig">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">capsul.study_config.config_modules.matlab_config.</span></span><span class="sig-name descname"><span class="pre">MatlabConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">study_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/config_modules/matlab_config.html#MatlabConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.config_modules.matlab_config.MatlabConfig" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.study_config.config_modules.matlab_config.</span></span><span class="sig-name descname"><span class="pre">MatlabConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">study_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/config_modules/matlab_config.html#MatlabConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.config_modules.matlab_config.MatlabConfig" title="Permalink to this definition">¶</a></dt>
 <dd><p>Matlab path configuration</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="capsul.study_config.config_modules.matlab_config.MatlabConfig.initialize_callbacks">
@@ -1322,18 +1325,18 @@ configuration.</p>
 </dd></dl>
 
 </section>
-</section>
-</section>
 <section id="module-capsul.study_config.config_modules.nipype_config">
-<span id="capsul-study-config-config-modules-nipype-config-submodule"></span><h2>capsul.study_config.config_modules.nipype_config submodule<a class="headerlink" href="#module-capsul.study_config.config_modules.nipype_config" title="Permalink to this headline">¶</a></h2>
+<span id="capsul-study-config-config-modules-nipype-config-submodule"></span><h2>capsul.study_config.config_modules.nipype_config submodule<a class="headerlink" href="#module-capsul.study_config.config_modules.nipype_config" title="Permalink to this heading">¶</a></h2>
 <p>NiPype configuration module</p>
 <section id="id20">
-<h3>Classes<a class="headerlink" href="#id20" title="Permalink to this headline">¶</a></h3>
+<h3>Classes<a class="headerlink" href="#id20" title="Permalink to this heading">¶</a></h3>
 <section id="nipypeconfig">
-<h4><a class="reference internal" href="#capsul.study_config.config_modules.nipype_config.NipypeConfig" title="capsul.study_config.config_modules.nipype_config.NipypeConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">NipypeConfig</span></code></a><a class="headerlink" href="#nipypeconfig" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.study_config.config_modules.nipype_config.NipypeConfig" title="capsul.study_config.config_modules.nipype_config.NipypeConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">NipypeConfig</span></code></a><a class="headerlink" href="#nipypeconfig" title="Permalink to this heading">¶</a></h4>
+</section>
+</section>
 <dl class="py class">
 <dt class="sig sig-object py" id="capsul.study_config.config_modules.nipype_config.NipypeConfig">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">capsul.study_config.config_modules.nipype_config.</span></span><span class="sig-name descname"><span class="pre">NipypeConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">study_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/config_modules/nipype_config.html#NipypeConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.config_modules.nipype_config.NipypeConfig" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.study_config.config_modules.nipype_config.</span></span><span class="sig-name descname"><span class="pre">NipypeConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">study_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/config_modules/nipype_config.html#NipypeConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.config_modules.nipype_config.NipypeConfig" title="Permalink to this definition">¶</a></dt>
 <dd><p>Nipype configuration.</p>
 <p>In order to use nipype spm, fsl and freesurfer interfaces, we need to
 configure the nipype module.</p>
@@ -1355,36 +1358,36 @@ configuration.</p>
 </dd></dl>
 
 </section>
-</section>
-</section>
 <section id="module-capsul.study_config.config_modules.smartcaching_config">
-<span id="capsul-study-config-config-modules-smartcaching-config-submodule"></span><h2>capsul.study_config.config_modules.smartcaching_config submodule<a class="headerlink" href="#module-capsul.study_config.config_modules.smartcaching_config" title="Permalink to this headline">¶</a></h2>
+<span id="capsul-study-config-config-modules-smartcaching-config-submodule"></span><h2>capsul.study_config.config_modules.smartcaching_config submodule<a class="headerlink" href="#module-capsul.study_config.config_modules.smartcaching_config" title="Permalink to this heading">¶</a></h2>
 <p>Process execution cache configuration module</p>
 <section id="id21">
-<h3>Classes<a class="headerlink" href="#id21" title="Permalink to this headline">¶</a></h3>
+<h3>Classes<a class="headerlink" href="#id21" title="Permalink to this heading">¶</a></h3>
 <section id="smartcachingconfig">
-<h4><a class="reference internal" href="#capsul.study_config.config_modules.smartcaching_config.SmartCachingConfig" title="capsul.study_config.config_modules.smartcaching_config.SmartCachingConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">SmartCachingConfig</span></code></a><a class="headerlink" href="#smartcachingconfig" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.study_config.config_modules.smartcaching_config.SmartCachingConfig" title="capsul.study_config.config_modules.smartcaching_config.SmartCachingConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">SmartCachingConfig</span></code></a><a class="headerlink" href="#smartcachingconfig" title="Permalink to this heading">¶</a></h4>
+</section>
+</section>
 <dl class="py class">
 <dt class="sig sig-object py" id="capsul.study_config.config_modules.smartcaching_config.SmartCachingConfig">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">capsul.study_config.config_modules.smartcaching_config.</span></span><span class="sig-name descname"><span class="pre">SmartCachingConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">study_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/config_modules/smartcaching_config.html#SmartCachingConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.config_modules.smartcaching_config.SmartCachingConfig" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.study_config.config_modules.smartcaching_config.</span></span><span class="sig-name descname"><span class="pre">SmartCachingConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">study_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/config_modules/smartcaching_config.html#SmartCachingConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.config_modules.smartcaching_config.SmartCachingConfig" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </section>
-</section>
-</section>
 <section id="module-capsul.study_config.config_modules.somaworkflow_config">
-<span id="capsul-study-config-config-modules-somaworkflow-config-submodule"></span><h2>capsul.study_config.config_modules.somaworkflow_config submodule<a class="headerlink" href="#module-capsul.study_config.config_modules.somaworkflow_config" title="Permalink to this headline">¶</a></h2>
+<span id="capsul-study-config-config-modules-somaworkflow-config-submodule"></span><h2>capsul.study_config.config_modules.somaworkflow_config submodule<a class="headerlink" href="#module-capsul.study_config.config_modules.somaworkflow_config" title="Permalink to this heading">¶</a></h2>
 <p><a class="reference external" href="http://brainvisa.info/soma-workflow/">Soma-Workflow</a> configuration module</p>
 <section id="id22">
-<h3>Classes<a class="headerlink" href="#id22" title="Permalink to this headline">¶</a></h3>
+<h3>Classes<a class="headerlink" href="#id22" title="Permalink to this heading">¶</a></h3>
 <section id="resourcecontroller">
-<h4><a class="reference internal" href="#capsul.study_config.config_modules.somaworkflow_config.ResourceController" title="capsul.study_config.config_modules.somaworkflow_config.ResourceController"><code class="xref py py-class docutils literal notranslate"><span class="pre">ResourceController</span></code></a><a class="headerlink" href="#resourcecontroller" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.study_config.config_modules.somaworkflow_config.ResourceController" title="capsul.study_config.config_modules.somaworkflow_config.ResourceController"><code class="xref py py-class docutils literal notranslate"><span class="pre">ResourceController</span></code></a><a class="headerlink" href="#resourcecontroller" title="Permalink to this heading">¶</a></h4>
 </section>
 <section id="somaworkflowconfig">
-<h4><a class="reference internal" href="#capsul.study_config.config_modules.somaworkflow_config.SomaWorkflowConfig" title="capsul.study_config.config_modules.somaworkflow_config.SomaWorkflowConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">SomaWorkflowConfig</span></code></a><a class="headerlink" href="#somaworkflowconfig" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.study_config.config_modules.somaworkflow_config.SomaWorkflowConfig" title="capsul.study_config.config_modules.somaworkflow_config.SomaWorkflowConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">SomaWorkflowConfig</span></code></a><a class="headerlink" href="#somaworkflowconfig" title="Permalink to this heading">¶</a></h4>
+</section>
+</section>
 <dl class="py class">
 <dt class="sig sig-object py" id="capsul.study_config.config_modules.somaworkflow_config.ResourceController">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">capsul.study_config.config_modules.somaworkflow_config.</span></span><span class="sig-name descname"><span class="pre">ResourceController</span></span><a class="reference internal" href="../_modules/capsul/study_config/config_modules/somaworkflow_config.html#ResourceController"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.config_modules.somaworkflow_config.ResourceController" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.study_config.config_modules.somaworkflow_config.</span></span><span class="sig-name descname"><span class="pre">ResourceController</span></span><a class="reference internal" href="../_modules/capsul/study_config/config_modules/somaworkflow_config.html#ResourceController"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.config_modules.somaworkflow_config.ResourceController" title="Permalink to this definition">¶</a></dt>
 <dd><p>Configuration options for one Soma-Workflow computing resource</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="capsul.study_config.config_modules.somaworkflow_config.ResourceController.queue">
@@ -1392,8 +1395,8 @@ configuration.</p>
 <dd><p>Jobs queue to be used on the computing resource for w
 orkflow submissions</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)">str</a></p>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)">str</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1403,8 +1406,8 @@ orkflow submissions</p>
 <span class="sig-name descname"><span class="pre">transfer_paths</span></span><a class="headerlink" href="#capsul.study_config.config_modules.somaworkflow_config.ResourceController.transfer_paths" title="Permalink to this definition">¶</a></dt>
 <dd><p>list of paths where files have to be transferred by soma-workflow</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#list" title="(in Python v3.7)">list</a>(<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)">str</a>)</p>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#list" title="(in Python v3.10)">list</a>(<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)">str</a>)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1415,8 +1418,8 @@ orkflow submissions</p>
 <dd><p>Soma-workflow paths translations mapping:
 <code class="docutils literal notranslate"><span class="pre">{local_path:</span> <span class="pre">(identifier,</span> <span class="pre">uuid)}</span></code></p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a>(<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)">str</a>, (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)">str</a>, <a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)">str</a>))</p>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)">dict</a>(<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)">str</a>, (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)">str</a>, <a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)">str</a>))</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1434,7 +1437,7 @@ user traits between instances.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="capsul.study_config.config_modules.somaworkflow_config.SomaWorkflowConfig">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">capsul.study_config.config_modules.somaworkflow_config.</span></span><span class="sig-name descname"><span class="pre">SomaWorkflowConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">study_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/config_modules/somaworkflow_config.html#SomaWorkflowConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.config_modules.somaworkflow_config.SomaWorkflowConfig" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.study_config.config_modules.somaworkflow_config.</span></span><span class="sig-name descname"><span class="pre">SomaWorkflowConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">study_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/config_modules/somaworkflow_config.html#SomaWorkflowConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.config_modules.somaworkflow_config.SomaWorkflowConfig" title="Permalink to this definition">¶</a></dt>
 <dd><p>Configuration module for <a class="reference external" href="http://brainvisa.info/soma-workflow/sphinx/index.html">Soma-Workflow</a></p>
 <p>Stores configuration options which are not part of Soma-Workflow own
 configuration, and used to run workflows from CAPSUL pipelines.</p>
@@ -1446,8 +1449,8 @@ monitoring and submiting workflows.</p>
 <span class="sig-name descname"><span class="pre">use_soma_workflow</span></span><a class="headerlink" href="#capsul.study_config.config_modules.somaworkflow_config.SomaWorkflowConfig.use_soma_workflow" title="Permalink to this definition">¶</a></dt>
 <dd><p>Use soma workflow for the execution</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.7/library/functions.html#bool" title="(in Python v3.7)">bool</a></p>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1457,8 +1460,8 @@ monitoring and submiting workflows.</p>
 <span class="sig-name descname"><span class="pre">somaworkflow_computing_resource</span></span><a class="headerlink" href="#capsul.study_config.config_modules.somaworkflow_config.SomaWorkflowConfig.somaworkflow_computing_resource" title="Permalink to this definition">¶</a></dt>
 <dd><p>Soma-workflow computing resource to be used to run processing</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)">str</a></p>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)">str</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1468,7 +1471,7 @@ monitoring and submiting workflows.</p>
 <span class="sig-name descname"><span class="pre">somaworkflow_config_file</span></span><a class="headerlink" href="#capsul.study_config.config_modules.somaworkflow_config.SomaWorkflowConfig.somaworkflow_config_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Soma-Workflow configuration file. Default: <code class="docutils literal notranslate"><span class="pre">$HOME/.soma_workflow.cfg</span></code></p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>filename</p>
 </dd>
 </dl>
@@ -1479,8 +1482,8 @@ monitoring and submiting workflows.</p>
 <span class="sig-name descname"><span class="pre">somaworkflow_keep_failed_workflows</span></span><a class="headerlink" href="#capsul.study_config.config_modules.somaworkflow_config.SomaWorkflowConfig.somaworkflow_keep_failed_workflows" title="Permalink to this definition">¶</a></dt>
 <dd><p>Keep failed workflows after pipeline execution through StudyConfig</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.7/library/functions.html#bool" title="(in Python v3.7)">bool</a></p>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1490,8 +1493,8 @@ monitoring and submiting workflows.</p>
 <span class="sig-name descname"><span class="pre">somaworkflow_keep_succeeded_workflows</span></span><a class="headerlink" href="#capsul.study_config.config_modules.somaworkflow_config.SomaWorkflowConfig.somaworkflow_keep_succeeded_workflows" title="Permalink to this definition">¶</a></dt>
 <dd><p>Keep succeeded workflows after pipeline execution through StudyConfig</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.7/library/functions.html#bool" title="(in Python v3.7)">bool</a></p>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)">bool</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1502,8 +1505,8 @@ monitoring and submiting workflows.</p>
 <dd><p>Computing resource config dict, keys are resource ids. Values are
 <a class="reference internal" href="#capsul.study_config.config_modules.somaworkflow_config.ResourceController" title="capsul.study_config.config_modules.somaworkflow_config.ResourceController"><code class="xref py py-class docutils literal notranslate"><span class="pre">ResourceController</span></code></a> instances</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a>(<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)">str</a>, <a class="reference internal" href="#capsul.study_config.config_modules.somaworkflow_config.ResourceController" title="capsul.study_config.config_modules.somaworkflow_config.ResourceController">ResourceController</a>)</p>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)">dict</a>(<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)">str</a>, <a class="reference internal" href="#capsul.study_config.config_modules.somaworkflow_config.ResourceController" title="capsul.study_config.config_modules.somaworkflow_config.ResourceController">ResourceController</a>)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1540,22 +1543,19 @@ monitoring and submiting workflows.</p>
 <p>Sets the current resource to the given resource_id (transformed by
 get_resource_id() if None or “localhost” is given, for instance).</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>resource_id</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em> (</em><em>optional</em><em>)</em>) – resource name, may be None or “localhost”. If None, the current
+<li><p><strong>resource_id</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> (</em><em>optional</em><em>)</em>) – resource name, may be None or “localhost”. If None, the current
 one (study_config.somaworkflow_computing_resource) is used, or
 the localhost if none is configured.</p></li>
-<li><p><strong>force_reconnect</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em> (</em><em>optional</em><em>)</em>) – if True, if an existing workflow controller is already connected,
+<li><p><strong>force_reconnect</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em> (</em><em>optional</em><em>)</em>) – if True, if an existing workflow controller is already connected,
 it will be disconnected (deleted) and a new one will be connected.
 If False, an existing controller will be reused without
 reconnection.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="http://brainvisa.info/soma-workflow/sphinx/client_API.html">WorkflowController</a> object</p>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="http://brainvisa.info/soma-workflow/sphinx/client_API.html">WorkflowController</a> object</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1576,18 +1576,15 @@ resource_id and Soma-Workflow configuration.</p>
 <p>For instance, <code class="docutils literal notranslate"><span class="pre">None</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;localhost&quot;</span></code> will be transformed to the
 local host id.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>resource_id</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em> (</em><em>optional</em><em>)</em>) – </p></li>
-<li><p><strong>set_it</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em> (</em><em>optional</em><em>)</em>) – if True, the computed resource id will be set as the current
+<li><p><strong>resource_id</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> (</em><em>optional</em><em>)</em>) – </p></li>
+<li><p><strong>set_it</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em> (</em><em>optional</em><em>)</em>) – if True, the computed resource id will be set as the current
 resource in the somaworkflow_computing_resource trait value.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>computed resource id.</p>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>computed resource id.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1612,13 +1609,13 @@ resource</p>
 <dd><p>Set credentials for a given computinf resource.</p>
 <p>Such credentials are stored in the config object, but will not be
 written when the config is saved in a file. They are thus non-
-persistant.</p>
+persistent.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>resource_id</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em> (</em><em>optional</em><em>)</em>) – </p></li>
-<li><p><strong>password</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em> (</em><em>optional</em><em>)</em>) – </p></li>
-<li><p><strong>rsa_key_password</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em> (</em><em>optional</em><em>)</em>) – </p></li>
+<li><p><strong>resource_id</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> (</em><em>optional</em><em>)</em>) – </p></li>
+<li><p><strong>password</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> (</em><em>optional</em><em>)</em>) – </p></li>
+<li><p><strong>rsa_key_password</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> (</em><em>optional</em><em>)</em>) – </p></li>
 </ul>
 </dd>
 </dl>
@@ -1627,18 +1624,18 @@ persistant.</p>
 </dd></dl>
 
 </section>
-</section>
-</section>
 <section id="module-capsul.study_config.config_modules.spm_config">
-<span id="capsul-study-config-config-modules-spm-config-submodule"></span><h2>capsul.study_config.config_modules.spm_config submodule<a class="headerlink" href="#module-capsul.study_config.config_modules.spm_config" title="Permalink to this headline">¶</a></h2>
+<span id="capsul-study-config-config-modules-spm-config-submodule"></span><h2>capsul.study_config.config_modules.spm_config submodule<a class="headerlink" href="#module-capsul.study_config.config_modules.spm_config" title="Permalink to this heading">¶</a></h2>
 <p>SPM configuration module</p>
 <section id="id28">
-<h3>Classes<a class="headerlink" href="#id28" title="Permalink to this headline">¶</a></h3>
+<h3>Classes<a class="headerlink" href="#id28" title="Permalink to this heading">¶</a></h3>
 <section id="spmconfig">
-<h4><a class="reference internal" href="#capsul.study_config.config_modules.spm_config.SPMConfig" title="capsul.study_config.config_modules.spm_config.SPMConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">SPMConfig</span></code></a><a class="headerlink" href="#spmconfig" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.study_config.config_modules.spm_config.SPMConfig" title="capsul.study_config.config_modules.spm_config.SPMConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">SPMConfig</span></code></a><a class="headerlink" href="#spmconfig" title="Permalink to this heading">¶</a></h4>
+</section>
+</section>
 <dl class="py class">
 <dt class="sig sig-object py" id="capsul.study_config.config_modules.spm_config.SPMConfig">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">capsul.study_config.config_modules.spm_config.</span></span><span class="sig-name descname"><span class="pre">SPMConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">study_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/config_modules/spm_config.html#SPMConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.config_modules.spm_config.SPMConfig" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.study_config.config_modules.spm_config.</span></span><span class="sig-name descname"><span class="pre">SPMConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">study_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configuration</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/config_modules/spm_config.html#SPMConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.config_modules.spm_config.SPMConfig" title="Permalink to this definition">¶</a></dt>
 <dd><p>SPM configuration.</p>
 <dl class="simple">
 <dt>There is two ways to configure SPM:</dt><dd><ul class="simple">
@@ -1659,13 +1656,11 @@ to set the spm executable directory.</p></li>
 <dt class="sig sig-object py" id="capsul.study_config.config_modules.spm_config.SPMConfig.initialize_module">
 <span class="sig-name descname"><span class="pre">initialize_module</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/study_config/config_modules/spm_config.html#SPMConfig.initialize_module"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.study_config.config_modules.spm_config.SPMConfig.initialize_module" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method called to initialize selected study configuration modules
-on startup. This method does nothing but can be overriden by modules.</p>
+on startup. This method does nothing but can be overridden by modules.</p>
 </dd></dl>
 
 </dd></dl>
 
-</section>
-</section>
 </section>
 </section>
 
@@ -1676,14 +1671,16 @@ on startup. This method does nothing but can be overriden by modules.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="../index.html">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">capsul.study_config module</a><ul>
 <li><a class="reference internal" href="#module-capsul.study_config.config_utils">capsul.study_config.config_utils submodule</a><ul>
 <li><a class="reference internal" href="#functions">Functions</a><ul>
 <li><a class="reference internal" href="#environment"><code class="xref py py-func docutils literal notranslate"><span class="pre">environment()</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#capsul.study_config.config_utils.environment"><code class="docutils literal notranslate"><span class="pre">environment()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-capsul.study_config.memory">capsul.study_config.memory submodule</a><ul>
@@ -1700,6 +1697,24 @@ on startup. This method does nothing but can be overriden by modules.</p>
 <li><a class="reference internal" href="#file-fingerprint"><code class="xref py py-func docutils literal notranslate"><span class="pre">file_fingerprint()</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#capsul.study_config.memory.CapsulResultDecoder"><code class="docutils literal notranslate"><span class="pre">CapsulResultDecoder</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.memory.CapsulResultEncoder"><code class="docutils literal notranslate"><span class="pre">CapsulResultEncoder</span></code></a><ul>
+<li><a class="reference internal" href="#capsul.study_config.memory.CapsulResultEncoder.default"><code class="docutils literal notranslate"><span class="pre">CapsulResultEncoder.default()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#capsul.study_config.memory.MemorizedProcess"><code class="docutils literal notranslate"><span class="pre">MemorizedProcess</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.memory.Memory"><code class="docutils literal notranslate"><span class="pre">Memory</span></code></a><ul>
+<li><a class="reference internal" href="#capsul.study_config.memory.Memory.cache"><code class="docutils literal notranslate"><span class="pre">Memory.cache()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.memory.Memory.clear"><code class="docutils literal notranslate"><span class="pre">Memory.clear()</span></code></a></li>
+<li><a class="reference internal" href="#id0"><code class="docutils literal notranslate"><span class="pre">Memory.cache()</span></code></a></li>
+<li><a class="reference internal" href="#id2"><code class="docutils literal notranslate"><span class="pre">Memory.clear()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#capsul.study_config.memory.UnMemorizedProcess"><code class="docutils literal notranslate"><span class="pre">UnMemorizedProcess</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.memory.file_fingerprint"><code class="docutils literal notranslate"><span class="pre">file_fingerprint()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.memory.get_process_signature"><code class="docutils literal notranslate"><span class="pre">get_process_signature()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.memory.has_attribute"><code class="docutils literal notranslate"><span class="pre">has_attribute()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.memory.tuple_json_encoder"><code class="docutils literal notranslate"><span class="pre">tuple_json_encoder()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-capsul.study_config.process_instance">capsul.study_config.process_instance submodule</a><ul>
@@ -1711,6 +1726,11 @@ on startup. This method does nothing but can be overriden by modules.</p>
 <li><a class="reference internal" href="#get-node-instance"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_node_instance()</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#capsul.study_config.process_instance.get_node_class"><code class="docutils literal notranslate"><span class="pre">get_node_class()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.process_instance.get_node_instance"><code class="docutils literal notranslate"><span class="pre">get_node_instance()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.process_instance.get_process_instance"><code class="docutils literal notranslate"><span class="pre">get_process_instance()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.process_instance.is_pipeline_node"><code class="docutils literal notranslate"><span class="pre">is_pipeline_node()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.process_instance.is_process"><code class="docutils literal notranslate"><span class="pre">is_process()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-capsul.study_config.run">capsul.study_config.run submodule</a><ul>
@@ -1718,6 +1738,7 @@ on startup. This method does nothing but can be overriden by modules.</p>
 <li><a class="reference internal" href="#run-process"><code class="xref py py-func docutils literal notranslate"><span class="pre">run_process()</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#capsul.study_config.run.run_process"><code class="docutils literal notranslate"><span class="pre">run_process()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#capsul-study-config-study-config-submodule">capsul.study_config.study_config submodule</a><ul>
@@ -1730,12 +1751,54 @@ on startup. This method does nothing but can be overriden by modules.</p>
 <li><a class="reference internal" href="#default-study-config"><code class="xref py py-func docutils literal notranslate"><span class="pre">default_study_config()</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#capsul.study_config.study_config.StudyConfig"><code class="docutils literal notranslate"><span class="pre">StudyConfig</span></code></a><ul>
+<li><a class="reference internal" href="#capsul.study_config.study_config.StudyConfig.input_directory"><code class="docutils literal notranslate"><span class="pre">StudyConfig.input_directory</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.study_config.StudyConfig.output_directory"><code class="docutils literal notranslate"><span class="pre">StudyConfig.output_directory</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.study_config.StudyConfig.generate_logging"><code class="docutils literal notranslate"><span class="pre">StudyConfig.generate_logging</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.study_config.StudyConfig.create_output_directories"><code class="docutils literal notranslate"><span class="pre">StudyConfig.create_output_directories</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.study_config.StudyConfig.process_output_directory"><code class="docutils literal notranslate"><span class="pre">StudyConfig.process_output_directory</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.study_config.StudyConfig.run"><code class="docutils literal notranslate"><span class="pre">StudyConfig.run()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.study_config.StudyConfig.reset_process_counter"><code class="docutils literal notranslate"><span class="pre">StudyConfig.reset_process_counter()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.study_config.StudyConfig.set_trait_value"><code class="docutils literal notranslate"><span class="pre">StudyConfig.set_trait_value()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.study_config.StudyConfig.get_trait"><code class="docutils literal notranslate"><span class="pre">StudyConfig.get_trait()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.study_config.StudyConfig.get_trait_value"><code class="docutils literal notranslate"><span class="pre">StudyConfig.get_trait_value()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.study_config.StudyConfig.update_study_configuration"><code class="docutils literal notranslate"><span class="pre">StudyConfig.update_study_configuration()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.study_config.StudyConfig.set_study_configuration"><code class="docutils literal notranslate"><span class="pre">StudyConfig.set_study_configuration()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.study_config.StudyConfig.add_trait"><code class="docutils literal notranslate"><span class="pre">StudyConfig.add_trait()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.study_config.StudyConfig.get_configuration_dict"><code class="docutils literal notranslate"><span class="pre">StudyConfig.get_configuration_dict()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.study_config.StudyConfig.get_iteration_pipeline"><code class="docutils literal notranslate"><span class="pre">StudyConfig.get_iteration_pipeline()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.study_config.StudyConfig.get_process_instance"><code class="docutils literal notranslate"><span class="pre">StudyConfig.get_process_instance()</span></code></a></li>
+<li><a class="reference internal" href="#id7"><code class="docutils literal notranslate"><span class="pre">StudyConfig.get_trait()</span></code></a></li>
+<li><a class="reference internal" href="#id8"><code class="docutils literal notranslate"><span class="pre">StudyConfig.get_trait_value()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.study_config.StudyConfig.initialize_modules"><code class="docutils literal notranslate"><span class="pre">StudyConfig.initialize_modules()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.study_config.StudyConfig.load_module"><code class="docutils literal notranslate"><span class="pre">StudyConfig.load_module()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.study_config.StudyConfig.read_configuration"><code class="docutils literal notranslate"><span class="pre">StudyConfig.read_configuration()</span></code></a></li>
+<li><a class="reference internal" href="#id9"><code class="docutils literal notranslate"><span class="pre">StudyConfig.reset_process_counter()</span></code></a></li>
+<li><a class="reference internal" href="#id10"><code class="docutils literal notranslate"><span class="pre">StudyConfig.run()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.study_config.StudyConfig.save_configuration"><code class="docutils literal notranslate"><span class="pre">StudyConfig.save_configuration()</span></code></a></li>
+<li><a class="reference internal" href="#id11"><code class="docutils literal notranslate"><span class="pre">StudyConfig.set_study_configuration()</span></code></a></li>
+<li><a class="reference internal" href="#id12"><code class="docutils literal notranslate"><span class="pre">StudyConfig.set_trait_value()</span></code></a></li>
+<li><a class="reference internal" href="#id13"><code class="docutils literal notranslate"><span class="pre">StudyConfig.update_study_configuration()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#capsul.study_config.study_config.StudyConfigModule"><code class="docutils literal notranslate"><span class="pre">StudyConfigModule</span></code></a><ul>
+<li><a class="reference internal" href="#capsul.study_config.study_config.StudyConfigModule.initialize_callbacks"><code class="docutils literal notranslate"><span class="pre">StudyConfigModule.initialize_callbacks()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.study_config.StudyConfigModule.initialize_module"><code class="docutils literal notranslate"><span class="pre">StudyConfigModule.initialize_module()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.study_config.StudyConfigModule.name"><code class="docutils literal notranslate"><span class="pre">StudyConfigModule.name</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#capsul.study_config.study_config.default_study_config"><code class="docutils literal notranslate"><span class="pre">default_study_config()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#capsul-study-config-config-modules-submodule">capsul.study_config.config_modules submodule</a></li>
 <li><a class="reference internal" href="#capsul-study-config-config-modules-attributes-config-submodule">capsul.study_config.config_modules.attributes_config submodule</a><ul>
 <li><a class="reference internal" href="#id14">Classes</a><ul>
 <li><a class="reference internal" href="#attributesconfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">AttributesConfig</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#capsul.study_config.config_modules.attributes_config.AttributesConfig"><code class="docutils literal notranslate"><span class="pre">AttributesConfig</span></code></a><ul>
+<li><a class="reference internal" href="#capsul.study_config.config_modules.attributes_config.AttributesConfig.initialize_callbacks"><code class="docutils literal notranslate"><span class="pre">AttributesConfig.initialize_callbacks()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.config_modules.attributes_config.AttributesConfig.initialize_module"><code class="docutils literal notranslate"><span class="pre">AttributesConfig.initialize_module()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -1745,11 +1808,21 @@ on startup. This method does nothing but can be overriden by modules.</p>
 <li><a class="reference internal" href="#brainvisaconfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">BrainVISAConfig</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#capsul.study_config.config_modules.brainvisa_config.BrainVISAConfig"><code class="docutils literal notranslate"><span class="pre">BrainVISAConfig</span></code></a><ul>
+<li><a class="reference internal" href="#capsul.study_config.config_modules.brainvisa_config.BrainVISAConfig.initialize_callbacks"><code class="docutils literal notranslate"><span class="pre">BrainVISAConfig.initialize_callbacks()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.config_modules.brainvisa_config.BrainVISAConfig.initialize_module"><code class="docutils literal notranslate"><span class="pre">BrainVISAConfig.initialize_module()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-capsul.study_config.config_modules.fom_config">capsul.study_config.config_modules.fom_config submodule</a><ul>
 <li><a class="reference internal" href="#id16">Classes</a><ul>
 <li><a class="reference internal" href="#fomconfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">FomConfig</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#capsul.study_config.config_modules.fom_config.FomConfig"><code class="docutils literal notranslate"><span class="pre">FomConfig</span></code></a><ul>
+<li><a class="reference internal" href="#capsul.study_config.config_modules.fom_config.FomConfig.initialize_callbacks"><code class="docutils literal notranslate"><span class="pre">FomConfig.initialize_callbacks()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.config_modules.fom_config.FomConfig.initialize_module"><code class="docutils literal notranslate"><span class="pre">FomConfig.initialize_module()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -1759,11 +1832,21 @@ on startup. This method does nothing but can be overriden by modules.</p>
 <li><a class="reference internal" href="#freesurferconfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">FreeSurferConfig</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#capsul.study_config.config_modules.freesurfer_config.FreeSurferConfig"><code class="docutils literal notranslate"><span class="pre">FreeSurferConfig</span></code></a><ul>
+<li><a class="reference internal" href="#capsul.study_config.config_modules.freesurfer_config.FreeSurferConfig.initialize_callbacks"><code class="docutils literal notranslate"><span class="pre">FreeSurferConfig.initialize_callbacks()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.config_modules.freesurfer_config.FreeSurferConfig.initialize_module"><code class="docutils literal notranslate"><span class="pre">FreeSurferConfig.initialize_module()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-capsul.study_config.config_modules.fsl_config">capsul.study_config.config_modules.fsl_config submodule</a><ul>
 <li><a class="reference internal" href="#id18">Classes</a><ul>
 <li><a class="reference internal" href="#fslconfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">FSLConfig</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#capsul.study_config.config_modules.fsl_config.FSLConfig"><code class="docutils literal notranslate"><span class="pre">FSLConfig</span></code></a><ul>
+<li><a class="reference internal" href="#capsul.study_config.config_modules.fsl_config.FSLConfig.initialize_callbacks"><code class="docutils literal notranslate"><span class="pre">FSLConfig.initialize_callbacks()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.config_modules.fsl_config.FSLConfig.initialize_module"><code class="docutils literal notranslate"><span class="pre">FSLConfig.initialize_module()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -1773,11 +1856,21 @@ on startup. This method does nothing but can be overriden by modules.</p>
 <li><a class="reference internal" href="#matlabconfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">MatlabConfig</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#capsul.study_config.config_modules.matlab_config.MatlabConfig"><code class="docutils literal notranslate"><span class="pre">MatlabConfig</span></code></a><ul>
+<li><a class="reference internal" href="#capsul.study_config.config_modules.matlab_config.MatlabConfig.initialize_callbacks"><code class="docutils literal notranslate"><span class="pre">MatlabConfig.initialize_callbacks()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.config_modules.matlab_config.MatlabConfig.initialize_module"><code class="docutils literal notranslate"><span class="pre">MatlabConfig.initialize_module()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-capsul.study_config.config_modules.nipype_config">capsul.study_config.config_modules.nipype_config submodule</a><ul>
 <li><a class="reference internal" href="#id20">Classes</a><ul>
 <li><a class="reference internal" href="#nipypeconfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">NipypeConfig</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#capsul.study_config.config_modules.nipype_config.NipypeConfig"><code class="docutils literal notranslate"><span class="pre">NipypeConfig</span></code></a><ul>
+<li><a class="reference internal" href="#capsul.study_config.config_modules.nipype_config.NipypeConfig.initialize_callbacks"><code class="docutils literal notranslate"><span class="pre">NipypeConfig.initialize_callbacks()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.config_modules.nipype_config.NipypeConfig.initialize_module"><code class="docutils literal notranslate"><span class="pre">NipypeConfig.initialize_module()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -1787,12 +1880,39 @@ on startup. This method does nothing but can be overriden by modules.</p>
 <li><a class="reference internal" href="#smartcachingconfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">SmartCachingConfig</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#capsul.study_config.config_modules.smartcaching_config.SmartCachingConfig"><code class="docutils literal notranslate"><span class="pre">SmartCachingConfig</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-capsul.study_config.config_modules.somaworkflow_config">capsul.study_config.config_modules.somaworkflow_config submodule</a><ul>
 <li><a class="reference internal" href="#id22">Classes</a><ul>
 <li><a class="reference internal" href="#resourcecontroller"><code class="xref py py-class docutils literal notranslate"><span class="pre">ResourceController</span></code></a></li>
 <li><a class="reference internal" href="#somaworkflowconfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">SomaWorkflowConfig</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#capsul.study_config.config_modules.somaworkflow_config.ResourceController"><code class="docutils literal notranslate"><span class="pre">ResourceController</span></code></a><ul>
+<li><a class="reference internal" href="#capsul.study_config.config_modules.somaworkflow_config.ResourceController.queue"><code class="docutils literal notranslate"><span class="pre">ResourceController.queue</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.config_modules.somaworkflow_config.ResourceController.transfer_paths"><code class="docutils literal notranslate"><span class="pre">ResourceController.transfer_paths</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.config_modules.somaworkflow_config.ResourceController.path_translations"><code class="docutils literal notranslate"><span class="pre">ResourceController.path_translations</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#capsul.study_config.config_modules.somaworkflow_config.SomaWorkflowConfig"><code class="docutils literal notranslate"><span class="pre">SomaWorkflowConfig</span></code></a><ul>
+<li><a class="reference internal" href="#capsul.study_config.config_modules.somaworkflow_config.SomaWorkflowConfig.use_soma_workflow"><code class="docutils literal notranslate"><span class="pre">SomaWorkflowConfig.use_soma_workflow</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.config_modules.somaworkflow_config.SomaWorkflowConfig.somaworkflow_computing_resource"><code class="docutils literal notranslate"><span class="pre">SomaWorkflowConfig.somaworkflow_computing_resource</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.config_modules.somaworkflow_config.SomaWorkflowConfig.somaworkflow_config_file"><code class="docutils literal notranslate"><span class="pre">SomaWorkflowConfig.somaworkflow_config_file</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.config_modules.somaworkflow_config.SomaWorkflowConfig.somaworkflow_keep_failed_workflows"><code class="docutils literal notranslate"><span class="pre">SomaWorkflowConfig.somaworkflow_keep_failed_workflows</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.config_modules.somaworkflow_config.SomaWorkflowConfig.somaworkflow_keep_succeeded_workflows"><code class="docutils literal notranslate"><span class="pre">SomaWorkflowConfig.somaworkflow_keep_succeeded_workflows</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.config_modules.somaworkflow_config.SomaWorkflowConfig.somaworkflow_computing_resources_config"><code class="docutils literal notranslate"><span class="pre">SomaWorkflowConfig.somaworkflow_computing_resources_config</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.config_modules.somaworkflow_config.SomaWorkflowConfig.get_resource_id"><code class="docutils literal notranslate"><span class="pre">SomaWorkflowConfig.get_resource_id()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.config_modules.somaworkflow_config.SomaWorkflowConfig.set_computing_resource_password"><code class="docutils literal notranslate"><span class="pre">SomaWorkflowConfig.set_computing_resource_password()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.config_modules.somaworkflow_config.SomaWorkflowConfig.get_workflow_controller"><code class="docutils literal notranslate"><span class="pre">SomaWorkflowConfig.get_workflow_controller()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.config_modules.somaworkflow_config.SomaWorkflowConfig.connect_resource"><code class="docutils literal notranslate"><span class="pre">SomaWorkflowConfig.connect_resource()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.config_modules.somaworkflow_config.SomaWorkflowConfig.disconnect_resource"><code class="docutils literal notranslate"><span class="pre">SomaWorkflowConfig.disconnect_resource()</span></code></a></li>
+<li><a class="reference internal" href="#id23"><code class="docutils literal notranslate"><span class="pre">SomaWorkflowConfig.connect_resource()</span></code></a></li>
+<li><a class="reference internal" href="#id24"><code class="docutils literal notranslate"><span class="pre">SomaWorkflowConfig.disconnect_resource()</span></code></a></li>
+<li><a class="reference internal" href="#id25"><code class="docutils literal notranslate"><span class="pre">SomaWorkflowConfig.get_resource_id()</span></code></a></li>
+<li><a class="reference internal" href="#id26"><code class="docutils literal notranslate"><span class="pre">SomaWorkflowConfig.get_workflow_controller()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.config_modules.somaworkflow_config.SomaWorkflowConfig.initialize_callbacks"><code class="docutils literal notranslate"><span class="pre">SomaWorkflowConfig.initialize_callbacks()</span></code></a></li>
+<li><a class="reference internal" href="#id27"><code class="docutils literal notranslate"><span class="pre">SomaWorkflowConfig.set_computing_resource_password()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -1802,12 +1922,18 @@ on startup. This method does nothing but can be overriden by modules.</p>
 <li><a class="reference internal" href="#spmconfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">SPMConfig</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#capsul.study_config.config_modules.spm_config.SPMConfig"><code class="docutils literal notranslate"><span class="pre">SPMConfig</span></code></a><ul>
+<li><a class="reference internal" href="#capsul.study_config.config_modules.spm_config.SPMConfig.initialize_callbacks"><code class="docutils literal notranslate"><span class="pre">SPMConfig.initialize_callbacks()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.study_config.config_modules.spm_config.SPMConfig.initialize_module"><code class="docutils literal notranslate"><span class="pre">SPMConfig.initialize_module()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
 
+  </div>
         </div>
       </div>
       <div class="clearer"></div>
@@ -1826,8 +1952,8 @@ on startup. This method does nothing but can be overriden by modules.</p>
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021, Populse team &lt;support@brainvisa.info&gt;.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+        &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     </div>
   </body>
 </html>

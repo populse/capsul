@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   
     <title>CAPSUL &#8212; CAPSUL - Chain algorithm in pipelines and execute in many contexts</title>
@@ -19,9 +19,8 @@
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
     
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
@@ -106,14 +105,14 @@
           <div class="body" role="main">
             
   <section id="capsul-subprocess-module">
-<h1>capsul.subprocess module<a class="headerlink" href="#capsul-subprocess-module" title="Permalink to this headline">¶</a></h1>
+<h1>capsul.subprocess module<a class="headerlink" href="#capsul-subprocess-module" title="Permalink to this heading">¶</a></h1>
 <div class="graphviz"><img src="../_images/inheritance-5868c3805ac0910bcaeb83cf91b24e7037470b3f.png" alt="Inheritance diagram of capsul.subprocess, capsul.subprocess.fsl, capsul.subprocess.spm" usemap="#inheritance379204bf4f" class="inheritance graphviz" /></div>
 <map id="inheritance379204bf4f" name="inheritance379204bf4f">
-<area shape="rect" id="node1" href="#capsul.subprocess.fsl.Popen" target="_top" title="Equivalent to Python subprocess.Popen for FSL commands" alt="" coords="199,5,279,31"/>
+<area shape="rect" id="node1" href="#capsul.subprocess.fsl.Popen" target="_top" title="Equivalent to Python subprocess.Popen for FSL commands" alt="" coords="198,5,281,31"/>
 <area shape="rect" id="node3" href="#capsul.subprocess.spm.Popen" target="_top" title="Equivalent to Python soma.subprocess.Popen for SPM batch" alt="" coords="192,55,287,80"/>
-</map><span class="target" id="module-capsul.subprocess"></span><p>The <a class="reference internal" href="#module-capsul.subprocess" title="capsul.subprocess"><code class="xref py py-mod docutils literal notranslate"><span class="pre">capsul.subprocess</span></code></a> module provides interfaces similar to those of the standard <a class="reference external" href="https://docs.python.org/3.7/library/subprocess.html#module-subprocess" title="(in Python v3.7)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">subprocess</span></code></a> module, specialized to call specific neuroimaging software such as FSL, SPM or FreeSurfer. It provides <a class="reference external" href="https://docs.python.org/3.7/library/subprocess.html#subprocess.Popen" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Popen</span></code></a>, <a class="reference external" href="https://docs.python.org/3.7/library/subprocess.html#subprocess.call" title="(in Python v3.7)"><code class="xref py py-func docutils literal notranslate"><span class="pre">call()</span></code></a>, <a class="reference external" href="https://docs.python.org/3.7/library/subprocess.html#subprocess.check_call" title="(in Python v3.7)"><code class="xref py py-func docutils literal notranslate"><span class="pre">check_call()</span></code></a> and <code class="xref py py-func docutils literal notranslate"><span class="pre">check_outputs()</span></code> replacement functions which work in the selected specific environment.</p>
+</map><span class="target" id="module-capsul.subprocess"></span><p>The <a class="reference internal" href="#module-capsul.subprocess" title="capsul.subprocess"><code class="xref py py-mod docutils literal notranslate"><span class="pre">capsul.subprocess</span></code></a> module provides interfaces similar to those of the standard <a class="reference external" href="https://docs.python.org/3.10/library/subprocess.html#module-subprocess" title="(in Python v3.10)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">subprocess</span></code></a> module, specialized to call specific neuroimaging software such as FSL, SPM or FreeSurfer. It provides <a class="reference external" href="https://docs.python.org/3.10/library/subprocess.html#subprocess.Popen" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Popen</span></code></a>, <a class="reference external" href="https://docs.python.org/3.10/library/subprocess.html#subprocess.call" title="(in Python v3.10)"><code class="xref py py-func docutils literal notranslate"><span class="pre">call()</span></code></a>, <a class="reference external" href="https://docs.python.org/3.10/library/subprocess.html#subprocess.check_call" title="(in Python v3.10)"><code class="xref py py-func docutils literal notranslate"><span class="pre">check_call()</span></code></a> and <code class="xref py py-func docutils literal notranslate"><span class="pre">check_outputs()</span></code> replacement functions which work in the selected specific environment.</p>
 <section id="module-capsul.subprocess.fsl">
-<span id="capsul-subprocess-fsl-submodule"></span><h2>capsul.subprocess.fsl submodule<a class="headerlink" href="#module-capsul.subprocess.fsl" title="Permalink to this headline">¶</a></h2>
+<span id="capsul-subprocess-fsl-submodule"></span><h2>capsul.subprocess.fsl submodule<a class="headerlink" href="#module-capsul.subprocess.fsl" title="Permalink to this heading">¶</a></h2>
 <p>Specific subprocess-like functions to call FSL taking into account a
 potential configuration done in StudyConfig. If a StudyConfig is not
 configured to use FSL, it may be automatically configured. Automatic
@@ -127,39 +126,41 @@ environment variable is set (fsl.sh can be sourced or not)</p></li>
 command line must be the FSL executable without any path nor prefix.
 Prefix areused  in Neurodebian install. For instance on Ubuntu 16.04
 Neurodebian FSL commands are prefixed with “fsl5.0-“.
-The appropriate path and eventualy prefix are added from the configuration
+The appropriate path and eventually prefix are added from the configuration
 of the StudyConfig instance.</p>
 <section id="classes">
-<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h3>
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this heading">¶</a></h3>
 <section id="popen">
-<h4><a class="reference internal" href="#capsul.subprocess.fsl.Popen" title="capsul.subprocess.fsl.Popen"><code class="xref py py-class docutils literal notranslate"><span class="pre">Popen</span></code></a><a class="headerlink" href="#popen" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.subprocess.fsl.Popen" title="capsul.subprocess.fsl.Popen"><code class="xref py py-class docutils literal notranslate"><span class="pre">Popen</span></code></a><a class="headerlink" href="#popen" title="Permalink to this heading">¶</a></h4>
 </section>
 </section>
 <section id="functions">
-<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h3>
+<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this heading">¶</a></h3>
 <section id="fsl-command-with-environment">
-<h4><a class="reference internal" href="#capsul.subprocess.fsl.fsl_command_with_environment" title="capsul.subprocess.fsl.fsl_command_with_environment"><code class="xref py py-func docutils literal notranslate"><span class="pre">fsl_command_with_environment()</span></code></a><a class="headerlink" href="#fsl-command-with-environment" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.subprocess.fsl.fsl_command_with_environment" title="capsul.subprocess.fsl.fsl_command_with_environment"><code class="xref py py-func docutils literal notranslate"><span class="pre">fsl_command_with_environment()</span></code></a><a class="headerlink" href="#fsl-command-with-environment" title="Permalink to this heading">¶</a></h4>
 </section>
 <section id="check-fsl-configuration">
-<h4><a class="reference internal" href="#capsul.subprocess.fsl.check_fsl_configuration" title="capsul.subprocess.fsl.check_fsl_configuration"><code class="xref py py-func docutils literal notranslate"><span class="pre">check_fsl_configuration()</span></code></a><a class="headerlink" href="#check-fsl-configuration" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.subprocess.fsl.check_fsl_configuration" title="capsul.subprocess.fsl.check_fsl_configuration"><code class="xref py py-func docutils literal notranslate"><span class="pre">check_fsl_configuration()</span></code></a><a class="headerlink" href="#check-fsl-configuration" title="Permalink to this heading">¶</a></h4>
 </section>
 <section id="check-configuration-values">
-<h4><a class="reference internal" href="#capsul.subprocess.fsl.check_configuration_values" title="capsul.subprocess.fsl.check_configuration_values"><code class="xref py py-func docutils literal notranslate"><span class="pre">check_configuration_values()</span></code></a><a class="headerlink" href="#check-configuration-values" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.subprocess.fsl.check_configuration_values" title="capsul.subprocess.fsl.check_configuration_values"><code class="xref py py-func docutils literal notranslate"><span class="pre">check_configuration_values()</span></code></a><a class="headerlink" href="#check-configuration-values" title="Permalink to this heading">¶</a></h4>
 </section>
 <section id="auto-configuration">
-<h4><a class="reference internal" href="#capsul.subprocess.fsl.auto_configuration" title="capsul.subprocess.fsl.auto_configuration"><code class="xref py py-func docutils literal notranslate"><span class="pre">auto_configuration()</span></code></a><a class="headerlink" href="#auto-configuration" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.subprocess.fsl.auto_configuration" title="capsul.subprocess.fsl.auto_configuration"><code class="xref py py-func docutils literal notranslate"><span class="pre">auto_configuration()</span></code></a><a class="headerlink" href="#auto-configuration" title="Permalink to this heading">¶</a></h4>
 </section>
 <section id="call">
-<h4><a class="reference internal" href="#capsul.subprocess.fsl.call" title="capsul.subprocess.fsl.call"><code class="xref py py-func docutils literal notranslate"><span class="pre">call()</span></code></a><a class="headerlink" href="#call" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.subprocess.fsl.call" title="capsul.subprocess.fsl.call"><code class="xref py py-func docutils literal notranslate"><span class="pre">call()</span></code></a><a class="headerlink" href="#call" title="Permalink to this heading">¶</a></h4>
 </section>
 <section id="check-call">
-<h4><a class="reference internal" href="#capsul.subprocess.fsl.check_call" title="capsul.subprocess.fsl.check_call"><code class="xref py py-func docutils literal notranslate"><span class="pre">check_call()</span></code></a><a class="headerlink" href="#check-call" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.subprocess.fsl.check_call" title="capsul.subprocess.fsl.check_call"><code class="xref py py-func docutils literal notranslate"><span class="pre">check_call()</span></code></a><a class="headerlink" href="#check-call" title="Permalink to this heading">¶</a></h4>
 </section>
 <section id="check-output">
-<h4><a class="reference internal" href="#capsul.subprocess.fsl.check_output" title="capsul.subprocess.fsl.check_output"><code class="xref py py-func docutils literal notranslate"><span class="pre">check_output()</span></code></a><a class="headerlink" href="#check-output" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.subprocess.fsl.check_output" title="capsul.subprocess.fsl.check_output"><code class="xref py py-func docutils literal notranslate"><span class="pre">check_output()</span></code></a><a class="headerlink" href="#check-output" title="Permalink to this heading">¶</a></h4>
+</section>
+</section>
 <dl class="py class">
 <dt class="sig sig-object py" id="capsul.subprocess.fsl.Popen">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">capsul.subprocess.fsl.</span></span><span class="sig-name descname"><span class="pre">Popen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">study_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">command</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/subprocess/fsl.html#Popen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.subprocess.fsl.Popen" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.subprocess.fsl.</span></span><span class="sig-name descname"><span class="pre">Popen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">study_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">command</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/subprocess/fsl.html#Popen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.subprocess.fsl.Popen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Equivalent to Python subprocess.Popen for FSL commands</p>
 <p>Create new Popen instance.</p>
 </dd></dl>
@@ -212,44 +213,44 @@ call taking into account the study_config FSL configuration.</p>
 </dd></dl>
 
 </section>
-</section>
-</section>
 <section id="module-capsul.subprocess.spm">
-<span id="capsul-subprocess-spm-submodule"></span><h2>capsul.subprocess.spm submodule<a class="headerlink" href="#module-capsul.subprocess.spm" title="Permalink to this headline">¶</a></h2>
+<span id="capsul-subprocess-spm-submodule"></span><h2>capsul.subprocess.spm submodule<a class="headerlink" href="#module-capsul.subprocess.spm" title="Permalink to this heading">¶</a></h2>
 <section id="id1">
-<h3>Classes<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<h3>Classes<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h3>
 <section id="id2">
-<h4><a class="reference internal" href="#capsul.subprocess.spm.Popen" title="capsul.subprocess.spm.Popen"><code class="xref py py-class docutils literal notranslate"><span class="pre">Popen</span></code></a><a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.subprocess.spm.Popen" title="capsul.subprocess.spm.Popen"><code class="xref py py-class docutils literal notranslate"><span class="pre">Popen</span></code></a><a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h4>
 </section>
 </section>
 <section id="id3">
-<h3>Functions<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<h3>Functions<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h3>
 <section id="find-spm">
-<h4><a class="reference internal" href="#capsul.subprocess.spm.find_spm" title="capsul.subprocess.spm.find_spm"><code class="xref py py-func docutils literal notranslate"><span class="pre">find_spm()</span></code></a><a class="headerlink" href="#find-spm" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.subprocess.spm.find_spm" title="capsul.subprocess.spm.find_spm"><code class="xref py py-func docutils literal notranslate"><span class="pre">find_spm()</span></code></a><a class="headerlink" href="#find-spm" title="Permalink to this heading">¶</a></h4>
 </section>
 <section id="check-spm-configuration">
-<h4><a class="reference internal" href="#capsul.subprocess.spm.check_spm_configuration" title="capsul.subprocess.spm.check_spm_configuration"><code class="xref py py-func docutils literal notranslate"><span class="pre">check_spm_configuration()</span></code></a><a class="headerlink" href="#check-spm-configuration" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.subprocess.spm.check_spm_configuration" title="capsul.subprocess.spm.check_spm_configuration"><code class="xref py py-func docutils literal notranslate"><span class="pre">check_spm_configuration()</span></code></a><a class="headerlink" href="#check-spm-configuration" title="Permalink to this heading">¶</a></h4>
 </section>
 <section id="id4">
-<h4><a class="reference internal" href="#capsul.subprocess.spm.check_configuration_values" title="capsul.subprocess.spm.check_configuration_values"><code class="xref py py-func docutils literal notranslate"><span class="pre">check_configuration_values()</span></code></a><a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.subprocess.spm.check_configuration_values" title="capsul.subprocess.spm.check_configuration_values"><code class="xref py py-func docutils literal notranslate"><span class="pre">check_configuration_values()</span></code></a><a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h4>
 </section>
 <section id="id5">
-<h4><a class="reference internal" href="#capsul.subprocess.spm.auto_configuration" title="capsul.subprocess.spm.auto_configuration"><code class="xref py py-func docutils literal notranslate"><span class="pre">auto_configuration()</span></code></a><a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.subprocess.spm.auto_configuration" title="capsul.subprocess.spm.auto_configuration"><code class="xref py py-func docutils literal notranslate"><span class="pre">auto_configuration()</span></code></a><a class="headerlink" href="#id5" title="Permalink to this heading">¶</a></h4>
 </section>
 <section id="spm-command">
-<h4><code class="xref py py-func docutils literal notranslate"><span class="pre">spm_command()</span></code><a class="headerlink" href="#spm-command" title="Permalink to this headline">¶</a></h4>
+<h4><code class="xref py py-func docutils literal notranslate"><span class="pre">spm_command()</span></code><a class="headerlink" href="#spm-command" title="Permalink to this heading">¶</a></h4>
 </section>
 <section id="id6">
-<h4><a class="reference internal" href="#capsul.subprocess.spm.call" title="capsul.subprocess.spm.call"><code class="xref py py-func docutils literal notranslate"><span class="pre">call()</span></code></a><a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.subprocess.spm.call" title="capsul.subprocess.spm.call"><code class="xref py py-func docutils literal notranslate"><span class="pre">call()</span></code></a><a class="headerlink" href="#id6" title="Permalink to this heading">¶</a></h4>
 </section>
 <section id="id7">
-<h4><a class="reference internal" href="#capsul.subprocess.spm.check_call" title="capsul.subprocess.spm.check_call"><code class="xref py py-func docutils literal notranslate"><span class="pre">check_call()</span></code></a><a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.subprocess.spm.check_call" title="capsul.subprocess.spm.check_call"><code class="xref py py-func docutils literal notranslate"><span class="pre">check_call()</span></code></a><a class="headerlink" href="#id7" title="Permalink to this heading">¶</a></h4>
 </section>
 <section id="id8">
-<h4><a class="reference internal" href="#capsul.subprocess.spm.check_output" title="capsul.subprocess.spm.check_output"><code class="xref py py-func docutils literal notranslate"><span class="pre">check_output()</span></code></a><a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.subprocess.spm.check_output" title="capsul.subprocess.spm.check_output"><code class="xref py py-func docutils literal notranslate"><span class="pre">check_output()</span></code></a><a class="headerlink" href="#id8" title="Permalink to this heading">¶</a></h4>
+</section>
+</section>
 <dl class="py class">
 <dt class="sig sig-object py" id="capsul.subprocess.spm.Popen">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">capsul.subprocess.spm.</span></span><span class="sig-name descname"><span class="pre">Popen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">study_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_file</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/subprocess/spm.html#Popen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.subprocess.spm.Popen" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.subprocess.spm.</span></span><span class="sig-name descname"><span class="pre">Popen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">study_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_file</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/subprocess/spm.html#Popen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.subprocess.spm.Popen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Equivalent to Python soma.subprocess.Popen for SPM batch</p>
 <p>Create new Popen instance.</p>
 </dd></dl>
@@ -301,24 +302,22 @@ EnvironmentError if configuration is still wrong.</p>
 <span class="sig-prename descclassname"><span class="pre">capsul.subprocess.spm.</span></span><span class="sig-name descname"><span class="pre">find_spm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spm_version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matlab_exec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'matlab'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matlab_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/subprocess/spm.html#find_spm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.subprocess.spm.find_spm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function to return the root directory of SPM.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>spm_version</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em> (</em><em>default=''</em><em>)</em>) – if given, the version to use when running spm&lt;version&gt; in Matlab.</p></li>
-<li><p><strong>matlab</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em> (</em><em>default='matlab'</em><em>)</em>) – if given, is the path to the Matlab executable.</p></li>
-<li><p><strong>matlab_path</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em> (</em><em>default None</em><em>)</em>) – if given, is a Matlab expression fed to addpath.</p></li>
+<li><p><strong>spm_version</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> (</em><em>default=''</em><em>)</em>) – if given, the version to use when running spm&lt;version&gt; in Matlab.</p></li>
+<li><p><strong>matlab</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> (</em><em>default='matlab'</em><em>)</em>) – if given, is the path to the Matlab executable.</p></li>
+<li><p><strong>matlab_path</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> (</em><em>default None</em><em>)</em>) – if given, is a Matlab expression fed to addpath.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>last_line</strong> – the SPM root directory</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)">str</a></p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)">str</a></p>
 </dd>
 </dl>
 </dd></dl>
 
-</section>
-</section>
 </section>
 </section>
 
@@ -329,8 +328,9 @@ EnvironmentError if configuration is still wrong.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="../index.html">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">capsul.subprocess module</a><ul>
 <li><a class="reference internal" href="#module-capsul.subprocess.fsl">capsul.subprocess.fsl submodule</a><ul>
 <li><a class="reference internal" href="#classes">Classes</a><ul>
@@ -347,6 +347,14 @@ EnvironmentError if configuration is still wrong.</p>
 <li><a class="reference internal" href="#check-output"><code class="xref py py-func docutils literal notranslate"><span class="pre">check_output()</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#capsul.subprocess.fsl.Popen"><code class="docutils literal notranslate"><span class="pre">Popen</span></code></a></li>
+<li><a class="reference internal" href="#capsul.subprocess.fsl.auto_configuration"><code class="docutils literal notranslate"><span class="pre">auto_configuration()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.subprocess.fsl.call"><code class="docutils literal notranslate"><span class="pre">call()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.subprocess.fsl.check_call"><code class="docutils literal notranslate"><span class="pre">check_call()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.subprocess.fsl.check_configuration_values"><code class="docutils literal notranslate"><span class="pre">check_configuration_values()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.subprocess.fsl.check_fsl_configuration"><code class="docutils literal notranslate"><span class="pre">check_fsl_configuration()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.subprocess.fsl.check_output"><code class="docutils literal notranslate"><span class="pre">check_output()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.subprocess.fsl.fsl_command_with_environment"><code class="docutils literal notranslate"><span class="pre">fsl_command_with_environment()</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-capsul.subprocess.spm">capsul.subprocess.spm submodule</a><ul>
@@ -365,12 +373,21 @@ EnvironmentError if configuration is still wrong.</p>
 <li><a class="reference internal" href="#id8"><code class="xref py py-func docutils literal notranslate"><span class="pre">check_output()</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#capsul.subprocess.spm.Popen"><code class="docutils literal notranslate"><span class="pre">Popen</span></code></a></li>
+<li><a class="reference internal" href="#capsul.subprocess.spm.auto_configuration"><code class="docutils literal notranslate"><span class="pre">auto_configuration()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.subprocess.spm.call"><code class="docutils literal notranslate"><span class="pre">call()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.subprocess.spm.check_call"><code class="docutils literal notranslate"><span class="pre">check_call()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.subprocess.spm.check_configuration_values"><code class="docutils literal notranslate"><span class="pre">check_configuration_values()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.subprocess.spm.check_output"><code class="docutils literal notranslate"><span class="pre">check_output()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.subprocess.spm.check_spm_configuration"><code class="docutils literal notranslate"><span class="pre">check_spm_configuration()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.subprocess.spm.find_spm"><code class="docutils literal notranslate"><span class="pre">find_spm()</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
 
+  </div>
         </div>
       </div>
       <div class="clearer"></div>
@@ -389,8 +406,8 @@ EnvironmentError if configuration is still wrong.</p>
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021, Populse team &lt;support@brainvisa.info&gt;.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+        &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     </div>
   </body>
 </html>

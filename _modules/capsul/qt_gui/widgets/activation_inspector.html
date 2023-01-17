@@ -1,7 +1,7 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -18,9 +18,8 @@
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css" />
     
     <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
-    <script src="../../../../_static/jquery.js"></script>
-    <script src="../../../../_static/underscore.js"></script>
     <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/sphinx_highlight.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -118,9 +117,8 @@
 <span class="sd">----------------------------</span>
 <span class="sd">&#39;&#39;&#39;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
-
 <span class="c1"># System import</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">re</span>
@@ -140,22 +138,22 @@
 <span class="kn">from</span> <span class="nn">capsul.qt_apps.utils.application</span> <span class="kn">import</span> <span class="n">Application</span>
 <span class="kn">import</span> <span class="nn">capsul.qt_apps.resources</span> <span class="k">as</span> <span class="nn">resources</span>
 <span class="kn">from</span> <span class="nn">capsul.api</span> <span class="kn">import</span> <span class="n">get_process_instance</span>
-<span class="kn">from</span> <span class="nn">capsul.qt_gui.widgets</span> <span class="kn">import</span> <span class="n">PipelineDevelopperView</span>
+<span class="kn">from</span> <span class="nn">capsul.qt_gui.widgets</span> <span class="kn">import</span> <span class="n">PipelineDeveloperView</span>
 <span class="kn">from</span> <span class="nn">capsul.pipeline.pipeline_nodes</span> <span class="kn">import</span> <span class="n">PipelineNode</span>
 
 
 <div class="viewcode-block" id="ActivationInspectorApp"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.activation_inspector.ActivationInspectorApp">[docs]</a><span class="k">class</span> <span class="nc">ActivationInspectorApp</span><span class="p">(</span><span class="n">Application</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; ActivationInspector Application.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; ActivationInspector Application.</span>
 <span class="sd">    While developing a pipeline, nodes are connected through links. Nodes will be automatically activated or disabled depending on their connections (a mandatory link to a disabled node will disable the current one).</span>
 <span class="sd">    You will often wonder why a node will not be activated. This tool helps to determine when and why by &quot;playing&quot; activation rules sequences step-by-step and displaying nodes which activate or deactivate at each step.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Load some meta informations</span>
+    <span class="c1"># Load some meta information</span>
     <span class="kn">from</span> <span class="nn">capsul.info</span> <span class="kn">import</span> <span class="n">__version__</span> <span class="k">as</span> <span class="n">_version</span>
     <span class="kn">from</span> <span class="nn">capsul.info</span> <span class="kn">import</span> <span class="n">NAME</span> <span class="k">as</span> <span class="n">_application_name</span>
     <span class="kn">from</span> <span class="nn">capsul.info</span> <span class="kn">import</span> <span class="n">ORGANISATION</span> <span class="k">as</span> <span class="n">_organisation_name</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pipeline_path</span><span class="p">,</span> <span class="n">record_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Method to initialize the ActivationInspectorApp class.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to initialize the ActivationInspectorApp class.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -176,9 +174,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">init_window</span><span class="p">()</span>
 
 <div class="viewcode-block" id="ActivationInspectorApp.init_window"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.activation_inspector.ActivationInspectorApp.init_window">[docs]</a>    <span class="k">def</span> <span class="nf">init_window</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Method to initialize the main window.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to initialize the main window.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># First set some meta informations</span>
+        <span class="c1"># First set some meta information</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">setApplicationName</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_application_name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">setOrganizationName</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_organisation_name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">setApplicationVersion</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_version</span><span class="p">)</span>
@@ -189,7 +187,7 @@
         <span class="c1">#ui_file = os.path.join(resources.__path__[0], &quot;activation_inspector.ui&quot;)</span>
 
         <span class="c1"># Create and show the activation/pipeline/controller windows</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_window</span> <span class="o">=</span> <span class="n">PipelineDevelopperView</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">show_sub_pipelines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_window</span> <span class="o">=</span> <span class="n">PipelineDeveloperView</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">show_sub_pipelines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">controller_window</span> <span class="o">=</span> <span class="n">ScrollControllerWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="p">,</span><span class="n">live</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">activation_window</span> <span class="o">=</span> <span class="n">ActivationInspector</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">ui_file</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">record_file</span><span class="p">,</span>
@@ -201,11 +199,11 @@
         <span class="k">return</span> <span class="kc">True</span></div></div>
 
 <div class="viewcode-block" id="ActivationInspector"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.activation_inspector.ActivationInspector">[docs]</a><span class="k">class</span> <span class="nc">ActivationInspector</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QWidget</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; A Widget to display the pipeline activation process step by step.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; A Widget to display the pipeline activation process step by step.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span> <span class="n">ui_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">record_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">developper_view</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Initialize the ActivationInspector class.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Initialize the ActivationInspector class.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -217,7 +215,7 @@
 <span class="sd">        record_file: str (optional)</span>
 <span class="sd">            a file path where the activation steps are recorded.</span>
 <span class="sd">            If not specified (None), it will create a temporary file.</span>
-<span class="sd">        developper_view: PipelineDevelopperView (optional)</span>
+<span class="sd">        developper_view: PipelineDeveloperView (optional)</span>
 <span class="sd">            if specified it is possible to click on a plug to set a filter</span>
 <span class="sd">            pattern and to update the pipeline activation accordingly.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -290,12 +288,12 @@
           <span class="n">developper_view</span><span class="o">.</span><span class="n">plug_clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">set_filter_pattern</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ActivationInspector.show"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.activation_inspector.ActivationInspector.show">[docs]</a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Shows the widget and its child widgets.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Shows the widget and its child widgets.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="ActivationInspector.add_controls_to_ui"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.activation_inspector.ActivationInspector.add_controls_to_ui">[docs]</a>    <span class="k">def</span> <span class="nf">add_controls_to_ui</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Method to find dynamic controls</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to find dynamic controls</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Error message template</span>
         <span class="n">error_message</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2"> has no attribute &#39;</span><span class="si">{1}</span><span class="s2">&#39;&quot;</span>
@@ -322,7 +320,7 @@
     <span class="c1">###########################################################################</span>
 
 <div class="viewcode-block" id="ActivationInspector.refresh_activation_from_record"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.activation_inspector.ActivationInspector.refresh_activation_from_record">[docs]</a>    <span class="k">def</span> <span class="nf">refresh_activation_from_record</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Method to display pipeline activation steps from the recorded file.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to display pipeline activation steps from the recorded file.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Open the last recorded activation file</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">record_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">openrecord</span><span class="p">:</span>
@@ -371,7 +369,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">setCurrentRow</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ActivationInspector.update_pipeline_activation"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.activation_inspector.ActivationInspector.update_pipeline_activation">[docs]</a>    <span class="k">def</span> <span class="nf">update_pipeline_activation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Method that is used to replay the activation step by step.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Method that is used to replay the activation step by step.</span>
 
 <span class="sd">        When a specific activation step is selected, the pipeline will reflect</span>
 <span class="sd">        the selected activation status</span>
@@ -395,7 +393,7 @@
                 <span class="n">node</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">selection_changed</span> <span class="o">=</span> <span class="kc">True</span></div>
 
 <div class="viewcode-block" id="ActivationInspector.find_next"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.activation_inspector.ActivationInspector.find_next">[docs]</a>    <span class="k">def</span> <span class="nf">find_next</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Forward search for a pattern in the activation list.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Forward search for a pattern in the activation list.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -418,7 +416,7 @@
         <span class="k">return</span> <span class="mi">0</span></div>
         
 <div class="viewcode-block" id="ActivationInspector.find_previous"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.activation_inspector.ActivationInspector.find_previous">[docs]</a>    <span class="k">def</span> <span class="nf">find_previous</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Backward search for a pattern in the activation list.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Backward search for a pattern in the activation list.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -441,7 +439,7 @@
         <span class="k">return</span> <span class="mi">0</span></div>
 
 <div class="viewcode-block" id="ActivationInspector.set_filter_pattern"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.activation_inspector.ActivationInspector.set_filter_pattern">[docs]</a>    <span class="k">def</span> <span class="nf">set_filter_pattern</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filter_pattern</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Method that set a filter pattern.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Method that set a filter pattern.</span>
 
 <span class="sd">        Try a forward search followed by a backward one.</span>
 
@@ -459,7 +457,7 @@
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot; Command example:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Command example:</span>
 <span class="sd">    &gt;&gt;&gt; python activation_inspector.py -p funtk.connectivity.conn.Conn </span>
 <span class="sd">        -r ~/tmp/conn_activation.txt</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -483,8 +481,6 @@
     <span class="k">if</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QApplication</span><span class="o">.</span><span class="n">instance</span><span class="p">()</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">app</span> <span class="o">=</span> <span class="n">ActivationInspectorApp</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">pipeline_path</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">record_file</span><span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">exec_</span><span class="p">())</span>
-
-
 </pre></div>
 
             <div class="clearer"></div>
@@ -512,8 +508,8 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021, Populse team &lt;support@brainvisa.info&gt;.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+        &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     </div>
   </body>
 </html>

@@ -1,7 +1,7 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -18,9 +18,8 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
     
     <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -153,7 +152,7 @@
 <span class="p">}</span>
     
 <div class="viewcode-block" id="string_to_value"><a class="viewcode-back" href="../../../api/process.html#capsul.process.xml.string_to_value">[docs]</a><span class="k">def</span> <span class="nf">string_to_value</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Converts a string into a Python value without executing code.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Converts a string into a Python value without executing code.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">value</span> <span class="o">=</span> <span class="n">_known_values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -164,11 +163,11 @@
     <span class="k">return</span> <span class="n">value</span></div>
 
 <div class="viewcode-block" id="XMLProcess"><a class="viewcode-back" href="../../../api/process.html#capsul.process.xml.XMLProcess">[docs]</a><span class="k">class</span> <span class="nc">XMLProcess</span><span class="p">(</span><span class="n">Process</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Base class of all generated classes for processes defined as a Python</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Base class of all generated classes for processes defined as a Python</span>
 <span class="sd">    function decorated with an XML string.</span>
 <span class="sd">    &quot;&quot;&quot;</span>    
     <span class="k">def</span> <span class="nf">_run_process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; Execute the XMLProcess. Runs the function and check its result</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Execute the XMLProcess. Runs the function and check its result</span>
 <span class="sd">        to set the output attributes values accordingly.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Build function parameters with identified input attributes</span>
@@ -217,7 +216,7 @@
     <span class="s1">&#39;list_any&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">List</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;trait&#39;</span><span class="p">:</span> <span class="n">Any</span><span class="p">}),</span>
 <span class="p">}</span>
 <div class="viewcode-block" id="trait_from_xml"><a class="viewcode-back" href="../../../api/process.html#capsul.process.xml.trait_from_xml">[docs]</a><span class="k">def</span> <span class="nf">trait_from_xml</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Creates a trait from an XML element type (&lt;input&gt;, &lt;output&gt; or</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Creates a trait from an XML element type (&lt;input&gt;, &lt;output&gt; or</span>
 <span class="sd">    &lt;return&gt;).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="nb">type</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">)</span>
@@ -253,7 +252,7 @@
     <span class="k">return</span> <span class="n">trait_class</span><span class="p">(</span><span class="o">*</span><span class="n">trait_args</span><span class="p">,</span> <span class="o">**</span><span class="n">trait_kwargs</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="create_xml_process"><a class="viewcode-back" href="../../../api/process.html#capsul.process.xml.create_xml_process">[docs]</a><span class="k">def</span> <span class="nf">create_xml_process</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">xml</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create a new process class given a Python function and a string containing</span>
 <span class="sd">    the corresponding Capsul XML 2.0 definition.</span>
 
@@ -337,7 +336,7 @@
 
 
 <div class="viewcode-block" id="xml_process"><a class="viewcode-back" href="../../../api/process.html#capsul.process.xml.xml_process">[docs]</a><span class="k">def</span> <span class="nf">xml_process</span><span class="p">(</span><span class="n">xml</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot; Decorator used to associate a Python function to its Process XML</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Decorator used to associate a Python function to its Process XML</span>
 <span class="sd">    representation.    </span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">set_capsul_xml</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
@@ -371,8 +370,8 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021, Populse team &lt;support@brainvisa.info&gt;.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+        &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     </div>
   </body>
 </html>

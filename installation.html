@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   
     <title>CAPSUL &#8212; CAPSUL - Chain algorithm in pipelines and execute in many contexts</title>
@@ -19,9 +19,8 @@
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
     
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
@@ -114,72 +113,72 @@
           <div class="body" role="main">
             
   <section id="capsul-installation">
-<span id="install-guid"></span><h1><cite>CAPSUL</cite> installation<a class="headerlink" href="#capsul-installation" title="Permalink to this headline">¶</a></h1>
+<span id="install-guid"></span><h1>CAPSUL installation<a class="headerlink" href="#capsul-installation" title="Permalink to this heading">¶</a></h1>
 <section id="installing-with-brainvisa">
-<h2>Installing with BrainVISA<a class="headerlink" href="#installing-with-brainvisa" title="Permalink to this headline">¶</a></h2>
+<h2>Installing with BrainVISA<a class="headerlink" href="#installing-with-brainvisa" title="Permalink to this heading">¶</a></h2>
 <p>CAPSUL is the new pipelining system of the <a class="reference external" href="http://brainvisa.info">BrainVISA suite</a>. It can therefore be installed with <a class="reference external" href="http://brainvisa.info/web/download">BrainVISA installer</a>.</p>
 </section>
 <section id="installing-without-brainvisa">
-<h2>Installing without BrainVISA<a class="headerlink" href="#installing-without-brainvisa" title="Permalink to this headline">¶</a></h2>
+<h2>Installing without BrainVISA<a class="headerlink" href="#installing-without-brainvisa" title="Permalink to this heading">¶</a></h2>
 <section id="prerequisite">
-<h3>Prerequisite<a class="headerlink" href="#prerequisite" title="Permalink to this headline">¶</a></h3>
-<p>Installing Capsul on a brain new system requires that Python is installed (either Python 2 or Python 3) but also that some Python packages are installed. These dependencies are managed by <a class="reference external" href="https://en.wikipedia.org/wiki/Pip_%28package_manager%29">pip</a> or by <a class="reference external" href="https://stackoverflow.com/questions/1471994/what-is-setup-py">setup.py</a>. But one of the dependency (the <a class="reference external" href="http://code.enthought.com/projects/traits/">traits Python module</a>) requires some compilation during installation. Therefore, before installing Capsul is it necessary to install compilation packages as well as Python developpement package. In this document, we give the procedure for installation on a bare Debian based Linux distribution (it has been tested on Ubuntu 16.04).</p>
+<h3>Prerequisite<a class="headerlink" href="#prerequisite" title="Permalink to this heading">¶</a></h3>
+<p>Installing Capsul on a brain new system requires that Python is installed (either Python 2 or Python 3) but also that some Python packages are installed. These dependencies are managed by <a class="reference external" href="https://en.wikipedia.org/wiki/Pip_%28package_manager%29">pip</a> or by <a class="reference external" href="https://stackoverflow.com/questions/1471994/what-is-setup-py">setup.py</a>. But one of the dependency (the <a class="reference external" href="http://code.enthought.com/projects/traits/">traits Python module</a>) requires some compilation during installation. Therefore, before installing Capsul is it necessary to install compilation packages as well as Python development package. In this document, we give the procedure for installation on a bare Debian based Linux distribution (it has been tested on Ubuntu 16.04).</p>
 <p><strong>Python 3 :</strong></p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo apt-get install python3-dev build-essential
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>python3-dev<span class="w"> </span>build-essential
 </pre></div>
 </div>
 <p><strong>Python 2 :</strong></p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo apt-get install python-dev build-essential
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>python-dev<span class="w"> </span>build-essential
 </pre></div>
 </div>
 <p>On the following commands, we use <code class="docutils literal notranslate"><span class="pre">python</span></code> command name indiferently for Python 2 and Python 3. For systems where Python 3 is not the default version, it may be necessary to use another command such as <code class="docutils literal notranslate"><span class="pre">python3</span></code>.</p>
 </section>
 <section id="install-system-wide">
-<h3>Install system-wide<a class="headerlink" href="#install-system-wide" title="Permalink to this headline">¶</a></h3>
+<h3>Install system-wide<a class="headerlink" href="#install-system-wide" title="Permalink to this heading">¶</a></h3>
 <p><strong>From PyPI</strong></p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo apt-get install python-pip <span class="c1"># On Ubuntu 16.04, use python3-pip for Python 3</span>
-sudo pip install capsul <span class="c1"># On Ubuntu 16.04, use pip3 for Python 3</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>python-pip<span class="w"> </span><span class="c1"># On Ubuntu 16.04, use python3-pip for Python 3</span>
+sudo<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>capsul<span class="w"> </span><span class="c1"># On Ubuntu 16.04, use pip3 for Python 3</span>
 </pre></div>
 </div>
 <p><strong>From source</strong></p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo apt-get install git
-git clone https://github.com/populse/capsul.git /tmp/capsul
-<span class="nb">cd</span> /tmp/capsul
-python setup.py install <span class="c1"># On Ubuntu 16.04, use python3 for Python 3</span>
-<span class="nb">cd</span> /tmp
-rm -r /tmp/capsul
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>git
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/populse/capsul.git<span class="w"> </span>/tmp/capsul
+<span class="nb">cd</span><span class="w"> </span>/tmp/capsul
+python<span class="w"> </span>setup.py<span class="w"> </span>install<span class="w"> </span><span class="c1"># On Ubuntu 16.04, use python3 for Python 3</span>
+<span class="nb">cd</span><span class="w"> </span>/tmp
+rm<span class="w"> </span>-r<span class="w"> </span>/tmp/capsul
 </pre></div>
 </div>
 </section>
 <section id="install-user-wide">
-<h3>Install user-wide<a class="headerlink" href="#install-user-wide" title="Permalink to this headline">¶</a></h3>
+<h3>Install user-wide<a class="headerlink" href="#install-user-wide" title="Permalink to this heading">¶</a></h3>
 <p><strong>From PyPI</strong></p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo apt-get install python-pip <span class="c1"># On Ubuntu 16.04, use python3-pip for Python 3</span>
-pip install --user capsul <span class="c1"># On Ubuntu 16.04, use pip3 for Python 3</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>python-pip<span class="w"> </span><span class="c1"># On Ubuntu 16.04, use python3-pip for Python 3</span>
+pip<span class="w"> </span>install<span class="w"> </span>--user<span class="w"> </span>capsul<span class="w"> </span><span class="c1"># On Ubuntu 16.04, use pip3 for Python 3</span>
 </pre></div>
 </div>
 <p><strong>From source</strong></p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo apt-get install git
-git clone https://github.com/populse/capsul.git /tmp/capsul
-<span class="nb">cd</span> /tmp/capsul
-python setup.py install --user
-<span class="nb">cd</span> /tmp
-rm -r /tmp/capsul
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>git
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/populse/capsul.git<span class="w"> </span>/tmp/capsul
+<span class="nb">cd</span><span class="w"> </span>/tmp/capsul
+python<span class="w"> </span>setup.py<span class="w"> </span>install<span class="w"> </span>--user
+<span class="nb">cd</span><span class="w"> </span>/tmp
+rm<span class="w"> </span>-r<span class="w"> </span>/tmp/capsul
 </pre></div>
 </div>
 </section>
 <section id="install-with-virtualenv">
-<h3>Install with virtualenv<a class="headerlink" href="#install-with-virtualenv" title="Permalink to this headline">¶</a></h3>
+<h3>Install with virtualenv<a class="headerlink" href="#install-with-virtualenv" title="Permalink to this heading">¶</a></h3>
 <p><strong>For Python 3</strong></p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo apt-get install python3-venv
-python3 -m venv /tmp/venv <span class="c1"># Choose your installation directory instead of /tmp/venv</span>
-/tmp/venv/bin/pip install capsul
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>python3-venv
+python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>/tmp/venv<span class="w"> </span><span class="c1"># Choose your installation directory instead of /tmp/venv</span>
+/tmp/venv/bin/pip<span class="w"> </span>install<span class="w"> </span>capsul
 </pre></div>
 </div>
 <p><strong>For Python 2</strong></p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo apt-get install python-virtualenv
-virtualenv /tmp/venv <span class="c1"># Choose your installation directory instead of /tmp/venv</span>
-/tmp/venv/bin/pip install capsul
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>python-virtualenv
+virtualenv<span class="w"> </span>/tmp/venv<span class="w"> </span><span class="c1"># Choose your installation directory instead of /tmp/venv</span>
+/tmp/venv/bin/pip<span class="w"> </span>install<span class="w"> </span>capsul
 </pre></div>
 </div>
 </section>
@@ -193,9 +192,10 @@ virtualenv /tmp/venv <span class="c1"># Choose your installation directory inste
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#"><cite>CAPSUL</cite> installation</a><ul>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">CAPSUL installation</a><ul>
 <li><a class="reference internal" href="#installing-with-brainvisa">Installing with BrainVISA</a></li>
 <li><a class="reference internal" href="#installing-without-brainvisa">Installing without BrainVISA</a><ul>
 <li><a class="reference internal" href="#prerequisite">Prerequisite</a></li>
@@ -208,12 +208,17 @@ virtualenv /tmp/venv <span class="c1"># Choose your installation directory inste
 </li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="index.html"
-                        title="previous chapter">CAPSUL</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="documentation.html"
-                        title="next chapter">Documentation of the CAPSUL tools</a></p>
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="index.html"
+                          title="previous chapter">CAPSUL</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="documentation.html"
+                          title="next chapter">Documentation of the CAPSUL tools</a></p>
+  </div>
         </div>
       </div>
       <div class="clearer"></div>
@@ -238,8 +243,8 @@ virtualenv /tmp/venv <span class="c1"># Choose your installation directory inste
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021, Populse team &lt;support@brainvisa.info&gt;.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+        &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     </div>
   </body>
 </html>

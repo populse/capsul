@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   
     <title>CAPSUL &#8212; CAPSUL - Chain algorithm in pipelines and execute in many contexts</title>
@@ -19,9 +19,8 @@
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
     
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
@@ -106,15 +105,15 @@
           <div class="body" role="main">
             
   <section id="capsul-sphinxext-module">
-<h1>capsul.sphinxext module<a class="headerlink" href="#capsul-sphinxext-module" title="Permalink to this headline">¶</a></h1>
+<h1>capsul.sphinxext module<a class="headerlink" href="#capsul-sphinxext-module" title="Permalink to this heading">¶</a></h1>
 <div class="graphviz"><img src="../_images/inheritance-0959fc6b30167b682322526ebee799e06fc6a66a.png" alt="Inheritance diagram of capsul.sphinxext, capsul.sphinxext.layoutdocgen, capsul.sphinxext.load_pilots, capsul.sphinxext.pipelinedocgen, capsul.sphinxext.usecasesdocgen" usemap="#inheritance63f55d249b" class="inheritance graphviz" /></div>
 <map id="inheritance63f55d249b" name="inheritance63f55d249b">
-<area shape="rect" id="node1" href="#capsul.sphinxext.layoutdocgen.LayoutHelperWriter" target="_top" title="A basic class to create sphinx layout and associated index." alt="" coords="16,104,159,129"/>
-<area shape="rect" id="node2" href="#capsul.sphinxext.pipelinedocgen.PipelineHelpWriter" target="_top" title="Class for automatic generation of pipeline API documentations" alt="" coords="19,55,155,80"/>
-<area shape="rect" id="node3" href="#capsul.sphinxext.usecasesdocgen.UseCasesHelperWriter" target="_top" title="A basic class to convert the pilot codes to rst use cases" alt="" coords="5,5,169,31"/>
+<area shape="rect" id="node1" href="#capsul.sphinxext.layoutdocgen.LayoutHelperWriter" target="_top" title="A basic class to create sphinx layout and associated index." alt="" coords="15,104,165,129"/>
+<area shape="rect" id="node2" href="#capsul.sphinxext.pipelinedocgen.PipelineHelpWriter" target="_top" title="Class for automatic generation of pipeline API documentations" alt="" coords="18,55,162,80"/>
+<area shape="rect" id="node3" href="#capsul.sphinxext.usecasesdocgen.UseCasesHelperWriter" target="_top" title="A basic class to convert the pilot codes to rst use cases" alt="" coords="5,5,175,31"/>
 </map><span class="target" id="module-capsul.sphinxext"></span><p>Extension to sphinx to document Capsul processes</p>
 <p>This moduls allows to make sphinx source to automatically document Capsul processes and pipelines. The module can be used as a commandline:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m capsul.sphinxext.capsul_pipeline_rst -i morphologist.capsul -o processes_docs --schema
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>capsul.sphinxext.capsul_pipeline_rst<span class="w"> </span>-i<span class="w"> </span>morphologist.capsul<span class="w"> </span>-o<span class="w"> </span>processes_docs<span class="w"> </span>--schema
 </pre></div>
 </div>
 <p>It can be automatically run when building sphinx docs (inside the sphinx-build process) by adding at the end of the <code class="docutils literal notranslate"><span class="pre">conf.py</span></code> file in sphinx sources:</p>
@@ -144,14 +143,14 @@
 </div>
 <span class="target" id="module-capsul.sphinxext.layoutdocgen"></span><dl class="py class">
 <dt class="sig sig-object py" id="capsul.sphinxext.layoutdocgen.LayoutHelperWriter">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">capsul.sphinxext.layoutdocgen.</span></span><span class="sig-name descname"><span class="pre">LayoutHelperWriter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root_module_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rst_extension</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.rst'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/sphinxext/layoutdocgen.html#LayoutHelperWriter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.sphinxext.layoutdocgen.LayoutHelperWriter" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.sphinxext.layoutdocgen.</span></span><span class="sig-name descname"><span class="pre">LayoutHelperWriter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root_module_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rst_extension</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.rst'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/sphinxext/layoutdocgen.html#LayoutHelperWriter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.sphinxext.layoutdocgen.LayoutHelperWriter" title="Permalink to this definition">¶</a></dt>
 <dd><p>A basic class to create sphinx layout and associated index.</p>
 <p>Initialize the LayoutHelperWriter class</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>module_names</strong> (<em>list of str</em><em> (</em><em>mandatory</em><em>)</em>) – list of modules defined in the project</p></li>
-<li><p><strong>root_module_name</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – the name of the python package</p></li>
+<li><p><strong>module_names</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – list of modules defined in the project</p></li>
+<li><p><strong>root_module_name</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – the name of the python package</p></li>
 <li><p><strong>rst_extension</strong> (<em>string</em><em> (</em><em>optional</em><em>)</em>) – Extension for reST files, default ‘.rst’</p></li>
 </ul>
 </dd>
@@ -161,16 +160,16 @@
 <span class="sig-name descname"><span class="pre">generate_index_entry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/sphinxext/layoutdocgen.html#LayoutHelperWriter.generate_index_entry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.sphinxext.layoutdocgen.LayoutHelperWriter.generate_index_entry" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make autodoc documentation of pilots</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>module_name</strong> (<em>string</em>) – the name of the module we want to index</p></li>
-<li><p><strong>ident</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – the number of blank prefix</p></li>
+<li><p><strong>ident</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><em>int</em></a>) – the number of blank prefix</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>ad</strong> – the reST formated index description.</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ad</strong> – the reST formatted index description.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>string</p>
 </dd>
 </dl>
@@ -179,16 +178,16 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="capsul.sphinxext.layoutdocgen.LayoutHelperWriter.rst2html">
 <span class="sig-name descname"><span class="pre">rst2html</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rst</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/sphinxext/layoutdocgen.html#LayoutHelperWriter.rst2html"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.sphinxext.layoutdocgen.LayoutHelperWriter.rst2html" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert a rst formated string to an html string.</p>
+<dd><p>Convert a rst formatted string to an html string.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>rst</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – the rst formated string.</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>rst</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – the rst formatted string.</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>out</strong> – the html formated string.</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>out</strong> – the html formatted string.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)">str</a></p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)">str</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -198,14 +197,14 @@
 <span class="sig-name descname"><span class="pre">title_for</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/sphinxext/layoutdocgen.html#LayoutHelperWriter.title_for"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.sphinxext.layoutdocgen.LayoutHelperWriter.title_for" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a title from a underscore-separated string.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>title</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – the string to format.</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>title</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – the string to format.</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>out</strong> – the formated string.</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>out</strong> – the formatted string.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)">str</a></p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)">str</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -215,7 +214,7 @@
 <span class="sig-name descname"><span class="pre">write_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">froot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'index'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rst_extension</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.rst'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/sphinxext/layoutdocgen.html#LayoutHelperWriter.write_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.sphinxext.layoutdocgen.LayoutHelperWriter.write_index" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make a reST API index file from python modules</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>outdir</strong> (<em>string</em><em> (</em><em>mandatory</em><em>)</em>) – Directory to which to write generated index file</p></li>
 <li><p><strong>froot</strong> (<em>string</em><em> (</em><em>optional</em><em>)</em>) – root (filename without extension) of filename to write to
@@ -231,7 +230,7 @@ Defaults to ‘index’.  We add <code class="docutils literal notranslate"><spa
 <span class="sig-name descname"><span class="pre">write_installation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outdir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/sphinxext/layoutdocgen.html#LayoutHelperWriter.write_installation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.sphinxext.layoutdocgen.LayoutHelperWriter.write_installation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate the installation recommendations.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>outdir</strong> (<em>string</em>) – Directory name in which to store files</p>
 </dd>
 </dl>
@@ -242,7 +241,7 @@ Defaults to ‘index’.  We add <code class="docutils literal notranslate"><spa
 <span class="sig-name descname"><span class="pre">write_layout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outdir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/sphinxext/layoutdocgen.html#LayoutHelperWriter.write_layout"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.sphinxext.layoutdocgen.LayoutHelperWriter.write_layout" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate the sphinx layout.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>outdir</strong> (<em>string</em>) – Directory name in which to store files</p>
 </dd>
 </dl>
@@ -258,35 +257,35 @@ Defaults to ‘index’.  We add <code class="docutils literal notranslate"><spa
 Any function declared inside whose name start with <code class="docutils literal notranslate"><span class="pre">pilot_</span></code> will be
 loaded.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>root</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – path to the use_cases module.</p></li>
-<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – path to the module.</p></li>
-<li><p><strong>root_module_name</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – the name of the package.</p></li>
+<li><p><strong>root</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – path to the use_cases module.</p></li>
+<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – path to the module.</p></li>
+<li><p><strong>root_module_name</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – the name of the package.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>pilots</strong> – a dict with module name as keys referencing to function module
 used for unitest.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <span class="target" id="module-capsul.sphinxext.pipelinedocgen"></span><dl class="py class">
 <dt class="sig sig-object py" id="capsul.sphinxext.pipelinedocgen.PipelineHelpWriter">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">capsul.sphinxext.pipelinedocgen.</span></span><span class="sig-name descname"><span class="pre">PipelineHelpWriter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pipelines</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rst_extension</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.rst'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">short_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/sphinxext/pipelinedocgen.html#PipelineHelpWriter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.sphinxext.pipelinedocgen.PipelineHelpWriter" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.sphinxext.pipelinedocgen.</span></span><span class="sig-name descname"><span class="pre">PipelineHelpWriter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pipelines</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rst_extension</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.rst'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">short_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/sphinxext/pipelinedocgen.html#PipelineHelpWriter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.sphinxext.pipelinedocgen.PipelineHelpWriter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Class for automatic generation of pipeline API documentations
 in Sphinx-parsable reST format.</p>
 <p>Initialize package for parsing</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pipelines</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a><em> (</em><em>mandatory</em><em>)</em>) – list of pipeline class</p></li>
+<li><p><strong>pipelines</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a><em> (</em><em>mandatory</em><em>)</em>) – list of pipeline class</p></li>
 <li><p><strong>rst_extension</strong> (<em>string</em><em> (</em><em>optional</em><em>)</em>) – extension for reST files, default ‘.rst’</p></li>
-<li><p><strong>short_names</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a><em> (</em><em>optional</em><em>)</em>) – translation dict for module/pipeline file names</p></li>
+<li><p><strong>short_names</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a><em> (</em><em>optional</em><em>)</em>) – translation dict for module/pipeline file names</p></li>
 </ul>
 </dd>
 </dl>
@@ -295,13 +294,13 @@ in Sphinx-parsable reST format.</p>
 <span class="sig-name descname"><span class="pre">generate_api_doc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pipeline</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/sphinxext/pipelinedocgen.html#PipelineHelpWriter.generate_api_doc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.sphinxext.pipelinedocgen.PipelineHelpWriter.generate_api_doc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make autodoc documentation for a pipeline python module</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>pipeline</strong> (<em>string</em>) – python location of pipeline - e.g ‘caps.fmri.PIPELINE’</p></li>
 <li><p><strong>schema</strong> (<em>string</em>) – path to the pipeline representation image</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
 <li><p><strong>ad</strong> (<em>string</em>) – contents of API doc</p></li>
 <li><p><strong>title</strong> (<em>string</em>) – the fist line of the docstring</p></li>
@@ -323,11 +322,11 @@ short_names dict. Used to build “reasonably short” path/file names.</p>
 <span class="sig-name descname"><span class="pre">write_api_docs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outdir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">returnrst</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/sphinxext/pipelinedocgen.html#PipelineHelpWriter.write_api_docs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.sphinxext.pipelinedocgen.PipelineHelpWriter.write_api_docs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate API reST files.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>outdir</strong> (<em>string</em><em> (</em><em>optional</em><em>, </em><em>default None</em><em>)</em>) – directory name in which to store files.
 Automatic filenames are created for each module.</p></li>
-<li><p><strong>returnrst</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em> (</em><em>optional</em><em>, </em><em>default False</em><em>)</em>) – if True return the rst string documentation,
+<li><p><strong>returnrst</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em> (</em><em>optional</em><em>, </em><em>default False</em><em>)</em>) – if True return the rst string documentation,
 otherwise write it to disk.</p></li>
 </ul>
 </dd>
@@ -341,7 +340,7 @@ otherwise write it to disk.</p></li>
 <span class="sig-name descname"><span class="pre">write_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">froot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'index'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative_to</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rst_extension</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.rst'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/sphinxext/pipelinedocgen.html#PipelineHelpWriter.write_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.sphinxext.pipelinedocgen.PipelineHelpWriter.write_index" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make a reST API index file from the list of written files</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>outdir</strong> (<em>string</em><em> (</em><em>mandatory</em><em>)</em>) – directory to which to write generated index file</p></li>
 <li><p><strong>froot</strong> (<em>string</em><em> (</em><em>optional</em><em>)</em>) – root (filename without extension) of filename to write to
@@ -361,11 +360,11 @@ leave path as it is.</p></li>
 <span class="sig-name descname"><span class="pre">write_main_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root_module_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">froot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'index'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rst_extension</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.rst'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">have_usecases</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/sphinxext/pipelinedocgen.html#PipelineHelpWriter.write_main_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.sphinxext.pipelinedocgen.PipelineHelpWriter.write_main_index" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make a reST API index file for the module</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>outdir</strong> (<em>string</em><em> (</em><em>mandatory</em><em>)</em>) – Directory to which to write generated index file</p></li>
-<li><p><strong>module_name</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – The name of module from which we want to generate an index.</p></li>
-<li><p><strong>root_module_name</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – The python package name</p></li>
+<li><p><strong>module_name</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – The name of module from which we want to generate an index.</p></li>
+<li><p><strong>root_module_name</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – The python package name</p></li>
 <li><p><strong>froot</strong> (<em>string</em><em> (</em><em>optional</em><em>)</em>) – root (filename without extension) of filename to write to
 Defaults to ‘index’.  We add <code class="docutils literal notranslate"><span class="pre">rst_extension</span></code>.</p></li>
 <li><p><strong>rst_extension</strong> (<em>string</em><em> (</em><em>optional</em><em>)</em>) – Extension for reST files, default ‘.rst’</p></li>
@@ -378,13 +377,13 @@ Defaults to ‘index’.  We add <code class="docutils literal notranslate"><spa
 
 <span class="target" id="module-capsul.sphinxext.usecasesdocgen"></span><dl class="py class">
 <dt class="sig sig-object py" id="capsul.sphinxext.usecasesdocgen.UseCasesHelperWriter">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">capsul.sphinxext.usecasesdocgen.</span></span><span class="sig-name descname"><span class="pre">UseCasesHelperWriter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pilots</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rst_extension</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.rst'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/sphinxext/usecasesdocgen.html#UseCasesHelperWriter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.sphinxext.usecasesdocgen.UseCasesHelperWriter" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.sphinxext.usecasesdocgen.</span></span><span class="sig-name descname"><span class="pre">UseCasesHelperWriter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pilots</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rst_extension</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.rst'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/sphinxext/usecasesdocgen.html#UseCasesHelperWriter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.sphinxext.usecasesdocgen.UseCasesHelperWriter" title="Permalink to this definition">¶</a></dt>
 <dd><p>A basic class to convert the pilot codes to rst use cases</p>
 <p>Initialize the UseCasesHelper class</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pilots</strong> (<em>list of &#64;function</em><em> (</em><em>mandatory</em><em>)</em>) – list of pilot functions.</p></li>
+<li><p><strong>pilots</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a><em> of </em><em>&#64;function</em><em> (</em><em>mandatory</em><em>)</em>) – list of pilot functions.</p></li>
 <li><p><strong>rst_extension</strong> (<em>string</em><em> (</em><em>optional</em><em>)</em>) – Extension for reST files, default ‘.rst’.</p></li>
 </ul>
 </dd>
@@ -394,13 +393,13 @@ Defaults to ‘index’.  We add <code class="docutils literal notranslate"><spa
 <span class="sig-name descname"><span class="pre">generate_usecases_doc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src_code</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/sphinxext/usecasesdocgen.html#UseCasesHelperWriter.generate_usecases_doc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.sphinxext.usecasesdocgen.UseCasesHelperWriter.generate_usecases_doc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make autodoc documentation of pilots</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>src_code</strong> (<em>string</em>) – pilot source code.</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>ad</strong> – the use case reST formated documentation.</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ad</strong> – the use case reST formatted documentation.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>string</p>
 </dd>
 </dl>
@@ -411,14 +410,14 @@ Defaults to ‘index’.  We add <code class="docutils literal notranslate"><spa
 <span class="sig-name descname"><span class="pre">getsource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">function</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/sphinxext/usecasesdocgen.html#UseCasesHelperWriter.getsource"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.sphinxext.usecasesdocgen.UseCasesHelperWriter.getsource" title="Permalink to this definition">¶</a></dt>
 <dd><p>Method that returns the source code of a function</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>function</strong> (<em>&#64;function</em><em> (</em><em>mandatory</em><em>)</em>) – a python function.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>srccode</strong> – the function source code.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.7/library/stdtypes.html#str" title="(in Python v3.7)">str</a></p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)">str</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -428,7 +427,7 @@ Defaults to ‘index’.  We add <code class="docutils literal notranslate"><spa
 <span class="sig-name descname"><span class="pre">write_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">froot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'index'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative_to</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rst_extension</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.rst'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/sphinxext/usecasesdocgen.html#UseCasesHelperWriter.write_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.sphinxext.usecasesdocgen.UseCasesHelperWriter.write_index" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make a reST API index file from written files</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>outdir</strong> (<em>string</em><em> (</em><em>mandatory</em><em>)</em>) – Directory to which to write generated index file</p></li>
 <li><p><strong>froot</strong> (<em>string</em><em> (</em><em>optional</em><em>)</em>) – root (filename without extension) of filename to write to
@@ -448,11 +447,11 @@ leave path as it is.</p></li>
 <span class="sig-name descname"><span class="pre">write_usecases_docs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outdir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">returnrst</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/sphinxext/usecasesdocgen.html#UseCasesHelperWriter.write_usecases_docs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.sphinxext.usecasesdocgen.UseCasesHelperWriter.write_usecases_docs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate Use Cases reST files.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>outdir</strong> (<em>string</em>) – Directory name in which to store files.
 We create automatic filenames for each Use case.</p></li>
-<li><p><strong>returnrst</strong> (<a class="reference external" href="https://docs.python.org/3.7/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em> (</em><em>optional</em><em>, </em><em>default False</em><em>)</em>) – if True return the rst string documentation,
+<li><p><strong>returnrst</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em> (</em><em>optional</em><em>, </em><em>default False</em><em>)</em>) – if True return the rst string documentation,
 otherwise write it to disk.</p></li>
 </ul>
 </dd>
@@ -462,7 +461,7 @@ otherwise write it to disk.</p></li>
 </dd></dl>
 
 <section id="commands">
-<h2>Commands<a class="headerlink" href="#commands" title="Permalink to this headline">¶</a></h2>
+<h2>Commands<a class="headerlink" href="#commands" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>capsul_pipeline_rst.py</p></li>
 <li><p>capsul_pipeline_view.py</p></li>
@@ -479,14 +478,41 @@ otherwise write it to disk.</p></li>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="../index.html">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">capsul.sphinxext module</a><ul>
+<li><a class="reference internal" href="#capsul.sphinxext.layoutdocgen.LayoutHelperWriter"><code class="docutils literal notranslate"><span class="pre">LayoutHelperWriter</span></code></a><ul>
+<li><a class="reference internal" href="#capsul.sphinxext.layoutdocgen.LayoutHelperWriter.generate_index_entry"><code class="docutils literal notranslate"><span class="pre">LayoutHelperWriter.generate_index_entry()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.sphinxext.layoutdocgen.LayoutHelperWriter.rst2html"><code class="docutils literal notranslate"><span class="pre">LayoutHelperWriter.rst2html()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.sphinxext.layoutdocgen.LayoutHelperWriter.title_for"><code class="docutils literal notranslate"><span class="pre">LayoutHelperWriter.title_for()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.sphinxext.layoutdocgen.LayoutHelperWriter.write_index"><code class="docutils literal notranslate"><span class="pre">LayoutHelperWriter.write_index()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.sphinxext.layoutdocgen.LayoutHelperWriter.write_installation"><code class="docutils literal notranslate"><span class="pre">LayoutHelperWriter.write_installation()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.sphinxext.layoutdocgen.LayoutHelperWriter.write_layout"><code class="docutils literal notranslate"><span class="pre">LayoutHelperWriter.write_layout()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#capsul.sphinxext.load_pilots.load_pilots"><code class="docutils literal notranslate"><span class="pre">load_pilots()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.sphinxext.pipelinedocgen.PipelineHelpWriter"><code class="docutils literal notranslate"><span class="pre">PipelineHelpWriter</span></code></a><ul>
+<li><a class="reference internal" href="#capsul.sphinxext.pipelinedocgen.PipelineHelpWriter.generate_api_doc"><code class="docutils literal notranslate"><span class="pre">PipelineHelpWriter.generate_api_doc()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.sphinxext.pipelinedocgen.PipelineHelpWriter.get_short_name"><code class="docutils literal notranslate"><span class="pre">PipelineHelpWriter.get_short_name()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.sphinxext.pipelinedocgen.PipelineHelpWriter.write_api_docs"><code class="docutils literal notranslate"><span class="pre">PipelineHelpWriter.write_api_docs()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.sphinxext.pipelinedocgen.PipelineHelpWriter.write_index"><code class="docutils literal notranslate"><span class="pre">PipelineHelpWriter.write_index()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.sphinxext.pipelinedocgen.PipelineHelpWriter.write_main_index"><code class="docutils literal notranslate"><span class="pre">PipelineHelpWriter.write_main_index()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#capsul.sphinxext.usecasesdocgen.UseCasesHelperWriter"><code class="docutils literal notranslate"><span class="pre">UseCasesHelperWriter</span></code></a><ul>
+<li><a class="reference internal" href="#capsul.sphinxext.usecasesdocgen.UseCasesHelperWriter.generate_usecases_doc"><code class="docutils literal notranslate"><span class="pre">UseCasesHelperWriter.generate_usecases_doc()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.sphinxext.usecasesdocgen.UseCasesHelperWriter.getsource"><code class="docutils literal notranslate"><span class="pre">UseCasesHelperWriter.getsource()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.sphinxext.usecasesdocgen.UseCasesHelperWriter.write_index"><code class="docutils literal notranslate"><span class="pre">UseCasesHelperWriter.write_index()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.sphinxext.usecasesdocgen.UseCasesHelperWriter.write_usecases_docs"><code class="docutils literal notranslate"><span class="pre">UseCasesHelperWriter.write_usecases_docs()</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#commands">Commands</a></li>
 </ul>
 </li>
 </ul>
 
+  </div>
         </div>
       </div>
       <div class="clearer"></div>
@@ -505,8 +531,8 @@ otherwise write it to disk.</p></li>
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021, Populse team &lt;support@brainvisa.info&gt;.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+        &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     </div>
   </body>
 </html>

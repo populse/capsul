@@ -89,5 +89,3 @@ capsul.engine.settings submodule
 
 .. automodule:: capsul.engine.settings
     :members:
-
-

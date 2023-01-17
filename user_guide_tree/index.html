@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   
     <title>CAPSUL &#8212; CAPSUL - Chain algorithm in pipelines and execute in many contexts</title>
@@ -19,9 +19,8 @@
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
     
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
@@ -106,10 +105,10 @@
           <div class="body" role="main">
             
   <section id="user-guide">
-<span id="capsul-guide"></span><h1>User Guide<a class="headerlink" href="#user-guide" title="Permalink to this headline">¶</a></h1>
+<span id="capsul-guide"></span><h1>User Guide<a class="headerlink" href="#user-guide" title="Permalink to this heading">¶</a></h1>
 <p>The main documentation of all the proposed scripts.</p>
 <section id="tutorial">
-<h2>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h2>
+<h2>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this heading">¶</a></h2>
 <p>Tutorial is available as a <a class="reference external" href="https://jupyter.org/">Jupyter notebook</a> (Jupyter is the new name for <a class="reference external" href="http://ipython.org/notebook.html">IPython notebook</a>).</p>
 <blockquote>
 <div><ul class="simple">
@@ -125,7 +124,7 @@
 <li><p>have IPython installed.</p></li>
 <li><p>run the tutorial ipython notebook server, with Qt GUI support:</p>
 <blockquote>
-<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>jupyter notebook --gui<span class="o">=</span>qt my_tutorial.ipynb
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>jupyter<span class="w"> </span>notebook<span class="w"> </span>--gui<span class="o">=</span>qt<span class="w"> </span>my_tutorial.ipynb
 </pre></div>
 </div>
 </div></blockquote>
@@ -133,50 +132,50 @@
 </ul>
 </section>
 <section id="running-capsul">
-<h2>Running Capsul<a class="headerlink" href="#running-capsul" title="Permalink to this headline">¶</a></h2>
+<h2>Running Capsul<a class="headerlink" href="#running-capsul" title="Permalink to this heading">¶</a></h2>
 <section id="running-as-commandline">
-<h3>Running as commandline<a class="headerlink" href="#running-as-commandline" title="Permalink to this headline">¶</a></h3>
+<h3>Running as commandline<a class="headerlink" href="#running-as-commandline" title="Permalink to this heading">¶</a></h3>
 <p>CAPSUL has a commandline program to run any process, pipeline, or process iteration. It can be used from a shell, or a script. It allows to run locally, either sequentially or in parallel, or on a remote processing server using Soma-Workflow.</p>
 <p>The program is a python module/script:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m capsul &lt;parameters&gt;
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>capsul<span class="w"> </span>&lt;parameters&gt;
 </pre></div>
 </div>
-<p>It can accept a variety of options to control configuration settings, processing modes, iterations, and process parameters either through file names or via attributes and paramters completion system.</p>
+<p>It can accept a variety of options to control configuration settings, processing modes, iterations, and process parameters either through file names or via attributes and parameters completion system.</p>
 <p>To get help, you may run it with the <code class="docutils literal notranslate"><span class="pre">-h</span></code> or <code class="docutils literal notranslate"><span class="pre">--help</span></code> option:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m capsul -h
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>capsul<span class="w"> </span>-h
 </pre></div>
 </div>
 <p><strong>Ex:</strong></p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m capsul --swf -i /home/data/study_data --studyconfig /home/data/study_data/study_config.json -a <span class="nv">subject</span><span class="o">=</span>subjet01 -a <span class="nv">center</span><span class="o">=</span>subjects morphologist.capsul.morphologist.Morphologist
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>capsul<span class="w"> </span>--swf<span class="w"> </span>-i<span class="w"> </span>/home/data/study_data<span class="w"> </span>--studyconfig<span class="w"> </span>/home/data/study_data/study_config.json<span class="w"> </span>-a<span class="w"> </span><span class="nv">subject</span><span class="o">=</span>subjet01<span class="w"> </span>-a<span class="w"> </span><span class="nv">center</span><span class="o">=</span>subjects<span class="w"> </span>morphologist.capsul.morphologist.Morphologist
 </pre></div>
 </div>
 <p>will run the Morphologist pipeline on data located in the directory <code class="docutils literal notranslate"><span class="pre">/home/data/study_data</span></code> using Soma-Workflow on the local computer, for subject <code class="docutils literal notranslate"><span class="pre">subject01</span></code></p>
 <p><strong>Ex with iteration:</strong></p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m capsul --swf -i /home/data/study_data --studyconfig /home/data/study_data/study_config.json -a <span class="nv">subject</span><span class="o">=</span><span class="s1">&#39;[&quot;subjet01&quot;, &quot;subject02&quot;, &quot;subject03&quot;]&#39;</span> -a <span class="nv">center</span><span class="o">=</span>subjects -I t1mri morphologist.capsul.morphologist.Morphologist
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>capsul<span class="w"> </span>--swf<span class="w"> </span>-i<span class="w"> </span>/home/data/study_data<span class="w"> </span>--studyconfig<span class="w"> </span>/home/data/study_data/study_config.json<span class="w"> </span>-a<span class="w"> </span><span class="nv">subject</span><span class="o">=</span><span class="s1">&#39;[&quot;subjet01&quot;, &quot;subject02&quot;, &quot;subject03&quot;]&#39;</span><span class="w"> </span>-a<span class="w"> </span><span class="nv">center</span><span class="o">=</span>subjects<span class="w"> </span>-I<span class="w"> </span>t1mri<span class="w"> </span>morphologist.capsul.morphologist.Morphologist
 </pre></div>
 </div>
 <p>will iterate the same process 3 times, for 3 different subjects.</p>
 <p>To work correctly, StudyConfig settings have to be correctly defined in <code class="docutils literal notranslate"><span class="pre">study_config.json</span></code> including FOM completion parameters, external software, formats, etc.</p>
 <p>Alternatively, or in addition to attributes, it is possible to pass process parameters as additional options after the process name. They can be passed either as positional arguments (given in the order the process expects), or as “keyword” arguments:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m capsul --swf -i /home/data/study_data --studyconfig /home/data/study_data/study_config.json -a <span class="nv">subject</span><span class="o">=</span>subjet01 -a <span class="nv">center</span><span class="o">=</span>subjects morphologist.capsul.morphologist.Morphologist /home/data/raw_data/subject01.nii.gz <span class="nv">pipeline_steps</span><span class="o">=</span><span class="s1">&#39;{&quot;importation&quot;: True, &quot;orientation&quot;: True}&#39;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>capsul<span class="w"> </span>--swf<span class="w"> </span>-i<span class="w"> </span>/home/data/study_data<span class="w"> </span>--studyconfig<span class="w"> </span>/home/data/study_data/study_config.json<span class="w"> </span>-a<span class="w"> </span><span class="nv">subject</span><span class="o">=</span>subjet01<span class="w"> </span>-a<span class="w"> </span><span class="nv">center</span><span class="o">=</span>subjects<span class="w"> </span>morphologist.capsul.morphologist.Morphologist<span class="w"> </span>/home/data/raw_data/subject01.nii.gz<span class="w"> </span><span class="nv">pipeline_steps</span><span class="o">=</span><span class="s1">&#39;{&quot;importation&quot;: True, &quot;orientation&quot;: True}&#39;</span>
 </pre></div>
 </div>
 <p>To get help about a process, its parameters, and available attributes to control its completion:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m capsul --process-help morphologist.capsul.morphologist.Morphologist
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>capsul<span class="w"> </span>--process-help<span class="w"> </span>morphologist.capsul.morphologist.Morphologist
 </pre></div>
 </div>
 </section>
 </section>
 <section id="xml-specifications">
-<h2>XML Specifications<a class="headerlink" href="#xml-specifications" title="Permalink to this headline">¶</a></h2>
+<h2>XML Specifications<a class="headerlink" href="#xml-specifications" title="Permalink to this heading">¶</a></h2>
 <p>Processes may be functions with XML specifications for their parameters.</p>
 <p>Pipelines can be saved and loaded as XML files.</p>
 <p><a class="reference internal" href="xml_spec.html"><span class="doc">The specs of XML definitions can be found on this page.</span></a></p>
 </section>
 <section id="documenting-capsul-processes-and-pipelines-with-sphinx">
-<h2>Documenting CAPSUL processes and pipelines with Sphinx<a class="headerlink" href="#documenting-capsul-processes-and-pipelines-with-sphinx" title="Permalink to this headline">¶</a></h2>
+<h2>Documenting CAPSUL processes and pipelines with Sphinx<a class="headerlink" href="#documenting-capsul-processes-and-pipelines-with-sphinx" title="Permalink to this heading">¶</a></h2>
 <p>Sphinx documentation can be built automatically for all Capsul processes. See <a class="reference internal" href="../api/sphinxext.html#module-capsul.sphinxext" title="capsul.sphinxext"><code class="xref py py-mod docutils literal notranslate"><span class="pre">capsul.sphinxext</span></code></a>.</p>
-<p>Hints may be stored in process classes to point to the documentation. This doc may be accessed through the <a class="reference internal" href="../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developper_view.PipelineDevelopperView" title="capsul.qt_gui.widgets.pipeline_developper_view.PipelineDevelopperView"><code class="xref py py-class docutils literal notranslate"><span class="pre">PipelineDevelopperView</span></code></a> pipeline viewer (at least). Several mechanisms can be used to find the HTML documentation of a process or node:</p>
+<p>Hints may be stored in process classes to point to the documentation. This doc may be accessed through the <code class="xref py py-class docutils literal notranslate"><span class="pre">PipelineDevelopperView</span></code> pipeline viewer (at least). Several mechanisms can be used to find the HTML documentation of a process or node:</p>
 <ul class="simple">
 <li><p>a <a class="reference internal" href="../api/process.html#capsul.process.process.Process" title="capsul.process.process.Process"><code class="xref py py-class docutils literal notranslate"><span class="pre">Process</span></code></a> or <a class="reference internal" href="../api/pipeline.html#capsul.pipeline.pipeline_nodes.Node" title="capsul.pipeline.pipeline_nodes.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a> class (or instance) may contain a <code class="docutils literal notranslate"><span class="pre">_doc_path</span></code> attribute. It points to the HTML document corresponding to the process documentation. The path may be absolute (<code class="docutils literal notranslate"><span class="pre">/path/to/file.html</span></code>), or an URL (<code class="docutils literal notranslate"><span class="pre">https://populse.github.io/capsul/api/pipeline.html#leaveoneoutnode</span></code>), or a relative URL. In the latter case the link is relative to to root of the project documentation, found via the process or node modules hierarchy. See below.</p></li>
 <li><p>a module containing processes or nodes docs may contain a <code class="docutils literal notranslate"><span class="pre">_doc_path</span></code> attribute. It can be in any module / package level above the process / node to be documented (it will be searched upwards, starting form the process module). If found it should point to the root directory of the documentation of the project. It may be an absolute path (<code class="docutils literal notranslate"><span class="pre">/path/to/project</span></code>), or an URL (<code class="docutils literal notranslate"><span class="pre">https://populse.github.io/capsul</span></code>). Individual process / node docs will be appended to this prefix.</p></li>
@@ -185,7 +184,7 @@
 <p>If a process HTML documentation is not found, then it may be replaced in documentation browsers with the process help (from its docstring).</p>
 </section>
 <section id="advanced-usage">
-<h2>Advanced usage<a class="headerlink" href="#advanced-usage" title="Permalink to this headline">¶</a></h2>
+<h2>Advanced usage<a class="headerlink" href="#advanced-usage" title="Permalink to this heading">¶</a></h2>
 <p><a class="reference internal" href="advanced_usage.html"><span class="doc">More advanced features can be found on this page.</span></a></p>
 <div class="toctree-wrapper compound">
 </div>
@@ -199,8 +198,9 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="../index.html">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">User Guide</a><ul>
 <li><a class="reference internal" href="#tutorial">Tutorial</a></li>
 <li><a class="reference internal" href="#running-capsul">Running Capsul</a><ul>
@@ -214,6 +214,7 @@
 </li>
 </ul>
 
+  </div>
         </div>
       </div>
       <div class="clearer"></div>
@@ -232,8 +233,8 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021, Populse team &lt;support@brainvisa.info&gt;.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+        &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     </div>
   </body>
 </html>

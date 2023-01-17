@@ -1,7 +1,7 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -18,9 +18,8 @@
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css" />
     
     <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
-    <script src="../../../../_static/jquery.js"></script>
-    <script src="../../../../_static/underscore.js"></script>
     <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/sphinx_highlight.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -124,7 +123,7 @@
 
 
 <div class="viewcode-block" id="ReduceNode"><a class="viewcode-back" href="../../../../api/pipeline.html#capsul.pipeline.custom_nodes.reduce_node.ReduceNode">[docs]</a><span class="k">class</span> <span class="nc">ReduceNode</span><span class="p">(</span><span class="n">Node</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Reduce node: converts series of inputs into lists. Typically a series of</span>
 <span class="sd">    inputs named ``input_0`` .. ``input_&lt;n&gt;`` will be output as a single list</span>
 <span class="sd">    named ``outputs``.</span>
@@ -137,7 +136,7 @@
 <span class="sd">      :class:`~capsul.pipeline.custom_nodes.map_node.MapNode`.</span>
 <span class="sd">    * Input parameters names patterns are given as the ``input_names``</span>
 <span class="sd">      parameter. It is a list of patterns, each containing a ``&quot;%d&quot;`` pattern</span>
-<span class="sd">      for the input number. The defaut value is ``[&#39;input_%d&#39;]``.</span>
+<span class="sd">      for the input number. The default value is ``[&#39;input_%d&#39;]``.</span>
 <span class="sd">    * Output parameters names are given as the ``output_names`` parameter. The</span>
 <span class="sd">      default is ``[&#39;outputs&#39;]``.</span>
 
@@ -163,7 +162,9 @@
         <span class="nb">super</span><span class="p">(</span><span class="n">ReduceNode</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">in_traits</span><span class="p">,</span> <span class="n">out_traits</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">tr</span><span class="p">,</span> <span class="n">ptype</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">output_names</span><span class="p">,</span> <span class="n">ptypes</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="n">tr</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">List</span><span class="p">(</span><span class="n">ptype</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="n">tr</span><span class="p">,</span>
+                           <span class="n">traits</span><span class="o">.</span><span class="n">List</span><span class="p">(</span><span class="n">traits</span><span class="o">.</span><span class="n">Either</span><span class="p">(</span><span class="n">ptype</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">Undefined</span><span class="p">),</span>
+                                       <span class="n">output</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">&#39;lengths&#39;</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">List</span><span class="p">(</span><span class="n">traits</span><span class="o">.</span><span class="n">Int</span><span class="p">(),</span> <span class="n">output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                                               <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;lists lengths&#39;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">&#39;skip_empty&#39;</span><span class="p">,</span>
@@ -229,7 +230,7 @@
                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ptype</span><span class="p">,</span>
                               <span class="p">(</span><span class="n">traits</span><span class="o">.</span><span class="n">Str</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">File</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">Directory</span><span class="p">)):</span>
                     <span class="c1"># List trait doesn&#39;t accept Undefined as items</span>
-                    <span class="n">ovalue</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">Undefined</span><span class="p">)</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+                    <span class="n">ovalue</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="c1"># if v not in (None, traits.Undefined) else &#39;&#39;</span>
                               <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ovalue</span><span class="p">]</span>
                 <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_names</span><span class="p">[</span><span class="n">in_index</span><span class="p">],</span> <span class="n">ovalue</span><span class="p">)</span>
 
@@ -264,7 +265,7 @@
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_types</span><span class="p">[</span><span class="n">in_index</span><span class="p">],</span>
                           <span class="p">(</span><span class="n">traits</span><span class="o">.</span><span class="n">Str</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">File</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">Directory</span><span class="p">)):</span>
                 <span class="c1"># List trait doesn&#39;t accept Undefined as items</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">Undefined</span><span class="p">)</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="c1"># if v not in (None, traits.Undefined) else traits.Undefined</span>
                          <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="p">]</span>
             <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
@@ -326,7 +327,6 @@
                      <span class="n">referenced_output_files</span><span class="o">=</span><span class="n">referenced_output_files</span><span class="p">,</span>
                      <span class="n">param_dict</span><span class="o">=</span><span class="n">param_dict</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">job</span></div>
-
 </pre></div>
 
             <div class="clearer"></div>
@@ -354,8 +354,8 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021, Populse team &lt;support@brainvisa.info&gt;.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.0.2.
+        &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
     </div>
   </body>
 </html>
