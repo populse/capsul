@@ -697,7 +697,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
 
         # fix expandvars problem when the env var SOMAWF_OUTPUT_PARAMS is
         # defined from a script and passed into a container (like bv set
-        # through soma-workflow config usig "$SOMAWF_OUTPUT_PARAMS"): when the
+        # through soma-workflow config using "$SOMAWF_OUTPUT_PARAMS"): when the
         # "source" variable is not set, os.expandvars() leaves the value
         # "$SOMAWF_OUTPUT_PARAMS" untouched, but here we would expect an empty
         # variable
@@ -747,7 +747,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
 
         # fix expandvars problem when the env var SOMAWF_OUTPUT_PARAMS is
         # defined from a script and passed into a container (like bv set
-        # through soma-workflow config usig "$SOMAWF_OUTPUT_PARAMS"): when the
+        # through soma-workflow config using "$SOMAWF_OUTPUT_PARAMS"): when the
         # "source" variable is not set, os.expandvars() leaves the value
         # "$SOMAWF_OUTPUT_PARAMS" untouched, but here we would expect an empty
         # variable
