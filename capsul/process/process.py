@@ -694,7 +694,17 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         ce = capsul_engine()
 
         param_file = os.environ.get('SOMAWF_INPUT_PARAMS')
-        if param_file is None:
+
+        # fix expandvars problem when the env var SOMAWF_OUTPUT_PARAMS is
+        # defined from a script and passed into a container (like bv set
+        # through soma-workflow config usig "$SOMAWF_OUTPUT_PARAMS"): when the
+        # "source" variable is not set, os.expandvars() leaves the value
+        # "$SOMAWF_OUTPUT_PARAMS" untouched, but here we would expect an empty
+        # variable
+        if param_file in ('$SOMAWF_INPUT_PARAMS', '${SOMAWF_INPUT_PARAMS}'):
+            param_file = None
+
+        if not param_file:
             print('Warning: no input parameters, the env variable '
                   'SOMAWF_INPUT_PARAMS is not set.', file=sys.stderr)
             params_conf = {}
@@ -734,8 +744,19 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         result = ce.study_config.run(process, configuration_dict=configuration)
         # collect output parameers
         out_param_file = os.environ.get('SOMAWF_OUTPUT_PARAMS')
+
+        # fix expandvars problem when the env var SOMAWF_OUTPUT_PARAMS is
+        # defined from a script and passed into a container (like bv set
+        # through soma-workflow config usig "$SOMAWF_OUTPUT_PARAMS"): when the
+        # "source" variable is not set, os.expandvars() leaves the value
+        # "$SOMAWF_OUTPUT_PARAMS" untouched, but here we would expect an empty
+        # variable
+        if out_param_file in ('$SOMAWF_OUTPUT_PARAMS',
+                              '${SOMAWF_OUTPUT_PARAMS}'):
+            out_param_file = None
+
         output_params = {}
-        if out_param_file is not None:
+        if out_param_file:
             if result is None:
                 result = {}
             reserved_params = ("nodes_activation", "selection_changed")
