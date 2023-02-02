@@ -51,11 +51,11 @@ CAPSUL is a powerful tool to define and share processing pipelines.
 
 # Capsul dependencies
 SPHINX_MIN_VERSION = "1.0"
-SOMA_MIN_VERSION = "5.1.0"
+SOMA_MIN_VERSION = "6.0.0"
 
 # dependencies
 SOMA_WORKFLOW_MIN_VERSION = "2.9.0"
-POPULSE_DB_MIN_VERSION = "1.1.1"
+POPULSE_DB_MIN_VERSION = "3.0.0"
 PYDANTIC_MIN_VERSION = "1.9.0"
 NIBABEL_MIN_VERSION = "1.0"
 NETWORKX_MIN_VERSION = "1.0"
@@ -82,9 +82,8 @@ ISRELEASE = ""
 VERSION = __version__
 PROVIDES = ["capsul"]
 REQUIRES = [
+    "redis",
     "pydantic>={0}".format(PYDANTIC_MIN_VERSION),
-    # activate the following line after soma-base > 4.6.1 is released
-    #"soma-base[controller,subprocess]>={0}".format(SOMA_MIN_VERSION),
     "soma-base>={0}".format(SOMA_MIN_VERSION),
     "soma-workflow>={0}".format(SOMA_WORKFLOW_MIN_VERSION),
     "populse-db>={0}".format(POPULSE_DB_MIN_VERSION),
