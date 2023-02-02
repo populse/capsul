@@ -6,7 +6,7 @@ This branch contains the code of the future 3.0 release. This is still work in p
 
 ## Using development version of Capsul v3
 
-To use Capsul v3 it is mandatory to have at least Python 3.9 and the @pydantic_controller@ branch of projects [soma-base](https://github.com/populse/soma-base>) and [capsul](https://github.com/populse/capsul>).
+To use Capsul v3 it is mandatory to have at least Python 3.9 and the **3.0** branch of projects [soma-base](https://github.com/populse/soma-base>) and [capsul](https://github.com/populse/capsul>).
 
 The simplest is to use a [casa-distro](https://github.com/brainvisa/casa-distro>) container for developers, and setup a minimalist dev environment, based on an Ubuntu 22.04 container with singularity:
 
@@ -30,10 +30,10 @@ The simplest is to use a [casa-distro](https://github.com/brainvisa/casa-distro>
       [ source \$CASA_SRC ]
         brainvisa brainvisa-cmake \$CASA_BRANCH
         brainvisa casa-distro \$CASA_BRANCH
-        git https://github.com/populse/soma-base.git pydantic_controller soma/soma-base
+        git https://github.com/populse/soma-base.git 6.0 soma/soma-base
         git https://github.com/populse/soma-workflow.git master soma/soma-workflow
         git https://github.com/populse/populse_db.git 3.0 populse_db
-        git https://github.com/populse/capsul.git pydantic_controller capsul
+        git https://github.com/populse/capsul.git 3.0 capsul
 
       [ build \$CASA_BUILD ]
         default_steps = configure build
