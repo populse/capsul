@@ -175,7 +175,6 @@ class TestTemporary(unittest.TestCase):
 
     @unittest.skip('reimplementation expected for capsul v3')
     def test_direct_run(self):
-        self.study_config.use_soma_workflow = False
         self.pipeline.nb_outputs = 3
         self.pipeline()
         self.assertEqual(self.pipeline.nodes["node2"].process.input,
@@ -188,7 +187,6 @@ class TestTemporary(unittest.TestCase):
 
     @unittest.skip('reimplementation expected for capsul v3')
     def test_full_wf(self):
-        self.study_config.use_soma_workflow = True
         self.pipeline.nb_outputs = 3
         result = self.study_config.run(self.pipeline, verbose=True)
         self.assertEqual(result, None)
