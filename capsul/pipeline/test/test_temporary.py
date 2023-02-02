@@ -7,11 +7,8 @@ import os
 import sys
 import tempfile
 from soma.controller import File, field, undefined
-from capsul.api import Process
-from capsul.api import Pipeline
-from capsul.pipeline import pipeline_workflow
+from capsul.api import Process, Pipeline, executable
 from soma_workflow import configuration as swconfig
-import socket
 import shutil
 from six.moves import zip
 
@@ -22,8 +19,8 @@ class DummyProcess1(Process):
     nb_outputs: int = 0
     output: list[File] = field(write=True, default_factory=list)
 
-    def __init__(self):
-        super(DummyProcess1, self).__init__()
+    def __init__(self, definition):
+        super().__init__(definition)
 
         self.on_attribute_change.add(self.nb_outputs_changed, "nb_outputs")
 
@@ -44,8 +41,8 @@ class DummyProcess2(Process):
     input: list[File] = field(default_factory=list)
     output: list[File] = field(write=True, default_factory=list)
 
-    def __init__(self):
-        super(DummyProcess2, self).__init__()
+    def __init__(self, definition):
+        super().__init__(definition)
 
         self.on_attribute_change.add(self.inputs_changed, "input")
 
@@ -69,8 +66,8 @@ class DummyProcess3(Process):
     input: list[File] = field(default_factory=list)
     output: File = field(write=True)
 
-    def __init__(self):
-        super(DummyProcess3, self).__init__()
+    def __init__(self, definition):
+        super().__init__(definition)
 
     def execute(self, context=None):
         with open(self.output, 'w') as f:
@@ -146,7 +143,7 @@ def tearDownModule():
 class TestTemporary(unittest.TestCase):
 
     def setUp(self):
-        self.pipeline = DummyPipeline()
+        self.pipeline = executable(DummyPipeline)
 
         tmpout = tempfile.mkstemp('.txt', prefix='capsul_test_')
         os.close(tmpout[0])
@@ -164,22 +161,16 @@ class TestTemporary(unittest.TestCase):
         # self.study_config = study_config
 
     def tearDown(self):
-        swm = self.study_config.modules['SomaWorkflowConfig']
-        swc = swm.get_workflow_controller()
-        if swc is not None:
-            # stop workflow controller and wait for thread termination
-            swc.stop_engine()
         if '--keep-tmp' not in sys.argv[1:]:
             if os.path.exists(self.output):
               os.unlink(self.output)
 
-
     @unittest.skip('reimplementation expected for capsul v3')
     def test_structure(self):
         self.pipeline.nb_outputs = 3
-        self.assertEqual(self.pipeline.nodes["node2"].process.input,
+        self.assertEqual(self.pipeline.nodes["node2"].input,
                          ["", "", ""])
-        self.assertEqual(self.pipeline.nodes["node2"].process.output,
+        self.assertEqual(self.pipeline.nodes["node2"].output,
                          ["", "", ""])
 
     @unittest.skip('reimplementation expected for capsul v3')
