@@ -9,14 +9,13 @@ Classes
 '''
 
 # System import
-from __future__ import absolute_import
 import sys
 import optparse
 import logging
 import warnings
 
 # Soma import
-from soma.qt_gui.qt_backend import Qt, QtWidgets
+from soma.qt_gui.qt_backend import Qt, QtCore, QtWidgets
 
 
 class Application(QtWidgets.QApplication):
@@ -54,7 +53,7 @@ class Application(QtWidgets.QApplication):
             line.
         """
         # Inheritance
-        Qt.QApplication.__init__(self, [])
+        QtWidgets.QApplication.__init__(self, [])
 
         # Extra application options
         extra_options = extra_options or []
@@ -160,7 +159,7 @@ class Application(QtWidgets.QApplication):
         self.message_box.show()
 
 
-class EmittingStream(Qt.QObject):
+class EmittingStream(QtCore.QObject):
     """ Logging emitting string basic handler.
     """
     def write(self, text):
