@@ -16,10 +16,10 @@ import logging
 import warnings
 
 # Soma import
-from soma.qt_gui.qt_backend import Qt
+from soma.qt_gui.qt_backend import Qt, QtWidgets
 
 
-class Application(Qt.QApplication):
+class Application(QtWidgets.QApplication):
     """ Base Application class.
 
     Used to set some user options
