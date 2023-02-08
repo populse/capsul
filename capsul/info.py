@@ -82,7 +82,7 @@ ISRELEASE = ""
 VERSION = __version__
 PROVIDES = ["capsul"]
 REQUIRES = [
-    "redis",
+    "redis<4.5.0",
     "pydantic>={0}".format(PYDANTIC_MIN_VERSION),
     "soma-base>={0}".format(SOMA_MIN_VERSION),
     "soma-workflow>={0}".format(SOMA_WORKFLOW_MIN_VERSION),
