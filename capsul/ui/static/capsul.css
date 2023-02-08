@@ -38,5 +38,3 @@ thead tr,
 summary[status]::before {
     content: attr(status) ' ';
 }
-  
-  
