@@ -63,6 +63,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 from capsul.api import get_process_instance
 from capsul.api import StudyConfig
+from capsul.api import capsul_engine
 from capsul.api import Pipeline
 from capsul.attributes.completion_engine import ProcessCompletionEngine
 
@@ -285,6 +286,9 @@ def main():
         description='Processing configuration, database options')
     group1.add_option('--studyconfig', dest='studyconfig',
         help='load StudyConfig configuration from the given file (JSON)')
+    group1.add_option('--config', dest='config',
+        help='load Capsul engine configuration from the given file (JSON) '
+        '(CapsulEngine shape, not Studyconfig -- use --studyconfig otherwise)')
     group1.add_option('-i', '--input', dest='input_directory',
                       help='input data directory (if not specified in '
                       'studyconfig file). If not specified neither on the '
@@ -379,14 +383,25 @@ def main():
     parser.disable_interspersed_args()
     (options, args) = parser.parse_args()
 
-    if options.studyconfig:
+    if options.config:
+        engine = capsul_engine()
+        with open(options.config) as f:
+            if yaml:
+                conf = yaml.load(f, Loader=yaml.SafeLoader)
+            else:
+                conf = json.load(f)
+        for env, c in conf.items():
+            engine.import_configs(env, c)
+        study_config = engine.study_config
+    elif options.studyconfig:
         study_config = StudyConfig(
             modules=StudyConfig.default_modules
                 + ['FomConfig', 'BrainVISAConfig'])
-        if yaml:
-            scdict = yaml.load(open(options.studyconfig))
-        else:
-            scdict = json.load(open(options.studyconfig))
+        with open(options.studyconfig) as f:
+            if yaml:
+                scdict = yaml.load(f, Loader=yaml.SafeLoader)
+            else:
+                scdict = json.load(f)
         study_config.set_study_configuration(scdict)
     else:
         study_config = StudyConfig(
