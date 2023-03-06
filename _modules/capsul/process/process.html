@@ -801,7 +801,17 @@
         <span class="n">ce</span> <span class="o">=</span> <span class="n">capsul_engine</span><span class="p">()</span>
 
         <span class="n">param_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;SOMAWF_INPUT_PARAMS&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">param_file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+
+        <span class="c1"># fix expandvars problem when the env var SOMAWF_OUTPUT_PARAMS is</span>
+        <span class="c1"># defined from a script and passed into a container (like bv set</span>
+        <span class="c1"># through soma-workflow config using &quot;$SOMAWF_OUTPUT_PARAMS&quot;): when the</span>
+        <span class="c1"># &quot;source&quot; variable is not set, os.expandvars() leaves the value</span>
+        <span class="c1"># &quot;$SOMAWF_OUTPUT_PARAMS&quot; untouched, but here we would expect an empty</span>
+        <span class="c1"># variable</span>
+        <span class="k">if</span> <span class="n">param_file</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;$SOMAWF_INPUT_PARAMS&#39;</span><span class="p">,</span> <span class="s1">&#39;$</span><span class="si">{SOMAWF_INPUT_PARAMS}</span><span class="s1">&#39;</span><span class="p">):</span>
+            <span class="n">param_file</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">param_file</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Warning: no input parameters, the env variable &#39;</span>
                   <span class="s1">&#39;SOMAWF_INPUT_PARAMS is not set.&#39;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
             <span class="n">params_conf</span> <span class="o">=</span> <span class="p">{}</span>
@@ -841,8 +851,19 @@
         <span class="n">result</span> <span class="o">=</span> <span class="n">ce</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">configuration_dict</span><span class="o">=</span><span class="n">configuration</span><span class="p">)</span>
         <span class="c1"># collect output parameers</span>
         <span class="n">out_param_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;SOMAWF_OUTPUT_PARAMS&#39;</span><span class="p">)</span>
+
+        <span class="c1"># fix expandvars problem when the env var SOMAWF_OUTPUT_PARAMS is</span>
+        <span class="c1"># defined from a script and passed into a container (like bv set</span>
+        <span class="c1"># through soma-workflow config using &quot;$SOMAWF_OUTPUT_PARAMS&quot;): when the</span>
+        <span class="c1"># &quot;source&quot; variable is not set, os.expandvars() leaves the value</span>
+        <span class="c1"># &quot;$SOMAWF_OUTPUT_PARAMS&quot; untouched, but here we would expect an empty</span>
+        <span class="c1"># variable</span>
+        <span class="k">if</span> <span class="n">out_param_file</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;$SOMAWF_OUTPUT_PARAMS&#39;</span><span class="p">,</span>
+                              <span class="s1">&#39;$</span><span class="si">{SOMAWF_OUTPUT_PARAMS}</span><span class="s1">&#39;</span><span class="p">):</span>
+            <span class="n">out_param_file</span> <span class="o">=</span> <span class="kc">None</span>
+
         <span class="n">output_params</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">if</span> <span class="n">out_param_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">out_param_file</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="n">reserved_params</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;nodes_activation&quot;</span><span class="p">,</span> <span class="s2">&quot;selection_changed&quot;</span><span class="p">)</span>

@@ -116,17 +116,16 @@
 <span class="sd">&#39;&#39;&#39;</span>
 
 <span class="c1"># System import</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">optparse</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="c1"># Soma import</span>
-<span class="kn">from</span> <span class="nn">soma.qt_gui.qt_backend</span> <span class="kn">import</span> <span class="n">Qt</span>
+<span class="kn">from</span> <span class="nn">soma.qt_gui.qt_backend</span> <span class="kn">import</span> <span class="n">Qt</span><span class="p">,</span> <span class="n">QtCore</span><span class="p">,</span> <span class="n">QtWidgets</span>
 
 
-<div class="viewcode-block" id="Application"><a class="viewcode-back" href="../../../../api/qt_apps.html#capsul.qt_apps.utils.application.Application">[docs]</a><span class="k">class</span> <span class="nc">Application</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">QApplication</span><span class="p">):</span>
+<div class="viewcode-block" id="Application"><a class="viewcode-back" href="../../../../api/qt_apps.html#capsul.qt_apps.utils.application.Application">[docs]</a><span class="k">class</span> <span class="nc">Application</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QApplication</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Base Application class.</span>
 
 <span class="sd">    Used to set some user options</span>
@@ -161,7 +160,7 @@
 <span class="sd">            line.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Inheritance</span>
-        <span class="n">Qt</span><span class="o">.</span><span class="n">QApplication</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QApplication</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="p">[])</span>
 
         <span class="c1"># Extra application options</span>
         <span class="n">extra_options</span> <span class="o">=</span> <span class="n">extra_options</span> <span class="ow">or</span> <span class="p">[]</span>
@@ -267,7 +266,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">message_box</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="EmittingStream"><a class="viewcode-back" href="../../../../api/qt_apps.html#capsul.qt_apps.utils.application.EmittingStream">[docs]</a><span class="k">class</span> <span class="nc">EmittingStream</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">QObject</span><span class="p">):</span>
+<div class="viewcode-block" id="EmittingStream"><a class="viewcode-back" href="../../../../api/qt_apps.html#capsul.qt_apps.utils.application.EmittingStream">[docs]</a><span class="k">class</span> <span class="nc">EmittingStream</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Logging emitting string basic handler.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
