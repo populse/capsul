@@ -413,15 +413,6 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
                          ])
 
 
-def test():
-    """ Function to execute unitest
-    """
-    suite = unittest.TestLoader().loadTestsFromTestCase(
-        TestPipelineContainingProcessWithOutputs)
-    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
-    return runtime.wasSuccessful()
-
-
 if __name__ == "__main__":
     verbose = False
     do_test = True

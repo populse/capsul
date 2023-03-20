@@ -398,7 +398,7 @@ class ApplicationConfiguration(Controller):
     merged_config: ConfigurationLayer = field(
         default_factory=ConfigurationLayer, user_level=2)
     
-    def __init__(self, app_name, user_file=undefined, site_file=None):
+    def __init__(self, app_name, user_file=undefined, site_file=None, user=None):
         '''
         Parameters
         ----------
@@ -408,6 +408,9 @@ class ApplicationConfiguration(Controller):
             file name for the user config file. If `̀`undefined`` (the default), it
             will be looked for in ``~/.config/{app_name}.json``. If
             ``None``, then no user config will be loaded.
+        user: dict
+            dict containing user configuration. It is an error to give both user_file
+            and user.
         site_file: str
             file name for the site config file. If `̀`None`` (the default), then
             no config will be loaded.
@@ -422,9 +425,24 @@ class ApplicationConfiguration(Controller):
             self.site.load(site_file)
 
         if user_file is undefined:
-            user_file = os.path.expanduser(f'~/.config/{app_name}.json')
-            if not os.path.exists(user_file):
+            if user:
                 user_file = None
+            else:
+                user_file = os.path.expanduser(f'~/.config/{app_name}.json')
+                if not os.path.exists(user_file):
+                    user_file = None
+        if user and user_file is not None:
+            raise ValueError('ApplicationConfiguration does not accept both '
+                             'user_file and user parameters.')
+        if user_file is undefined:
+            if user:
+                user_file = None
+            else:
+                user_file = os.path.expanduser(f'~/.config/{app_name}.json')
+                if not os.path.exists(user_file):
+                    user_file = None
+        if user:
+            self.user.import_dict(user)
         if user_file is not None:
             self.user_file = user_file
             self.user.load(user_file)

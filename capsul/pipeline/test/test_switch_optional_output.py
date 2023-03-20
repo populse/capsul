@@ -62,17 +62,7 @@ class TestPipeline(unittest.TestCase):
         self.assertEqual(len(workflow.jobs), 2)
 
 
-def test():
-    """ Function to execute unitest
-    """
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestPipeline)
-    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
-    return runtime.wasSuccessful()
-
-
 if __name__ == "__main__":
-    print("RETURNCODE: ", test())
-
     if 0:
         import sys
         from PyQt4 import QtGui

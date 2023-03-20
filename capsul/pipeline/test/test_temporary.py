@@ -199,20 +199,11 @@ class TestTemporary(unittest.TestCase):
         self.assertEqual(len(res_out), 3)
 
 
-def test():
-    """ Function to execute unitest
-    """
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestTemporary)
-    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
-    return runtime.wasSuccessful()
-
-
 if __name__ == "__main__":
     verbose = False
     if len(sys.argv) >= 2 and sys.argv[1] in ('-v', '--verbose'):
         verbose = True
 
-    print("RETURNCODE: ", test())
 
     if verbose:
         import sys

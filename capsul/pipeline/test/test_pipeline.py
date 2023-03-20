@@ -200,15 +200,6 @@ class TestPipeline(unittest.TestCase):
             self.temp_files.append(filename)
         self.run_pipeline_io(filename)
 
-def test():
-    """ Function to execute unitest
-    """
-    if '-d' in sys.argv[1:]:
-        TestPipeline.debug = True
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestPipeline)
-    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
-    return runtime.wasSuccessful()
-
 
 if __name__ == "__main__":
     from soma.qt_gui.qt_backend import Qt

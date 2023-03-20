@@ -12,6 +12,8 @@ import shutil
 
 
 class TestProcess(Process):
+    __test__ = False
+    
     def __init__(self, definition):
         super().__init__(definition)
         self.add_field('in1', File, output=False)
@@ -724,15 +726,7 @@ class TestCustomNodes(unittest.TestCase):
         self._test_cv_pipeline(pipeline2)
 
 
-def test():
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestCustomNodes)
-    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
-    return runtime.wasSuccessful()
-
-
 if __name__ == '__main__':
-    print("RETURNCODE: ", test())
-
     if '-v' in sys.argv[1:] or '--verbose' in sys.argv[1:]:
         from soma.qt_gui.qt_backend import QtGui
         from capsul.qt_gui.widgets import PipelineDeveloperView

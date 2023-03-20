@@ -174,15 +174,3 @@ class TestNipypeWrap(unittest.TestCase):
 
 def tearDownModule():
     Capsul.delete_singleton()
-
-
-def test():
-    """ Function to execute unitest
-    """
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestNipypeWrap)
-    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
-    return runtime.wasSuccessful()
-
-
-if __name__ == "__main__":
-    test()

@@ -1433,12 +1433,6 @@ class TestFakeMorphologist(unittest.TestCase):
     #     del view1
 
 
-def test():
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestFakeMorphologist)
-    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
-    return runtime.wasSuccessful()
-
-
 
 
 def with_iteration(engine):

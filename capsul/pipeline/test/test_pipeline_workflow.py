@@ -271,14 +271,6 @@ class TestPipelineWorkflow(unittest.TestCase):
                 self.assertEqual(len(text.split('\n')), lens[o])
 
 
-def test():
-    """ Function to execute unitest
-    """
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestPipelineWorkflow)
-    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
-    return runtime.wasSuccessful()
-
-
 if __name__ == "__main__":
     import sys
     from soma.qt_gui import qt_backend

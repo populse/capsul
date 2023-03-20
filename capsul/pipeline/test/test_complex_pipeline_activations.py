@@ -875,17 +875,8 @@ class TestComplexPipeline(unittest.TestCase):
             except AssertionError:
                 raise AssertionError('Wrong activation within ComplexPipeline with parameters {0}: {1} is supposed to be {2} but is {3}'.format(kwargs, what, expected, got))
 
-def test():
-    """ Function to execute unitest
-    """
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestComplexPipeline)
-    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
-    return runtime.wasSuccessful()
-
 
 if __name__ == '__main__':
-    print('Test return code:', test())
-
     if '-v' in sys.argv[1:]:
         from pprint import pprint
         

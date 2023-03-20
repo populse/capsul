@@ -26,6 +26,7 @@ def load_pipeline_dictionary(filename):
 
 
 class TestInt(Process):
+    __test__ = False
 
     def __init__(self, definition):
         super().__init__(definition)
@@ -39,6 +40,7 @@ class TestInt(Process):
 
 
 class TestFloat(Process):
+    __test__ = False
 
     def __init__(self, definition):
         super().__init__(definition)
@@ -52,6 +54,7 @@ class TestFloat(Process):
 
 
 class TestString(Process):
+    __test__ = False
 
     def __init__(self, definition):
         super().__init__(definition)
@@ -65,6 +68,7 @@ class TestString(Process):
 
 
 class TestFile(Process):
+    __test__ = False
 
     def __init__(self, definition):
         super().__init__(definition)
@@ -78,6 +82,7 @@ class TestFile(Process):
 
 
 class TestListInt(Process):
+    __test__ = False
 
     def __init__(self, definition):
         super().__init__(definition)
@@ -94,6 +99,7 @@ class TestListInt(Process):
 
 
 class TestListFloat(Process):
+    __test__ = False
 
     def __init__(self, definition):
         super().__init__(definition)
@@ -110,6 +116,7 @@ class TestListFloat(Process):
 
 
 class TestListString(Process):
+    __test__ = False
 
     def __init__(self, definition):
         super().__init__(definition)
@@ -126,6 +133,7 @@ class TestListString(Process):
 
 
 class TestListFile(Process):
+    __test__ = False
 
     def __init__(self, definition):
         super().__init__(definition)
@@ -139,6 +147,7 @@ class TestListFile(Process):
 
 
 class TestListList(Process):
+    __test__ = False
 
     def __init__(self, definition):
         super().__init__(definition)
@@ -155,6 +164,7 @@ class TestListList(Process):
 
 
 class TestDateTime(Process):
+    __test__ = False
 
     def __init__(self, definition):
         super().__init__(definition)

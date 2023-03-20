@@ -114,16 +114,7 @@ class TestPipeline(unittest.TestCase):
         self.assertEqual(numbers, tuple(range(self.parallel_processes)))
 
 
-def test():
-    """ Function to execute unitest
-    """
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestPipeline)
-    runtime = unittest.TextTestRunner(verbosity=2).run(suite, timeout=5)
-    return runtime.wasSuccessful()
-
-
 if __name__ == "__main__":
-    test()
     from soma.qt_gui.qt_backend import QtGui
     from capsul.qt_gui.widgets import PipelineDeveloperView
 

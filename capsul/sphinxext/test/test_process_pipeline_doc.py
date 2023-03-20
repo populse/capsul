@@ -102,15 +102,3 @@ class TestSphinxExt(unittest.TestCase):
         docwriter = PipelineHelpWriter([self.pipeline_id])
         rstdoc = docwriter.write_api_docs(returnrst=True)
         self.assertTrue(self.pipeline_id in rstdoc)
-
-
-def test():
-    """ Function to execute unitest
-    """
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestSphinxExt)
-    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
-    return runtime.wasSuccessful()
-
-
-if __name__ == "__main__":
-    test() 
