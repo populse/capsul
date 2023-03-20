@@ -7,8 +7,9 @@ configuration stored in the activated configuration.
 from __future__ import absolute_import
 
 import os
+import os.path as osp
 import soma.subprocess
-
+from soma.utils.env import parse_env_lines
 from capsul import engine
 import pipes
 import six
@@ -19,7 +20,7 @@ If this variable is set, it contains FS runtime env variables, allowing to run d
 freesurfer_runtime_env = None
 
 
-def freesurfer_command_with_environment(command):
+def freesurfer_command_with_environment(command, use_runtime_env=True):
     '''
     Given a Freesurfer command where first element is a command name without
     any path or prefix (e.g. "recon-all"). Returns the appropriate command to
@@ -28,6 +29,13 @@ def freesurfer_command_with_environment(command):
 
     Usinfg :func`freesurfer_env` is an alternative to this.
     '''
+
+    if use_runtime_env and freesurfer_runtime_env:
+        c0 = list(osp.split(command[0]))
+        c0 = osp.join(*c0)
+        cmd = [c0] + command[1:]
+        return cmd
+
     config = engine.configurations.get('capsul.engine.module.freesurfer', {})
     fs_setup = config.get('setup')
     if not fs_setup:
@@ -56,10 +64,12 @@ def freesurfer_env():
     if freesurfer_runtime_env is not None:
         return freesurfer_runtime_env
 
-    cmd = freesurfer_command_with_environment(['env'])
+    cmd = freesurfer_command_with_environment(['env'], use_runtime_env=False)
     new_env = soma.subprocess.check_output(cmd).decode(
-        'utf-8').strip().split('\n')
+        'utf-8').strip()
+    new_env = parse_env_lines(new_env)
     env = {}
+
     for l in new_env:
         name, val = l.strip().split('=', 1)
         name = six.ensure_str(name)
