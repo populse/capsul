@@ -17,7 +17,7 @@ args = parser.parse_args()
 if args.html:
     Path(args.html).mkdir(exist_ok=True)
     pytest_command = [sys.executable, '-m', 'coverage', 'run', '--source=.',
-                    '-m', 'pytest', '--junit-xml={}/junit.xml'.format(args.html),
+                    '-m', 'pytest',
                     '--html={}/tests.html'.format(args.html)]
     coverage_command = [sys.executable, '-m', 'coverage', 'html', '-d', args.html]
     print(' '.join("'{}'".format(i) for i in pytest_command))
