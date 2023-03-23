@@ -26,7 +26,7 @@ def setUpModule():
         app_name = 'test_iterative_process'
         temp_home_dir = Path(tempfile.mkdtemp(prefix=f'capsul_{app_name}_'))
         os.environ['HOME'] = str(temp_home_dir)
-        capsul = Capsul(app_name)    
+        Capsul(app_name)    
     except BaseException:  # clean up in case of interruption
         if old_home is None:
             del os.environ['HOME']

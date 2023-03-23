@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import argparse
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -40,16 +41,16 @@ parser.add_argument('-k',
 args = parser.parse_args()
 if args.html:
     Path(args.html).mkdir(exist_ok=True)
-    pytest_command = [sys.executable, '-m', 'coverage', 'run', '--source=.',
-                    '-m', 'pytest',
+    pytest_command = [sys.executable, '-m', 'pytest', '--cov=capsul',
                     '--html={}/tests.html'.format(args.html)]
     if args.exitfirst:
         pytest_command.append('-x')
     if args.keyword:
         pytest_command.extend(['-k', args.keyword])
     coverage_command = [sys.executable, '-m', 'coverage', 'html', '-d', args.html]
+    env = os.environ.copy()
     print(' '.join("'{}'".format(i) for i in pytest_command))
-    subprocess.check_call(pytest_command)
+    subprocess.check_call(pytest_command, env=env)
     print(' '.join("'{}'".format(i) for i in coverage_command))
     subprocess.check_call(coverage_command)
 else:

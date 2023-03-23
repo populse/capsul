@@ -39,6 +39,7 @@ jobs:
         pip install git+https://github.com/populse/soma-workflow.git
         pip install git+https://github.com/populse/populse_db.git@3.0
         pip install .
+        pip install pytest notebook
     - name: Test
       run: |
         python -m capsul.test
