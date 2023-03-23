@@ -224,18 +224,7 @@ class TestSwitchPipeline(unittest.TestCase):
         self.assertEqual(self.pipeline.compare_to_state(state_one),[])
 
 
-def test():
-    """ Function to execute unitest
-    """
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestSwitchPipeline)
-    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
-    return runtime.wasSuccessful()
-
-
-
 if __name__ == "__main__":
-    print("RETURNCODE: ", test())
-
     if '-v' in sys.argv[1:]:
         def write_state():
             state_file_name = '/tmp/state.json'

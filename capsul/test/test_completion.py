@@ -30,6 +30,7 @@ class HemiPipeline(Pipeline):
 
 
 class TestPipeline(Pipeline):
+    __test__ = False
 
     def pipeline_definition(self):
         self.add_process('nobias', 'capsul.test.test_tiny_morphologist.BiasCorrection')
@@ -68,12 +69,16 @@ class TestPipeline(Pipeline):
 
 class TestPipelineBIDS(ProcessSchema, schema='bids',
                        process=TestPipeline):
+    __test__ = False
+
     _ = {
         '*': {'pipeline': 'test_pipeline'}
     }
 
 class TestPipelineBrainVISA(ProcessSchema, schema='brainvisa',
                             process=TestPipeline):
+    __test__ = False
+
     _ = {
         '*': {'process': 'test_pipeline'},
     }
@@ -240,14 +245,6 @@ class TestCompletion(unittest.TestCase):
         for name, value in expected_resolution.items():
             self.assertEqual(getattr(pipeline, name), value,
                              f'Differing value for parameter {name}')
-
-
-def test():
-    """ Function to execute unitest
-    """
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestCompletion)
-    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
-    return runtime.wasSuccessful()
 
 
 if __name__ == "__main__":

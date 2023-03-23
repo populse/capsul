@@ -12,8 +12,6 @@ from soma.controller import undefined, File, field
 # Capsul import
 from capsul.api import Process, Pipeline, Capsul
 from capsul.execution_context import CapsulWorkflow
-from capsul.pipeline import pipeline_workflow
-from soma_workflow import configuration as swconfig
 
 debug = False
 
@@ -254,13 +252,16 @@ class TestPipeline(unittest.TestCase):
         for job in workflow.jobs.values():
             if not job['process']['definition'].endswith('.DummyProcess'):
                 continue
-            param_dict = workflow.parameters
+            param_dict = workflow.parameters_dict
             for i in job['parameters_location']:
                 if i.isnumeric():
                     i = int(i)
                 param_dict = param_dict[i]
-            self.assertEqual(param_dict["other_input"], 5)
-            subject = param_dict['input_image']
+            proxy = param_dict["other_input"]
+            value = workflow.parameters_values[proxy[1]]
+            self.assertEqual(value, 5)
+            proxy = param_dict['input_image']
+            subject = workflow.parameters_values[proxy[1]]
             subjects.add(subject)
             self.assertIn(subject,
                             ["toto", "tutu", "tata", "titi", "tete"])

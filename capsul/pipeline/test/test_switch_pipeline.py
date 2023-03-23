@@ -185,17 +185,7 @@ class TestSwitchPipeline(unittest.TestCase):
         self.assertEqual(self.pipeline.nodes["way21"].input_image, key)
 
 
-def test():
-    """ Function to execute unitest
-    """
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestSwitchPipeline)
-    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
-    return runtime.wasSuccessful()
-
-
 if __name__ == "__main__":
-    print("RETURNCODE: ", test())
-
     if '-v' in sys.argv:
         import sys
         from soma.qt_gui import qt_backend

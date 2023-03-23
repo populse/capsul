@@ -9,8 +9,8 @@ import unittest
 from soma.controller import undefined
 
 from capsul.config import ApplicationConfiguration
-from capsul.config.configuration import default_workers_type, default_database_url
-
+from capsul.config.configuration import (default_engine_start_workers,
+                                         default_builtin_database)
 
 class TestConfiguration(unittest.TestCase):
 
@@ -28,8 +28,8 @@ class TestConfiguration(unittest.TestCase):
         user_file = osp.join(self.tmp_dir, 'user_conf.json')
         conf_dict = {
             'builtin': {
-                'workers_type': default_workers_type,
-                'database_url': default_database_url,
+                'database': 'builtin',
+                'start_workers': default_engine_start_workers,
                 'matlab': {},
                 'spm': {
                     'spm12_standalone': {
@@ -39,33 +39,40 @@ class TestConfiguration(unittest.TestCase):
                         'directory': '/usr/local/spm8',
                         'standalone': False,
                         'version': '8',
-                    }}}}
+                    }}},
+            'databases': {
+                'builtin': default_builtin_database,
+            
+            }}
         with open(user_file, 'w') as f:
             json.dump(conf_dict, f)
         app_config = ApplicationConfiguration('single_conf',
                                               user_file=user_file)
-        self.maxDiff = 2000
+        self.maxDiff = 2500
         self.assertEqual(
             app_config.asdict(), {
+                'app_name': 'single_conf',
                 'site': {
                     'builtin': {
-                        'workers_type': default_workers_type,
-                        'database_url': default_database_url,
+                        'database': 'builtin',
+                        'start_workers': default_engine_start_workers,
+                    },
+                    'databases': {
+                        'builtin': default_builtin_database,
                     }
                 },
-                'app_name': 'single_conf',
                 'user': conf_dict,
                 'merged_config': conf_dict,
                 'user_file': user_file
             }
         )
 
-    def test_config_assignment(self):
+    def test_config_as_dict(self):
 
         conf_dict = {
             'builtin': {
-                'workers_type': default_workers_type,
-                'database_url': default_database_url,
+                'database': 'builtin',
+                'start_workers': default_engine_start_workers,
                 'matlab': {},
                 'spm': {
                     'spm12_standalone': {
@@ -73,28 +80,33 @@ class TestConfiguration(unittest.TestCase):
                         'standalone': True},
                     'spm8': {
                         'directory': '/usr/local/spm8',
-                        'version': '8',
                         'standalone': False,
-                    }},
+                        'version': '8',
+                    }}},
+            'databases': {
+                'builtin': default_builtin_database,
+            
             }}
 
         app_config = ApplicationConfiguration('single_conf2',
-                                              user_file=None)
-        app_config.user = conf_dict
-
+                                              user=conf_dict)
         self.maxDiff = None
         self.assertEqual(
-            app_config.asdict(),
-            {'site': {'builtin': {
-                'workers_type': default_workers_type,
-                'database_url': default_database_url,
-              }},
-             'app_name': 'single_conf2',
-             'user': conf_dict,
-             'merged_config': {'builtin': {
-                'workers_type': default_workers_type,
-                'database_url': default_database_url,
-             }}})
+            app_config.asdict(), {
+                'app_name': 'single_conf2',
+                'site': {
+                    'builtin': {
+                        'database': 'builtin',
+                        'start_workers': default_engine_start_workers,
+                    },
+                    'databases': {
+                        'builtin': default_builtin_database,
+                    }
+                },
+                'user': conf_dict,
+                'merged_config': conf_dict,
+            }
+        )
 
     def test_config_merge(self):
         user_conf_dict = {
@@ -123,8 +135,8 @@ class TestConfiguration(unittest.TestCase):
                     }}}}
         merged_conf_dict = {
             'builtin': {
-                'workers_type': default_workers_type,
-                'database_url': default_database_url,
+                'database': 'builtin',
+                'start_workers': default_engine_start_workers,
                 'matlab': {},
                 'spm': {
                     'spm12_standalone': {
@@ -140,24 +152,18 @@ class TestConfiguration(unittest.TestCase):
                     'fsl5': {
                         'directory': '/i2bm/local/fsl',
                         'setup_script': '/i2bm/local/fsl/etc/fslconf/fsl.sh'
-                    }}}}
+                    }}
+            },
+            'databases': {
+                'builtin': default_builtin_database,
+            },
+        }
 
+        site_file = osp.join(self.tmp_dir, 'site_conf.json')
+        with open(site_file, 'w') as f:
+            json.dump(site_conf_dict, f)
         app_config = ApplicationConfiguration('single_conf3',
-                                              user_file=undefined)
+                                              site_file=site_file,
+                                              user=user_conf_dict)
         app_config.site = site_conf_dict
-        app_config.user = user_conf_dict
-        app_config.merge_configs()
-        # print('merged:', app_config.merged_config.asdict())
         self.assertEqual(app_config.merged_config.asdict(), merged_conf_dict)
-
-
-def test():
-    """ Function to execute unitest
-    """
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestConfiguration)
-    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
-    return runtime.wasSuccessful()
-
-
-if __name__ == "__main__":
-    print("RETURNCODE: ", test())

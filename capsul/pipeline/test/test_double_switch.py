@@ -93,19 +93,7 @@ class TestDoubleSwitchPipeline(unittest.TestCase):
         self.assertEqual(self.pipeline.nodes["switch1"].activated, True)
 
 
-
-def test():
-    """ Function to execute unitest
-    """
-    suite = unittest.TestLoader().loadTestsFromTestCase(
-        TestDoubleSwitchPipeline)
-    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
-    return runtime.wasSuccessful()
-
-
 if __name__ == "__main__":
-    print("RETURNCODE: ", test())
-
     if '-v' in sys.argv[1:]:
         import sys
         from soma.qt_gui import qt_backend
