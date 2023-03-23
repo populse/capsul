@@ -126,7 +126,7 @@ class Capsul(Singleton):
         return executable(definition, **kwargs)
 
     def engines(self):
-        for field in self.config.fields():
+        for field in self.config.fields():  # noqa: F402
             if field.name != 'databases':
                 yield self.engine(field.name)
     

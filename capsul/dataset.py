@@ -736,7 +736,7 @@ class ProcessMetadata(Controller):
                         modifier.apply(metadata, executable, parameter)
                     try:
                         path = str(metadata.build_path())   
-                    except:
+                    except Exception:
                         path = undefined
                     if self.debug:
                         for field in metadata.fields():
