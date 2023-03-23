@@ -135,7 +135,7 @@ class ExecutionDatabase:
         if casa_dir:
             workers_command.append(f'{casa_dir}/bin/bv')
 
-        workers_command += ['python', '-m', f'capsul.engine.builtin', engine_id, db_config]
+        workers_command += ['python', '-m', 'capsul.engine.builtin', engine_id, db_config]
         return workers_command
     
     def new_execution(self, executable, engine_id, execution_context, workflow, start_time):
