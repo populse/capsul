@@ -44,7 +44,7 @@ jobs:
           pip install nipype
           pip install git+https://github.com/populse/soma-base.git
           pip install git+https://github.com/populse/soma-workflow.git
-          pip install https://github.com/populse/populse_db.git
+          pip install git+https://github.com/populse/populse_db.git
           python setup.py install
 
       - name: "Run tests"
