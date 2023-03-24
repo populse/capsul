@@ -297,12 +297,12 @@ process.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pipeline_name</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – pipeline name</p></li>
-<li><p><strong>node_name</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – iteration node name in the pipeline</p></li>
+<li><p><strong>pipeline_name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – pipeline name</p></li>
+<li><p><strong>node_name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – iteration node name in the pipeline</p></li>
 <li><p><strong>process_or_id</strong> (<em>process description</em>) – as in <a class="reference internal" href="#capsul.engine.CapsulEngine.get_process_instance" title="capsul.engine.CapsulEngine.get_process_instance"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_process_instance()</span></code></a></p></li>
-<li><p><strong>iterative_plugs</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a><em> (</em><em>optional</em><em>)</em>) – passed to <code class="xref py py-meth docutils literal notranslate"><span class="pre">Pipeline.add_iterative_process()</span></code></p></li>
-<li><p><strong>do_not_export</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a>) – passed to <code class="xref py py-meth docutils literal notranslate"><span class="pre">Pipeline.add_iterative_process()</span></code></p></li>
-<li><p><strong>make_optional</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a>) – passed to <code class="xref py py-meth docutils literal notranslate"><span class="pre">Pipeline.add_iterative_process()</span></code></p></li>
+<li><p><strong>iterative_plugs</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a><em> (</em><em>optional</em><em>)</em>) – passed to <code class="xref py py-meth docutils literal notranslate"><span class="pre">Pipeline.add_iterative_process()</span></code></p></li>
+<li><p><strong>do_not_export</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – passed to <code class="xref py py-meth docutils literal notranslate"><span class="pre">Pipeline.add_iterative_process()</span></code></p></li>
+<li><p><strong>make_optional</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – passed to <code class="xref py py-meth docutils literal notranslate"><span class="pre">Pipeline.add_iterative_process()</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -397,8 +397,8 @@ if possible).</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>process</strong> (<a class="reference internal" href="process.html#capsul.process.process.Process" title="capsul.process.process.Process"><em>Process</em></a><em> or </em><em>Pipeline instance</em>) – </p></li>
 <li><p><strong>workflow</strong> (<em>Workflow instance</em><em> (</em><em>optional - if already defined before call</em><em>)</em>) – </p></li>
-<li><p><strong>history</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em> (</em><em>optional</em><em>)</em>) – TODO: not implemented yet.</p></li>
-<li><p><strong>get_pipeline</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em> (</em><em>optional</em><em>)</em>) – if True, start() will return a tuple (execution_id, pipeline). The
+<li><p><strong>history</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em> (</em><em>optional</em><em>)</em>) – TODO: not implemented yet.</p></li>
+<li><p><strong>get_pipeline</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em> (</em><em>optional</em><em>)</em>) – if True, start() will return a tuple (execution_id, pipeline). The
 pipeline is normally the input pipeline (process) if it is actually
 a pipeline. But if the input process is a “single process”, it will
 be inserted into a small pipeline for execution. This pipeline will
@@ -896,8 +896,8 @@ if possible).</p>
 <li><p><strong>engine</strong> (<a class="reference internal" href="#capsul.engine.CapsulEngine" title="capsul.engine.CapsulEngine"><em>CapsulEngine</em></a>) – </p></li>
 <li><p><strong>process</strong> (<a class="reference internal" href="process.html#capsul.process.process.Process" title="capsul.process.process.Process"><em>Process</em></a><em> or </em><em>Pipeline instance</em>) – </p></li>
 <li><p><strong>workflow</strong> (<em>Workflow instance</em><em> (</em><em>optional - if already defined before call</em><em>)</em>) – </p></li>
-<li><p><strong>history</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em> (</em><em>optional</em><em>)</em>) – TODO: not implemented yet.</p></li>
-<li><p><strong>get_pipeline</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em> (</em><em>optional</em><em>)</em>) – if True, start() will return a tuple (execution_id, pipeline). The
+<li><p><strong>history</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em> (</em><em>optional</em><em>)</em>) – TODO: not implemented yet.</p></li>
+<li><p><strong>get_pipeline</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em> (</em><em>optional</em><em>)</em>) – if True, start() will return a tuple (execution_id, pipeline). The
 pipeline is normally the input pipeline (process) if it is actually
 a pipeline. But if the input process is a “single process”, it will
 be inserted into a small pipeline for execution. This pipeline will
@@ -1040,10 +1040,10 @@ one one is selected</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>module</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – module name</p></li>
-<li><p><strong>environment</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – environment id (‘global’ etc)</p></li>
-<li><p><strong>selection</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> (</em><em>optional</em><em>)</em>) – to select the configuration</p></li>
-<li><p><strong>any</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em> (</em><em>optional</em><em>)</em>) – When more than one config is found, if <code class="docutils literal notranslate"><span class="pre">any</span></code> is True (default),
+<li><p><strong>module</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – module name</p></li>
+<li><p><strong>environment</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – environment id (‘global’ etc)</p></li>
+<li><p><strong>selection</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> (</em><em>optional</em><em>)</em>) – to select the configuration</p></li>
+<li><p><strong>any</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em> (</em><em>optional</em><em>)</em>) – When more than one config is found, if <code class="docutils literal notranslate"><span class="pre">any</span></code> is True (default),
 return any of them (the first one). If <code class="docutils literal notranslate"><span class="pre">any</span></code> is False, return
 None.</p></li>
 </ul>
