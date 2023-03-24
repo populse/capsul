@@ -1,34 +1,21 @@
-===============================================================
-CAPSUL: Collaborative Analysis Platform: Simple, Unifying, Lean 
-===============================================================
+======
+CAPSUL
+======
+.. image:: https://github.com/populse/capsul/actions/workflows/doc.yml/badge.svg?branch=master
+    :target: https://github.com/populse/capsul/actions/workflows/doc.yml
+    :alt: Tests
 
-.. image:: https://travis-ci.org/populse/capsul.svg?branch=master
-    :target: https://travis-ci.org/populse/capsul
-
-.. image:: https://ci.appveyor.com/api/projects/status/75hbw4yvnnus1kn1?svg=true
-    :target: https://ci.appveyor.com/project/denisri/capsul-pfy4x/branch/master
-
-.. image:: https://pypip.in/version/capsul/badge.png
-    :target: https://pypi.python.org/pypi/capsul/
-    :alt: Latest Version
-    
-.. image:: https://pypip.in/status/capsul/badge.png
-    :target: https://pypi.python.org/pypi/capsul/
-    :alt: Development Status
-
-.. image:: https://pypip.in/license/capsul/badge.png
-    :target: https://pypi.python.org/pypi/capsul/
+.. image:: https://img.shields.io/badge/license-CeCILL--B-informational
+    :target: https://github.com/populse/capsul/blob/master/LICENSE
     :alt: License
 
-.. image:: https://codecov.io/github/populse/capsul/coverage.svg?branch=master
-    :target: https://codecov.io/github/populse/capsul
-    :alt: Coverage
-
-.. image:: https://img.shields.io/badge/python-2.7%2C%203.7-yellow.svg
+.. image:: https://img.shields.io/badge/python-3.9%2C%203.10%2C%203.11-informational
     :target: http://github.com/populse/capsul
+    :alt: Python
 
-.. image:: https://img.shields.io/badge/platform-Linux%2C%20OSX%2C%20Windows-orange.svg
+.. image:: https://img.shields.io/badge/platform-Linux%2C%20OSX%2C%20Windows-informational
     :target: http://github.com/populse/capsul
+    :alt: Platforms
 
 Documentation
 =============
