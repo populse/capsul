@@ -7,11 +7,10 @@ modules = find_packages()
 
 scripts = ["capsul/qt_apps/capsulview"]
 pkgdata = {
-    "capsul.qt_apps.resources":
-        ["*.ui", "*.png", "*.gif", "*.qrc", "*.txt"],
+    "capsul.qt_apps.resources": ["*.ui", "*.png", "*.gif", "*.qrc", "*.txt"],
     "capsul.utils.test": ["*.xml"],
     "capsul.process.test": ["*.xml"],
-    "capsul.pipeline.test": ["*.json"]
+    "capsul.pipeline.test": ["*.json"],
 }
 
 release_info = {}
@@ -37,5 +36,5 @@ setup(
     platforms=release_info["PLATFORMS"],
     extras_require=release_info["EXTRA_REQUIRES"],
     install_requires=release_info["REQUIRES"],
-    scripts=scripts
+    scripts=scripts,
 )

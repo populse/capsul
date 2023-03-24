@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-'''
+"""
 Extension to sphinx to document Capsul processes
 
 This moduls allows to make sphinx source to automatically document Capsul processes and pipelines. The module can be used as a commandline:
@@ -40,4 +40,4 @@ Then within the sphinx docs sources (``index.rst`` for instance, or any other sp
 
         process_docs/morphologist/capsul/index.rst
 
-'''
+"""

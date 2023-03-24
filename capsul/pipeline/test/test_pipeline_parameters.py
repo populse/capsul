@@ -10,7 +10,10 @@ from datetime import date, time, datetime
 from populse_db import json_encode
 
 from capsul.api import Process, Capsul
-from capsul.pipeline.pipeline_tools import save_pipeline_parameters, load_pipeline_parameters
+from capsul.pipeline.pipeline_tools import (
+    save_pipeline_parameters,
+    load_pipeline_parameters,
+)
 from soma.controller import File
 
 
@@ -21,7 +24,7 @@ def load_pipeline_dictionary(filename):
     :param filename: the json filename
     """
     if filename:
-        with open(filename, 'r', encoding='utf8') as file:
+        with open(filename, "r", encoding="utf8") as file:
             return json.load(file)
 
 
@@ -177,7 +180,6 @@ class TestDateTime(Process):
         self.out = [self.in_1, self.in_2]
 
 
-
 class TestPipelineMethods(unittest.TestCase):
     """
     Class executing the unit tests of load_pipeline_parameters and save_pipeline_parameters
@@ -189,7 +191,7 @@ class TestPipelineMethods(unittest.TestCase):
         Creates a temporary folder containing the json file that will be used for the test
         """
 
-        self.temp_folder = tempfile.mkdtemp(prefix='capsul_test_pipeline_parameters_')
+        self.temp_folder = tempfile.mkdtemp(prefix="capsul_test_pipeline_parameters_")
         self.path = os.path.join(self.temp_folder, "test.json")
 
     def tearDown(self):
@@ -203,13 +205,13 @@ class TestPipelineMethods(unittest.TestCase):
 
     def test_int(self):
         def create_pipeline():
-            pipeline =  Capsul.custom_pipeline()
+            pipeline = Capsul.custom_pipeline()
             pipeline.add_process("node_1", TestInt)
             pipeline.export_parameter("node_1", "in_1", "in_1")
             pipeline.export_parameter("node_1", "in_2", "in_2")
             pipeline.export_parameter("node_1", "out", "out")
             return pipeline
-        
+
         in_1 = 2
         in_2 = 4
         out = 6
@@ -345,9 +347,9 @@ class TestPipelineMethods(unittest.TestCase):
             pipeline.export_parameter("node_1", "out", "out")
             return pipeline
 
-        in_1 = '/tmp/yolo.nii'
-        in_2 = '/tmp/yolo2.nii'
-        out = ['/tmp/yolo.nii', '/tmp/yolo2.nii']
+        in_1 = "/tmp/yolo.nii"
+        in_2 = "/tmp/yolo2.nii"
+        out = ["/tmp/yolo.nii", "/tmp/yolo2.nii"]
 
         pipeline1 = create_pipeline()
         pipeline1.in_1 = in_1
@@ -738,7 +740,7 @@ class TestPipelineMethods(unittest.TestCase):
         with Capsul().engine() as ce:
             ce.run(pipeline1, timeout=5)
         pipeline1.out
-        
+
         save_pipeline_parameters(self.path, pipeline1)
 
         # Reinitializing pipeline and loading parameters

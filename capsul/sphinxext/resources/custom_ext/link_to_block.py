@@ -11,29 +11,28 @@ from docutils.statemachine import ViewList
 
 # Add node
 class link_to_block(nodes.Admonition, nodes.Element):
-    """ Node for inserting a link to button."""
+    """Node for inserting a link to button."""
+
     pass
 
 
 # Add directive
 class LinkToBlock(BaseAdmonition):
-    """ Hidden technical block"""
+    """Hidden technical block"""
+
     node_class = link_to_block
     has_content = False
     required_arguments = 1
     optional_arguments = 2
     final_argument_whitespace = True
-    option_spec = {
-        "right-side": bool,
-        "label": str
-    }
+    option_spec = {"right-side": bool, "label": str}
 
     def run(self):
         # Construct an empty node
         new_content = ViewList()
-        ref = u":ref:`{0} <{1}>`".format(
-            self.options.get("label", "Link To"),
-            "".join(self.arguments))
+        ref = ":ref:`{0} <{1}>`".format(
+            self.options.get("label", "Link To"), "".join(self.arguments)
+        )
         new_content.append(ref, source=self.content)
         self.content = new_content
         return super(LinkToBlock, self).run()
@@ -41,15 +40,16 @@ class LinkToBlock(BaseAdmonition):
 
 # Add html writer
 def visit_ltb_html(self, node):
-    """ Visit link to block"""   
+    """Visit link to block"""
     # Generate the html div
     position = node.get("right-side", True)
-    self.body.append("<div class='{0}'>".format(
-        "buttonNext" if position else "buttonPrevious"))
+    self.body.append(
+        "<div class='{0}'>".format("buttonNext" if position else "buttonPrevious")
+    )
 
 
 def depart_ltb_html(self, node):
-    """ Depart link to block"""
+    """Depart link to block"""
     # Add close div
     self.depart_admonition(node)
 

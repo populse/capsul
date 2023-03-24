@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-'''
+"""
 Miscellaneous pipeline handling utility functions
 
 Functions
@@ -40,7 +40,7 @@ Functions
 --------------------------------
 :func:`is_node_enabled`
 -----------------------
-'''
+"""
 
 import os
 import tempfile
@@ -53,8 +53,7 @@ from populse_db import json_encode, json_decode
 
 # Capsul import
 from capsul.application import executable
-from capsul.pipeline.pipeline import Pipeline, Process, Switch, \
-     CustomPipeline
+from capsul.pipeline.pipeline import Pipeline, Process, Switch, CustomPipeline
 from capsul.pipeline.process_iteration import ProcessIteration
 from soma.controller import Controller, undefined, Any
 from pydantic import ValidationError
@@ -62,7 +61,7 @@ import dataclasses
 
 
 def pipeline_node_colors(pipeline, node):
-    '''
+    """
     Node color to display boxes in GUI and graphviz graphs. Depending on the
     node type (process, pipeline, switch) and its activation, colors will
     differ.
@@ -80,13 +79,15 @@ def pipeline_node_colors(pipeline, node):
         (box_color, background_fill_color, dark_color, style). Colors are
         3-tuples of float values between 0. and 1. style is "default",
         "switch" or "pipeline".
-    '''
+    """
 
     def _color_disabled(color):
         target = [0.86, 0.94, 0.86]
-        new_color = ((color[0] + target[0]) / 2,
-                     (color[1] + target[1]) / 2,
-                     (color[2] + target[2]) / 2)
+        new_color = (
+            (color[0] + target[0]) / 2,
+            (color[1] + target[1]) / 2,
+            (color[2] + target[2]) / 2,
+        )
         return new_color
 
     #     BLUE_1 = (0.7, 0.7, 0.9)
@@ -117,7 +118,7 @@ def pipeline_node_colors(pipeline, node):
     SAND_2 = (0.7, 0.6, 0.5)
     SAND_3 = (0.5, 0.45, 0.2)
     LIGHT_SAND_1 = (0.85, 0.78, 0.48)
-    LIGHT_SAND_2 = (1., 0.95, 0.73)
+    LIGHT_SAND_2 = (1.0, 0.95, 0.73)
     LIGHT_SAND_3 = (0.6, 0.55, 0.3)
 
     # for pipeline nodes
@@ -128,78 +129,105 @@ def pipeline_node_colors(pipeline, node):
     DEEP_PURPLE_2 = (0.52, 0.41, 0.54)
     DEEP_PURPLE_3 = (0.3, 0.31, 0.34)
 
-#     PURPLE_1 = (0.85, 0.8, 0.85)
-#     PURPLE_2 = (0.8, 0.75, 0.8)
-#     PURPLE_3 = (0.5, 0.45, 0.5)
-#     DEEP_PURPLE_1 = (0.8, 0.7, 0.8)
-#     DEEP_PURPLE_2 = (0.6, 0.5, 0.6)
-#     DEEP_PURPLE_3 = (0.4, 0.35, 0.4)
+    #     PURPLE_1 = (0.85, 0.8, 0.85)
+    #     PURPLE_2 = (0.8, 0.75, 0.8)
+    #     PURPLE_3 = (0.5, 0.45, 0.5)
+    #     DEEP_PURPLE_1 = (0.8, 0.7, 0.8)
+    #     DEEP_PURPLE_2 = (0.6, 0.5, 0.6)
+    #     DEEP_PURPLE_3 = (0.4, 0.35, 0.4)
 
     # for iteration nodes
     GREEN_1 = (0.7, 0.9, 0.7)
     GREEN_2 = (0.5, 0.7, 0.5)
     GREEN_3 = (0.2, 0.4, 0.2)
-    LIGHT_GREEN_1 = (0.95, 1., 0.95)
+    LIGHT_GREEN_1 = (0.95, 1.0, 0.95)
     LIGHT_GREEN_2 = (0.85, 0.9, 0.85)
     LIGHT_GREEN_3 = (0.3, 0.5, 0.3)
 
     # for attributed nodes
-    SKY_1 = (0.6, 0.7, 1.)
+    SKY_1 = (0.6, 0.7, 1.0)
     SKY_2 = (0.3, 0.5, 0.8)
-    SKY_3 = (0., 0.2, 0.5)
-    LIGHT_SKY_1 = (0.8, 0.85, 1.)
+    SKY_3 = (0.0, 0.2, 0.5)
+    LIGHT_SKY_1 = (0.8, 0.85, 1.0)
     LIGHT_SKY_2 = (0.7, 0.75, 0.9)
     LIGHT_SKY_3 = (0.2, 0.3, 0.6)
 
     APPLE_1 = (0.7, 0.8, 0.3)
-    APPLE_2 = (0.9, 1., 0.5)
+    APPLE_2 = (0.9, 1.0, 0.5)
     APPLE_3 = (0.45, 0.5, 0.2)
     LIGHT_APPLE_1 = (0.78, 0.85, 0.48)
-    LIGHT_APPLE_2 = (0.95, 1., 0.73)
+    LIGHT_APPLE_2 = (0.95, 1.0, 0.73)
     LIGHT_APPLE_3 = (0.55, 0.6, 0.3)
 
     # for custom_nodes
     ORANGE_1 = (0.92, 0.69, 0.53)
-    #ORANGE_2 = (0.73, 0.4, 0.26)
+    # ORANGE_2 = (0.73, 0.4, 0.26)
     ORANGE_2 = (0.86, 0.54, 0.3)
     ORANGE_3 = (0.4, 0.2, 0.1)
-    LIGHT_ORANGE_1 = (1., 0.93, 0.88)
+    LIGHT_ORANGE_1 = (1.0, 0.93, 0.88)
     LIGHT_ORANGE_2 = (0.9, 0.8, 0.7)
     LIGHT_ORANGE_3 = (0.4, 0.3, 0.2)
 
     _colors = {
-        'default': (GREENDARK_1, GREENDARK_2, GREENDARK_3, LIGHT_GREENDARK_1, LIGHT_GREENDARK_2,
-                    LIGHT_GREENDARK_3),
-        'switch': (SAND_1, SAND_2, SAND_3, LIGHT_SAND_1, LIGHT_SAND_2,
-                   LIGHT_SAND_3),
-        'pipeline': (DEEP_PURPLE_1, DEEP_PURPLE_2, DEEP_PURPLE_3, PURPLE_1,
-                     PURPLE_2, PURPLE_3),
-        'pipeline_io': (SEA_1, SEA_2, SEA_3, LIGHT_SEA_1, LIGHT_SEA_2,
-                        LIGHT_SEA_3),
-        'iteration': (GREEN_1, GREEN_2, GREEN_3, LIGHT_GREEN_1, LIGHT_GREEN_2,
-                      LIGHT_GREEN_3),
-        'attributed': (SKY_1, SKY_2, SKY_3, LIGHT_SKY_1, LIGHT_SKY_2,
-                       LIGHT_SKY_3),
-        'optional_output_switch': (APPLE_1, APPLE_2, APPLE_3, LIGHT_APPLE_1,
-                                   LIGHT_APPLE_2, LIGHT_APPLE_3),
-        'custom_node': (ORANGE_1, ORANGE_2, ORANGE_3, LIGHT_ORANGE_1,
-                        LIGHT_ORANGE_2, LIGHT_ORANGE_3),
+        "default": (
+            GREENDARK_1,
+            GREENDARK_2,
+            GREENDARK_3,
+            LIGHT_GREENDARK_1,
+            LIGHT_GREENDARK_2,
+            LIGHT_GREENDARK_3,
+        ),
+        "switch": (SAND_1, SAND_2, SAND_3, LIGHT_SAND_1, LIGHT_SAND_2, LIGHT_SAND_3),
+        "pipeline": (
+            DEEP_PURPLE_1,
+            DEEP_PURPLE_2,
+            DEEP_PURPLE_3,
+            PURPLE_1,
+            PURPLE_2,
+            PURPLE_3,
+        ),
+        "pipeline_io": (SEA_1, SEA_2, SEA_3, LIGHT_SEA_1, LIGHT_SEA_2, LIGHT_SEA_3),
+        "iteration": (
+            GREEN_1,
+            GREEN_2,
+            GREEN_3,
+            LIGHT_GREEN_1,
+            LIGHT_GREEN_2,
+            LIGHT_GREEN_3,
+        ),
+        "attributed": (SKY_1, SKY_2, SKY_3, LIGHT_SKY_1, LIGHT_SKY_2, LIGHT_SKY_3),
+        "optional_output_switch": (
+            APPLE_1,
+            APPLE_2,
+            APPLE_3,
+            LIGHT_APPLE_1,
+            LIGHT_APPLE_2,
+            LIGHT_APPLE_3,
+        ),
+        "custom_node": (
+            ORANGE_1,
+            ORANGE_2,
+            ORANGE_3,
+            LIGHT_ORANGE_1,
+            LIGHT_ORANGE_2,
+            LIGHT_ORANGE_3,
+        ),
     }
     if node is pipeline:
-        style = 'pipeline_io'
+        style = "pipeline_io"
     elif isinstance(node, Switch):
-        style = 'switch'
+        style = "switch"
     elif isinstance(node, Pipeline):
-        style = 'pipeline'
+        style = "pipeline"
     elif isinstance(node, ProcessIteration):
-        style = 'iteration'
+        style = "iteration"
     elif isinstance(node, Process):
-        if hasattr(node, 'completion_engine'):
-            style = 'attributed'
+        if hasattr(node, "completion_engine"):
+            style = "attributed"
         else:
-            style = 'default'
+            style = "default"
     else:
-        style = 'custom_node'
+        style = "custom_node"
     if node.activated and node.enabled:
         color_1, color_2, color_3 = _colors[style][0:3]
     else:
@@ -212,7 +240,7 @@ def pipeline_node_colors(pipeline, node):
 
 
 def pipeline_link_color(plug, link):
-    '''
+    """
     Link color and style for graphical display and graphviz graphs.
 
     Parameters
@@ -228,7 +256,7 @@ def pipeline_link_color(plug, link):
         (color, style, active, weak) where color is a RGB tuple of float values
         (between 0. and 1.), style is a string ("solid", "dotted"), active and
         weak are booleans.
-    '''
+    """
     GRAY_1 = (0.7, 0.7, 0.8)
     RED_2 = (0.92, 0.51, 0.12)
 
@@ -239,15 +267,16 @@ def pipeline_link_color(plug, link):
         color = GRAY_1
     weak = link[4]
     if weak:  # weak link
-        style = 'dotted'
+        style = "dotted"
     else:
-        style = 'solid'
+        style = "solid"
     return color, style, active, weak
 
 
-def dot_graph_from_pipeline(pipeline, nodes_sizes={}, use_nodes_pos=False,
-                            include_io=True, enlarge_boxes=0.):
-    '''
+def dot_graph_from_pipeline(
+    pipeline, nodes_sizes={}, use_nodes_pos=False, include_io=True, enlarge_boxes=0.0
+):
+    """
     Build a graphviz/dot-compatible representation of the pipeline.
     The pipeline representation uses one link between two given boxes:
     parameters are not represented.
@@ -287,13 +316,13 @@ def dot_graph_from_pipeline(pipeline, nodes_sizes={}, use_nodes_pos=False,
         properties.
         This representation is simple and is meant to feed
         :py:func:`save_dot_graph`
-    '''
+    """
 
     def _link_color(plug, link):
         if link[4]:  # weak link
-            style = 'dotted'
+            style = "dotted"
         else:
-            style = 'solid'
+            style = "solid"
         active = plug.activated and link[3].activated
         return (0, 0, 0), style, active, link[4]
 
@@ -301,50 +330,53 @@ def dot_graph_from_pipeline(pipeline, nodes_sizes={}, use_nodes_pos=False,
     edges = {}
     has_outputs = False
     nodes_pos = pipeline.node_position
-    scale = 1. / 67.
+    scale = 1.0 / 67.0
 
     for node_name, node in pipeline.nodes.items():
-        if node_name == '':
+        if node_name == "":
             if not include_io:
                 continue
-            id = 'inputs'
+            id = "inputs"
         else:
             id = node_name
         color, bgcolor, darkcolor, style = pipeline_node_colors(pipeline, node)
-        colorstr = '#%02x%02x%02x' % tuple([int(c * 255.9) for c in darkcolor])
-        bgcolorstr = '#%02x%02x%02x' % tuple([int(c * 255.9) for c in bgcolor])
-        node_props = {'color': colorstr, 'fillcolor': bgcolorstr}
-        if style == 'switch':
-            node_props.update({'shape': 'house', 'orientation': 270.})
+        colorstr = "#%02x%02x%02x" % tuple([int(c * 255.9) for c in darkcolor])
+        bgcolorstr = "#%02x%02x%02x" % tuple([int(c * 255.9) for c in bgcolor])
+        node_props = {"color": colorstr, "fillcolor": bgcolorstr}
+        if style == "switch":
+            node_props.update({"shape": "house", "orientation": 270.0})
         else:
-            node_props.update({'shape': 'box'})
+            node_props.update({"shape": "box"})
         if use_nodes_pos:
             pos = nodes_pos.get(id)
             if pos is not None:
-                node_props.update({'pos': '%f,%f' % (pos[0] * scale,
-                                                     -pos[1] * scale)})
+                node_props.update({"pos": "%f,%f" % (pos[0] * scale, -pos[1] * scale)})
         size = nodes_sizes.get(id)
         if size is not None:
-            node_props.update({'width': (size[0] + enlarge_boxes) * scale,
-                               'height': (size[1] + enlarge_boxes) * scale,
-                               'fixedsize': 'true'})
-        if node_name != '':
+            node_props.update(
+                {
+                    "width": (size[0] + enlarge_boxes) * scale,
+                    "height": (size[1] + enlarge_boxes) * scale,
+                    "fixedsize": "true",
+                }
+            )
+        if node_name != "":
             nodes.append((id, node_name, node_props))
         has_inputs = False
         for plug_name, plug in node.plugs.items():
-            if (plug.output and node_name != '') \
-                    or (not plug.output and node_name == ''):
-                if node_name == '':
+            if (plug.output and node_name != "") or (
+                not plug.output and node_name == ""
+            ):
+                if node_name == "":
                     has_inputs = True
                 links = plug.links_to
                 for link in links:
-                    color, style, active, weak = pipeline_link_color(
-                        plug, link)
+                    color, style, active, weak = pipeline_link_color(plug, link)
                     dest = link[0]
-                    if dest == '':
+                    if dest == "":
                         if not include_io:
                             continue
-                        dest = 'outputs'
+                        dest = "outputs"
                         has_outputs = True
                     edge = (id, dest)
                     old_edge = edges.get(edge)
@@ -352,37 +384,40 @@ def dot_graph_from_pipeline(pipeline, nodes_sizes={}, use_nodes_pos=False,
                         # use stongest color/style
                         if not old_edge[2]:
                             weak = False
-                            style = old_edge[0]['style']
+                            style = old_edge[0]["style"]
                         if old_edge[1]:
                             active = True
-                            color = old_edge[0]['color']
+                            color = old_edge[0]["color"]
                     if isinstance(color, tuple):
-                        color = '#%02x%02x%02x' \
-                                % tuple([int(c * 255.9) for c in color])
-                    props = {'color': color, 'style': style}
+                        color = "#%02x%02x%02x" % tuple([int(c * 255.9) for c in color])
+                    props = {"color": color, "style": style}
                     edges[edge] = (props, active, weak)
-        if node_name == '' and include_io:
+        if node_name == "" and include_io:
             main_node_props = dict(node_props)
             if has_inputs:
-                nodes.append(('inputs', 'inputs', node_props))
+                nodes.append(("inputs", "inputs", node_props))
     if has_outputs:
-        size = nodes_sizes.get('outputs')
-        for prop in ('width', 'height', 'fixedsize'):
+        size = nodes_sizes.get("outputs")
+        for prop in ("width", "height", "fixedsize"):
             if prop in main_node_props:
                 del main_node_props[prop]
         if size is not None:
             main_node_props.update(
-                {'width': (size[0] + enlarge_boxes) * scale,
-                 'height': (size[1] + enlarge_boxes) * scale,
-                 'fixedsize': 'true'})
-        nodes.append(('outputs', 'outputs', main_node_props))
+                {
+                    "width": (size[0] + enlarge_boxes) * scale,
+                    "height": (size[1] + enlarge_boxes) * scale,
+                    "fixedsize": "true",
+                }
+            )
+        nodes.append(("outputs", "outputs", main_node_props))
 
     return (nodes, edges)
 
 
-def dot_graph_from_workflow(pipeline, nodes_sizes={}, use_nodes_pos=False,
-                            enlarge_boxes=0.):
-    '''
+def dot_graph_from_workflow(
+    pipeline, nodes_sizes={}, use_nodes_pos=False, enlarge_boxes=0.0
+):
+    """
     Build a graphviz/dot-compatible representation of the pipeline workflow.
 
     This is different from the pipeline graph, as obtained
@@ -414,44 +449,47 @@ def dot_graph_from_workflow(pipeline, nodes_sizes={}, use_nodes_pos=False,
         properties.
         This representation is simple and is meant to feed
         :py:func:`save_dot_graph`
-    '''
+    """
 
     graph = pipeline.workflow_graph()
     nodes = []
     edges = {}
-    scale = 1. / 67.
+    scale = 1.0 / 67.0
 
     for n in graph._nodes:
         node = pipeline.nodes[n]
         color, bgcolor, darkcolor, style = pipeline_node_colors(pipeline, node)
-        colorstr = '#%02x%02x%02x' % tuple([int(c * 255.9) for c in darkcolor])
-        bgcolorstr = '#%02x%02x%02x' % tuple([int(c * 255.9) for c in bgcolor])
-        node_props = {'color': colorstr, 'fillcolor': bgcolorstr}
-        if style == 'switch':
-            node_props.update({'shape': 'house', 'orientation': 270.})
+        colorstr = "#%02x%02x%02x" % tuple([int(c * 255.9) for c in darkcolor])
+        bgcolorstr = "#%02x%02x%02x" % tuple([int(c * 255.9) for c in bgcolor])
+        node_props = {"color": colorstr, "fillcolor": bgcolorstr}
+        if style == "switch":
+            node_props.update({"shape": "house", "orientation": 270.0})
         else:
-            node_props.update({'shape': 'box'})
+            node_props.update({"shape": "box"})
         if use_nodes_pos:
             pos = pipeline.node_position.get(n)
             if pos is not None:
-                node_props.update({'pos': '%f,%f' % (pos[0] * scale,
-                                                     -pos[1] * scale)})
+                node_props.update({"pos": "%f,%f" % (pos[0] * scale, -pos[1] * scale)})
         size = nodes_sizes.get(n)
         if size is not None:
-            node_props.update({'width': (size[0] + enlarge_boxes) * scale,
-                               'height': (size[1] + enlarge_boxes) * scale,
-                               'fixedsize': 'true'})
+            node_props.update(
+                {
+                    "width": (size[0] + enlarge_boxes) * scale,
+                    "height": (size[1] + enlarge_boxes) * scale,
+                    "fixedsize": "true",
+                }
+            )
         nodes.append((n, n, node_props))
     for n, v in graph._links:
         edge = (n, v)
-        props = {'color': '#eb821e', 'style': 'solid'}
+        props = {"color": "#eb821e", "style": "solid"}
         edges[edge] = (props, True, False)
 
     return (nodes, edges)
 
 
 def save_dot_graph(dot_graph, filename, **kwargs):
-    '''
+    """
     Write a graphviz/dot input file, which can be used to generate an
     image representation of the graph, or to make dot automatically
     position nodes.
@@ -465,46 +503,55 @@ def save_dot_graph(dot_graph, filename, **kwargs):
         file name to save the dot definition in
     **kwargs: additional attributes for the dot graph
       like nodesep=0.1 or rankdir="TB"
-    '''
+    """
 
     def _str_repr(item):
         if isinstance(item, str):
             return '"%s"' % item
         return repr(item)
 
-    fileobj = open(filename, 'w')
-    props = {'rankdir': 'LR'}
+    fileobj = open(filename, "w")
+    props = {"rankdir": "LR"}
     props.update(kwargs)
-    propsstr = ' '.join(['='.join([aname, _str_repr(val)])
-                         for aname, val in props.items()])
-    rankdir = props['rankdir']
+    propsstr = " ".join(
+        ["=".join([aname, _str_repr(val)]) for aname, val in props.items()]
+    )
+    rankdir = props["rankdir"]
 
-    fileobj.write('digraph {%s;\n' % propsstr)
-    nodesep = 20.  # in qt scale space
-    scale = 1. / 67.
+    fileobj.write("digraph {%s;\n" % propsstr)
+    nodesep = 20.0  # in qt scale space
+    scale = 1.0 / 67.0
     for id, node, props in dot_graph[0]:
-        if rankdir == 'TB' and 'orientation' in props:
+        if rankdir == "TB" and "orientation" in props:
             props = dict(props)
-            props['orientation'] -= 90
-        attstr = ' '.join(['='.join([aname, _str_repr(val)])
-                           for aname, val in props.items()])
+            props["orientation"] -= 90
+        attstr = " ".join(
+            ["=".join([aname, _str_repr(val)]) for aname, val in props.items()]
+        )
         if len(props) != 0:
-            attstr = ' ' + attstr
-        fileobj.write('  %s [label="%s" style="filled"%s];\n'
-                      % (id, node, attstr))
+            attstr = " " + attstr
+        fileobj.write('  %s [label="%s" style="filled"%s];\n' % (id, node, attstr))
     for edge, descr in dot_graph[1].items():
         props = descr[0]
-        attstr = ' '.join(['='.join([aname, _str_repr(val)])
-                           for aname, val in props.items()])
-        fileobj.write('  "%s" -> "%s" [%s];\n'
-                      % (edge[0], edge[1], attstr))
-    fileobj.write('}\n')
+        attstr = " ".join(
+            ["=".join([aname, _str_repr(val)]) for aname, val in props.items()]
+        )
+        fileobj.write('  "%s" -> "%s" [%s];\n' % (edge[0], edge[1], attstr))
+    fileobj.write("}\n")
 
 
-def save_dot_image(pipeline, filename, nodes_sizes={}, use_nodes_pos=False,
-                   include_io=True, enlarge_boxes=0., workflow=False,
-                   format=None, **kwargs):
-    '''
+def save_dot_image(
+    pipeline,
+    filename,
+    nodes_sizes={},
+    use_nodes_pos=False,
+    include_io=True,
+    enlarge_boxes=0.0,
+    workflow=False,
+    format=None,
+    **kwargs,
+):
+    """
     Save a dot/graphviz image of the pipeline in a file.
 
     It may use either the complete pipeline graph (with switches and disabled
@@ -544,30 +591,37 @@ def save_dot_image(pipeline, filename, nodes_sizes={}, use_nodes_pos=False,
         If not specified, guessed from the file name extension.
     **kwargs: additional attributes for the dot graph
       like nodesep=0.1 or rankdir="TB"
-    '''
+    """
     if workflow:
         dgraph = dot_graph_from_workflow(
-            pipeline, nodes_sizes=nodes_sizes, use_nodes_pos=use_nodes_pos,
-            enlarge_boxes=enlarge_boxes)
+            pipeline,
+            nodes_sizes=nodes_sizes,
+            use_nodes_pos=use_nodes_pos,
+            enlarge_boxes=enlarge_boxes,
+        )
     else:
         dgraph = dot_graph_from_pipeline(
-            pipeline, nodes_sizes=nodes_sizes, use_nodes_pos=use_nodes_pos,
-            include_io=include_io, enlarge_boxes=enlarge_boxes)
+            pipeline,
+            nodes_sizes=nodes_sizes,
+            use_nodes_pos=use_nodes_pos,
+            include_io=include_io,
+            enlarge_boxes=enlarge_boxes,
+        )
     tempf = tempfile.mkstemp()
     os.close(tempf[0])
     dot_filename = tempf[1]
     save_dot_graph(dgraph, dot_filename, **kwargs)
     if format is None:
-        ext = filename.split('.')[-1]
-        formats = {'txt': 'plain'}
+        ext = filename.split(".")[-1]
+        formats = {"txt": "plain"}
         format = formats.get(ext, ext)
-    cmd = ['dot', '-T%s' % ext, '-o', filename, dot_filename]
+    cmd = ["dot", "-T%s" % ext, "-o", filename, dot_filename]
     soma.subprocess.check_call(cmd)
     os.unlink(dot_filename)
 
 
 def disable_runtime_steps_with_existing_outputs(pipeline):
-    '''
+    """
     Disable steps in a pipeline which outputs contain existing files. This
     disabling is the "runtime steps disabling" one (see
     :py:class:`capsul.pipeline.Pipeline`), not the node disabling with
@@ -579,47 +633,58 @@ def disable_runtime_steps_with_existing_outputs(pipeline):
     ----------
     pipeline: Pipeline (mandatory)
         pipeline to disable nodes in.
-    '''
-    steps = getattr(pipeline, 'pipeline_steps', Controller())
+    """
+    steps = getattr(pipeline, "pipeline_steps", Controller())
     for field in steps.fields():
         step = field.name
         if not getattr(steps, step):
             continue  # already inactive
-        for node_name in steps.metadata(field)['nodes']:
+        for node_name in steps.metadata(field)["nodes"]:
             node = pipeline.nodes[node_name]
             if not node.enabled or not node.activated:
                 continue  # node not active anyway
             process = node
             for param in node.plugs:
                 pfield = process.field(param)
-                if process.metadata(pfield).get('write', False) \
-                        and pfield.is_path():
+                if process.metadata(pfield).get("write", False) and pfield.is_path():
                     value = getattr(process, param, undefined)
-                    if value is not None and value is not undefined \
-                            and os.path.exists(value):
+                    if (
+                        value is not None
+                        and value is not undefined
+                        and os.path.exists(value)
+                    ):
                         # check special case when the output is also an input
                         # (of the same node)
                         disable = True
                         for t in process.fields():
                             n = t.name
-                            if not process.metadata(t).get('write', False) \
-                                    and t.is_path():
+                            if (
+                                not process.metadata(t).get("write", False)
+                                and t.is_path()
+                            ):
                                 v = getattr(process, n, undefined)
                                 if v == value:
                                     disable = False
                                     break  # found in inputs
                         if disable:
                             # disable step
-                            print('disable step', step, 'because of:',
-                                  node_name, '.', param)
+                            print(
+                                "disable step",
+                                step,
+                                "because of:",
+                                node_name,
+                                ".",
+                                param,
+                            )
                             setattr(steps, step, False)
                             # no need to iterate other nodes in same step
                             break
 
 
-def nodes_with_existing_outputs(pipeline, exclude_inactive=True,
-                                recursive=False, exclude_inputs=True):
-    '''
+def nodes_with_existing_outputs(
+    pipeline, exclude_inactive=True, recursive=False, exclude_inputs=True
+):
+    """
     Checks nodes in a pipeline which outputs contain existing files on the
     filesystem. Such nodes, maybe, should not run again. Only nodes which
     actually produce outputs are selected this way (switches are skipped).
@@ -652,32 +717,36 @@ def nodes_with_existing_outputs(pipeline, exclude_inactive=True,
     selected_nodes: dict
         keys: node names
         values: list of pairs (param_name, file_name)
-    '''
+    """
     selected_nodes = {}
     if exclude_inactive:
-        steps = getattr(pipeline, 'pipeline_steps', Controller())
+        steps = getattr(pipeline, "pipeline_steps", Controller())
         disabled_nodes = set()
         for field in steps.fields():
             step = field.name
             if not getattr(steps, step, undefined):
-                disabled_nodes.update(steps.metadata(field).get('nodes',
-                                                                set()))
+                disabled_nodes.update(steps.metadata(field).get("nodes", set()))
 
     # nodes = pipeline.nodes.items()
     nodes = list(pipeline.nodes.items())
     while nodes:
         node_name, node = nodes.pop(0)
-        if node_name == '' or not isinstance(node, Process):
+        if node_name == "" or not isinstance(node, Process):
             # main pipeline node, switch...
             continue
-        if not node.enabled or not node.activated \
-                or (exclude_inactive and node_name in disabled_nodes):
+        if (
+            not node.enabled
+            or not node.activated
+            or (exclude_inactive and node_name in disabled_nodes)
+        ):
             continue
         process = node
         if recursive and isinstance(process, Pipeline):
-            nodes += [('%s.%s' % (node_name, new_name), new_node)
-                      for new_name, new_node in process.nodes.items()
-                      if new_name != '']
+            nodes += [
+                ("%s.%s" % (node_name, new_name), new_node)
+                for new_name, new_node in process.nodes.items()
+                if new_name != ""
+            ]
             continue
         plug_list = []
         input_files_list = set()
@@ -685,16 +754,19 @@ def nodes_with_existing_outputs(pipeline, exclude_inactive=True,
             field = process.field(plug_name)
             if field.is_path() or field.type is Any:
                 value = getattr(process, plug_name, undefined)
-                if isinstance(value, str) \
-                        and os.path.exists(value) \
-                        and value not in input_files_list:
+                if (
+                    isinstance(value, str)
+                    and os.path.exists(value)
+                    and value not in input_files_list
+                ):
                     if plug.output:
                         plug_list.append((plug_name, value))
                     elif exclude_inputs:
                         input_files_list.add(value)
         if exclude_inputs:
-            new_plug_list = [item for item in plug_list
-                             if item[1] not in input_files_list]
+            new_plug_list = [
+                item for item in plug_list if item[1] not in input_files_list
+            ]
             plug_list = new_plug_list
         if plug_list:
             selected_nodes[node_name] = plug_list
@@ -702,7 +774,7 @@ def nodes_with_existing_outputs(pipeline, exclude_inactive=True,
 
 
 def nodes_with_missing_inputs(pipeline, recursive=True):
-    '''
+    """
     Checks nodes in a pipeline which inputs contain invalid inputs.
     Inputs which are files non-existing on the filesystem (so, which cannot
     run), or have missing mandatory inputs, or take as input a temporary file
@@ -724,45 +796,53 @@ def nodes_with_missing_inputs(pipeline, recursive=True):
     selected_nodes: dict
         keys: node names
         values: list of pairs (param_name, file_name)
-    '''
+    """
     selected_nodes = {}
-    steps = getattr(pipeline, 'pipeline_steps', Controller())
+    steps = getattr(pipeline, "pipeline_steps", Controller())
     disabled_nodes = set()
     for field in steps.fields():
         step = field.name
         if not getattr(steps, step, undefined):
             disabled_nodes.update(
-                [pipeline.nodes[node_name]
-                 for node_name in steps.metadata(field).get('nodes', set())])
+                [
+                    pipeline.nodes[node_name]
+                    for node_name in steps.metadata(field).get("nodes", set())
+                ]
+            )
 
     # nodes = pipeline.nodes.items()
     nodes = list(pipeline.nodes.items())
     while nodes:
         node_name, node = nodes.pop(0)
-        if node_name == '' or not hasattr(node, 'process'):
+        if node_name == "" or not hasattr(node, "process"):
             # main pipeline node, switch...
             continue
         if not node.enabled or not node.activated or node in disabled_nodes:
             continue
         process = node.process
         if recursive and isinstance(process, Pipeline):
-            nodes += [('%s.%s' % (node_name, new_name), new_node)
-                      for new_name, new_node in process.nodes.items()
-                      if new_name != '']
+            nodes += [
+                ("%s.%s" % (node_name, new_name), new_node)
+                for new_name, new_node in process.nodes.items()
+                if new_name != ""
+            ]
             continue
         for plug_name, plug in node.plugs.items():
             if not plug.output:
                 if process.field(plug_name).is_path():
                     value = getattr(process, plug_name, undefined)
                     keep_me = False
-                    if value in (None, undefined, '') \
-                            or not os.path.exists(value):
+                    if value in (None, undefined, "") or not os.path.exists(value):
                         # check where this file comes from
-                        origin_node, origin_param, origin_parent \
-                            = where_is_plug_value_from(plug, recursive)
-                        if origin_node is not None \
-                                and (origin_node in disabled_nodes
-                                     or origin_parent in disabled_nodes):
+                        (
+                            origin_node,
+                            origin_param,
+                            origin_parent,
+                        ) = where_is_plug_value_from(plug, recursive)
+                        if origin_node is not None and (
+                            origin_node in disabled_nodes
+                            or origin_parent in disabled_nodes
+                        ):
                             # file coming from another disabled node
                             # if not value or value is undefined:
                             ## temporary one
@@ -784,7 +864,7 @@ def nodes_with_missing_inputs(pipeline, recursive=True):
 
 
 def where_is_plug_value_from(plug, recursive=True):
-    '''
+    """
     Find where the given (input) plug takes its value from.
     It has to be the output of an uphill process, or be unconnected.
     Looking for it may involve ascending through switches or pipeline walls.
@@ -811,7 +891,7 @@ def where_is_plug_value_from(plug, recursive=True):
         Top-level parent node of the origin node. Useful to determine if the
         origin node is in a runtime pipeline step, which only records top-level
         nodes.
-    '''
+    """
     links = [link + (None,) for link in plug.links_from]
     while links:
         node_name, param_name, node, in_plug, weak, parent = links.pop(0)
@@ -839,8 +919,9 @@ def where_is_plug_value_from(plug, recursive=True):
     # not found
     return None, None, None
 
+
 def find_plug_connection_sources(plug, pipeline=None):
-    '''
+    """
     A bit like :func:`where_is_plug_value_from` but looks for all incoming
     connection sources
 
@@ -848,7 +929,7 @@ def find_plug_connection_sources(plug, pipeline=None):
     -------
     sources:  list
         [(node, param_name, parent_node), ...]
-    '''
+    """
     sources = []
     links = [link + (pipeline,) for link in plug.links_from]
     while links:
@@ -874,8 +955,7 @@ def find_plug_connection_sources(plug, pipeline=None):
         else:
             other_end = node.get_connections_through(param_name, single=False)
             for src in other_end:
-                if not src[2].output and node is pipeline \
-                        and not src[2].links_from:
+                if not src[2].output and node is pipeline and not src[2].links_from:
                     # main pipeline input, keep it
                     sources.append((src[0], src[1], node))
                 elif src[2] is in_plug:
@@ -886,23 +966,23 @@ def find_plug_connection_sources(plug, pipeline=None):
                     links.append((None, src[1], src[0], src[2], False, node))
                 elif not src[2].output or isinstance(src[0], Pipeline):
                     # input side of a non-opaque node: inspect its links
-                    links += [link + (node,)
-                              for link in src[2].links_from]
+                    links += [link + (node,) for link in src[2].links_from]
                 else:
-                    print('unhandle case in find_plug_connection_sources')
-                    print('node:', src[0], ', param:', src[1])
+                    print("unhandle case in find_plug_connection_sources")
+                    print("node:", src[0], ", param:", src[1])
 
     return sources
 
+
 def find_plug_connection_destinations(plug, pipeline=None):
-    '''
+    """
     A bit like :func:`find_plug_connection_sources` but the other way
 
     Returns
     -------
     dest:  list
         [(node, param_name, parent_node), ...]
-    '''
+    """
     dest = []
     links = [link + (pipeline,) for link in plug.links_to]
     while links:
@@ -928,29 +1008,27 @@ def find_plug_connection_destinations(plug, pipeline=None):
         else:
             other_end = node.get_connections_through(param_name, single=False)
             for dst in other_end:
-                if dst[2].output and node is pipeline \
-                        and not dst[2].links_to:
+                if dst[2].output and node is pipeline and not dst[2].links_to:
                     # main pipeline output, keep it
                     dest.append((dst[0], dst[1], node))
                 elif dst[2] is in_plug:
                     # don't get through its node: keep the node as dest
                     dest.append((dst[0], dst[1], node))
-                elif not dst[2].output \
-                        and not isinstance(dst[0], Pipeline):
+                elif not dst[2].output and not isinstance(dst[0], Pipeline):
                     # sub-pipeline input: inspect it
                     links.append((None, dst[1], dst[0], dst[2], False, node))
                 elif dst[2].output or isinstance(dst[0], Pipeline):
                     # output side of a non-opaque node: inspect its links
-                    links += [link + (node,)
-                              for link in dst[2].links_to]
+                    links += [link + (node,) for link in dst[2].links_to]
                 else:
-                    print('unhandle case in find_plug_connection_sources')
-                    print('node:', dst[0], ', param:', dst[1])
+                    print("unhandle case in find_plug_connection_sources")
+                    print("node:", dst[0], ", param:", dst[1])
 
     return dest
 
+
 def dump_pipeline_state_as_dict(pipeline):
-    '''
+    """
     Get a pipeline state (parameters values, nodes activation, selected
     steps... in a dictionary.
 
@@ -971,10 +1049,10 @@ def dump_pipeline_state_as_dict(pipeline):
     -------
     state_dict: dict
         pipeline state
-    '''
+    """
 
     def should_keep_value(node, plug, components):
-        '''
+        """
         Tells if a plug has already been taken into account in the plugs graph.
 
         Also filters out switches outputs, which should rather be set via their
@@ -997,7 +1075,7 @@ def dump_pipeline_state_as_dict(pipeline):
         True if the plug value is a "new" one and should be recorded in the
         pipeline state. Otherwise it should be discarded (set from another
         connected plug).
-        '''
+        """
 
         def _component(plug, components):
             for comp in components:
@@ -1021,15 +1099,13 @@ def dump_pipeline_state_as_dict(pipeline):
             # inputs)
             if plug.output and isinstance(node, Switch):
                 allowed = False
-            todo += [link[3] for link in plug.links_from
-                     if link[3] not in comp]
-            todo += [link[3] for link in plug.links_to
-                     if link[3] not in comp]
+            todo += [link[3] for link in plug.links_from if link[3] not in comp]
+            todo += [link[3] for link in plug.links_to if link[3] not in comp]
         components.append(comp)
         return allowed
 
     def prune_empty_dicts(state_dict):
-        '''
+        """
         Remove empty dictionaries, and nodes containing empty dicts in pipeline
         state dictionary
 
@@ -1037,21 +1113,22 @@ def dump_pipeline_state_as_dict(pipeline):
         ----------
         state_dict: dict
             the state_dict is parsed, and modified.
-        '''
-        if state_dict.get('nodes') is None:
+        """
+        if state_dict.get("nodes") is None:
             return
         todo = [(state_dict, None, None, True)]
         while todo:
             current_dict, parent, parent_key, recursive = todo.pop(0)
-            nodes = current_dict.get('nodes')
+            nodes = current_dict.get("nodes")
             modified = False
             if nodes:
                 if len(nodes) == 0:
-                    del current_dict['nodes']
+                    del current_dict["nodes"]
                     modified = True
                 elif recursive:
-                    todo = [(value, nodes, key, True)
-                            for key, value in nodes.items()] + todo
+                    todo = [
+                        (value, nodes, key, True) for key, value in nodes.items()
+                    ] + todo
                     modified = True
             if len(current_dict) == 0 and parent is not None:
                 del parent[parent_key]
@@ -1067,29 +1144,30 @@ def dump_pipeline_state_as_dict(pipeline):
         node_dict = proc.asdict()
         # filter out forbidden and already used plugs
         for plug_name, plug in node.plugs.items():
-            if plug_name in node_dict \
-                    and not should_keep_value(node, plug, components):
+            if plug_name in node_dict and not should_keep_value(node, plug, components):
                 del node_dict[plug_name]
         if node_name is None:
             if len(node_dict) != 0:
-                current_dict['state'] = node_dict
+                current_dict["state"] = node_dict
             child_dict = current_dict
         else:
             child_dict = {}
-            current_dict.setdefault('nodes', {})[node_name] = child_dict
+            current_dict.setdefault("nodes", {})[node_name] = child_dict
             if len(node_dict) != 0:
-                child_dict['state'] = node_dict
-        if hasattr(proc, 'nodes'):
-            nodes += [(child_node_name, child_node, child_dict)
-                      for child_node_name, child_node
-                      in proc.nodes.items() if child_node_name != '']
+                child_dict["state"] = node_dict
+        if hasattr(proc, "nodes"):
+            nodes += [
+                (child_node_name, child_node, child_dict)
+                for child_node_name, child_node in proc.nodes.items()
+                if child_node_name != ""
+            ]
 
     prune_empty_dicts(state_dict)
     return state_dict
 
 
 def set_pipeline_state_from_dict(pipeline, state_dict):
-    '''
+    """
     Set a pipeline (or process) state from a dict description.
 
     State includes parameters values, nodes activation, steps selection etc.
@@ -1101,20 +1179,22 @@ def set_pipeline_state_from_dict(pipeline, state_dict):
         process to set state in
     state_dict: dict (mapping object)
         state dictionary
-    '''
+    """
     nodes = [(pipeline, state_dict)]
     while nodes:
         node, current_dict = nodes.pop(0)
         proc = node
-        proc.import_dict(current_dict.get('state', {}))
-        sub_nodes = current_dict.get('nodes')
+        proc.import_dict(current_dict.get("state", {}))
+        sub_nodes = current_dict.get("nodes")
         if sub_nodes:
-            nodes += [(proc.nodes[node_name], sub_dict)
-                      for node_name, sub_dict in sub_nodes.items()]
+            nodes += [
+                (proc.nodes[node_name], sub_dict)
+                for node_name, sub_dict in sub_nodes.items()
+            ]
 
 
 def get_output_directories(process):
-    '''
+    """
     Get output directories for a process, pipeline, or node
 
     Returns
@@ -1126,40 +1206,43 @@ def get_output_directories(process):
         organized the same way)
     flat_dirs: set
         set of all directories in the pipeline, as a flat set.
-    '''
+    """
     all_dirs = set()
     root_dirs = {}
-    nodes = [(process, '', root_dirs)]
+    nodes = [(process, "", root_dirs)]
     disabled_nodes = set()
     if isinstance(process, Pipeline):
         disabled_nodes = process.disabled_pipeline_steps_nodes()
 
     while nodes:
         node, node_name, dirs = nodes.pop(0)
-        plugs = getattr(node, 'plugs', None)
+        plugs = getattr(node, "plugs", None)
         if plugs is None:
             plugs = [field.name for field in node.fields()]
         process = node
         dirs_set = set()
-        dirs['directories'] = dirs_set
+        dirs["directories"] = dirs_set
         for param_name in plugs:
             field = process.field(param_name)
-            if process.metadata(field).get('write', False) \
-                    and field.is_path():
+            if process.metadata(field).get("write", False) and field.is_path():
                 value = getattr(process, param_name, undefined)
                 if value is not None and value is not undefined:
                     directory = os.path.dirname(value)
-                    if directory not in ('', '.'):
+                    if directory not in ("", "."):
                         all_dirs.add(directory)
                         dirs_set.add(directory)
-        sub_nodes = getattr(process, 'nodes', None)
+        sub_nodes = getattr(process, "nodes", None)
         if sub_nodes:
             # TODO: handle disabled steps
             sub_dict = {}
-            dirs['nodes'] = sub_dict
+            dirs["nodes"] = sub_dict
             for node_name, node in sub_nodes.items():
-                if node_name != '' and node.activated and node.enabled \
-                        and not node in disabled_nodes:
+                if (
+                    node_name != ""
+                    and node.activated
+                    and node.enabled
+                    and not node in disabled_nodes
+                ):
                     sub_node_dict = {}
                     sub_dict[node_name] = sub_node_dict
                     nodes.append((node, node_name, sub_node_dict))
@@ -1167,22 +1250,21 @@ def get_output_directories(process):
 
 
 def create_output_directories(process):
-    '''
+    """
     Create output directories for a process, pipeline or node.
-    '''
+    """
     for directory in get_output_directories(process)[1]:
         if not os.path.exists(directory):
             os.makedirs(directory)
 
 
 def save_pipeline(pipeline, filename):
-    '''
+    """
     Save the pipeline either in JSON or .py source file
-    '''
+    """
     from capsul.pipeline.python_export import save_py_pipeline
 
-    formats = {'.py': save_py_pipeline,
-               '.json': save_json_pipeline}
+    formats = {".py": save_py_pipeline, ".json": save_json_pipeline}
 
     saved = False
     for ext, writer in formats.items():
@@ -1197,10 +1279,10 @@ def save_pipeline(pipeline, filename):
 
 def save_json_pipeline(pipeline, filename):
     json_def = pipeline.json()
-    if hasattr(filename, 'write'):
+    if hasattr(filename, "write"):
         json.dump(json_def, filename)
     else:
-        with open(filename, 'w') as f:
+        with open(filename, "w") as f:
             json.dump(json_def, f)
 
 
@@ -1210,7 +1292,7 @@ def load_pipeline_parameters(filename, pipeline):
     """
 
     if filename:
-        with io.open(filename, 'r', encoding='utf8') as file:
+        with io.open(filename, "r", encoding="utf8") as file:
             dic = json.load(file)
 
         if "pipeline_parameters" not in dic:
@@ -1225,29 +1307,28 @@ def save_pipeline_parameters(filename, pipeline):
     Saving pipeline parameters (inputs and outputs) to a Json file.
     """
 
-
     if filename:
         # Generating the dictionary
-        param_dic = json_encode(pipeline.json()['parameters'])
+        param_dic = json_encode(pipeline.json()["parameters"])
 
         # In the future, more information may be added to this dictionary
         dic = {}
         dic["pipeline_parameters"] = param_dic
 
         # Saving the dictionary in the Json file
-        with open(filename, 'w', encoding='utf8') as file:
+        with open(filename, "w", encoding="utf8") as file:
             json.dump(dic, file)
 
 
 def find_node(pipeline, node):
-    ''' Find the given node in the pipeline or a sub-pipeline
+    """Find the given node in the pipeline or a sub-pipeline
 
     Returns
     -------
     node_chain: list
         list of node names in the pipeline going through sub-pipelines to the
         given node
-    '''
+    """
     nodes = []
     pipelines = [(pipeline, [])]
     while pipelines:
@@ -1258,31 +1339,31 @@ def find_node(pipeline, node):
             if sn is not n and isinstance(sn, Pipeline):
                 pipelines.append((sn, names + [sk]))
 
-    raise KeyError('Node %s not found in the pipeline %s'
-                   % (node.name, pipeline.name))
+    raise KeyError("Node %s not found in the pipeline %s" % (node.name, pipeline.name))
 
 
 def nodes_full_names(executable):
     # build node -> full name map
-    todo = [('', executable)]
+    todo = [("", executable)]
     node_names = {}
     while todo:
         name, node = todo.pop(0)
         node_names[node] = name
-        prefix = f'{name}.' if name else ''
+        prefix = f"{name}." if name else ""
         if isinstance(node, Pipeline):
-            todo += [(f'{prefix}{nn}', n) for nn, n in node.nodes.items()
-                     if n is not node]
+            todo += [
+                (f"{prefix}{nn}", n) for nn, n in node.nodes.items() if n is not node
+            ]
         elif isinstance(node, ProcessIteration):
-            todo .append((f'{prefix}{node.process.name}', node.process))
+            todo.append((f"{prefix}{node.process.name}", node.process))
     return node_names
 
 
 def is_node_enabled(pipeline, node_name=None, node=None):
-    ''' Checks if the given node is enabled in the pipeline.
+    """Checks if the given node is enabled in the pipeline.
     It may be disabled if it has its ``enabled`` or ``activated`` properties set to False, or if it is part of a disabled step.
     The node may be given as a Node instance, or its name in the pipeline.
-    '''
+    """
     names = [node_name]
     if node is None:
         node = pipeline.nodes[node_name]
@@ -1296,12 +1377,13 @@ def is_node_enabled(pipeline, node_name=None, node=None):
 
     p = pipeline
     for name in names:
-        steps = getattr(p, 'pipeline_steps', Controller())
+        steps = getattr(p, "pipeline_steps", Controller())
         disabled_nodes = set()
         for field in steps.fields():
             step = field.name
-            if not getattr(steps, step, undefined) \
-                    and name in steps.metadata(field).get('nodes', set()):
+            if not getattr(steps, step, undefined) and name in steps.metadata(
+                field
+            ).get("nodes", set()):
                 return False
         p = p.nodes[name]
 
@@ -1310,20 +1392,22 @@ def is_node_enabled(pipeline, node_name=None, node=None):
 
 
 def write_fake_process(process, filename, sleep_time=0):
-    ''' Write a "fake process" with same class name and parameters as the input
+    """Write a "fake process" with same class name and parameters as the input
     process, but with a fake execution function meant for tests.
-    '''
+    """
 
-    auto_fields = {'activated', 'enabled', 'node_type'}
-    meta_forbidden = {'order', 'path_type', 'class_field'}
+    auto_fields = {"activated", "enabled", "node_type"}
+    meta_forbidden = {"order", "path_type", "class_field"}
 
-    with open(filename, 'w') as f:
-        f.write('''# -*- coding: utf-8 -*-
+    with open(filename, "w") as f:
+        f.write(
+            """# -*- coding: utf-8 -*-
 
 from capsul.api import Process
 import os
 from soma.controller import File, Directory, undefined, Literal
-''')
+"""
+        )
 
         imports = set()
         for field in process.fields():
@@ -1332,22 +1416,25 @@ from soma.controller import File, Directory, undefined, Literal
                 continue
 
             t_str = field.type_str()
-            t_str = t_str.split('[', 1)[0]
-            t_str = t_str.split('(', 1)[0]
-            if '.' in t_str:
-                imp_str = t_str.rsplit('.', 1)[0]
+            t_str = t_str.split("[", 1)[0]
+            t_str = t_str.split("(", 1)[0]
+            if "." in t_str:
+                imp_str = t_str.rsplit(".", 1)[0]
                 if imp_str not in imports:
                     imports.add(imp_str)
-                    f.write('import %s\n' % imp_str)
+                    f.write("import %s\n" % imp_str)
 
-        f.write('''
+        f.write(
+            """
 
 class %s(Process):
     def __init__(self, **kwargs):
         super(%s, self).__init__(**kwargs)
         self.name = '%s'
 
-''' % (process.__class__.__name__, process.__class__.__name__, process.name))
+"""
+            % (process.__class__.__name__, process.__class__.__name__, process.name)
+        )
 
         for field in process.fields():
             name = field.name
@@ -1355,35 +1442,37 @@ class %s(Process):
                 continue
 
             t_str = field.type_str()
-            meta = {k: v for k, v in field.metadata().items()
-                    if k not in meta_forbidden}
+            meta = {
+                k: v for k, v in field.metadata().items() if k not in meta_forbidden
+            }
             has_default = False
             if field.default not in (undefined, dataclasses.MISSING):
-                meta['default'] = field.default
+                meta["default"] = field.default
                 has_default = True
             elif field.default_factory != dataclasses.MISSING:
                 # difficult/implssible to replicate...
                 class def_fac(object):
                     def __init__(self, value):
                         self.value = value
+
                     def __repr__(self):
-                        return 'lambda: %s' % repr(value)
-                meta['default_factory'] = def_fac(field.default_factory())
+                        return "lambda: %s" % repr(value)
+
+                meta["default_factory"] = def_fac(field.default_factory())
                 has_default = True
             value = getattr(process, name, undefined)
-            if has_default and 'optional' not in meta:
-                meta['optional'] = True
-            meta_str = ''
+            if has_default and "optional" not in meta:
+                meta["optional"] = True
+            meta_str = ""
             if meta:
-                meta_str = ', '.join('%s=%s' % (k, repr(v))
-                                     for k, v in meta.items())
-                meta_str = ', ' + meta_str
-            f.write('        self.add_field("%s", %s%s)\n'
-                    % (name, t_str, meta_str))
+                meta_str = ", ".join("%s=%s" % (k, repr(v)) for k, v in meta.items())
+                meta_str = ", " + meta_str
+            f.write('        self.add_field("%s", %s%s)\n' % (name, t_str, meta_str))
             if value is not undefined:
-                f.write('        self.%s = %s\n' % (name, repr(value)))
+                f.write("        self.%s = %s\n" % (name, repr(value)))
 
-        f.write('''
+        f.write(
+            """
     def execute(self, context):
         outputs = []
         for field in self.fields():
@@ -1399,11 +1488,13 @@ class %s(Process):
                           'Input parameter: %s, file %s does not exist'
                           % (name, repr(filename)))
 
-''')
+"""
+        )
         if sleep_time != 0:
-            f.write('        import time\n')
-            f.write('        time.sleep(%f)\n\n' % sleep_time)
-        f.write('''        for name in outputs:
+            f.write("        import time\n")
+            f.write("        time.sleep(%f)\n\n" % sleep_time)
+        f.write(
+            """        for name in outputs:
             field = self.field(name)
             filename = getattr(self, name, undefined)
             if filename not in (None, undefined, ''):
@@ -1411,11 +1502,12 @@ class %s(Process):
                     f.write('class: %s\\n' % self.__class__.__name__)
                     f.write('name: %s\\n' % self.name)
                     f.write('parameter: %s\\n' % name)
-''')
+"""
+        )
 
 
 def write_fake_pipeline(pipeline, module_name, dirname, sleep_time=0):
-    ''' Write a "fake pipeline" with same class name, structure, and parameters
+    """Write a "fake pipeline" with same class name, structure, and parameters
     as the input pipeline, but replacing its processes with "fake" processes
     which do not actually do a real job while executing.
 
@@ -1424,9 +1516,9 @@ def write_fake_pipeline(pipeline, module_name, dirname, sleep_time=0):
 
     :warning:`This function actually modifies the input pipeline, which is
     transformed into a fake one.`
-    '''
+    """
 
-    meta_forbidden = {'order', 'path_type', 'class_field'}
+    meta_forbidden = {"order", "path_type", "class_field"}
 
     def replace_pipeline_node(old_node, new_node, parent):
         for plug_name, plug in old_node.plugs.items():
@@ -1435,8 +1527,7 @@ def write_fake_pipeline(pipeline, module_name, dirname, sleep_time=0):
                 new_plug.links_from.add(link)
                 for olink in set(link[3].links_to):
                     if olink[3] is plug:
-                        nolink = (olink[0], olink[1], new_node, new_plug,
-                                  olink[4])
+                        nolink = (olink[0], olink[1], new_node, new_plug, olink[4])
                         link[3].links_to.remove(olink)
                         link[3].links_to.add(nolink)
             for link in plug.links_to:
@@ -1444,22 +1535,21 @@ def write_fake_pipeline(pipeline, module_name, dirname, sleep_time=0):
                 new_plug.links_to.add(link)
                 for olink in set(link[3].links_from):
                     if olink[3] is plug:
-                        nolink = (olink[0], olink[1], new_node, new_plug,
-                                  olink[4])
+                        nolink = (olink[0], olink[1], new_node, new_plug, olink[4])
                         link[3].links_from.remove(olink)
                         link[3].links_from.add(nolink)
 
     def replace_node(node, module_name, dirname, done, parent, node_name):
         basename = node.__class__.__name__.lower()
-        modname = '.'.join([module_name, basename])
-        filename = os.path.join(dirname, '%s.py' % basename)
+        modname = ".".join([module_name, basename])
+        filename = os.path.join(dirname, "%s.py" % basename)
         if modname not in done:
             done.add(modname)
             write_fake_process(node, filename, sleep_time=sleep_time)
         try:
             new_proc = executable(filename)
         except Exception:
-            print('Failed to reload node:', filename)
+            print("Failed to reload node:", filename)
             raise
         new_proc.__class__.__module__ = modname
 
@@ -1470,10 +1560,16 @@ def write_fake_pipeline(pipeline, module_name, dirname, sleep_time=0):
             if new_field is None:
                 new_proc.add_field(name, field)
                 continue
-            meta = {k: v for k, v in field.metadata().items()
-                    if k not in meta_forbidden}
-            meta.update({k: getattr(field, k) for k in new_field.metadata()
-                         if k not in meta and hasattr(field, k)})
+            meta = {
+                k: v for k, v in field.metadata().items() if k not in meta_forbidden
+            }
+            meta.update(
+                {
+                    k: getattr(field, k)
+                    for k in new_field.metadata()
+                    if k not in meta and hasattr(field, k)
+                }
+            )
             for k, v in meta.items():
                 setattr(new_proc.field(name), k, v)
             # set back old value
@@ -1486,14 +1582,15 @@ def write_fake_pipeline(pipeline, module_name, dirname, sleep_time=0):
         return new_proc
 
     sys.path.insert(0, dirname)
-    dirname = os.path.join(dirname, module_name.rsplit('.')[-1])
+    dirname = os.path.join(dirname, module_name.rsplit(".")[-1])
     if not os.path.exists(dirname):
         os.makedirs(dirname)
-    with open(os.path.join(dirname, '__init__.py'), 'w'):
+    with open(os.path.join(dirname, "__init__.py"), "w"):
         pass
 
-    nodes = [(pipeline, node[0], node[1]) for node in pipeline.nodes.items()
-             if node[0] != '']
+    nodes = [
+        (pipeline, node[0], node[1]) for node in pipeline.nodes.items() if node[0] != ""
+    ]
     done = set()
     pipelines = [pipeline]
     while nodes:
@@ -1502,27 +1599,24 @@ def write_fake_pipeline(pipeline, module_name, dirname, sleep_time=0):
             continue
         if isinstance(node, Pipeline):
             if node.__class__ not in done:
-                nodes += [(node, n[0], n[1]) for n in node.nodes.items()
-                          if n[0] != '']
-                node.__class__.__module__ = '.'.join(
-                    [module_name, node.__class__.__name__.lower()])
+                nodes += [(node, n[0], n[1]) for n in node.nodes.items() if n[0] != ""]
+                node.__class__.__module__ = ".".join(
+                    [module_name, node.__class__.__name__.lower()]
+                )
                 done.add(node.__class__)
                 pipelines.append(node)
         elif isinstance(node, ProcessIteration):
             proc = node.process
             if isinstance(proc, Pipeline):
-                nodes += [(proc, n[0], n[1]) for n in proc.nodes.items()
-                          if n[0] != '']
+                nodes += [(proc, n[0], n[1]) for n in proc.nodes.items() if n[0] != ""]
             else:
-                new_node = replace_node(proc, module_name, dirname, done, None,
-                                        None)
+                new_node = replace_node(proc, module_name, dirname, done, None, None)
                 node.process = new_node
         else:
             replace_node(node, module_name, dirname, done, parent, node_name)
 
     for pipeline in reversed(pipelines):
-        filename = os.path.join(dirname, '%s.py' \
-            % pipeline.__class__.__name__.lower())
+        filename = os.path.join(dirname, "%s.py" % pipeline.__class__.__name__.lower())
         save_pipeline(pipeline, filename)
 
     del sys.path[0]

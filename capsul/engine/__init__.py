@@ -13,8 +13,9 @@ from ..database import engine_database
 
 
 def execution_context(engine_label, engine_config, executable):
-    execution_context = ExecutionContext(executable=executable,
-        config=engine_config.asdict())
+    execution_context = ExecutionContext(
+        executable=executable, config=engine_config.asdict()
+    )
 
     req_to_check = execution_context.executable_requirements(executable)
     done_req = []  # record requirements to avoid loops
@@ -35,8 +36,7 @@ def execution_context(engine_label, engine_config, executable):
             module_config = getattr(module_configs, module_field.name)
             added_req = module_config.is_valid_config(requirements)
             if added_req not in (False, None):
-                valid_configs.setdefault(
-                    module_name, {})[module_field] = module_config
+                valid_configs.setdefault(module_name, {})[module_field] = module_config
                 if isinstance(added_req, dict):
                     req_to_check.update(added_req)
 
@@ -46,20 +46,22 @@ def execution_context(engine_label, engine_config, executable):
         if not valid_module_configs:
             raise RuntimeError(
                 f'Execution environment "{engine_label}" has no '
-                f'valid configuration for module {module_name}')
+                f"valid configuration for module {module_name}"
+            )
         if len(valid_module_configs) > 1:
             raise RuntimeError(
                 f'Execution environment "{engine_label}" has '
-                f'{len(valid_configs)} possible configurations for '
-                f'module {module_name}')
+                f"{len(valid_configs)} possible configurations for "
+                f"module {module_name}"
+            )
         # get the single remaining config
         valid_config = next(iter(valid_module_configs.values()))
         execution_context.add_field(module_name, type_=ModuleConfiguration)
-        setattr(execution_context, module_name,  valid_config)
+        setattr(execution_context, module_name, valid_config)
     return execution_context
 
-class Engine:
 
+class Engine:
     def __init__(self, label, config, databases_config, update_database=False):
         super().__init__()
         self.label = label
@@ -75,37 +77,37 @@ class Engine:
             self.database.__enter__()
             # Connect to the engine in the database. Adds the engine in
             # the database if it does not exist.
-            self.engine_id = self.database.get_or_create_engine(self,
-                update_database=self.update_database)
+            self.engine_id = self.database.get_or_create_engine(
+                self, update_database=self.update_database
+            )
         self.nested_context += 1
         return self
 
     def engine_status(self):
         result = {
-            'label': self.label,
-            'config': self.config.json(),
+            "label": self.label,
+            "config": self.config.json(),
         }
-        result['database_connected'] = self.database.is_connected
-        if result['database_connected']:
-            result['database_ready'] = True
+        result["database_connected"] = self.database.is_connected
+        if result["database_connected"]:
+            result["database_ready"] = True
             database = self.database
         else:
-            result['database_ready'] = self.database.is_ready
-            if result['database_ready']:
+            result["database_ready"] = self.database.is_ready
+            if result["database_ready"]:
                 database = engine_database(self.database_config)
             else:
                 database = None
         if database:
             with database:
-                engine_id = result['engine_id'] = database.engine_id(self.label)
+                engine_id = result["engine_id"] = database.engine_id(self.label)
                 if engine_id:
-                    result['workers_count'] = database.workers_count(engine_id)
-                    result['connections'] = database.engine_connections(engine_id)
+                    result["workers_count"] = database.workers_count(engine_id)
+                    result["connections"] = database.engine_connections(engine_id)
         return result
 
-
     def start_workers(self):
-        requested = self.config.start_workers.get('count', 0)
+        requested = self.config.start_workers.get("count", 0)
         start_count = max(0, requested - self.database.workers_count(self.engine_id))
         if start_count:
             for i in range(start_count):
@@ -118,17 +120,18 @@ class Engine:
                     )
                 except Exception as e:
                     quote = lambda x: f"'{x}'"
-                    raise RuntimeError(f'Command failed: {" ".join(quote(i) for i in workers_command)}') from e
-        
-       
+                    raise RuntimeError(
+                        f'Command failed: {" ".join(quote(i) for i in workers_command)}'
+                    ) from e
+
     def __exit__(self, exception_type, exception_value, exception_traceback):
         self.nested_context -= 1
         if self.nested_context == 0:
-            if 'CAPSUL_DEBUG' not in os.environ:
+            if "CAPSUL_DEBUG" not in os.environ:
                 self.database.dispose_engine(self.engine_id)
             self.database.__exit__(exception_type, exception_value, exception_traceback)
             del self.engine_id
-    
+
     def execution_context(self, executable):
         return execution_context(self.label, self.config, executable)
 
@@ -146,32 +149,27 @@ class Engine:
         # pprint(workflow.parameters.no_proxy())
         # print('----')
         # pprint(workflow.jobs)
-        execution_id = self.database.new_execution(executable, self.engine_id,
-            econtext, workflow, start_time=datetime.now())
+        execution_id = self.database.new_execution(
+            executable, self.engine_id, econtext, workflow, start_time=datetime.now()
+        )
         self.start_workers()
         return execution_id
-
 
     def executions_summary(self):
         with self:
             return self.database.executions_summary(self.engine_id)
-    
 
     def status(self, execution_id):
         return self.database.status(self.engine_id, execution_id)
-    
 
     def wait(self, execution_id, *args, **kwargs):
         self.database.wait(self.engine_id, execution_id, *args, **kwargs)
 
-
     def raise_for_status(self, *args, **kwargs):
         self.database.raise_for_status(self.engine_id, *args, **kwargs)
 
-
     def execution_report(self, *args, **kwargs):
         return self.database.execution_report(self.engine_id, *args, **kwargs)
-
 
     def print_execution_report(self, engine_id, *args, **kwargs):
         self.database.print_execution_report(engine_id, *args, **kwargs)
@@ -179,10 +177,8 @@ class Engine:
     def update_executable(self, *args, **kwargs):
         self.database.update_executable(self.engine_id, *args, **kwargs)
 
-
     def dispose(self, *args, **kwargs):
         self.database.dispose(self.engine_id, *args, **kwargs)
-
 
     def run(self, executable, timeout=None, print_report=False, debug=False, **kwargs):
         execution_id = self.start(executable, debug=debug, **kwargs)
@@ -190,22 +186,25 @@ class Engine:
             try:
                 self.wait(execution_id, timeout=timeout)
             except TimeoutError:
-                self.print_execution_report(self.execution_report(execution_id), sys.stderr)
+                self.print_execution_report(
+                    self.execution_report(execution_id), sys.stderr
+                )
                 raise
             status = self.status(execution_id)
             self.raise_for_status(execution_id)
             if print_report:
-                self.print_execution_report(self.execution_report(execution_id), file=sys.stdout)
+                self.print_execution_report(
+                    self.execution_report(execution_id), file=sys.stdout
+                )
             self.update_executable(execution_id, executable)
         finally:
-            if 'CAPSUL_DEBUG' not in os.environ:
+            if "CAPSUL_DEBUG" not in os.environ:
                 self.dispose(execution_id)
         return status
+
 
 class Workers(Controller):
     def __init__(self, engine_label, engine_config, database):
         self.engine_label = engine_label
         self.engine_config = engine_config
         self.database = database
-
-    

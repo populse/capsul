@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-'''
+"""
 Metadata handling and attributes-based path generation system. In other words, this module is the completion system for Capsul processes and other executables.
 
 The main function to be used contains most of the doc: see :func:`generate_paths`
-'''
+"""
 
 import csv
 import fnmatch
@@ -23,42 +23,44 @@ from soma.undefined import undefined
 
 global_debug = False
 
+
 class Dataset(Controller):
-    '''
+    """
     Dataset representation.
     You don't need to define or instantiate this class yourself, it will be done automatically and internally in the path generation system.
 
     Instead, users need to define datsets in the Capsul config. See :func:`generate_paths`.
-    '''
+    """
+
     path: Directory
     metadata_schema: str
 
     schemas = {}
-    '''
+    """
     Schemas mapping associating a :class:`MetadataSchema` class to a name
-    '''
+    """
 
     schema_mappings = {}
-    '''
+    """
     Mapping between schemas couples and conversion functions
-    '''
+    """
 
     def __init__(self, path=None, metadata_schema=None):
         super().__init__(self)
-        self.on_attribute_change.add(self.schema_change_callback, 'metadata_schema')
+        self.on_attribute_change.add(self.schema_change_callback, "metadata_schema")
         if path is not None:
             if isinstance(path, Path):
                 self.path = str(path)
             else:
-                self.path = path          
+                self.path = path
             if metadata_schema is None:
-                capsul_json = Path(self.path) / 'capsul.json'
+                capsul_json = Path(self.path) / "capsul.json"
                 if capsul_json.exists():
                     with capsul_json.open() as f:
-                        metadata_schema = json.load(f).get('metadata_schema')
+                        metadata_schema = json.load(f).get("metadata_schema")
         if metadata_schema:
             self.metadata_schema = metadata_schema
-    
+
     @classmethod
     def find_schema(cls, metadata_schema):
         return cls.schemas.get(metadata_schema)
@@ -73,24 +75,28 @@ class Dataset(Controller):
     def schema_change_callback(self):
         schema_cls = self.find_schema(self.metadata_schema)
         if not schema_cls:
-            raise ValueError(f'Invalid metadata schema "{self.metadata_schema}" for path "{self.path}"')
+            raise ValueError(
+                f'Invalid metadata schema "{self.metadata_schema}" for path "{self.path}"'
+            )
         self.schema = schema_cls(base_path=self.path)
 
+
 class MetadataSchema(Controller):
-    '''Schema of metadata associated to a file in a :class:`Dataset`
+    """Schema of metadata associated to a file in a :class:`Dataset`
 
     Abstract class: derived classes should overload the :meth:`_path_list`
     static method to actually implement path building.
 
     This class is a :class:`~soma.controller.controller.Controller`: attributes
     are stored as fields.
-    '''
+    """
+
     def __init_subclass__(cls) -> None:
         result = super().__init_subclass__()
         Dataset.schemas[cls.schema_name] = cls
         return result
 
-    def __init__(self, base_path='', **kwargs):
+    def __init__(self, base_path="", **kwargs):
         super().__init__(**kwargs)
         if not isinstance(base_path, Path):
             self.base_path = Path(base_path)
@@ -98,43 +104,44 @@ class MetadataSchema(Controller):
             self.base_path = base_path
 
     def get(self, name, default=None):
-        '''
+        """
         Shortcut to get an attribute with a None default value.
-        Used in :meth:`_path_list` specialization to have a 
+        Used in :meth:`_path_list` specialization to have a
         shorter code.
-        '''
+        """
         return getattr(self, name, default)
 
     def build_path(self):
-        ''' Returns a list of path elements built from the current PathLayout
+        """Returns a list of path elements built from the current PathLayout
         fields values.
 
         This method calls :meth:`_path_listh` which should be implemented in
         subclasses.
-        '''            
-        return functools.reduce(operator.truediv,
-                                self._path_list(),
-                                self.base_path)
+        """
+        return functools.reduce(operator.truediv, self._path_list(), self.base_path)
 
     def _path_list(self):
         raise NotImplementedError(
-            '_path_list() must be specialized in MetadataSchema subclasses.')
+            "_path_list() must be specialized in MetadataSchema subclasses."
+        )
 
     def metadata(self, path):
-        '''
+        """
         Parse the ``path`` argument to extract an attributes dict from it.
 
         The base method is not implemented, it must be reimplemented in subclasses that allow path -> attributes parsing. Not all schemas will allow it.
-        '''
+        """
         raise NotImplementedError(
-            'metadata() must be specialized in MetadataSchema subclasses.')
+            "metadata() must be specialized in MetadataSchema subclasses."
+        )
+
 
 class BIDSSchema(MetadataSchema):
-    ''' Metadata schema for BIDS datasets
-    '''
-    schema_name = 'bids'
+    """Metadata schema for BIDS datasets"""
 
-    folder: Literal['sourcedata', 'rawdata', 'derivative']
+    schema_name = "bids"
+
+    folder: Literal["sourcedata", "rawdata", "derivative"]
     process: str = None
     sub: str
     ses: str
@@ -150,22 +157,22 @@ class BIDSSchema(MetadataSchema):
     extension: str
 
     path_pattern = re.compile(
-        r'(?P<folder>[^-_/]*)/'
-        r'sub-(?P<sub>[^-_/]*)/'
-        r'ses-(?P<ses>[^-_/]*)/'
-        r'(?P<data_type>[^/]*)/'
-        r'sub-(?P=sub)_ses-(?P=ses)'
-        r'(?:_task-(?P<task>[^-_/]*))?'
-        r'(?:_acq-(?P<acq>[^-_/]*))?'
-        r'(?:_ce-(?P<ce>[^-_/]*))?'
-        r'(?:_rec-(?P<rec>[^-_/]*))?'
-        r'(?:_run-(?P<run>[^-_/]*))?'
-        r'(?:_echo-(?P<echo>[^-_/]*))?'
-        r'(?:_part-(?P<part>[^-_/]*))?'
-        r'(?:_(?P<suffix>[^-_/]*))?\.(?P<extension>.*)$'
+        r"(?P<folder>[^-_/]*)/"
+        r"sub-(?P<sub>[^-_/]*)/"
+        r"ses-(?P<ses>[^-_/]*)/"
+        r"(?P<data_type>[^/]*)/"
+        r"sub-(?P=sub)_ses-(?P=ses)"
+        r"(?:_task-(?P<task>[^-_/]*))?"
+        r"(?:_acq-(?P<acq>[^-_/]*))?"
+        r"(?:_ce-(?P<ce>[^-_/]*))?"
+        r"(?:_rec-(?P<rec>[^-_/]*))?"
+        r"(?:_run-(?P<run>[^-_/]*))?"
+        r"(?:_echo-(?P<echo>[^-_/]*))?"
+        r"(?:_part-(?P<part>[^-_/]*))?"
+        r"(?:_(?P<suffix>[^-_/]*))?\.(?P<extension>.*)$"
     )
 
-    def __init__(self, base_path='', **kwargs):
+    def __init__(self, base_path="", **kwargs):
         super().__init__(base_path, **kwargs)
 
         # Cache of TSV files that are already read and converted
@@ -173,44 +180,44 @@ class BIDSSchema(MetadataSchema):
         self._tsv_to_dict = {}
 
     def _path_list(self):
-        '''
+        """
         The path has the following pattern:
           sub-{sub}/ses-{ses}/{data_type}/sub-{sub}_ses-{ses}[_task-{task}][_acq-{acq}][_ce-{ce}][_rec-{rec}][_run-{run}][_echo-{echo}][_part-{part}]{modality}.{extension}
-        '''
+        """
         path_list = [self.folder]
         if self.process:
             path_list += [self.process]
-        path_list += [f'sub-{self.sub}',
-                      f'ses-{self.ses}']
+        path_list += [f"sub-{self.sub}", f"ses-{self.ses}"]
         if self.data_type:
             path_list.append(self.data_type)
         elif not self.process:
-            raise ValueError('BIDS schema requires a value for either data_type or process')
+            raise ValueError(
+                "BIDS schema requires a value for either data_type or process"
+            )
 
-        filename = [f'sub-{self.sub}',
-                    f'ses-{self.ses}']
-        for key in ('task', 'acq', 'ce', 'rec', 'run', 'echo', 'part'):
+        filename = [f"sub-{self.sub}", f"ses-{self.ses}"]
+        for key in ("task", "acq", "ce", "rec", "run", "echo", "part"):
             value = getattr(self, key, undefined)
             if value:
-                filename.append(f'{key}-{value}')
+                filename.append(f"{key}-{value}")
         if self.suffix:
-            filename.append(f'{self.suffix}.{self.extension}')
+            filename.append(f"{self.suffix}.{self.extension}")
         else:
-            filename[-1] += f'.{self.extension}'
-        path_list.append('_'.join(filename))
+            filename[-1] += f".{self.extension}"
+        path_list.append("_".join(filename))
         return path_list
-    
+
     def tsv_to_dict(self, tsv):
-        '''
+        """
         Reads a TSV file and convert it to a dictionary of dictionaries
         using the first row value as key and other row values are converted
         to dict. The first row must contains column names.
-        '''
+        """
         result = self._tsv_to_dict.get(tsv)
         if result is None:
             result = {}
             with open(tsv) as f:
-                reader = csv.reader(f, dialect='excel-tab')
+                reader = csv.reader(f, dialect="excel-tab")
                 header = next(reader)[1:]
                 for row in reader:
                     key = row[0]
@@ -220,13 +227,13 @@ class BIDSSchema(MetadataSchema):
         return result
 
     def metadata(self, path):
-        '''
+        """
         Get metadata from BIDS files given its path.
         During the process, TSV files that are read and converted
         to dictionaries values are cached in self. That way if the same
         BIDSMetadata is used to get metadata of many files, there
         will be only one reading and conversion per file.
-        '''
+        """
         if not isinstance(path, Path):
             path = Path(path)
         result = {}
@@ -238,54 +245,71 @@ class BIDSSchema(MetadataSchema):
         if path.exists():
             m = self.path_pattern.match(str(relative_path))
             if m:
-                result.update((k,v) for k, v in m.groupdict().items() if v is not None)
-            folder = result.get('folder')
-            sub = result.get('sub')
+                result.update((k, v) for k, v in m.groupdict().items() if v is not None)
+            folder = result.get("folder")
+            sub = result.get("sub")
             if folder and sub:
-                ses = result.get('ses')
+                ses = result.get("ses")
                 if ses:
-                    sessions_file = self.base_path / folder / f'sub-{sub}' /  f'sub-{sub}_sessions.tsv'
+                    sessions_file = (
+                        self.base_path
+                        / folder
+                        / f"sub-{sub}"
+                        / f"sub-{sub}_sessions.tsv"
+                    )
                     if sessions_file.exists():
                         sessions_data = self.tsv_to_dict(sessions_file)
-                        session_metadata = sessions_data.get(f'ses-{ses}', {})
+                        session_metadata = sessions_data.get(f"ses-{ses}", {})
                         result.update(session_metadata)
-                    scans_file = self.base_path / folder / f'sub-{sub}' / f'ses-{ses}' / f'sub-{sub}_ses-{ses}_scans.tsv'
+                    scans_file = (
+                        self.base_path
+                        / folder
+                        / f"sub-{sub}"
+                        / f"ses-{ses}"
+                        / f"sub-{sub}_ses-{ses}_scans.tsv"
+                    )
                 else:
-                    scans_file = self.base_path / folder / f'sub-{sub}' / f'sub-{sub}_scans.tsv'
+                    scans_file = (
+                        self.base_path / folder / f"sub-{sub}" / f"sub-{sub}_scans.tsv"
+                    )
                 if scans_file.exists():
                     scans_data = self.tsv_to_dict(scans_file)
-                    scan_metadata = scans_data.get(str(path.relative_to(scans_file.parent)), {})
+                    scan_metadata = scans_data.get(
+                        str(path.relative_to(scans_file.parent)), {}
+                    )
                     result.update(scan_metadata)
-                extension = result.get('extension')
+                extension = result.get("extension")
                 if extension:
-                    json_path = path.parent / (path.name[:-len(extension)-1] + '.json')
+                    json_path = path.parent / (
+                        path.name[: -len(extension) - 1] + ".json"
+                    )
                 else:
-                    json_path = path.parent / (path.name + '.json')                    
+                    json_path = path.parent / (path.name + ".json")
                 if json_path.exists():
                     with open(json_path) as f:
                         result.update(json.load(f))
         return result
 
     def find(self, **kwargs):
-        ''' Find path from existing files given fixed values for some parameters
+        """Find path from existing files given fixed values for some parameters
         (using :func:`glob.glob` and filenames parsing)
 
         Returns
         -------
         Yields a path for every match.
-        '''
-        if 'data_type' not in kwargs and 'process' not in kwargs:
-            layout = self.__class__(self.base_path, data_type='*', **kwargs)
+        """
+        if "data_type" not in kwargs and "process" not in kwargs:
+            layout = self.__class__(self.base_path, data_type="*", **kwargs)
         else:
             layout = self.__class__(self.base_path, **kwargs)
         for field in layout.fields():
-            value = getattr(layout, field.name, undefined) 
+            value = getattr(layout, field.name, undefined)
             if value is undefined:
                 if not field.optional:
                     # Force the value of the attribute without
                     # using Pydantic validation because '*' may
                     # not be a valid value.
-                    object.__setattr__(layout, field.name, '*')
+                    object.__setattr__(layout, field.name, "*")
         globs = layout._path_list()
         directories = [self.base_path]
         while len(globs) > 1:
@@ -296,22 +320,22 @@ class BIDSSchema(MetadataSchema):
                         new_directories.append(sd)
             globs = globs[1:]
             directories = new_directories
-        
+
         for d in directories:
             for sd in d.glob(globs[0]):
                 yield sd
-                
+
 
 class BrainVISASchema(MetadataSchema):
-    '''Metadata schema for BrainVISA datasets.
-    '''
-    schema_name = 'brainvisa'
+    """Metadata schema for BrainVISA datasets."""
+
+    schema_name = "brainvisa"
 
     center: str
     subject: str
     modality: str = None
     process: str = None
-    analysis: str = 'default_analysis'
+    analysis: str = "default_analysis"
     acquisition: str = None
     preprocessings: str = None
     longitudinal: list[str] = None
@@ -326,32 +350,38 @@ class BrainVISASchema(MetadataSchema):
     sidebis: str = None  # when used as a sufffix
 
     find_attrs = re.compile(
-        r'(?P<folder>[^-_/]*)/'
-        r'sub-(?P<sub>[^-_/]*)/'
-        r'ses-(?P<ses>[^-_/]*)/'
-        r'(?P<data_type>[^/]*)/'
-        r'sub-(?P=sub)_ses-(?P=ses)'
-        r'(?:_task-(?P<task>[^-_/]*))?'
-        r'_(?P<suffix>[^-_/]*)\.(?P<extension>.*)$'
+        r"(?P<folder>[^-_/]*)/"
+        r"sub-(?P<sub>[^-_/]*)/"
+        r"ses-(?P<ses>[^-_/]*)/"
+        r"(?P<data_type>[^/]*)/"
+        r"sub-(?P=sub)_ses-(?P=ses)"
+        r"(?:_task-(?P<task>[^-_/]*))?"
+        r"_(?P<suffix>[^-_/]*)\.(?P<extension>.*)$"
     )
 
     def _path_list(self):
-        '''
+        """
         The path has the following pattern:
         {center}/{subject}/[{modality}/][{process/][{acquisition}/][{preprocessings}/][{longitudinal}/][{analysis}/][seg_directory/][{sulci_graph_version}/[{sulci_recognition_session}]]/[side][{prefix}_][short_prefix]{subject}[_to_avg_{longitudinal}}[_{sidebis}{suffix}][.{extension}]
-        '''
+        """
 
         attributes = tuple(f.name for f in self.fields())
 
         path_list = [self.center, self.subject]
-        for key in ('modality', 'process', 'acquisition', 'preprocessings', 'longitudinal'):
+        for key in (
+            "modality",
+            "process",
+            "acquisition",
+            "preprocessings",
+            "longitudinal",
+        ):
             value = getattr(self, key, None)
             if value:
                 path_list.append(value)
-        if getattr(self, 'analysis', None):
+        if getattr(self, "analysis", None):
             path_list.append(self.analysis)
         if self.seg_directory:
-            path_list += self.seg_directory.split('/')
+            path_list += self.seg_directory.split("/")
         if self.sulci_graph_version:
             path_list.append(self.sulci_graph_version)
             if self.sulci_recognition_session:
@@ -359,23 +389,23 @@ class BrainVISASchema(MetadataSchema):
 
         filename = []
         if self.side:
-            filename.append(f'{self.side}')
+            filename.append(f"{self.side}")
         if self.prefix:
-            filename.append(f'{self.prefix}_')
+            filename.append(f"{self.prefix}_")
         if self.short_prefix:
-            filename.append(f'{self.short_prefix}')
+            filename.append(f"{self.short_prefix}")
         filename.append(self.subject)
         if self.longitudinal:
-            filename.append(f'_to_avg_{self.longitudinal}')
+            filename.append(f"_to_avg_{self.longitudinal}")
         if self.suffix or self.sidebis:
-            filename.append('_')
+            filename.append("_")
             if self.sidebis:
-                filename.append(f'{self.sidebis}')
+                filename.append(f"{self.sidebis}")
             if self.suffix:
-                filename.append(f'{self.suffix}')
+                filename.append(f"{self.suffix}")
         if self.extension:
-            filename.append(f'.{self.extension}')
-        path_list.append(''.join(filename))
+            filename.append(f".{self.extension}")
+        path_list.append("".join(filename))
         return path_list
 
 
@@ -383,19 +413,21 @@ class SchemaMapping:
     def __init_subclass__(cls) -> None:
         Dataset.schema_mappings[(cls.source_schema, cls.dest_schema)] = cls
 
+
 class BidsToBrainVISA(SchemaMapping):
-    source_schema = 'bids'
-    dest_schema = 'brainvisa'
+    source_schema = "bids"
+    dest_schema = "brainvisa"
 
     @staticmethod
     def map_schemas(source, dest):
-        dest.center = 'whaterver'
+        dest.center = "whaterver"
         dest.subject = source.sub
         dest.acquisition = source.ses
         dest.extension = source.extension
-        process = getattr(source, 'process', None)
+        process = getattr(source, "process", None)
         if process:
             dest.process = process
+
 
 class ProcessSchema:
     def __init_subclass__(cls, schema, process) -> None:
@@ -404,13 +436,13 @@ class ProcessSchema:
         super().__init_subclass__()
         if isinstance(process, str):
             process = get_node_class(process)[1]
-        if 'metadata_schemas' not in process.__dict__:
+        if "metadata_schemas" not in process.__dict__:
             process.metadata_schemas = {}
         schemas = process.metadata_schemas
         schemas[schema] = cls
         cls.schema = schema
-        setattr(process, 'metadata_schemas', schemas)
-                    
+        setattr(process, "metadata_schemas", schemas)
+
 
 class MetadataModifier:
     def __init__(self, schema_name, process, parameter):
@@ -418,18 +450,18 @@ class MetadataModifier:
         self.parameter = parameter
         self.modifiers = []
 
-        process_schema = getattr(process, 'metadata_schemas', {}).get(schema_name)
+        process_schema = getattr(process, "metadata_schemas", {}).get(schema_name)
         if process_schema:
-            for pattern, modifier in getattr(process_schema, '_', {}).items():
+            for pattern, modifier in getattr(process_schema, "_", {}).items():
                 if fnmatch.fnmatch(parameter, pattern):
                     self.add_modifier(modifier)
             modifier = getattr(process_schema, parameter, None)
             self.add_modifier(modifier)
         pipeline = process.get_pipeline()
         if pipeline:
-            pipeline_schema = getattr(pipeline, 'metadata_schemas', {}).get(schema_name)
+            pipeline_schema = getattr(pipeline, "metadata_schemas", {}).get(schema_name)
             if pipeline_schema:
-                nodes_schema = getattr(pipeline_schema, '_nodes', None)
+                nodes_schema = getattr(pipeline_schema, "_nodes", None)
                 if nodes_schema:
                     # node_modifiers = nodes_schema.get(process.name)
                     for pattern, node_modifiers in nodes_schema.items():
@@ -439,53 +471,69 @@ class MetadataModifier:
                                     self.add_modifier(modifier)
 
     def __repr__(self):
-        return f'MetadataModifier({self.process.label}, {self.parameter}, {self.modifiers})'
-    
+        return f"MetadataModifier({self.process.label}, {self.parameter}, {self.modifiers})"
+
     @property
     def is_empty(self):
         return not self.modifiers
-    
+
     def add_modifier(self, modifier):
         if modifier is None:
             return
         if isinstance(modifier, dict) or callable(modifier):
             self.modifiers.append(modifier)
         else:
-            raise ValueError(f'Invalid value for schema modification for parameter {self.parameter}: {modifier}')
-        
+            raise ValueError(
+                f"Invalid value for schema modification for parameter {self.parameter}: {modifier}"
+            )
+
     def apply(self, metadata, process, parameter):
         for modifier in self.modifiers:
             if isinstance(modifier, dict):
                 for k, v in modifier.items():
                     if callable(v):
-                        setattr(metadata, k, v(metadata=metadata, process=process, parameter=parameter))
+                        setattr(
+                            metadata,
+                            k,
+                            v(metadata=metadata, process=process, parameter=parameter),
+                        )
                     else:
                         setattr(metadata, k, v)
             else:
                 modifier(metadata, process, parameter)
 
+
 class Prepend:
-    def __init__(self, key, value, sep='_'):
+    def __init__(self, key, value, sep="_"):
         self.key = key
         self.value = value
         self.sep = sep
-    
+
     def __call__(self, metadata, process, parameter):
-        current_value = getattr(metadata, self.key, '')
-        setattr(metadata, self.key, self.value + (self.sep + current_value if current_value else ''))
+        current_value = getattr(metadata, self.key, "")
+        setattr(
+            metadata,
+            self.key,
+            self.value + (self.sep + current_value if current_value else ""),
+        )
 
     def __repr__(self):
         return f'Prepend({repr(self.key)}, {repr(self.value)}{("" if self.sep == "_" else ", sep=" + repr(self.sep))})'
 
+
 class Append:
-    def __init__(self, key, value, sep='_'):
+    def __init__(self, key, value, sep="_"):
         self.key = key
         self.value = value
         self.sep = sep
-    
+
     def __call__(self, metadata, process, parameter):
-        current_value = getattr(metadata, self.key, '')
-        setattr(metadata, self.key, (current_value + self.sep if current_value else '') + self.value)
+        current_value = getattr(metadata, self.key, "")
+        setattr(
+            metadata,
+            self.key,
+            (current_value + self.sep if current_value else "") + self.value,
+        )
 
     def __repr__(self):
         return f'Append({repr(self.key)}, {repr(self.value)}{("" if self.sep == "_" else ", sep=" + repr(self.sep))})'
@@ -494,30 +542,31 @@ class Append:
 def dprint(debug, *args, _frame_depth=1, **kwargs):
     if debug:
         import inspect
+
         frame = inspect.stack(context=0)[_frame_depth]
         try:
-            head = f'!{frame.function}:{frame.lineno}!'
+            head = f"!{frame.function}:{frame.lineno}!"
         finally:
             del frame
-        print(head, ' '.join(f'{i}' for i in args), file=sys.stderr, **kwargs)
+        print(head, " ".join(f"{i}" for i in args), file=sys.stderr, **kwargs)
 
 
 def dpprint(debug, item):
     if debug:
         from pprint import pprint
+
         dprint(debug=debug, _frame_depth=2, file=sys.stderr)
         pprint(item)
 
 
 class ProcessMetadata(Controller):
-
     def __init__(self, executable, execution_context, datasets=None, debug=False):
         super().__init__()
         self.executable = executable
         self.execution_context = execution_context
         self.datasets = datasets
         self._current_iteration = None
-        self.debug=debug
+        self.debug = debug
 
         self.parameters_per_schema = {}
         self.schema_per_parameter = {}
@@ -544,7 +593,7 @@ class ProcessMetadata(Controller):
                 self.schema_per_parameter[field.name] = schema
                 if field.name in iterative_parameters:
                     self.iterative_schemas.add(schema)
-        
+
         for schema_name in self.parameters_per_schema:
             schema_cls = Dataset.find_schema(schema_name)
             if schema_cls is None:
@@ -557,31 +606,33 @@ class ProcessMetadata(Controller):
                 setattr(self, schema_name, schema_cls())
 
         if self.debug:
-            self.dprint('Create ProcessMetadata for', self.executable.label)
+            self.dprint("Create ProcessMetadata for", self.executable.label)
             for field in process.user_fields():
                 if field.path_type:
                     dataset = self.dataset_per_parameter.get(field.name)
                     schema = self.schema_per_parameter.get(field.name)
-                    self.dprint(f'  {field.name} -> dataset={dataset}, schema={schema}')
-            self.dprint('  Iterative schemas:', self.iterative_schemas)
-    
+                    self.dprint(f"  {field.name} -> dataset={dataset}, schema={schema}")
+            self.dprint("  Iterative schemas:", self.iterative_schemas)
+
     def dprint(self, *args, **kwargs):
         if isinstance(self.debug, bool) and self.debug:
             self.debug = sys.stderr
         if self.debug:
             print(*args, file=self.debug, **kwargs)
-    
+
     def parameter_dataset_name(self, process, field):
-        '''
+        """
         Find the name of the dataset associated to a process parameter
-        '''
+        """
         inner_field = None
         inner_field_name = None
         if isinstance(process, Pipeline):
             # inner_item = next(process.get_linked_items(
             #                     process, field.name, direction=('links_from' if field.is_output() else 'links_to')), None)
-            inner_item = next(process.get_linked_items(
-                                process, field.name, in_outer_pipelines=False), None)
+            inner_item = next(
+                process.get_linked_items(process, field.name, in_outer_pipelines=False),
+                None,
+            )
         else:
             inner_item = None
         if inner_item is not None:
@@ -596,17 +647,18 @@ class ProcessMetadata(Controller):
                 dataset_name = self.datasets.get(field.name)
             # Associates a Dataset name with the field
             if dataset_name is None:
-                dataset_name = getattr(field, 'dataset', None)
+                dataset_name = getattr(field, "dataset", None)
             # fallback 1: get in inner_field (of an inner process)
             if dataset_name is None and inner_field:
-                dataset_name = getattr(inner_field, 'dataset', None)
+                dataset_name = getattr(inner_field, "dataset", None)
             # fallback 3: use "input" or "output"
-            if dataset_name is None and (not self.datasets
-                                         or field.name not in self.datasets):
-                dataset_name = ('output' if field.is_output() else 'input')
+            if dataset_name is None and (
+                not self.datasets or field.name not in self.datasets
+            ):
+                dataset_name = "output" if field.is_output() else "input"
             return dataset_name
         return None
-    
+
     def metadata_modifications(self, process):
         result = {}
         if isinstance(process, ProcessIteration):
@@ -618,45 +670,61 @@ class ProcessMetadata(Controller):
                     else:
                         result[k] = v
         else:
-            for field in process.user_fields():                
+            for field in process.user_fields():
                 if process.plugs[field.name].activated:
-                    self.dprint(f'  Parse schema modifications for {field.name}')
+                    self.dprint(f"  Parse schema modifications for {field.name}")
                     schema = self.schema_per_parameter.get(field.name)
                     if schema:
                         todo = []
                         done = set()
                         if isinstance(process, Pipeline):
-                            stack = list(process.get_linked_items(process, field.name, in_outer_pipelines=True))
+                            stack = list(
+                                process.get_linked_items(
+                                    process, field.name, in_outer_pipelines=True
+                                )
+                            )
                             while stack:
                                 node, node_parameter = stack.pop(0)
-                                self.dprint(f'    connected to {node.full_name}.{node_parameter}')
+                                self.dprint(
+                                    f"    connected to {node.full_name}.{node_parameter}"
+                                )
                                 todo.insert(0, (node, node_parameter))
                                 done.add(node)
                                 if field.is_output():
                                     for node_field in node.user_fields():
-                                        if node.plugs[node_field.name].activated and not node_field.is_output():
-                                            ext = [i for i in 
-                                                   process.get_linked_items(node, 
-                                                                            node_field.name,
-                                                                            process_only=False,
-                                                                            direction='links_from')
-                                                  if isinstance(i[0], Process) and i[0] not in done]
+                                        if (
+                                            node.plugs[node_field.name].activated
+                                            and not node_field.is_output()
+                                        ):
+                                            ext = [
+                                                i
+                                                for i in process.get_linked_items(
+                                                    node,
+                                                    node_field.name,
+                                                    process_only=False,
+                                                    direction="links_from",
+                                                )
+                                                if isinstance(i[0], Process)
+                                                and i[0] not in done
+                                            ]
                                             stack.extend(ext)
                                             done.update(i[0] for i in ext)
                                             if self.debug:
                                                 for n, p in ext:
-                                                    self.dprint(f'        + {n.full_name}.{p}')
+                                                    self.dprint(
+                                                        f"        + {n.full_name}.{p}"
+                                                    )
                         todo.append((process, field.name))
                         for node, node_parameter in todo:
-                            self.dprint(f'    resolve {node.name}.{node_parameter}')
+                            self.dprint(f"    resolve {node.name}.{node_parameter}")
                             modifier = MetadataModifier(schema, node, node_parameter)
                             if not modifier.is_empty:
-                                self.dprint(f'        {modifier.modifiers}')
+                                self.dprint(f"        {modifier.modifiers}")
                                 result.setdefault(field.name, []).append(modifier)
                 else:
-                    self.dprint(f'  {field.name} ignored (inactive)')
+                    self.dprint(f"  {field.name} ignored (inactive)")
         return result
-    
+
     def get_schema(self, schema_name):
         schema = getattr(self, schema_name)
         if isinstance(schema, list):
@@ -669,13 +737,13 @@ class ProcessMetadata(Controller):
     def generate_paths(self, executable):
         if self.debug:
             if self._current_iteration is not None:
-                iteration = f'[{self._current_iteration}]'
+                iteration = f"[{self._current_iteration}]"
             else:
-                iteration = ''
-            self.dprint(f'Generate paths for {executable.name}{iteration}')
+                iteration = ""
+            self.dprint(f"Generate paths for {executable.name}{iteration}")
             for field in executable.user_fields():
                 value = getattr(executable, field.name, undefined)
-                self.dprint('       ', field.name, '=', repr(value))
+                self.dprint("       ", field.name, "=", repr(value))
 
         if isinstance(executable, ProcessIteration):
             empty_iterative_schema = set()
@@ -687,13 +755,19 @@ class ProcessMetadata(Controller):
                         iteration_size = schema_iteration_size
                         first_schema = schema
                     elif iteration_size != schema_iteration_size:
-                        raise ValueError(f'Iteration on schema {first_schema} has {iteration_size} element(s) which is not equal to schema {schema} ({schema_iteration_size} element(s))')
+                        raise ValueError(
+                            f"Iteration on schema {first_schema} has {iteration_size} element(s) which is not equal to schema {schema} ({schema_iteration_size} element(s))"
+                        )
                 else:
                     empty_iterative_schema.add(schema)
-            
+
             for schema in empty_iterative_schema:
-                setattr(self, schema, [Dataset.find_schema(schema)() for i in range(iteration_size)])
-            
+                setattr(
+                    self,
+                    schema,
+                    [Dataset.find_schema(schema)() for i in range(iteration_size)],
+                )
+
             iteration_values = {}
             for iteration in range(iteration_size):
                 self._current_iteration = iteration
@@ -713,34 +787,38 @@ class ProcessMetadata(Controller):
                     source = self.get_schema(schema_name)
                     dest = self.get_schema(other_schema_name)
                     if source and dest:
-                        mapping = Dataset.find_schema_mapping(schema_name, other_schema_name)
+                        mapping = Dataset.find_schema_mapping(
+                            schema_name, other_schema_name
+                        )
                         if mapping:
                             mapping.map_schemas(source, dest)
             if self.debug:
                 for field in self.fields():
-                    self.dprint('  Metadata for', field.name)
+                    self.dprint("  Metadata for", field.name)
                     metadata = self.get_schema(field.name)
                     for f in metadata.fields():
                         v = getattr(metadata, f.name, undefined)
-                        self.dprint('   ', f.name, '=', repr(v))
+                        self.dprint("   ", f.name, "=", repr(v))
             metadata_modifications = self.metadata_modifications(executable)
             for schema, parameters in self.parameters_per_schema.items():
                 for parameter in parameters:
-                    self.dprint(f'  find value for {parameter} in schema {schema}')
+                    self.dprint(f"  find value for {parameter} in schema {schema}")
                     dataset = self.dataset_per_parameter[parameter]
-                    metadata = Dataset.find_schema(schema)(base_path=f'!{{dataset.{dataset}.path}}')
+                    metadata = Dataset.find_schema(schema)(
+                        base_path=f"!{{dataset.{dataset}.path}}"
+                    )
                     s = self.get_schema(schema)
                     if s:
                         metadata.import_dict(s.asdict())
                     for modifier in metadata_modifications.get(parameter, []):
                         modifier.apply(metadata, executable, parameter)
                     try:
-                        path = str(metadata.build_path())   
+                        path = str(metadata.build_path())
                     except Exception:
                         path = undefined
                     if self.debug:
                         for field in metadata.fields():
                             value = getattr(metadata, field.name, undefined)
-                            self.dprint(f'    {field.name} = {repr(value)}')
-                        self.dprint(f'    => {path}')
+                            self.dprint(f"    {field.name} = {repr(value)}")
+                        self.dprint(f"    => {path}")
                     setattr(executable, parameter, path)

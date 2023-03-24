@@ -7,11 +7,12 @@ import sys
 
 
 class DummyProcess(Process):
-    """ Dummy Test Process
-    """
+    """Dummy Test Process"""
+
     def __init__(self, definition):
         super(DummyProcess, self).__init__(
-            'capsul.pipeline.test.test_activation.DummyProcess')
+            "capsul.pipeline.test.test_activation.DummyProcess"
+        )
 
         # inputs
         self.add_field("input_image", File, optional=False)
@@ -26,23 +27,27 @@ class DummyProcess(Process):
 
 
 class MyPipeline(Pipeline):
-    """ Simple Pipeline to test the Switch Node
-    """
-    def pipeline_definition(self):
+    """Simple Pipeline to test the Switch Node"""
 
+    def pipeline_definition(self):
         # Create processes
-        self.add_process("way11",
-            "capsul.pipeline.test.test_activation.DummyProcess")
-        self.add_process("way12",
+        self.add_process("way11", "capsul.pipeline.test.test_activation.DummyProcess")
+        self.add_process(
+            "way12",
             "capsul.pipeline.test.test_activation.DummyProcess",
-            do_not_export=["other_input", "other_output"])
-        self.add_process("way21",
+            do_not_export=["other_input", "other_output"],
+        )
+        self.add_process(
+            "way21",
             "capsul.pipeline.test.test_activation.DummyProcess",
-            do_not_export=["other_input"])
-        self.add_process("way22",
+            do_not_export=["other_input"],
+        )
+        self.add_process(
+            "way22",
             "capsul.pipeline.test.test_activation.DummyProcess",
-            do_not_export=['output_image', 'other_input' ],
-            make_optional=['output_image'])
+            do_not_export=["output_image", "other_input"],
+            make_optional=["output_image"],
+        )
 
         # Inputs
         self.export_parameter("way11", "input_image")
@@ -64,7 +69,6 @@ class MyPipeline(Pipeline):
 
 
 class TestPipeline(unittest.TestCase):
-
     def setUp(self):
         self.pipeline = executable(MyPipeline)
 
@@ -97,8 +101,7 @@ class TestPipeline(unittest.TestCase):
         self.assertFalse(self.pipeline.nodes["way22"].activated)
         self.pipeline.workflow_ordered_nodes()
         workflow_repr = self.pipeline.workflow_ordered_nodes()
-        workflow_repr = '->'.join(x.name.rsplit('.', 1)[-1]
-                                  for x in workflow_repr)
+        workflow_repr = "->".join(x.name.rsplit(".", 1)[-1] for x in workflow_repr)
         self.assertEqual(workflow_repr, "")
 
     def run_unactivation_tests_1(self):
@@ -107,8 +110,7 @@ class TestPipeline(unittest.TestCase):
         self.assertTrue(self.pipeline.nodes["way21"].activated)
         self.assertTrue(self.pipeline.nodes["way22"].activated)
         workflow_repr = self.pipeline.workflow_ordered_nodes()
-        workflow_repr = '->'.join(x.name.rsplit('.', 1)[-1]
-                                  for x in workflow_repr)
+        workflow_repr = "->".join(x.name.rsplit(".", 1)[-1] for x in workflow_repr)
         self.assertEqual(workflow_repr, "way21->way22")
 
     def run_unactivation_tests_2(self):
@@ -117,13 +119,12 @@ class TestPipeline(unittest.TestCase):
         self.assertFalse(self.pipeline.nodes["way21"].activated)
         self.assertFalse(self.pipeline.nodes["way22"].activated)
         workflow_repr = self.pipeline.workflow_ordered_nodes()
-        workflow_repr = '->'.join(x.name.rsplit('.', 1)[-1]
-                                  for x in workflow_repr)
+        workflow_repr = "->".join(x.name.rsplit(".", 1)[-1] for x in workflow_repr)
         self.assertEqual(workflow_repr, "way11->way12")
 
 
 if __name__ == "__main__":
-    if '-v' in sys.argv[1:]:
+    if "-v" in sys.argv[1:]:
         from soma.qt_gui.qt_backend import QtGui
         from capsul.qt_gui.widgets import PipelineDeveloperView
 

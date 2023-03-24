@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
-'''
+"""
 :class:`ReduceNode`
 ------------------------
-'''
+"""
 
 from capsul.process.node import Node, Plug
-from soma.controller import (Controller, File, Union, undefined, Path,
-                             type_from_str)
+from soma.controller import Controller, File, Union, undefined, Path, type_from_str
 
 
 class ReduceNode(Node):
-    '''
+    """
     Reduce node: converts series of inputs into lists. Typically a series of
     inputs named ``input_0`` .. ``input_<n>`` will be output as a single list
     named ``outputs``.
@@ -27,14 +26,22 @@ class ReduceNode(Node):
     * Output parameters names are given as the ``output_names`` parameter. The
       default is ``['outputs']``.
 
-    '''
+    """
 
-    _doc_path = 'api/pipeline.html#reducenode'
+    _doc_path = "api/pipeline.html#reducenode"
 
-    def __init__(self, pipeline, name, input_names=['input_%d'],
-                 output_names=['outputs'], input_types=None):
-        in_fields = [{'name': 'lengths', 'optional': True},
-                     {'name': 'skip_empty', 'optional': True}]
+    def __init__(
+        self,
+        pipeline,
+        name,
+        input_names=["input_%d"],
+        output_names=["outputs"],
+        input_types=None,
+    ):
+        in_fields = [
+            {"name": "lengths", "optional": True},
+            {"name": "skip_empty", "optional": True},
+        ]
         out_fields = []
 
         if input_types:
@@ -44,18 +51,31 @@ class ReduceNode(Node):
         self.input_types = ptypes
 
         for tr in output_names:
-            out_fields.append({'name': tr, 'optional': False})
-        super(ReduceNode, self).__init__(None, pipeline, name, in_fields,
-                                         out_fields)
+            out_fields.append({"name": tr, "optional": False})
+        super(ReduceNode, self).__init__(None, pipeline, name, in_fields, out_fields)
 
         for tr, ptype in zip(output_names, ptypes):
-            self.add_field(tr, list[Union[ptype, type(undefined)]],
-                           output=True, default_factory=list)
-        self.add_field('lengths', list[int], output=False,
-                       doc='lists lengths', default_factory=list)
-        self.add_field('skip_empty', bool, default=False, output=False,
-                       doc='remove empty (Undefined, None, empty strings) '
-                           'from the output lists')
+            self.add_field(
+                tr,
+                list[Union[ptype, type(undefined)]],
+                output=True,
+                default_factory=list,
+            )
+        self.add_field(
+            "lengths",
+            list[int],
+            output=False,
+            doc="lists lengths",
+            default_factory=list,
+        )
+        self.add_field(
+            "skip_empty",
+            bool,
+            default=False,
+            output=False,
+            doc="remove empty (Undefined, None, empty strings) "
+            "from the output lists",
+        )
         self.input_names = input_names
         self.output_names = output_names
         self.lengths = [0] * len(input_names)
@@ -65,8 +85,8 @@ class ReduceNode(Node):
         self.lengths = [1] * len(input_names)
 
     def set_callbacks(self):
-        self.on_attribute_change.add(self.resize_callback, 'lengths')
-        self.on_attribute_change.add(self.reduce_callback, 'skip_empty')
+        self.on_attribute_change.add(self.resize_callback, "lengths")
+        self.on_attribute_change.add(self.reduce_callback, "skip_empty")
 
     def resize_callback(self, value, old_value, name, obj):
         if old_value in (None, undefined):
@@ -101,17 +121,18 @@ class ReduceNode(Node):
                             self.pipeline.remove_link(linkd)
                     del self.plugs[pname]
             for i in range(oval, val):
-                pname =  pname_p % i
+                pname = pname_p % i
                 self.add_field(pname, ptype, output=False, optional=False)
                 plug = self.plugs[pname]
                 plug.on_attribute_change.add(
-                    self.pipeline.update_nodes_and_plugs_activation, "enabled")
+                    self.pipeline.update_nodes_and_plugs_activation, "enabled"
+                )
             if oval != val:
                 ovalue = [getattr(self, pname_p % i, undefined) for i in range(val)]
-                #if isinstance(ptype, (str, Path)):
-                    ## list field doesn't accept undefined as items
-                    #ovalue = [v # if v not in (None, undefined) else ''
-                              #for v in ovalue]
+                # if isinstance(ptype, (str, Path)):
+                ## list field doesn't accept undefined as items
+                # ovalue = [v # if v not in (None, undefined) else ''
+                # for v in ovalue]
                 setattr(self, self.output_names[in_index], ovalue)
 
         # setup new callback
@@ -137,15 +158,16 @@ class ReduceNode(Node):
             in_indices = [in_index]
         for in_index in in_indices:
             output = self.output_names[in_index]
-            value = [getattr(self, pname_p % i, undefined)
-                    for i in range(self.lengths[in_index])]
+            value = [
+                getattr(self, pname_p % i, undefined)
+                for i in range(self.lengths[in_index])
+            ]
             if self.skip_empty:
-                value = [v for v in value
-                         if v not in (None, undefined, '')]
-            #elif isinstance(self.input_types[in_index], (str, Path)):
-                ## list field doesn't accept undefined as items
-                #value = [v # if v not in (None, undefined) else undefined
-                         #for v in value]
+                value = [v for v in value if v not in (None, undefined, "")]
+            # elif isinstance(self.input_types[in_index], (str, Path)):
+            ## list field doesn't accept undefined as items
+            # value = [v # if v not in (None, undefined) else undefined
+            # for v in value]
             setattr(self, output, value)
 
     def configured_controller(self):
@@ -158,35 +180,45 @@ class ReduceNode(Node):
     @classmethod
     def configure_controller(cls):
         c = Controller()
-        c.add_field('input_types', list[str], default_factory=list)
-        c.add_field('input_names', list[str], default_factory=list)
-        c.add_field('output_names', list[str], default_factory=list)
-        c.input_names = ['input_%d']
-        c.output_names = ['outputs']
-        c.input_types = ['File']
+        c.add_field("input_types", list[str], default_factory=list)
+        c.add_field("input_names", list[str], default_factory=list)
+        c.add_field("output_names", list[str], default_factory=list)
+        c.input_names = ["input_%d"]
+        c.output_names = ["outputs"]
+        c.input_types = ["File"]
         return c
 
     @classmethod
     def build_node(cls, pipeline, name, conf_controller):
         t = []
         for ptype in conf_controller.input_types:
-            if ptype not in (None, undefined, 'None', 'NoneType',
-                               '<undefined>'):
+            if ptype not in (None, undefined, "None", "NoneType", "<undefined>"):
                 t.append(type_from_str(ptype))
-        node = ReduceNode(pipeline, name, conf_controller.input_names,
-                          conf_controller.output_names, input_types=t)
+        node = ReduceNode(
+            pipeline,
+            name,
+            conf_controller.input_names,
+            conf_controller.output_names,
+            input_types=t,
+        )
         return node
 
     def params_to_command(self):
-        return ['custom_job']
+        return ["custom_job"]
 
-    def build_job(self, name=None, referenced_input_files=[],
-                  referenced_output_files=[], param_dict=None):
+    def build_job(
+        self,
+        name=None,
+        referenced_input_files=[],
+        referenced_output_files=[],
+        param_dict=None,
+    ):
         from soma_workflow.custom_jobs import MapJob
+
         param_dict = dict(param_dict)
-        param_dict['input_names'] = self.input_names
-        param_dict['output_names'] = self.output_names
-        param_dict['lengths'] = self.lengths
+        param_dict["input_names"] = self.input_names
+        param_dict["output_names"] = self.output_names
+        param_dict["lengths"] = self.lengths
         for index, pname_p in enumerate(self.input_names):
             for i in range(self.lengths[index]):
                 pname = pname_p % i
@@ -195,8 +227,10 @@ class ReduceNode(Node):
             value = getattr(self, output_name, undefined)
             if value not in (None, undefined):
                 param_dict[output_name] = value
-        job = MapJob(name=name,
-                     referenced_input_files=referenced_input_files,
-                     referenced_output_files=referenced_output_files,
-                     param_dict=param_dict)
+        job = MapJob(
+            name=name,
+            referenced_input_files=referenced_input_files,
+            referenced_output_files=referenced_output_files,
+            param_dict=param_dict,
+        )
         return job

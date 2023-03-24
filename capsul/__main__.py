@@ -8,7 +8,7 @@ from .config.configuration import ApplicationConfiguration
 from .qt_gui.widgets.settings_editor import SettingsEditor
 
 
-app_config = ApplicationConfiguration('global_config')
+app_config = ApplicationConfiguration("global_config")
 app = QtGui.QApplication(sys.argv)
 capsul = Capsul()
 w = SettingsEditor(capsul.engine())

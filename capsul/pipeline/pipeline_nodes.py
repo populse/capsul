@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
-'''
+"""
 Specialized Node subclasses for CAPSUL pipeline elements
 
 Classes
 =======
 :class:`Switch`
 ---------------
-'''
+"""
 
 import typing
 
-from soma.controller import (Controller, field,
-                             undefined, Literal, List, type_from_str)
+from soma.controller import Controller, field, undefined, Literal, List, type_from_str
 
 from ..process.node import Plug, Node
 
 
-
 class Switch(Node):
-    """ Switch node to select a specific Process.
+    """Switch node to select a specific Process.
 
     A switch commutes a group of inputs to its outputs, according to its
     "switch" attribute value. Each group may be typically linked to a different
@@ -82,11 +80,12 @@ class Switch(Node):
     capsul.pipeline.pipeline.Pipeline.pipeline_definition
     """
 
-    _doc_path = 'api/pipeline.html#capsul.pipeline.pipeline_nodes.Switch'
+    _doc_path = "api/pipeline.html#capsul.pipeline.pipeline_nodes.Switch"
 
-    def __init__(self, pipeline, name, inputs, outputs, make_optional=(),
-                 output_types=None):
-        """ Generate a Switch Node
+    def __init__(
+        self, pipeline, name, inputs, outputs, make_optional=(), output_types=None
+    ):
+        """Generate a Switch Node
 
         Warnings
         --------
@@ -109,7 +108,7 @@ class Switch(Node):
             default they are mandatory.
         output_types: sequence of types (optional)
             If given, this sequence should have the same size as outputs. It
-            will specify each switch output parameter type. 
+            will specify each switch output parameter type.
             Input parameters for each input block will also have this
             type.
         """
@@ -117,23 +116,28 @@ class Switch(Node):
         # element
         self.__block_output_propagation = False
         if not isinstance(outputs, list):
-            outputs = [outputs, ]
+            outputs = [
+                outputs,
+            ]
         if output_types is not None:
-            if not isinstance(output_types, list) \
-                    and not isinstance(output_types, tuple):
-                raise ValueError(
-                    'output_types parameter should be a list or tuple')
+            if not isinstance(output_types, list) and not isinstance(
+                output_types, tuple
+            ):
+                raise ValueError("output_types parameter should be a list or tuple")
             if len(output_types) != len(outputs):
-                raise ValueError('output_types should have the same number of '
-                                 'elements as outputs')
+                raise ValueError(
+                    "output_types should have the same number of " "elements as outputs"
+                )
         else:
             output_types = [typing.Any] * len(outputs)
 
         # check consistency
         if not isinstance(inputs, list) or not isinstance(outputs, list):
-            raise Exception("The Switch node input and output parameters "
-                            "are inconsistent: expect list, "
-                            "got {0}, {1}".format(type(inputs), type(outputs)))
+            raise Exception(
+                "The Switch node input and output parameters "
+                "are inconsistent: expect list, "
+                "got {0}, {1}".format(type(inputs), type(outputs))
+            )
 
         # private copy of outputs and inputs
         self._outputs = outputs
@@ -142,55 +146,52 @@ class Switch(Node):
         # format inputs and outputs to inherit from Node class
         flat_inputs = []
         for switch_name in inputs:
-            flat_inputs.extend(["{0}_switch_{1}".format(switch_name, plug_name)
-                                for plug_name in outputs])
-        node_inputs = ([dict(name="switch"), ] +
-                       [dict(name=i, optional=True) for i in flat_inputs])
-        node_outputs = [dict(name=i, optional=(i in make_optional))
-                        for i in outputs]
+            flat_inputs.extend(
+                [
+                    "{0}_switch_{1}".format(switch_name, plug_name)
+                    for plug_name in outputs
+                ]
+            )
+        node_inputs = [
+            dict(name="switch"),
+        ] + [dict(name=i, optional=True) for i in flat_inputs]
+        node_outputs = [dict(name=i, optional=(i in make_optional)) for i in outputs]
         # inherit from Node class
-        super().__init__('capsul.pipeline.pipeline_nodes.Switch', pipeline,
-                         name)
+        super().__init__("capsul.pipeline.pipeline_nodes.Switch", pipeline, name)
 
         # add switch enum attribute to select the process
         kwargs = {}
         if len(inputs) != 0:
-            kwargs['default'] = inputs[0]
+            kwargs["default"] = inputs[0]
         self.add_field("switch", Literal[tuple(inputs)], **kwargs)
 
         # add a attribute for each input and each output
         input_types = output_types * len(inputs)
         for ni, type_ in zip(node_inputs[1:], input_types):
-            i = ni['name']
-            optional = ni['optional']
-            self.add_field(i, type_, metadata={
-                'output': False,
-                'optional': optional
-            })
-            if 'write' in self.field(i).metadata():
+            i = ni["name"]
+            optional = ni["optional"]
+            self.add_field(i, type_, metadata={"output": False, "optional": optional})
+            if "write" in self.field(i).metadata():
                 # fix output state for write items
                 del self.field(i).write
                 self.plugs[i].output = False
         for ni, type_ in zip(node_outputs, output_types):
-            i = ni['name']
-            optional = ni['optional']
-            self.add_field(i, type_, metadata={
-                'output': True,
-                'optional': optional
-            })
+            i = ni["name"]
+            optional = ni["optional"]
+            self.add_field(i, type_, metadata={"output": True, "optional": optional})
 
         for node in node_inputs[1:]:
             plug = self.plugs[node["name"]]
             plug.enabled = False
 
         self.on_attribute_change.add(self._any_attribute_changed)
-        self.on_attribute_change.add(self._switch_changed, 'switch')
+        self.on_attribute_change.add(self._switch_changed, "switch")
 
         # activate the switch first Process
         self._switch_changed(self._switch_values[0], undefined)
 
     def _switch_changed(self, new_selection, old_selection):
-        """ Add an event to the switch attribute that enables us to select
+        """Add an event to the switch attribute that enables us to select
         the desired option.
 
         Parameters
@@ -206,8 +207,9 @@ class Switch(Node):
         if old_selection is undefined:
             old_plug_names = []
         else:
-            old_plug_names = [f'{old_selection}_switch_{plug_name}'
-                              for plug_name in self._outputs]
+            old_plug_names = [
+                f"{old_selection}_switch_{plug_name}" for plug_name in self._outputs
+            ]
         for plug_name in old_plug_names:
             self.plugs[plug_name].enabled = False
 
@@ -215,8 +217,9 @@ class Switch(Node):
         if new_selection is undefined:
             new_plug_names = []
         else:
-            new_plug_names = [f'{new_selection}_switch_{plug_name}'
-                              for plug_name in self._outputs]
+            new_plug_names = [
+                f"{new_selection}_switch_{plug_name}" for plug_name in self._outputs
+            ]
         for plug_name in new_plug_names:
             self.plugs[plug_name].enabled = True
 
@@ -226,22 +229,25 @@ class Switch(Node):
         # Refresh the links to the output plugs
         for output_plug_name in self._outputs:
             # Get the associated input name
-            corresponding_input_plug_name = f'{new_selection}_switch_{output_plug_name}'
+            corresponding_input_plug_name = f"{new_selection}_switch_{output_plug_name}"
 
             # Update the output value
-            setattr(self, output_plug_name,
-                    getattr(self, corresponding_input_plug_name, undefined))
+            setattr(
+                self,
+                output_plug_name,
+                getattr(self, corresponding_input_plug_name, undefined),
+            )
 
             # Propagate the associated field documentation
             out_field = self.field(output_plug_name)
             in_field = self.field(corresponding_input_plug_name)
-            out_field.doc = in_field.metadata('doc', None)
+            out_field.doc = in_field.metadata("doc", None)
 
         self.pipeline.restore_update_nodes_and_plugs_activation()
         self.__block_output_propagation = False
 
     def connections(self):
-        """ Returns the current internal connections between input and output
+        """Returns the current internal connections between input and output
         plugs
 
         Returns
@@ -250,8 +256,10 @@ class Switch(Node):
             list of internal connections
             [(input_plug_name, output_plug_name), ...]
         """
-        return [(f'{self.switch}_switch_{plug_name}', plug_name)
-                for plug_name in self._outputs]
+        return [
+            (f"{self.switch}_switch_{plug_name}", plug_name)
+            for plug_name in self._outputs
+        ]
 
     def _any_attribute_changed(self, new, old, name):
         """Callback linked to the switch attribute modification that enables
@@ -278,17 +286,20 @@ class Switch(Node):
         # However those inputs which are connected to a pipeline input are
         # not propagated, to avoid cyclic feedback between outputs and inputs
         # inside a pipeline
-        if hasattr(self, '_outputs') and not self.__block_output_propagation \
-                and name in self._outputs:
+        if (
+            hasattr(self, "_outputs")
+            and not self.__block_output_propagation
+            and name in self._outputs
+        ):
             self.__block_output_propagation = True
-            flat_inputs = [f'{switch_name}_switch_{name}'
-                           for switch_name in self._switch_values]
+            flat_inputs = [
+                f"{switch_name}_switch_{name}" for switch_name in self._switch_values
+            ]
             for input_name in flat_inputs:
                 # check if input is connected to a pipeline input
                 plug = self.plugs[input_name]
                 for link_spec in plug.links_from:
-                    if isinstance(link_spec[2], Pipeline) \
-                            and not link_spec[3].output:
+                    if isinstance(link_spec[2], Pipeline) and not link_spec[3].output:
                         break
                 else:
                     setattr(self, input_name, new)
@@ -312,7 +323,7 @@ class Switch(Node):
             return []
         plug = self.plugs[plug_name]
         if plug.output:
-            connected_plug_name = '%s_switch_%s' % (self.switch, plug_name)
+            connected_plug_name = "%s_switch_%s" % (self.switch, plug_name)
         else:
             splitter = plug_name.split("_switch_")
             if len(splitter) != 2:
@@ -344,38 +355,45 @@ class Switch(Node):
             if field.is_output():
                 continue
             plug = self.plugs[field.name]
-            ps = plug.split('_switch_')
-            if len(ps) == 2 and self.field(ps[1]) is not None \
-                    and self.field(ps[1]).is_output():
+            ps = plug.split("_switch_")
+            if (
+                len(ps) == 2
+                and self.field(ps[1]) is not None
+                and self.field(ps[1]).is_output()
+            ):
                 inputs.append(ps[0])
         return inputs
 
     @classmethod
     def configure_controller(cls):
         c = Controller()
-        c.add_field('inputs', List[str])
-        c.add_field('outputs', List[str])
-        c.add_field('optional_params', List[str], default_factory=lambda: [])
-        c.add_field('output_types', List[str])
-        c.inputs = ['input_1', 'input_2']
-        c.outputs = ['output']
-        c.output_types = ['Any']
+        c.add_field("inputs", List[str])
+        c.add_field("outputs", List[str])
+        c.add_field("optional_params", List[str], default_factory=lambda: [])
+        c.add_field("output_types", List[str])
+        c.inputs = ["input_1", "input_2"]
+        c.outputs = ["output"]
+        c.output_types = ["Any"]
         return c
 
     def configured_controller(self):
         c = self.configure_controller()
-        c.outputs = [field.name for field in self.fields()  # noqa: F811
-                     if field.is_output()]
+        c.outputs = [
+            field.name for field in self.fields() if field.is_output()  # noqa: F811
+        ]
         c.inputs = self.get_switch_inputs()
-        c.output_types = [self.field(p).type_str()
-                          for p in self.outputs]
+        c.output_types = [self.field(p).type_str() for p in self.outputs]
         c.optional_params = [self.field(p).optional for p in self.inputs]
         return c
 
     @classmethod
     def build_node(cls, pipeline, name, conf_controller):
-        node = Switch(pipeline, name, conf_controller.inputs,
-                      conf_controller.outputs,
-                      make_optional=conf_controller.optional_params,
-                      output_types=[type_from_str(x) for x in conf_controller.output_types])
+        node = Switch(
+            pipeline,
+            name,
+            conf_controller.inputs,
+            conf_controller.outputs,
+            make_optional=conf_controller.optional_params,
+            output_types=[type_from_str(x) for x in conf_controller.output_types],
+        )
         return node

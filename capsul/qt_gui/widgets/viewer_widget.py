@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-'''
+"""
 Result viewer
 
 Classes
 =======
 :class:`ViewerWidget`
 ---------------------
-'''
+"""
 
 # System import
 import logging
@@ -25,11 +25,10 @@ except AttributeError:
 
 
 class ViewerWidget(QtGui.QWidget):
-    """ View result class
-    """
+    """View result class"""
 
     def __init__(self, viewer_node_name, pipeline, study_config):
-        """ Method to initialize a ViewerWidget class.
+        """Method to initialize a ViewerWidget class.
 
         Parameters
         ----------
@@ -52,14 +51,16 @@ class ViewerWidget(QtGui.QWidget):
         button.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         button.setMinimumHeight(50)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/icones/view_result")),
-                       QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(
+            QtGui.QPixmap(_fromUtf8(":/icones/view_result")),
+            QtGui.QIcon.Normal,
+            QtGui.QIcon.Off,
+        )
         button.setIcon(icon)
         button.clicked.connect(self.onCreateViewerClicked)
 
     def onCreateViewerClicked(self):
-        """ Event to create the viewer
-        """
+        """Event to create the viewer"""
         # Get the viewer node and process
         viewer_node = self.pipeline.nodes[self.viewer_node_name]
         viewer_process = viewer_node
@@ -69,17 +70,19 @@ class ViewerWidget(QtGui.QWidget):
         # are specified -> corresponding process have run)
         is_viewer_active = True
         for plug_name, plug in viewer_node.plugs.items():
-
             if plug_name in ["nodes_activation", "selection_changed"]:
                 continue
 
             # Since it is a viewer node we normally have only inputs
-            for (source_node_name, source_plug_name, source_node,
-                 source_plug, weak_link) in plug.links_from:
-
+            for (
+                source_node_name,
+                source_plug_name,
+                source_node,
+                source_plug,
+                weak_link,
+            ) in plug.links_from:
                 # Get the source plug value and source field
-                source_plug_value = getattr(source_node,
-                                            source_plug_name, undefined)
+                source_plug_value = getattr(source_node, source_plug_name, undefined)
                 source_field = source_node.field(source_plug_name)
 
                 # Check if the viewer is active:
@@ -88,9 +91,7 @@ class ViewerWidget(QtGui.QWidget):
                     is_viewer_active = False
                     break
                 # 2) if the plug is a file, the file exists
-                if source_field.is_file() \
-                        and not os.path.isfile(source_plug_value):
-
+                if source_field.is_file() and not os.path.isfile(source_plug_value):
                     is_viewer_active = False
                     break
 
@@ -107,6 +108,8 @@ class ViewerWidget(QtGui.QWidget):
             soma.subprocess.Popen(viewer_process.get_commandline())
             # self.study_config.run(viewer_process)
         else:
-            logging.error("The viewer is not active yet, maybe "
-                          "because the processings steps have not run or are "
-                          "not finished.")
+            logging.error(
+                "The viewer is not active yet, maybe "
+                "because the processings steps have not run or are "
+                "not finished."
+            )

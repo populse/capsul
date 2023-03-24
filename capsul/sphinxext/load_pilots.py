@@ -15,7 +15,7 @@ import logging
 
 
 def load_pilots(root, path, root_module_name):
-    """ Load all the pilot functions.
+    """Load all the pilot functions.
 
     Path is recursively scanned for ``__init__.py`` files.
     Any function declared inside whose name start with ``pilot_`` will be
@@ -44,8 +44,7 @@ def load_pilots(root, path, root_module_name):
     for item in items:
         # If a directory is found, try to load the potential module
         if os.path.isdir(os.path.join(path, item)):
-            sub_pilots = load_pilots(
-                root, os.path.join(path, item), root_module_name)
+            sub_pilots = load_pilots(root, os.path.join(path, item), root_module_name)
             pilots.update(sub_pilots)
 
     # Check if we are in a valid python module
@@ -56,14 +55,15 @@ def load_pilots(root, path, root_module_name):
     for fname in items:
         # Check if the file is a python file
         if fname.endswith(".py"):
-            if fname == '__main__.py':
+            if fname == "__main__.py":
                 # skip main
                 continue
             # Construct the module name
             module_name = (
-                [root_module_name] +
-                path[len(os.path.normpath(root)) + 1:].split(os.path.sep) +
-                [os.path.splitext(fname)[0]])
+                [root_module_name]
+                + path[len(os.path.normpath(root)) + 1 :].split(os.path.sep)
+                + [os.path.splitext(fname)[0]]
+            )
             module_name = ".".join([x for x in module_name if x])
 
             # Try to load the module from its string description
@@ -75,12 +75,12 @@ def load_pilots(root, path, root_module_name):
                 for function in dir(module):
                     if function.startswith("pilot_"):
                         pilots.setdefault(module_name, []).append(
-                            getattr(module, function))
+                            getattr(module, function)
+                        )
 
             # An api exists, but it cannot be imported
             except ImportError as e:
-                logging.debug(
-                    "Could not import {0}: {1}".format(module_name, e))
+                logging.debug("Could not import {0}: {1}".format(module_name, e))
                 raise
 
     return pilots

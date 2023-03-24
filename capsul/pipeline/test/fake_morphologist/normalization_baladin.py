@@ -8,13 +8,37 @@ from soma.controller import File, Directory, undefined, Literal
 class Normalization_Baladin(Process):
     def __init__(self, **kwargs):
         super(Normalization_Baladin, self).__init__(**kwargs)
-        self.name = 'NormalizeBaladin'
+        self.name = "NormalizeBaladin"
 
-        self.add_field("anatomy_data", File, read=True, allowed_extensions=['.ima', '.dim'], write=False)
-        self.add_field("anatomical_template", File, read=True, allowed_extensions=['.ima', '.dim'], write=False)
-        self.anatomical_template = '/casa/host/build/share/brainvisa-share-5.1/anatomical_templates/MNI152_T1_1mm.nii.gz'
-        self.add_field("transformation_matrix", File, write=True, allowed_extensions=['.txt'], read=True)
-        self.add_field("normalized_anatomy_data", File, write=True, allowed_extensions=['.ima', '.dim', '.nii', '.nii.gz'], read=True)
+        self.add_field(
+            "anatomy_data",
+            File,
+            read=True,
+            allowed_extensions=[".ima", ".dim"],
+            write=False,
+        )
+        self.add_field(
+            "anatomical_template",
+            File,
+            read=True,
+            allowed_extensions=[".ima", ".dim"],
+            write=False,
+        )
+        self.anatomical_template = "/casa/host/build/share/brainvisa-share-5.1/anatomical_templates/MNI152_T1_1mm.nii.gz"
+        self.add_field(
+            "transformation_matrix",
+            File,
+            write=True,
+            allowed_extensions=[".txt"],
+            read=True,
+        )
+        self.add_field(
+            "normalized_anatomy_data",
+            File,
+            write=True,
+            allowed_extensions=[".ima", ".dim", ".nii", ".nii.gz"],
+            read=True,
+        )
 
     def execute(self, context):
         outputs = []
@@ -25,17 +49,18 @@ class Normalization_Baladin(Process):
                     outputs.append(name)
                     continue
                 filename = getattr(self, name, undefined)
-                if filename not in (None, undefined, ''):
+                if filename not in (None, undefined, ""):
                     if not os.path.exists(filename):
                         raise ValueError(
-                          'Input parameter: %s, file %s does not exist'
-                          % (name, repr(filename)))
+                            "Input parameter: %s, file %s does not exist"
+                            % (name, repr(filename))
+                        )
 
         for name in outputs:
             field = self.field(name)
             filename = getattr(self, name, undefined)
-            if filename not in (None, undefined, ''):
-                with open(filename, 'w') as f:
-                    f.write('class: %s\n' % self.__class__.__name__)
-                    f.write('name: %s\n' % self.name)
-                    f.write('parameter: %s\n' % name)
+            if filename not in (None, undefined, ""):
+                with open(filename, "w") as f:
+                    f.write("class: %s\n" % self.__class__.__name__)
+                    f.write("name: %s\n" % self.name)
+                    f.write("parameter: %s\n" % name)
