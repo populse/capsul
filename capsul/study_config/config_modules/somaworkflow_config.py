@@ -60,7 +60,7 @@ class SomaWorkflowConfig(StudyConfigModule):
 
     The configuration module may also store connected Soma-Workflow
     :somaworkflow:`WorkflowController <client_API.html>` objects to allow
-    monitoring and submiting workflows.
+    monitoring and submitting workflows.
 
     Attributes
     ----------

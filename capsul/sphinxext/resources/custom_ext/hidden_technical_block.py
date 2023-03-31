@@ -103,7 +103,7 @@ def visit_htb_html(self, node):
     global HTB_COUNTER
     HTB_COUNTER += 1
 
-    # Vist the node
+    # Visit the node
     self.visit_admonition(node)
 
     # Get the last element of the html body

@@ -163,7 +163,7 @@ class Pipeline(Process):
     Attributes
     ----------
     nodes: dict {node_name: node}
-        a dictionary containing the pipline nodes and where the pipeline node
+        a dictionary containing the pipeline nodes and where the pipeline node
         name is ''
     workflow_list: list
         a list of odered nodes that can be executed

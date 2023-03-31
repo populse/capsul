@@ -294,7 +294,7 @@ class StudyConfig(Controller):
     def run(self, process_or_pipeline, output_directory= None,
             execute_qc_nodes=True, verbose=0, configuration_dict=None,
             **kwargs):
-        """Method to execute a process or a pipline in a study configuration
+        """Method to execute a process or a pipeline in a study configuration
          environment.
 
          Depending on the studies_config settings, it may be a sequential run,

@@ -169,13 +169,13 @@ def find_pipeline_and_process(module_name):
 
 
 def lists2dict(list_of_pipeline_description, url, d):
-    """ Convert a list of splited module names to a hierachic dictionary with
+    """ Convert a list of split module names to a hierachic dictionary with
     list leafs that contain the url to the module docuementation.
 
     Parameters
     ----------
     list_of_pipeline_description: list of list of str (mandatory)
-        the splited module names to organize by modules
+        the split module names to organize by modules
     url: str (mandatory)
         the url to the module documentation
 
