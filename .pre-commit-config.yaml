@@ -1,6 +1,6 @@
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.1.0  # DO NOT UPDATE: last version to be compatible with Python 3.6
+    rev: v4.4.0  # DO NOT UPDATE: last version to be compatible with Python 3.6
     hooks:
     -   id: check-added-large-files
     -   id: check-case-conflict
@@ -20,7 +20,7 @@ repos:
     #-   id: trailing-whitespace  # not ready yet
 
 -   repo: https://github.com/PyCQA/flake8
-    rev: 3.9.2
+    rev: 6.0.0
     hooks:
     -   id: flake8
         name: flake8 under python3
