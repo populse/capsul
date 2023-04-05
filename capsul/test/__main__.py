@@ -14,6 +14,10 @@ parser.add_argument('--html',
                     metavar='DIRECTORY',
                     help='Create tests and coverage HTML reports in given '
                     'directory. Entrypoints are test.html and index.html')
+parser.add_argument('-v', '--verbose', 
+                    action='count',
+                    default=0,
+                    help='Increase verbosity')
 parser.add_argument('-x', '--exitfirst', 
                     action='store_true',
                     help='Exit instantly on first error or failed test')
@@ -39,22 +43,24 @@ parser.add_argument('-k',
                         'matching is case-insensitive.')
 
 args = parser.parse_args()
+pytest_command = [sys.executable, '-m', 'pytest']
+if args.verbose:
+    pytest_command.append('-' + 'v' * args.verbose)
+if args.exitfirst:
+    pytest_command.append('-x')
+if args.keyword:
+    pytest_command += ['-k', args.keyword]
+capsul_src = Path(__file__).parent.parent
 if args.html:
     Path(args.html).mkdir(exist_ok=True)
-    pytest_command = [sys.executable, '-m', 'pytest', '--cov=capsul',
-                    '--html={}/tests.html'.format(args.html)]
-    if args.exitfirst:
-        pytest_command.append('-x')
-    if args.keyword:
-        pytest_command.extend(['-k', args.keyword])
+    pytest_command += ['--cov=capsul',
+                       '--html={}/tests.html'.format(args.html)]
     coverage_command = [sys.executable, '-m', 'coverage', 'html', '-d', args.html]
     env = os.environ.copy()
     print(' '.join("'{}'".format(i) for i in pytest_command))
-    subprocess.check_call(pytest_command, env=env)
+    subprocess.check_call(pytest_command, env=env, cwd=capsul_src)
     print(' '.join("'{}'".format(i) for i in coverage_command))
     subprocess.check_call(coverage_command)
 else:
-    pytest_command = [sys.executable, '-m', 'pytest']
-    coverage_command = [sys.executable, '-m', 'coverage', 'html', '-d', 'coverage']
     print(' '.join("'{}'".format(i) for i in pytest_command))
-    subprocess.check_call(pytest_command)
+    subprocess.check_call(pytest_command, cwd=capsul_src)
