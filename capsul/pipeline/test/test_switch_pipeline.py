@@ -4,7 +4,8 @@ import sys
 import unittest
 import os
 from capsul.api import Process, executable
-from capsul.api import Pipeline
+from capsul.api import Pipeline, CapsulWorkflow
+from soma.api import DictWithProxy
 from soma.controller import undefined
 
 
@@ -171,36 +172,21 @@ class TestSwitchPipeline(unittest.TestCase):
                 is_weak = is_weak or wl
         self.assertFalse(is_weak)
 
-    @unittest.skip('reimplementation expected for capsul v3')
-    def test_parameter_propagation(self):
-        self.pipeline.switch = "one"
-        key = "test"
-        self.pipeline.input_image = key
-        # Test first level
-        self.assertEqual(self.pipeline.nodes["node"].input_image, key)
-        # Test second level
-        self.pipeline.nodes["node"].execute(None)
-        self.assertEqual(self.pipeline.nodes["way1"].input_image, key)
-        self.pipeline.switch = "two"
-        self.assertEqual(self.pipeline.nodes["way21"].input_image, key)
-
 
 if __name__ == "__main__":
-    if '-v' in sys.argv:
-        import sys
-        from soma.qt_gui import qt_backend
-        from soma.qt_gui.qt_backend import QtGui
-        from capsul.qt_gui.widgets import PipelineDeveloperView
+    from soma.qt_gui import qt_backend
+    from soma.qt_gui.qt_backend import QtGui
+    from capsul.qt_gui.widgets import PipelineDeveloperView
 
-        app = QtGui.QApplication.instance()
-        if not app:
-            app = QtGui.QApplication(sys.argv)
-        pipeline = executable(SwitchPipeline)
-        pipeline.switch = "one"
-        pipeline.input_image = 'test'
-        pipeline.nodes["node"].execute(None)
-        view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True,
-                                       allow_open_controller=True)
-        view1.show()
-        app.exec_()
-        del view1
+    app = QtGui.QApplication.instance()
+    if not app:
+        app = QtGui.QApplication(sys.argv)
+    pipeline = executable(SwitchPipeline)
+    pipeline.switch = "one"
+    pipeline.input_image = 'test'
+    pipeline.nodes["node"].execute(None)
+    view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True,
+                                    allow_open_controller=True)
+    view1.show()
+    app.exec_()
+    del view1

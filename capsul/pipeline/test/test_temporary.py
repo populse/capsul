@@ -1,23 +1,22 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import absolute_import
 
 import unittest
 import os
 import sys
 import tempfile
-from soma.controller import File, field, undefined
-from capsul.api import Process, Pipeline, executable
+from soma.controller import File, field
+from capsul.api import Process, Pipeline, Capsul
 from soma_workflow import configuration as swconfig
 import shutil
 from six.moves import zip
+
 
 class DummyProcess1(Process):
     """ Dummy Test Process
     """
     input: File
     nb_outputs: int = 0
-    output: list[File] = field(write=True, default_factory=list)
+    output: field(type_=list[File], write=True, default_factory=list)
 
     def __init__(self, definition):
         super().__init__(definition)
@@ -26,20 +25,18 @@ class DummyProcess1(Process):
 
     def nb_outputs_changed(self):
         if len(self.output) != self.nb_outputs:
-            if len(self.output) > self.nb_outputs:
-                self.output = self.output[:self.nb_outputs]
-            else:
-                self.output \
-                    = self.output + [""] * (self.nb_outputs - len(self.output))
-
+            self.output = [''] * self.nb_outputs
+            if self.pipeline:
+                self.pipeline.dispatch_value(self, 'output', self.output)
+    
     def execute(self, context=None):
         pass
 
 class DummyProcess2(Process):
     """ Dummy Test Process
     """
-    input: list[File] = field(default_factory=list)
-    output: list[File] = field(write=True, default_factory=list)
+    input: field(type_=list[File], default_factory=list)
+    output: field(type_=list[File], write=True, default_factory=list)
 
     def __init__(self, definition):
         super().__init__(definition)
@@ -47,13 +44,10 @@ class DummyProcess2(Process):
         self.on_attribute_change.add(self.inputs_changed, "input")
 
     def inputs_changed(self):
-        nout = len(self.output)
-        nin = len(self.input)
-        if nout != nin:
-            if nout > nin:
-                self.output = self.output[:nin]
-            else:
-                self.output = self.output + [""] * (nin - nout)
+        if len(self.output) != len(self.input):
+            self.output = [''] * len(self.input)
+            if self.pipeline:
+                self.pipeline.dispatch_value(self, 'output', self.output)
 
     def execute(self, context=None):
         for in_filename, out_filename in zip(self.input, self.output):
@@ -63,8 +57,8 @@ class DummyProcess2(Process):
 class DummyProcess3(Process):
     """ Dummy Test Process
     """
-    input: list[File] = field(default_factory=list)
-    output: File = field(write=True)
+    input: field(type_=list[File], default_factory=list)
+    output: field(type_=File, write=True)
 
     def __init__(self, definition):
         super().__init__(definition)
@@ -91,6 +85,10 @@ class DummyPipeline(Pipeline):
         # Links
         self.add_link("node1.output->node2.input")
         self.add_link("node2.output->node3.input")
+
+        # find_temporary_to_generate(self)
+        # self.nodes["node1"].on_attribute_change.add(self.nb_outputs_changed, "nb_outputs")
+
         # Outputs
         #self.export_parameter("node1", "output",
                               #pipeline_parameter="output1",
@@ -143,7 +141,7 @@ def tearDownModule():
 class TestTemporary(unittest.TestCase):
 
     def setUp(self):
-        self.pipeline = executable(DummyPipeline)
+        self.pipeline = Capsul.executable(DummyPipeline)
 
         tmpout = tempfile.mkstemp('.txt', prefix='capsul_test_')
         os.close(tmpout[0])
@@ -152,6 +150,9 @@ class TestTemporary(unittest.TestCase):
         self.output = tmpout[1]
         self.pipeline.input = '/tmp/file_in.nii'
         self.pipeline.output = self.output
+
+        # Create Capsul singleton
+        Capsul()
         # study_config = StudyConfig(modules=['SomaWorkflowConfig'])
         # study_config.input_directory = '/tmp'
         # study_config.somaworkflow_computing_resource = 'localhost'
@@ -164,23 +165,13 @@ class TestTemporary(unittest.TestCase):
         if '--keep-tmp' not in sys.argv[1:]:
             if os.path.exists(self.output):
               os.unlink(self.output)
+        Capsul.delete_singleton()
 
-    @unittest.skip('reimplementation expected for capsul v3')
-    def test_structure(self):
-        self.pipeline.nb_outputs = 3
-        self.assertEqual(self.pipeline.nodes["node2"].input,
-                         ["", "", ""])
-        self.assertEqual(self.pipeline.nodes["node2"].output,
-                         ["", "", ""])
 
-    @unittest.skip('reimplementation expected for capsul v3')
-    def test_direct_run(self):
+    def test_direct_run_temporary(self):
         self.pipeline.nb_outputs = 3
-        self.pipeline()
-        self.assertEqual(self.pipeline.nodes["node2"].process.input,
-                         ["", "", ""])
-        self.assertEqual(self.pipeline.nodes["node2"].process.output,
-                         ["", "", ""])
+        with Capsul().engine() as ce:
+            ce.run(self.pipeline, timeout=5)
         with open(self.pipeline.output) as f:
             res_out = f.readlines()
         self.assertEqual(len(res_out), 3)
@@ -200,25 +191,18 @@ class TestTemporary(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    verbose = False
-    if len(sys.argv) >= 2 and sys.argv[1] in ('-v', '--verbose'):
-        verbose = True
+    from soma.qt_gui import qt_backend
+    qt_backend.set_qt_backend(compatible_qt5=True)
+    from soma.qt_gui.qt_backend import QtGui
+    from capsul.qt_gui.widgets import PipelineDeveloperView
 
-
-    if verbose:
-        import sys
-        from soma.qt_gui import qt_backend
-        qt_backend.set_qt_backend(compatible_qt5=True)
-        from soma.qt_gui.qt_backend import QtGui
-        from capsul.qt_gui.widgets import PipelineDeveloperView
-
-        app = QtGui.QApplication(sys.argv)
-        pipeline = DummyPipeline()
-        pipeline.input = '/tmp/file_in.nii'
-        pipeline.output = '/tmp/file_out3.nii'
-        pipeline.nb_outputs = 3
-        view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True,
-                                       allow_open_controller=True)
-        view1.show()
-        app.exec_()
-        del view1
+    app = QtGui.QApplication(sys.argv)
+    pipeline = Capsul.executable(DummyPipeline)
+    pipeline.input = '/tmp/file_in.nii'
+    pipeline.output = '/tmp/file_out3.nii'
+    pipeline.nb_outputs = 3
+    view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True,
+                                    allow_open_controller=True)
+    view1.show()
+    app.exec_()
+    del view1
