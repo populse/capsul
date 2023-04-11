@@ -176,19 +176,6 @@ class TestTemporary(unittest.TestCase):
             res_out = f.readlines()
         self.assertEqual(len(res_out), 3)
 
-    @unittest.skip('reimplementation expected for capsul v3')
-    def test_full_wf(self):
-        self.pipeline.nb_outputs = 3
-        result = self.study_config.run(self.pipeline, verbose=True)
-        self.assertEqual(result, None)
-        self.assertEqual(self.pipeline.nodes["node2"].process.input,
-                         ["", "", ""])
-        self.assertEqual(self.pipeline.nodes["node2"].process.output,
-                         ["", "", ""])
-        with open(self.pipeline.output) as f:
-            res_out = f.readlines()
-        self.assertEqual(len(res_out), 3)
-
 
 if __name__ == "__main__":
     from soma.qt_gui import qt_backend
