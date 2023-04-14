@@ -67,13 +67,13 @@ jobs:
         pip install .
         pip install pytest notebook
     
-    - name: Test
-      run: |
-        python -m capsul.test
-    
     # Enable tmate debugging of manually-triggered workflows if the input option was provided
     - name: Setup tmate session
       uses: mxschmitt/action-tmate@v3
-      if: ${{ inputs.debug_enabled }}        
+      if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}        
       with:
         sudo: false
+
+    - name: Test
+      run: |
+        python -m capsul.test
