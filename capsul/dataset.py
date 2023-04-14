@@ -88,7 +88,7 @@ class MetadataSchema(Controller):
     def __init_subclass__(cls) -> None:
         result = super().__init_subclass__()
         Dataset.schemas[cls.schema_name] = cls
-        return result
+        return result    
 
     def __init__(self, base_path='', **kwargs):
         super().__init__(**kwargs)
@@ -542,7 +542,7 @@ class ProcessMetadata(Controller):
                 schema = dataset.metadata_schema
                 self.parameters_per_schema.setdefault(schema, []).append(field.name)
                 self.schema_per_parameter[field.name] = schema
-                if field.name in iterative_parameters:
+                if field.is_list() or field.name in iterative_parameters:
                     self.iterative_schemas.add(schema)
         
         for schema_name in self.parameters_per_schema:
@@ -657,11 +657,14 @@ class ProcessMetadata(Controller):
                     self.dprint(f'  {field.name} ignored (inactive)')
         return result
     
-    def get_schema(self, schema_name):
+    def get_schema(self, schema_name, index=None):
         schema = getattr(self, schema_name)
         if isinstance(schema, list):
             if schema:
-                schema = schema[self._current_iteration]
+                if index is not None:
+                    schema = schema[index]
+                else:
+                    schema = schema[self._current_iteration]
             else:
                 schema = None
         return schema

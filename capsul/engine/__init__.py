@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
-import json
 import os
 import subprocess
 import sys
 
-from soma.controller import Controller
+from soma.controller import Controller, undefined
 
 from ..execution_context import CapsulWorkflow, ExecutionContext
 from ..config.configuration import ModuleConfiguration
@@ -132,10 +131,17 @@ class Engine:
     def execution_context(self, executable):
         return execution_context(self.label, self.config, executable)
 
-    def start(self, executable, debug=False, **kwargs):
+    def assess_ready_to_start(self, executable):
+        missing = []
+        for field in executable.user_fields():
+            value = getattr(executable, field.name)
+            if value is undefined and not field.optional and not field.is_output():
+                missing.append(field.name)
+        if missing:
+            raise ValueError(f'Value missing for the following parameters: {", ".join(missing)}')
+    
+    def start(self, executable, debug=False):
         # Starts workers if necessary
-        for name, value in kwargs.items():
-            setattr(executable, name, value)
         econtext = self.execution_context(executable)
         workflow = CapsulWorkflow(executable, debug=debug)
         # from pprint import pprint
@@ -185,7 +191,10 @@ class Engine:
 
 
     def run(self, executable, timeout=None, print_report=False, debug=False, **kwargs):
-        execution_id = self.start(executable, debug=debug, **kwargs)
+        for k, v in kwargs.items():
+            setattr(executable, k, v)
+        self.assess_ready_to_start(executable)
+        execution_id = self.start(executable, debug=debug)
         try:
             try:
                 self.wait(execution_id, timeout=timeout)

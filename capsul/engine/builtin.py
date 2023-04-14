@@ -42,7 +42,7 @@ def worflow_loop(db_config, engine_id):
                         execution_id,
                         job_uuid,
                         same_python=True,
-                        debug=True,
+                        debug=False,
                     )
                     # print(f'!worker {worker_id}! job', execution_id, job_uuid, database.job_finished)
                     database.job_finished(engine_id, execution_id, job_uuid, 

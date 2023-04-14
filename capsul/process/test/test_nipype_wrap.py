@@ -96,7 +96,6 @@ class TestNipypeWrap(unittest.TestCase):
             # default is nifti
             self.output_extension = '.nii'
 
-    #@unittest.skip('reimplementation expected for capsul v3')
     @unittest.skipIf(nipype is None, 'nipype is not installed')
     def test_nipype_automatic_wrap(self):
         """ Method to test if the automatic nipype interfaces wrap work
@@ -107,7 +106,6 @@ class TestNipypeWrap(unittest.TestCase):
         self.assertTrue(isinstance(nipype_process, NipypeProcess))
         self.assertTrue(isinstance(nipype_process._nipype_interface, BET))
 
-    #@unittest.skip('reimplementation expected for capsul v3')
     @unittest.skipIf(nipype is None, 'nipype is not installed')
     def test_nipype_monkey_patching(self):
         """ Method to test the monkey patching used to work in user

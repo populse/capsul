@@ -10,7 +10,7 @@ import unittest
 from soma.controller import File, field
 
 from capsul.api import Process, executable, Capsul
-from ...dataset import Dataset, MetadataSchema
+from ...dataset import MetadataSchema
 from capsul.dataset import ProcessSchema, ProcessMetadata
 
 
@@ -179,44 +179,13 @@ class TestCompletion(unittest.TestCase):
                           f'{temp_home_dir}/out/DummyProcess_bidule_muppets_stalter',
                           f'{temp_home_dir}/out/DummyProcess_bidule_muppets_waldorf'])
 
-    @unittest.skip('Not working yet')
-    def test_list_completion(self):
-        process = executable(
-            'capsul.process.test.test_metadata_schema.DummyListProcess')
-        execution_context = Capsul().engine().execution_context(process)
-
-        metadata = ProcessMetadata(process, execution_context)
-
-        metadata.custom = [
-            {
-                'center': 'jojo',
-                'subject': 'barbapapa',
-                'group': 'cartoon',
-            },
-            {
-                'center': 'koko',
-                'subject': 'barbatruc',
-                'group': 'cartoon',
-            }]
-
-        metadata.generate_paths(process)
-        process.resolve_paths(execution_context)
-        self.assertEqual([os.path.normpath(p) for p in process.truc],
-                         [f'{temp_home_dir}/in/DummyListProcess_truc_jojo_barbapapa',
-                          f'{temp_home_dir}/in/DummyListProcess_truc_koko_barbatruc',])
-        self.assertEqual([os.path.normpath(p) for p in process.bidule],
-                         [f'{temp_home_dir}/in/DummyListProcess_bidule_jojo_barbapapa',
-                          f'{temp_home_dir}/in/DummyListProcess_bidule_koko_barbatruc']
-        )
-        self.assertEqual(os.path.normpath(process.result),
-                         f'{temp_home_dir}/out/DummyListProcess_result_cartoon')
-
 
     def test_run_iteraton(self):
 
         pipeline = Capsul().executable_iteration(
             'capsul.process.test.test_metadata_schema.DummyProcess',
             iterative_plugs=['truc', 'bidule'])
+        pipeline.f = 42
         execution_context = Capsul().engine().execution_context(pipeline)
         subjects = ['kermit', 'piggy', 'stalter', 'waldorf']
 

@@ -20,7 +20,6 @@ class DummyProcess(Process):
 
 class TestRunProcess(unittest.TestCase):
     """Test case for CAPSUL command-line usage."""
-    @unittest.skip('reimplementation expected for capsul v3')
     def test_python_m_capsul(self):
         with open(os.devnull, 'wb') as f:
             ret = subprocess.call([sys.executable, "-m", "capsul", "--help"],
@@ -28,48 +27,45 @@ class TestRunProcess(unittest.TestCase):
                                   stderr=f)
         self.assertEqual(ret, 0)
 
-    @unittest.skip('reimplementation expected for capsul v3')
     def test_run_process_help(self):
         with open(os.devnull, 'wb') as f:
             ret = subprocess.call([
                     sys.executable, "-m", "capsul",
-                    "--process-help",
+                    "help",
                     "capsul.process.test.test_runprocess.DummyProcess"
                 ], stdout=f, stderr=f)
         self.assertEqual(ret, 0)
 
-    @unittest.skip('reimplementation expected for capsul v3')
     def test_run_dummy_process(self):
         with open(os.devnull, 'wb') as f:
             ret = subprocess.call([
-                sys.executable, "-m", "capsul",
+                sys.executable, "-m", "capsul", "run",
                 "capsul.process.test.test_runprocess.DummyProcess",
                 "f=0.5"
             ], stdout=f, stderr=f)
             self.assertEqual(ret, 0)
             ret = subprocess.call([
-                sys.executable, "-m", "capsul",
+                sys.executable, "-m", "capsul", "run",
                 "capsul.process.test.test_runprocess.DummyProcess",
                 "0.5"
             ], stdout=f, stderr=f)
             self.assertEqual(ret, 0)
 
-    @unittest.skip('reimplementation expected for capsul v3')
     def test_run_dummy_process_wrong_args(self):
         with open(os.devnull, 'wb') as f:
             ret = subprocess.call([
-                sys.executable, "-m", "capsul",
+                sys.executable, "-m", "capsul", "run",
                 "capsul.process.test.test_runprocess.DummyProcess",
                 "f=toto"
             ], stdout=f, stderr=f)
             self.assertNotEqual(ret, 0)
             ret = subprocess.call([
-                sys.executable, "-m", "capsul",
+                sys.executable, "-m", "capsul", "run",
                 "capsul.process.test.test_runprocess.DummyProcess",
             ], stdout=f, stderr=f)
             self.assertNotEqual(ret, 0)
             ret = subprocess.call([
-                sys.executable, "-m", "capsul",
+                sys.executable, "-m", "capsul", "run",
                 "capsul.process.test.test_runprocess.DummyProcess",
             ], stdout=f, stderr=f)
             self.assertNotEqual(ret, 0)
