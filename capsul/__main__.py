@@ -5,8 +5,6 @@ import json
 import re
 import sys
 
-from soma.qt_gui.qt_backend import QtGui
-
 from .api import Capsul
 from .config.configuration import ApplicationConfiguration
 from .qt_gui.widgets.settings_editor import SettingsEditor
@@ -44,6 +42,9 @@ help_parser.add_argument('command_or_executable')
 options, args = parser.parse_known_args()
 
 if options.subcommand == 'configure':
+    # Other commands must be able to work without PyQt installed
+    from soma.qt_gui.qt_backend import QtGui
+
     app_config = ApplicationConfiguration('global_config')
     app = QtGui.QApplication(sys.argv)
     capsul = Capsul()
