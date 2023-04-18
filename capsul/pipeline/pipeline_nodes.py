@@ -187,7 +187,8 @@ class Switch(Node):
         self.on_attribute_change.add(self._switch_changed, 'switch')
 
         # activate the switch first Process
-        self._switch_changed(self._switch_values[0], undefined)
+        if self._switch_values:
+            self._switch_changed(self._switch_values[0], undefined)
 
     def _switch_changed(self, new_selection, old_selection):
         """ Add an event to the switch attribute that enables us to select
@@ -200,6 +201,8 @@ class Switch(Node):
         new_selection: str (mandatory)
             the new option
         """
+        if new_selection is undefined:
+            return
         self.__block_output_propagation = True
         self.pipeline.delay_update_nodes_and_plugs_activation()
         # deactivate the plugs associated with the old option
@@ -379,3 +382,59 @@ class Switch(Node):
                       make_optional=conf_controller.optional_params,
                       output_types=[type_from_str(x) for x in conf_controller.output_types])
         return node
+
+
+class SwitchFactory:
+    def __init__(self, pipeline, switch_name, switch_value):
+        self.pipeline = pipeline
+        self.switch = pipeline.add_switch(switch_name, [], [],
+                                          export_switch=False,
+                                          switch_value=switch_value)
+
+    def add_option(self, option_name, /, make_optional=None, **kwargs):
+        self.switch._switch_values.append(option_name)
+        default = self.switch.field('switch').default_value()
+        current = self.switch.switch
+        self.switch.remove_field('switch')
+        self.switch.add_field('switch', 
+                              Literal[tuple(self.switch._switch_values)],
+                              default=default)
+        if current is not undefined:
+            setattr(self.switch, 'switch', current)
+        for output_name, input_node_and_plug in kwargs.items():
+            l = input_node_and_plug.split('.')
+            if len(l) != 2:
+                raise ValueError(f'Invalid node parameter: {input_node_and_plug}')
+            node_name, plug_name = l
+            node = self.pipeline.nodes.get(node_name)
+            if not node:
+                raise ValueError(f'Unknown node: {node_name}')
+            plug = node.plugs.get(plug_name)
+            if plug is None:
+                raise ValueError(f'Unknown parameter for node {node_name}: {plug_name}')
+            input_field = node.field(plug_name)
+            output_field = self.switch.field(output_name)
+            
+            if not output_field:
+                optional = input_field.optional
+                if make_optional and output_name in make_optional:
+                    optional = True
+                kwargs = dict((k, getattr(input_field,k)) for k in ('read', 'write', 'allowed_extensions', 'doc') if getattr(input_field, k, undefined) is not undefined)
+                self.switch.add_field(output_name,
+                                      type_=input_field.type,
+                                      output=True,
+                                      optional=optional,
+                                      **kwargs)
+                if self.switch.switch != output_name:
+                    self.switch.plugs[output_name].enabled = False
+                self.switch._outputs.append(output_name)
+            input_name = f'{option_name}_switch_{output_name}'
+            self.switch.add_field(input_name,
+                                  type_=input_field.type,
+                                  output=False)
+            if self.switch.switch != output_name:
+                self.switch.plugs[input_name].enabled = False
+            self.pipeline.add_link(f'{input_node_and_plug}->{self.switch.name}.{option_name}_switch_{output_name}')
+        
+        if len(self.switch._switch_values) == 1:
+            self.switch.switch = self.switch._switch_values[0]

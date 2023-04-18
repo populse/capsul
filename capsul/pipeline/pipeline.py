@@ -17,7 +17,7 @@ from soma.undefined import undefined
 from capsul.process.process import Process, NipypeProcess
 from .topological_sort import GraphNode
 from .topological_sort import Graph
-from .pipeline_nodes import Switch
+from .pipeline_nodes import Switch, SwitchFactory
 
 from soma.controller import (Controller, 
                              Event,
@@ -522,6 +522,10 @@ class Pipeline(Process):
         iterative_process.process.name = f'{name}.{iterative_process.process.name}'
 
     
+    def create_switch(self, name, switch_value=None):
+        return SwitchFactory(self, name,
+                             switch_value=switch_value)
+
     def add_switch(self, name, inputs, outputs, export_switch=True,
                    make_optional=(), output_types=None, switch_value=None,
                    opt_nodes=None):

@@ -44,17 +44,35 @@ class SwitchPipeline(Pipeline):
         self.add_process("way22",
              "capsul.pipeline.test.test_switch_pipeline.DummyProcess")
 
-        # Create Switch
-        self.add_switch("switch", ["one", "two", "none"],
-                        ["switch_image", "switch_output", ])
+        # # Create Switch
+        # self.add_switch("switch", ["one", "two", "none"],
+        #                 ["switch_image", "switch_output", ])
 
-        # Link input
-        self.export_parameter("node", "input_image")
-        self.export_parameter("node", "other_input")
+        # # Link input
+        # self.export_parameter("node", "input_image")
+        # self.export_parameter("node", "other_input")
+
+        # self.add_link("node.output_image->switch.none_switch_switch_image")
+        # self.add_link("node.other_output->switch.none_switch_switch_output")
+
+        # self.add_link("way1.output_image->switch.one_switch_switch_image")
+        # self.add_link("way1.other_output->switch.one_switch_switch_output")
+
+        # self.add_link("way22.output_image->switch.two_switch_switch_image")
+        # self.add_link("way22.other_output->switch.two_switch_switch_output")
+
+        switch = self.create_switch("switch")
+        switch.add_option("one",
+                          switch_image="way1.output_image",
+                          switch_output="way1.other_output")
+        switch.add_option("two",
+                          switch_image="way22.output_image",
+                          switch_output="way22.other_output")
+        switch.add_option("none",
+                          switch_image="node.output_image",
+                          switch_output="node.other_output")
 
         # Links
-        self.add_link("node.output_image->switch.none_switch_switch_image")
-        self.add_link("node.other_output->switch.none_switch_switch_output")
         self.add_link("node.output_image->way1.input_image")
         self.add_link("node.other_output->way1.other_input")
         self.add_link("node.output_image->way21.input_image")
@@ -63,11 +81,6 @@ class SwitchPipeline(Pipeline):
         self.add_link("way21.output_image->way22.input_image")
         self.add_link("way21.other_output->way22.other_input")
 
-        self.add_link("way1.output_image->switch.one_switch_switch_image")
-        self.add_link("way1.other_output->switch.one_switch_switch_output")
-
-        self.add_link("way22.output_image->switch.two_switch_switch_image")
-        self.add_link("way22.other_output->switch.two_switch_switch_output")
 
         # Outputs
         self.export_parameter("node", "other_output",
@@ -182,9 +195,8 @@ if __name__ == "__main__":
     if not app:
         app = QtGui.QApplication(sys.argv)
     pipeline = executable(SwitchPipeline)
-    pipeline.switch = "one"
-    pipeline.input_image = 'test'
-    pipeline.nodes["node"].execute(None)
+    # pipeline.switch = "two"
+    # pipeline.input_image = 'test'
     view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True,
                                     allow_open_controller=True)
     view1.show()
