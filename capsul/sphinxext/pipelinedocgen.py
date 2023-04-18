@@ -1,18 +1,7 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-
-# System import
-from __future__ import absolute_import
 import os
-import logging
-import six
-from six.moves import range
 
-# Define logger
-logger = logging.getLogger(__file__)
-
-# Capsul import
-from capsul.api import get_process_instance
+from capsul.api import executable
 
 
 class PipelineHelpWriter(object):
@@ -57,7 +46,7 @@ class PipelineHelpWriter(object):
             the fist line of the docstring
         """
         # Fiest get the pipeline instance from its string description
-        pipeline_instance = get_process_instance(pipeline)
+        pipeline_instance = executable(pipeline)
 
         # Get the header, ie. the first line of the docstring
         # Default title is ''
@@ -73,7 +62,7 @@ class PipelineHelpWriter(object):
         ad += ":orphan:\n\n"
 
         # Set the current module
-        currentmodule = ".".join(pipeline_instance.id.split(".")[:-1])
+        currentmodule = ".".join(pipeline_instance.definition.split(".")[:-1])
         ad += ".. currentmodule:: {0}\n\n".format(currentmodule)
 
         # Generate a bookmark (for cross references)
@@ -122,7 +111,7 @@ class PipelineHelpWriter(object):
         """
         # Check output directory
         if returnrst is False:
-            if not isinstance(outdir, six.string_types):
+            if not isinstance(outdir, str):
                 raise Exception("If 'returnrst' is False, need a valid output "
                                 "directory.")
             if not os.path.exists(outdir):
@@ -133,9 +122,6 @@ class PipelineHelpWriter(object):
         # Generate reST API
         written_modules = []
         for pipeline in self.pipelines:
-
-            # Information message
-            logger.info("Processing pipeline '{0}'...".format(pipeline))
 
             pipeline_short = self.get_short_name(pipeline)
             # Check if an image representation of the pipeline exists
@@ -222,10 +208,6 @@ class PipelineHelpWriter(object):
             relpath = outdir
         print('relpath:', relpath)
 
-        # Information message
-        logger.info("Writing index at location '{0}'...".format(
-            os.path.abspath(path)))
-
         # Edit the index file
         idx = open(path, "wt")
         w = idx.write
@@ -291,10 +273,6 @@ class PipelineHelpWriter(object):
         """
         # Get full index filename path
         path = os.path.join(outdir, froot + rst_extension)
-
-        # Information message
-        logger.info("Writing module '{0}' index at location '{1}'...".format(
-            module_name, os.path.abspath(path)))
 
         # Open the result index file
         idx = open(path, "wt")

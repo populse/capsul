@@ -17,14 +17,16 @@ Classes
 import os
 import os.path as osp
 from datetime import datetime as datetime
+import functools
 import glob
+import operator
 import tempfile
 import shutil
 import sys
 import traceback
 from uuid import uuid4
 
-from soma.controller import (Controller, undefined, Directory)
+from soma.controller import undefined, Directory
 import soma.controller as sc
 from .node import Node
 
@@ -219,6 +221,228 @@ class Process(Node):
                 value = getattr(self, field.name, None)
                 if value:
                     setattr(self, field.name, self._resolve_path_value(value, execution_context, context_dict))
+    @staticmethod
+    def _get_help_rst_table(data):
+        """ Create a rst formatted table.
+        Parameters
+        ----------
+        data: list of list of str (mandatory)
+            the table line-cell centent.
+        Returns
+        -------
+        rsttable: list of str
+            the rst formatted table containing the input data.
+        """
+        rsttable = []
+
+        for table_row in data:
+            for index, cell_row in enumerate(table_row):
+                # > set the parameter name in bold
+                if index == 0 and ":" in cell_row:
+                    delimiter_index = cell_row.index(":")
+                    cell_row = ("**" + cell_row[:delimiter_index] + "**" +
+                                cell_row[delimiter_index:])
+                rsttable.append(cell_row)
+
+        return rsttable
+
+
+    @staticmethod
+    def get_field_help(field):
+        """ Generate a field string description of the form:
+            [field name: type (default value) field doc]
+        """
+        result = f'{field.name}: {field.type_str}'
+        default = field.default_value()
+        if default is not undefined:
+            result = f'{result} ({default})'
+        doc = getattr(field, 'doc', None)
+        if doc:
+            result = f'{result} {doc}'
+        return result
+
+    def get_help(self, returnhelp=False, use_labels=False):
+        """ Generate description of a process parameters.
+
+        Parameters
+        ----------
+        returnhelp: bool (optional, default False)
+            if True return the help string message formatted in rst,
+            otherwise display the raw help string message on the console.
+        use_labels: bool
+            if True, input and output sections will get a RestructuredText
+            label to avoid ambiguities.
+        """
+        # Create the help content variable
+        doctring = [""]
+
+        # Update the documentation with a description of the pipeline
+        # when the xml to pipeline wrapper has been used
+        if returnhelp and hasattr(self, "_pipeline_desc"):
+            str_desc = "".join(["    {0}".format(line)
+                                for line in self._pipeline_desc])
+            doctring += [
+                ".. hidden-code-block:: python",
+                "    :starthidden: True",
+                "",
+                str_desc,
+                ""
+            ]
+
+        # Get the process docstring
+        if self.__doc__:
+            doctring += self.__doc__.split("\n") + [""]
+
+        # Update the documentation with a reference on the source function
+        # when the function to process wrapper has been used
+        if hasattr(self, "_func_name") and hasattr(self, "_func_module"):
+            doctring += [
+                "This process has been wrapped from {0}.{1}.".format(
+                    self._func_module, self._func_name),
+                ""
+            ]
+            if returnhelp:
+                doctring += [
+                    ".. currentmodule:: {0}".format(self._func_module),
+                    "",
+                    ".. autosummary::",
+                    "    :toctree: ./",
+                    "",
+                    "    {0}".format(self._func_name),
+                    ""
+                ]
+
+        # Append the input and output fields help
+        if use_labels:
+            in_label = ['.. _%s.%s_inputs:\n\n' % (self.__module__, self.name)]
+            out_label = ['.. _%s.%s_outputs:\n\n'
+                         % (self.__module__, self.name)]
+        else:
+            in_label = []
+            out_label = []
+        full_help = (doctring + in_label + self.get_input_help(returnhelp)
+                     + [""] + out_label
+                     + self.get_output_help(returnhelp) + [""])
+        full_help = "\n".join(full_help)
+
+        # Return the full process help
+        if returnhelp:
+            return full_help
+        # Print the full process help
+        else:
+            print(full_help)
+
+    def get_input_help(self, rst_formating=False):
+        """ Generate description for process input parameters.
+
+        Parameters
+        ----------
+        rst_formating: bool (optional, default False)
+            if True generate a rst table with the input descriptions.
+
+        Returns
+        -------
+        helpstr: str
+            the class input fields help
+        """
+        # Generate an input section
+        helpstr = ["Inputs", "~" * 6, ""]
+
+        # Markup to separate mandatory inputs
+        manhelpstr = ["[Mandatory]", ""]
+
+        # Get all the mandatory input fields
+        mandatory_items = [i for i in self.user_fields()
+                           if not i.output and not i.optional]
+
+        # If we have mandatory inputs, get the corresponding string
+        # descriptions
+        data = []
+        if mandatory_items:
+            for field in mandatory_items:
+                field_help = self.get_field_help(field)
+                data.append(field_help)
+
+        # If we want to format the output nicely (rst)
+        if data != []:
+            if rst_formating:
+                manhelpstr += self._get_help_rst_table(data)
+            # Otherwise
+            else:
+                manhelpstr += functools.reduce(operator.add, data)
+
+        # Markup to separate optional inputs
+        opthelpstr = ["", "[Optional]", ""]
+
+        # Get all optional input fields
+        optional_items = [field for field in self.user_fields()
+                          if not field.output and field.optional]
+
+        # If we have optional inputs, get the corresponding string
+        # descriptions
+        data = []
+        if optional_items:
+            for field in optional_items:
+                data.append(
+                    self.get_field_help(field))
+
+        # If we want to format the output nicely (rst)
+        if data != []:
+            if rst_formating:
+                opthelpstr += self._get_help_rst_table(data)
+            # Otherwise
+            else:
+                opthelpstr += functools.reduce(operator.add, data)
+
+        # Add the mandatry and optional input string description if necessary
+        if mandatory_items:
+            helpstr += manhelpstr
+        if optional_items:
+            helpstr += opthelpstr
+
+        return helpstr
+
+    def get_output_help(self, rst_formating=False):
+        """ Generate description for process output parameters.
+
+        Parameters
+        ----------
+        rst_formating: bool (optional, default False)
+            if True generate a rst table with the input descriptions.
+
+        Returns
+        -------
+        helpstr: str
+            the fields output help descriptions
+        """
+        # Generate an output section
+        helpstr = ["Outputs", "~" * 7, ""]
+
+        # Get all the process output fields, keep their order
+        items = [field
+                 for field in self.user_fields()
+                 if field.output]
+
+        # If we have no output field, return no string description
+        if not items:
+            return [""]
+
+        # If we have some outputs, get the corresponding string
+        # descriptions
+        data = []
+        for field in items:
+            data.append(
+                self.get_field_help(field))
+
+        # If we want to format the output nicely (rst)
+        if data != []:
+            if rst_formating:
+                helpstr += self._get_help_rst_table(data)
+            # Otherwise
+            else:
+                helpstr += functools.reduce(operator.add, data)
+
+        return helpstr
 
 
 class FileCopyProcess(Process):

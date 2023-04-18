@@ -178,7 +178,7 @@ class BIDSSchema(MetadataSchema):
           sub-{sub}/ses-{ses}/{data_type}/sub-{sub}_ses-{ses}[_task-{task}][_acq-{acq}][_ce-{ce}][_rec-{rec}][_run-{run}][_echo-{echo}][_part-{part}]{modality}.{extension}
         '''
         path_list = [self.folder]
-        if self.process:
+        if self.process and self.folder == 'derivative':
             path_list += [self.process]
         path_list += [f'sub-{self.sub}',
                       f'ses-{self.ses}']

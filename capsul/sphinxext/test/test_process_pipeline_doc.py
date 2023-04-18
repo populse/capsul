@@ -4,8 +4,7 @@ import unittest
 # Capsul import
 from capsul.api import Process
 from capsul.api import Pipeline
-#@unittest.skip('reimplementation expected for capsul v3')
-#from capsul.sphinxext.pipelinedocgen import PipelineHelpWriter
+from capsul.sphinxext.pipelinedocgen import PipelineHelpWriter
 
 from soma.controller import File, field
 
@@ -13,12 +12,12 @@ class MyProcess(Process):
     """ My dummy process.
     """
     # Some inputs
-    input_image = field(type_=File, optional=False, desc="an image.")
-    input_float = field(type_=float, optional=True, desc="a float.")
+    input_image: field(type_=File, optional=False, doc="an image.")
+    input_float: field(type_=float, optional=True, doc="a float.")
 
     # Some outputs
-    output_image = field(type_=File, optional=False, write=True, desc="an output image.")
-    output_float = field(type_=float, optional=True, output=True, desc=None)
+    output_image: field(type_=File, optional=False, write=True, doc="an output image.")
+    output_float: field(type_=float, optional=True, output=True)
 
 
 class MyPipeline(Pipeline):
@@ -85,7 +84,6 @@ class TestSphinxExt(unittest.TestCase):
         self.pipeline_id = ("capsul.sphinxext.test.test_process_pipeline_doc."
                             "MyPipeline")
 
-    @unittest.skip('reimplementation expected for capsul v3')
     def test_process_doc(self):
         """ Method to test the process rst documentation.
         """
@@ -94,7 +92,6 @@ class TestSphinxExt(unittest.TestCase):
         rstdoc = docwriter.write_api_docs(returnrst=True)
         self.assertTrue(self.process_id in rstdoc)
 
-    @unittest.skip('reimplementation expected for capsul v3')
     def test_pipeline_doc(self):
         """ Method to test the pipeline rst documentation.
         """
