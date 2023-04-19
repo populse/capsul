@@ -523,7 +523,61 @@ class Pipeline(Process):
         iterative_process.process.name = f'{name}.{iterative_process.process.name}'
 
     
-    def create_switch(self, name, options, switch_value=None, export_switch=True, make_optional=None):
+    def create_switch(self, name, options,
+                      export_switch=True,
+                      make_optional=None,
+                      switch_value=None):
+        """ Add a switch node in the pipeline
+
+        Parameters
+        ----------
+        name: str (mandatory)
+            name for the switch node (has to be unique)
+        options: dict (mandatory)
+            Each key of this dictionary is a possible value for
+            the switch parameter. The corresponding dictionary value contains
+            all the links between other nodes plugs and switch outputs that are
+            activated when the value is selected. Theses links are given as
+            a dictionary whose items are (output, source) where output is the
+            name of an output parameter and source is a string containing a
+            node name and a parameter name separated by a dot (or just a
+            parameter name if the source is a parameter of the pipeline (i.e.
+            self)).
+        export_switch: bool (optional)
+            if True, export the switch trigger to the parent pipeline with
+            ``name`` as parameter name
+        make_optional: sequence (optional)
+            list of optional outputs.
+            These outputs will be made optional in the switch output. By
+            default the value is taken from the first connected source.
+        switch_value: str (optional)
+            Initial value of the switch parameter (one of the inputs names).
+            Defaults to fisrt possible switch value.
+
+        Examples
+        --------
+        >>> pipeline.create_switch('group_switch', {
+              'first_choice': {
+                'out1': 'node1.out1',
+                'out2: ''node1.out2',
+              },
+              'second_choice': {
+                'out1': 'node2.out1',
+                'out2': 'node2.out2'
+              },
+            })
+        
+
+        will create a switch allowing to "choose" two woutputs parameters from
+        either node1 or node2. This creates a node with 4 inputs and 2 outputs:
+        inputs: "first_choice_switch_out1", "first_choice_switch_out2", 
+        "second_choice_switch_out1" and "second_choice_switch_out2"
+        outputs: "out1" and "out2"
+
+        See Also
+        --------
+        capsul.pipeline.pipeline_nodes.Switch
+        """
         inputs = []
         outputs = []
         output_types = []
@@ -563,49 +617,8 @@ class Pipeline(Process):
 
     def add_switch(self, name, inputs, outputs, export_switch=True,
                    make_optional=(), output_types=None, switch_value=None):
-        """ Add a switch node in the pipeline
-
-        Parameters
-        ----------
-        name: str (mandatory)
-            name for the switch node (has to be unique)
-        inputs: list of str (mandatory)
-            names for switch inputs.
-            Switch activation will select amongst them.
-            Inputs names will actually be a combination of input and output,
-            in the shape "input_switch_output".
-            This behaviour is needed when there are several outputs, and thus
-            several input groups.
-        outputs: list of str (mandatory)
-            names for outputs.
-        export_switch: bool (optional)
-            if True, export the switch trigger to the parent pipeline with
-            ``name`` as parameter name
-        make_optional: sequence (optional)
-            list of optional outputs.
-            These outputs will be made optional in the switch output. By
-            default they are mandatory.
-        output_types: sequence of types or field (optional)
-            If given, this sequence should have the same size as outputs. It
-            will specify each switch output parameter type. Input parameters 
-            for each input block will also have this type.
-        switch_value: str (optional)
-            Initial value of the switch parameter (one of the inputs names).
-            Defaults to 1st input.
-
-        Examples
-        --------
-        >>> pipeline.add_switch('group_switch', ['in1', 'in2'],
-                                ['out1', 'out2'])
-
-        will create a switch with 4 inputs and 2 outputs:
-        inputs: "in1_switch_out1", "in2_switch_out1", "in1_switch_out2",
-        "in2_switch_out2"
-        outputs: "out1", "out2"
-
-        See Also
-        --------
-        capsul.pipeline.pipeline_nodes.Switch
+        """ Obsolete. May create a non functionnal switch. Use create_switch()
+        instead.
         """
         # Check the unicity of the name we want to insert
         if name in self.nodes:
