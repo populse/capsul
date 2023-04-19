@@ -35,7 +35,6 @@ class TestPipeline(Pipeline):
     def pipeline_definition(self):
         self.add_process('nobias', 'capsul.test.test_tiny_morphologist.BiasCorrection')
 
-        self.add_switch('normalization', ['none', 'fakespm12', 'aims'], ['output'])
         self.add_process(
             'fakespm_normalization_12', 'capsul.test.test_tiny_morphologist.FakeSPMNormalization12')
         self.add_process('aims_normalization', 'capsul.test.test_tiny_morphologist.AimsNormalization')
@@ -43,14 +42,15 @@ class TestPipeline(Pipeline):
         self.add_process('left_hemi', 'capsul.test.test_completion.HemiPipeline')
         self.add_process('right_hemi', 'capsul.test.test_completion.HemiPipeline')
         self.nodes['right_hemi'].nodes['gw_segment'].side = 'right'
-
-        self.add_link('nobias.output->normalization.none_switch_output')
+        self.create_switch('normalization', {
+            'none': {'output': 'nobias.output'}, 
+            'fakespm12': {'output': 'fakespm_normalization_12.output'},
+            'aims':{'output': 'aims_normalization.output'}
+        })
 
         self.add_link('nobias.output->fakespm_normalization_12.input')
-        self.add_link('fakespm_normalization_12.output->normalization.fakespm12_switch_output')
         self.export_parameter('fakespm_normalization_12', 'template')
         self.add_link('nobias.output->aims_normalization.input')
-        self.add_link('aims_normalization.output->normalization.aims_switch_output')
 
         self.export_parameter('nobias', 'output', 'nobias')
 

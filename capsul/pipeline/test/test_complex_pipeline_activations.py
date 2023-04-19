@@ -35,7 +35,19 @@ class ComplexPipeline(Pipeline):
         self.add_process('pipeline_100',
             'capsul.process.test.test_pipeline',
             make_optional=['output_1', 'output_10','output_100'])
-        self.add_switch('select_threshold', ['threshold_1', 'threshold_10', 'threshold_100'], ['output_a', 'output_b', 'output_c'])
+        self.create_switch('select_threshold', {
+            'threshold_1': {
+                'output_a': 'pipeline_1.output_1',
+                'output_b': 'pipeline_10.output_1',
+                'output_c': 'pipeline_100.output_1' },
+            'threshold_10': {
+                'output_a': 'pipeline_1.output_10',
+                'output_b': 'pipeline_10.output_10',
+                'output_c': 'pipeline_100.output_10' },
+            'threshold_100': {
+                'output_a': 'pipeline_1.output_100',
+                'output_b': 'pipeline_10.output_100',
+                'output_c': 'pipeline_100.output_100' }})
         self.add_process(
             'identity_a',
             'capsul.pipeline.test.test_complex_pipeline_activations.Identity')
@@ -55,18 +67,6 @@ class ComplexPipeline(Pipeline):
         self.add_link('first_pipeline.output_10->pipeline_10.input_image')
         self.add_link('first_pipeline.output_100->pipeline_100.input_image')
         
-        self.add_link('pipeline_1.output_1->select_threshold.threshold_1_switch_output_a')
-        self.add_link('pipeline_1.output_10->select_threshold.threshold_10_switch_output_a')
-        self.add_link('pipeline_1.output_100->select_threshold.threshold_100_switch_output_a')
-        
-        self.add_link('pipeline_10.output_1->select_threshold.threshold_1_switch_output_b')
-        self.add_link('pipeline_10.output_10->select_threshold.threshold_10_switch_output_b')
-        self.add_link('pipeline_10.output_100->select_threshold.threshold_100_switch_output_b')
-        
-        self.add_link('pipeline_100.output_1->select_threshold.threshold_1_switch_output_c')
-        self.add_link('pipeline_100.output_10->select_threshold.threshold_10_switch_output_c')
-        self.add_link('pipeline_100.output_100->select_threshold.threshold_100_switch_output_c')
-
         self.add_link('select_threshold.output_a->identity_a.input_image')
         self.add_link('select_threshold.output_b->identity_b.input_image')
         self.add_link('select_threshold.output_c->identity_c.input_image')
@@ -847,7 +847,7 @@ class TestComplexPipeline(unittest.TestCase):
         ),
     ]
 
-    def test_activations(self):
+    def test_complex_activations(self):
         for kwargs, activations_to_check in self.expected_status:
             pipeline = executable(ComplexPipeline, **kwargs)
             

@@ -97,7 +97,6 @@ class ProcessIteration(Process):
         if iterative is None:
             iterative = not is_iterative
 
-        field = self.process.field(parameter)
         if iterative:
             # switch to iterative
             self.regular_parameters.remove(parameter)
@@ -120,16 +119,18 @@ class ProcessIteration(Process):
             if value is undefined:
                 continue
             psize = len(value)
+            if psize == 0:
+                continue
             if size is None:
                 size = psize
             else:
                 if size != psize:
                     # size 1 is an exception to the rule: it will be
                     # "broadcast" (numpy sense) to other lists sizes
-                    if size == 1:
-                       size = psize
-                    elif psize != 1:
-                        raise ValueError('Iterative parameter values must be lists of the same size: %s' % ','.join('%s=%d' % (n, len(getattr(self,n))) for n in self.iterative_parameters))
+                    if size == 1 or psize == 1:
+                       size = max(size, psize)
+                    else:
+                        raise ValueError('Iterative parameter values must be lists of the same size: %s' % '\n'.join('%s=%s' % (n, len(getattr(self,n))) for n in self.iterative_parameters if getattr(self,n) is not undefined))
         return size
     
     def iterate_over_process_parmeters(self):

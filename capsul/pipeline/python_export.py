@@ -213,42 +213,20 @@ def save_py_pipeline(pipeline, py_file):
               % (name, procname, process_iter.iterative_parameters),
               file=pyf)
 
-    def _write_switch(switch, pyf, name, enabled):
-        inputs_set = set()
-        inputs = []
-        outputs = []
-        optional = []
-        opt_in = []
-        options = ''
-        for plug_name, plug in switch.plugs.items():
-            if plug.output:
-                outputs.append(plug_name)
-                if plug.optional:
-                    optional.append(plug_name)
-            else:
-                name_parts = plug_name.split("_switch_")
-                if len(name_parts) == 2 \
-                        and name_parts[0] not in inputs_set:
-                    inputs_set.add(name_parts[0])
-                    inputs.append(name_parts[0])
-                    if plug.optional:
-                        opt_in.append(name_parts[0])
-        optional_p = ''
-        if len(optional) != 0:
-            optional_p = ', make_optional=%s' % repr(optional)
-        opt_inputs = getattr(switch, '_optional_input_nodes', None)
-        if opt_inputs:
-            opt_inputs = [i[1] for i in opt_inputs if i[0] in inputs]
-            if opt_inputs == inputs:
-                opt_inputs = True
-            options += ', opt_nodes=%s' % repr(opt_inputs)
-        value_p = ''
-        if switch.switch != inputs[0]:
-            value_p = ', switch_value=%s' % repr(switch.switch)
-        print('        self.add_switch("%s", %s, %s%s%s%s, export_switch=False)'
-              % (name, repr(inputs), repr(outputs), optional_p, value_p,
-                 options),
-              file=pyf)
+    def _write_switch(switch, pyf, name):
+        options = {}
+        for option_name in switch._switch_values:
+            option_content = {}
+            for output in switch._outputs:
+                link_from = None
+                for node, plug_name in switch.pipeline.get_linked_items(switch, option_name, in_sub_pipelines=False, activated_only=True):
+                    link_from = f'{node.name}.{plug_name}'
+                    break
+                if link_from is not None:
+                    option_content[output] = link_from
+            options[option_name] = option_content
+
+        print(f'        self.create_switch({repr(name)}, {repr(options)}, switch_value={repr(switch.switch)})')
 
     def _write_processes(pipeline, pyf):
         print('        # nodes', file=pyf)

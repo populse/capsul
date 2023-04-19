@@ -114,15 +114,20 @@ class DummyPipeline(Pipeline):
         self.add_process(
             'node2alt',
             'capsul.pipeline.test.test_proc_with_outputs.DummyProcess2alt')
-        self.add_switch('node2_switch', ['node2', 'node2alt'], ['files'])
+        self.create_switch('node2_switch', {
+            'node2': {
+                'files': 'node2.outputs'
+            },
+            'node2alt': {
+                'files': 'node2alt.outputs'
+            }
+        })
         self.add_process(
             'node3',
             'capsul.pipeline.test.test_proc_with_outputs.DummyProcess3')
         # Links
         self.add_link('node1.output->node2.input')
         self.add_link('node1.output->node2alt.input')
-        self.add_link('node2.outputs->node2_switch.node2_switch_files')
-        self.add_link('node2alt.outputs->node2_switch.node2alt_switch_files')
         self.add_link('node2_switch.files->node3.input')
 
         self.node_position = {

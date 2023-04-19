@@ -13,7 +13,19 @@ class BrainOrientation(Pipeline):
         self.nodes["Normalization"].nodes["NormalizeBaladin"].enabled = False
         self.nodes["Normalization"].nodes["NormalizeBaladin"].nodes["ReorientAnatomy"].enabled = False
         self.add_process("TalairachFromNormalization", "capsul.pipeline.test.fake_morphologist.talairachtransformationfromnormalization.TalairachTransformationFromNormalization")
-        self.add_switch("select_AC_PC_Or_Normalization", ['StandardACPC', 'Normalization'], ['commissure_coordinates', 'reoriented_t1mri', 'talairach_transformation'], make_optional=['talairach_transformation'], switch_value='Normalization', export_switch=False)
+        self.create_switch("select_AC_PC_Or_Normalization", {
+            'StandardACPC': {
+                'commissure_coordinates': 'StandardACPC.commissure_coordinates',
+                'reoriented_t1mri': 'StandardACPC.reoriented_t1mri',
+            }, 
+            'Normalization': {
+                'commissure_coordinates': 'TalairachFromNormalization.commissure_coordinates',
+                'reoriented_t1mri': 'Normalization.reoriented_t1mri',
+                'talairach_transformation': 'TalairachFromNormalization.Talairach_transform',
+            }}, 
+            make_optional=['talairach_transformation'],
+            switch_value='Normalization',
+            export_switch=False)
 
         # links
         self.export_parameter("select_AC_PC_Or_Normalization", "switch", "select_AC_PC_Or_Normalization", is_optional=True)
@@ -56,11 +68,8 @@ class BrainOrientation(Pipeline):
         self.export_parameter("TalairachFromNormalization", "normalized_referential", "TalairachFromNormalization_normalized_referential", is_optional=True)
         self.export_parameter("TalairachFromNormalization", "acpc_referential", "TalairachFromNormalization_acpc_referential", is_optional=True)
         self.export_parameter("TalairachFromNormalization", "transform_chain_ACPC_to_Normalized", "TalairachFromNormalization_transform_chain_ACPC_to_Normalized", is_optional=True)
-        self.add_link("StandardACPC.commissure_coordinates->select_AC_PC_Or_Normalization.StandardACPC_switch_commissure_coordinates")
-        self.add_link("StandardACPC.reoriented_t1mri->select_AC_PC_Or_Normalization.StandardACPC_switch_reoriented_t1mri")
         self.add_link("Normalization.transformation->TalairachFromNormalization.normalization_transformation")
         self.export_parameter("Normalization", "transformation", "normalization_transformation", weak_link=True, is_optional=True)
-        self.add_link("Normalization.reoriented_t1mri->select_AC_PC_Or_Normalization.Normalization_switch_reoriented_t1mri")
         self.add_link("Normalization.reoriented_t1mri->TalairachFromNormalization.t1mri")
         self.export_parameter("Normalization", "normalized", "Normalization_normalized", weak_link=True, is_optional=True)
         self.export_parameter("Normalization", "NormalizeFSL_NormalizeFSL_transformation_matrix", "Normalization_NormalizeFSL_NormalizeFSL_transformation_matrix", weak_link=True, is_optional=True)
@@ -68,8 +77,6 @@ class BrainOrientation(Pipeline):
         self.export_parameter("Normalization", "NormalizeBaladin_NormalizeBaladin_transformation_matrix", "Normalization_NormalizeBaladin_NormalizeBaladin_transformation_matrix", weak_link=True, is_optional=True)
         self.export_parameter("Normalization", "Normalization_AimsMIRegister_transformation_to_template", "Normalization_Normalization_AimsMIRegister_transformation_to_template", weak_link=True, is_optional=True)
         self.export_parameter("Normalization", "Normalization_AimsMIRegister_transformation_to_ACPC", "Normalization_Normalization_AimsMIRegister_transformation_to_ACPC", weak_link=True, is_optional=True)
-        self.add_link("TalairachFromNormalization.Talairach_transform->select_AC_PC_Or_Normalization.Normalization_switch_talairach_transformation")
-        self.add_link("TalairachFromNormalization.commissure_coordinates->select_AC_PC_Or_Normalization.Normalization_switch_commissure_coordinates")
         self.export_parameter("select_AC_PC_Or_Normalization", "commissure_coordinates", is_optional=False)
         self.export_parameter("select_AC_PC_Or_Normalization", "reoriented_t1mri", is_optional=False)
         self.export_parameter("select_AC_PC_Or_Normalization", "talairach_transformation", is_optional=True)

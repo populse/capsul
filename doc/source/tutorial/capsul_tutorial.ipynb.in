@@ -600,10 +600,10 @@
     "        # Create processes\n",
     "        self.add_process(\"node1\", Process1())\n",
     "        self.add_process(\"node2\", Process2())\n",
-    "        self.add_switch(\"switch\", [\"case1\", \"case2\"], [\"output\"])\n",
-    "        #links\n",
-    "        self.add_link(\"node1.out->switch.case1_switch_output\")\n",
-    "        self.add_link(\"node2.a->switch.case2_switch_output\")"
+    "        self.create_switch(\"switch\", {\n",
+    "            \"case1\": {\"output\": \"node1.out\"},\n",
+    "            \"case2\": {\"output\": \"node2.a\"},\n",
+    "        })\n",
    ]
   },
   {

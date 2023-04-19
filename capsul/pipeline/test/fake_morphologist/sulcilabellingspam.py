@@ -11,7 +11,14 @@ class SulciLabellingSPAM(Pipeline):
         self.add_process("global_recognition", "capsul.pipeline.test.fake_morphologist.sulcilabellingspamglobal.SulciLabellingSPAMGlobal")
         self.add_process("local_recognition", "capsul.pipeline.test.fake_morphologist.sulcilabellingspamlocal.SulciLabellingSPAMLocal")
         self.add_process("markovian_recognition", "capsul.pipeline.test.fake_morphologist.sulcilabellingspammarkov.SulciLabellingSPAMMarkov")
-        self.add_switch("local_or_markovian", ['local_recognition', 'markovian_recognition'], ['output_graph'], export_switch=False)
+        self.create_switch("local_or_markovian", {
+            'local_recognition': {
+                'output_graph': 'local_recognition.output_graph'
+            }, 
+            'markovian_recognition': {
+                'output_graph': 'markovian_recognition.output_graph'
+            }},
+            export_switch=False)
 
         # links
         self.export_parameter("local_or_markovian", "switch", "local_or_markovian", is_optional=True)
@@ -43,10 +50,8 @@ class SulciLabellingSPAM(Pipeline):
         self.export_parameter("global_recognition", "output_transformation", "global_recognition_output_transformation", is_optional=True)
         self.add_link("global_recognition.output_transformation->markovian_recognition.global_transformation")
         self.export_parameter("global_recognition", "output_t1_to_global_transformation", "global_recognition_output_t1_to_global_transformation", is_optional=True)
-        self.add_link("local_recognition.output_graph->local_or_markovian.local_recognition_switch_output_graph")
         self.export_parameter("local_recognition", "posterior_probabilities", "local_recognition_posterior_probabilities", weak_link=True, is_optional=True)
         self.export_parameter("local_recognition", "output_local_transformations", "local_recognition_output_local_transformations", weak_link=True, is_optional=True)
-        self.add_link("markovian_recognition.output_graph->local_or_markovian.markovian_recognition_switch_output_graph")
         self.export_parameter("markovian_recognition", "posterior_probabilities", "markovian_recognition_posterior_probabilities", weak_link=True, is_optional=True)
         self.add_link("local_or_markovian.output_graph->output_graph")
 

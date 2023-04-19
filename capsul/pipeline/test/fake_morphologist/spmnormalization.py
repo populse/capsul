@@ -13,7 +13,16 @@ class SPMNormalization(Pipeline):
         self.add_process("normalization_t1_spm12_reinit", "capsul.pipeline.test.fake_morphologist.normalization_t1_spm12_reinit.normalization_t1_spm12_reinit")
         self.add_process("normalization_t1_spm8_reinit", "capsul.pipeline.test.fake_morphologist.normalization_t1_spm8_reinit.normalization_t1_spm8_reinit")
         self.add_process("converter", "capsul.pipeline.test.fake_morphologist.aimsconverter.AimsConverter")
-        self.add_switch("NormalizeSPM", ['normalization_t1_spm12_reinit', 'normalization_t1_spm8_reinit'], ['spm_transformation', 'normalized_t1mri'], export_switch=False)
+        self.create_switch("NormalizeSPM", {
+            'normalization_t1_spm12_reinit': {
+                'spm_transformation': 'normalization_t1_spm12_reinit.transformations_informations',
+                'normalized_t1mri': 'normalization_t1_spm12_reinit.normalized_anatomy_data',
+            },
+            'normalization_t1_spm8_reinit': {
+                'spm_transformation': 'normalization_t1_spm8_reinit.transformations_informations',
+                'normalized_t1mri': 'normalization_t1_spm8_reinit.normalized_anatomy_data',
+            }},
+            export_switch=False)
 
         # links
         self.export_parameter("NormalizeSPM", "switch", "NormalizeSPM", is_optional=True)
@@ -42,10 +51,6 @@ class SPMNormalization(Pipeline):
         self.export_parameter("ReorientAnatomy", "output_t1mri", "reoriented_t1mri", is_optional=False)
         self.add_link("ReorientAnatomy.output_transformation->transformation")
         self.export_parameter("ReorientAnatomy", "output_commissures_coordinates", "ReorientAnatomy_output_commissures_coordinates", is_optional=True)
-        self.add_link("normalization_t1_spm12_reinit.transformations_informations->NormalizeSPM.normalization_t1_spm12_reinit_switch_spm_transformation")
-        self.add_link("normalization_t1_spm12_reinit.normalized_anatomy_data->NormalizeSPM.normalization_t1_spm12_reinit_switch_normalized_t1mri")
-        self.add_link("normalization_t1_spm8_reinit.transformations_informations->NormalizeSPM.normalization_t1_spm8_reinit_switch_spm_transformation")
-        self.add_link("normalization_t1_spm8_reinit.normalized_anatomy_data->NormalizeSPM.normalization_t1_spm8_reinit_switch_normalized_t1mri")
         self.add_link("NormalizeSPM.spm_transformation->ConvertSPMnormalizationToAIMS.read")
         self.export_parameter("NormalizeSPM", "spm_transformation", is_optional=False)
         self.export_parameter("NormalizeSPM", "normalized_t1mri", is_optional=False)

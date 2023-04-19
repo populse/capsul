@@ -17,7 +17,7 @@ from soma.undefined import undefined
 from capsul.process.process import Process, NipypeProcess
 from .topological_sort import GraphNode
 from .topological_sort import Graph
-from .pipeline_nodes import Switch, SwitchFactory
+from .pipeline_nodes import Switch
 
 from soma.controller import (Controller, 
                              Event,
@@ -44,11 +44,14 @@ class Pipeline(Process):
           def pipeline_definition(self):
               self.add_process('proc1', 'my_toolbox.my_process1')
               self.add_process('proc2', 'my_toolbox.my_process2')
-              self.add_switch('main_switch', ['in1', 'in2'], ['out1', 'out2'])
-              self.add_link('proc1.out1->main_switch.in1_switch_out1')
-              self.add_link('proc1.out2->main_switch.in1_switch_out2')
-              self.add_link('proc2.out1->main_switch.in2_switch_out1')
-              self.add_link('proc2.out1->main_switch.in2_switch_out2')
+              switch = self.create_switch('main_switch',
+                options={
+                    'in1': {
+                        'out1': 'proc1.out1',
+                        'out2' :'proc1.out2},
+                    'in2': {
+                        'out1':'proc2.out1',
+                        'out2':'proc2.out2}})
 
     After execution of :py:meth:`pipeline_definition`, the inner nodes
     parameters which are not connected will be automatically exported to the
@@ -334,13 +337,11 @@ class Pipeline(Process):
             self.add_process('method2', 'module2.Module2', skip_invalid=True)
             self.add_process('method3', 'module3.Module3', skip_invalid=True)
 
-            input_params = [n for n in ['method1', 'method2', 'method3']
-                            if n in self.nodes]
-            self.add_switch('select_method', input_params, 'output')
-
-            self.add_link('method1.input->select_method.method1_switch_output')
-            self.add_link('method2.input->select_method.method2_switch_output')
-            self.add_link('method3.input->select_method.method3_switch_output')
+            options = {}
+            for method in ()'method1', 'method2', 'method3'):
+                if method in self.nodes:
+                    options[method] = output=f'{method}.input'
+            self.create_switch('select_method', options)
 
         A last note about invalid nodes:
 
@@ -522,13 +523,46 @@ class Pipeline(Process):
         iterative_process.process.name = f'{name}.{iterative_process.process.name}'
 
     
-    def create_switch(self, name, switch_value=None):
-        return SwitchFactory(self, name,
-                             switch_value=switch_value)
+    def create_switch(self, name, options, switch_value=None, export_switch=True, make_optional=None):
+        inputs = []
+        outputs = []
+        output_types = []
+        links = []
+        for option_name, option_content in options.items():
+            inputs.append(option_name)
+            for output_name, input_node_and_plug in option_content.items():
+                l = input_node_and_plug.split('.')
+                if len(l) == 2:
+                    node_name, plug_name = l
+                    node = self.nodes.get(node_name)
+                    if not node:
+                        raise ValueError(f'Unknown node: {node_name}')
+                elif len(l) == 1:
+                    node = self
+                    plug_name = l[0]
+                else:
+                    raise ValueError(f'Invalid node parameter: {input_node_and_plug}')
+                plug = node.plugs.get(plug_name)
+                if plug is None:
+                    raise ValueError(f'Unknown parameter for node {node.name}: {plug_name}')
+                input_field = node.field(plug_name)
+                if output_name not in outputs:
+                    outputs.append(output_name)
+                    output_types.append(input_field.type)
+                links.append(f'{input_node_and_plug}->{name}.{option_name}_switch_{output_name}')
+        switch = self.add_switch(name, inputs, outputs,
+                                 output_types=output_types,
+                                 export_switch=export_switch,
+                                 switch_value=switch_value,
+                                 make_optional=make_optional or ())
+        for link in links:
+            self.add_link(link)
+
+        return switch
+    
 
     def add_switch(self, name, inputs, outputs, export_switch=True,
-                   make_optional=(), output_types=None, switch_value=None,
-                   opt_nodes=None):
+                   make_optional=(), output_types=None, switch_value=None):
         """ Add a switch node in the pipeline
 
         Parameters
@@ -558,13 +592,6 @@ class Pipeline(Process):
         switch_value: str (optional)
             Initial value of the switch parameter (one of the inputs names).
             Defaults to 1st input.
-        opt_nodes: bool or list
-            tells that switch values are node names, and some of them may be
-            optional and missing. In such a case, missing nodes are not added
-            as inputs. If a list is passed, then it is a list of node names
-            which length should match the number of inputs, and which order
-            tells nodes related to inputs (in case inputs names are not
-            directly node names).
 
         Examples
         --------
@@ -585,17 +612,9 @@ class Pipeline(Process):
             raise ValueError("Pipeline cannot have two nodes with the same "
                              "name: {0}".format(name))
 
-        if opt_nodes:
-            if opt_nodes is True:
-                opt_nodes = inputs
-            opt_inputs = list(zip(inputs, opt_nodes))
-            # filter inputs
-            inputs = [i for i, n in opt_inputs if n in self.nodes]
         # Create the node
         node = Switch(self, name, inputs, outputs, make_optional=make_optional,
                       output_types=output_types)
-        if opt_nodes:
-            node._optional_input_nodes = opt_inputs
         self.nodes[name] = node
 
         # Export the switch controller to the pipeline node

@@ -36,9 +36,33 @@ class Morphologist(Pipeline):
         self.add_process("PialMesh_1", "capsul.pipeline.test.fake_morphologist.pialmesh.PialMesh")
         self.add_process("CorticalFoldsGraph_1", "capsul.pipeline.test.fake_morphologist.sulcigraph.SulciGraph")
         self.add_process("SulciRecognition_1", "capsul.pipeline.test.fake_morphologist.sulcilabelling.SulciLabelling")
-        self.add_switch("select_Talairach", ['StandardACPC', 'Normalization'], ['Talairach_transform'], switch_value='Normalization', export_switch=False)
-        self.add_switch("select_renormalization_commissures", ['initial', 'skull_stripped'], ['commissure_coordinates'], switch_value='skull_stripped', export_switch=False)
-        self.add_switch("select_renormalization_transform", ['initial', 'skull_stripped'], ['Talairach_transform', 'MNI_transform'], switch_value='skull_stripped', export_switch=False)
+        self.create_switch("select_Talairach", {
+            'StandardACPC': {
+                'Talairach_transform': 'TalairachTransformation.Talairach_transform'},
+            'Normalization': {
+                'Talairach_transform': 'PrepareSubject.talairach_transformation'}}, 
+            switch_value='Normalization',
+            export_switch=False)
+        self.create_switch("select_renormalization_commissures", {
+            'initial': {
+                'commissure_coordinates': 'PrepareSubject.commissure_coordinates'
+            }, 
+            'skull_stripped': {
+                'commissure_coordinates': 'Renorm.commissure_coordinates'
+            }}, 
+            switch_value='skull_stripped',
+            export_switch=False)
+        self.create_switch("select_renormalization_transform", {
+            'initial': {
+                'Talairach_transform': 'select_Talairach.Talairach_transform', 
+                'MNI_transform': 'PrepareSubject.normalization_transformation'
+            }, 
+            'skull_stripped': {
+                'Talairach_transform': 'Renorm.talairach_transformation', 
+                'MNI_transform': 'Renorm.transformation'            
+            }},
+            switch_value='skull_stripped',
+            export_switch=False)
 
         # links
         self.export_parameter("importation", "input", "t1mri", is_optional=False)
@@ -244,18 +268,15 @@ class Morphologist(Pipeline):
         self.add_link("PrepareSubject.commissure_coordinates->Renorm.Normalization_commissures_coordinates")
         self.add_link("PrepareSubject.commissure_coordinates->BiasCorrection.commissure_coordinates")
         self.add_link("PrepareSubject.commissure_coordinates->BrainSegmentation.commissure_coordinates")
-        self.add_link("PrepareSubject.commissure_coordinates->select_renormalization_commissures.initial_switch_commissure_coordinates")
         self.add_link("PrepareSubject.commissure_coordinates->TalairachTransformation.commissure_coordinates")
         self.add_link("PrepareSubject.reoriented_t1mri->BiasCorrection.t1mri")
         self.add_link("PrepareSubject.reoriented_t1mri->Renorm.t1mri")
         self.export_parameter("PrepareSubject", "reoriented_t1mri", is_optional=True)
-        self.add_link("PrepareSubject.talairach_transformation->select_Talairach.Normalization_switch_Talairach_transform")
         self.export_parameter("Renorm", "Normalization_normalized", "normalized_t1mri", weak_link=True, is_optional=True)
         self.add_link("PrepareSubject.Normalization_normalized->normalized_t1mri", weak_link=True)
         self.export_parameter("PrepareSubject", "Normalization_NormalizeFSL_NormalizeFSL_transformation_matrix", "normalization_fsl_native_transformation_pass1", is_optional=True)
         self.export_parameter("PrepareSubject", "Normalization_NormalizeSPM_spm_transformation", "normalization_spm_native_transformation_pass1", is_optional=True)
         self.export_parameter("PrepareSubject", "Normalization_NormalizeBaladin_NormalizeBaladin_transformation_matrix", "normalization_baladin_native_transformation_pass1", is_optional=True)
-        self.add_link("PrepareSubject.normalization_transformation->select_renormalization_transform.initial_switch_MNI_transform")
         self.add_link("BiasCorrection.t1mri_nobias->SplitBrain.t1mri_nobias")
         self.add_link("BiasCorrection.t1mri_nobias->SulciSkeleton.t1mri_nobias")
         self.export_parameter("BiasCorrection", "t1mri_nobias", is_optional=False)
@@ -296,9 +317,6 @@ class Morphologist(Pipeline):
         self.add_link("BrainSegmentation.brain_mask->Renorm.brain_mask")
         self.export_parameter("BrainSegmentation", "brain_mask", "BrainSegmentation_brain_mask", is_optional=True)
         self.export_parameter("Renorm", "skull_stripped", "Renorm_skull_stripped", is_optional=True)
-        self.add_link("Renorm.transformation->select_renormalization_transform.skull_stripped_switch_MNI_transform")
-        self.add_link("Renorm.talairach_transformation->select_renormalization_transform.skull_stripped_switch_Talairach_transform")
-        self.add_link("Renorm.commissure_coordinates->select_renormalization_commissures.skull_stripped_switch_commissure_coordinates")
         self.add_link("Renorm.Normalization_normalized->normalized_t1mri", weak_link=True)
         self.export_parameter("Renorm", "Normalization_NormalizeFSL_NormalizeFSL_transformation_matrix", "normalization_fsl_native_transformation", is_optional=True)
         self.export_parameter("Renorm", "Normalization_NormalizeSPM_spm_transformation", "normalization_spm_native_transformation", is_optional=True)
@@ -309,7 +327,6 @@ class Morphologist(Pipeline):
         self.add_link("SplitBrain.split_brain->CorticalFoldsGraph.split_brain")
         self.export_parameter("SplitBrain", "split_brain", is_optional=False)
         self.add_link("SplitBrain.split_brain->CorticalFoldsGraph_1.split_brain")
-        self.add_link("TalairachTransformation.Talairach_transform->select_Talairach.StandardACPC_switch_Talairach_transform")
         self.export_parameter("HeadMesh", "head_mesh", "HeadMesh_head_mesh", is_optional=True)
         self.export_parameter("HeadMesh", "head_mask", "HeadMesh_head_mask", is_optional=True)
         self.export_parameter("SulcalMorphometry", "sulcal_morpho_measures", is_optional=False)
@@ -381,7 +398,6 @@ class Morphologist(Pipeline):
         self.export_parameter("SulciRecognition_1", "SPAM_recognition09_local_recognition_posterior_probabilities", "SulciRecognition_1_SPAM_recognition09_local_recognition_posterior_probabilities", is_optional=True)
         self.export_parameter("SulciRecognition_1", "SPAM_recognition09_local_recognition_output_local_transformations", "SulciRecognition_1_SPAM_recognition09_local_recognition_output_local_transformations", is_optional=True)
         self.export_parameter("SulciRecognition_1", "SPAM_recognition09_markovian_recognition_posterior_probabilities", "SulciRecognition_1_SPAM_recognition09_markovian_recognition_posterior_probabilities", is_optional=True)
-        self.add_link("select_Talairach.Talairach_transform->select_renormalization_transform.initial_switch_Talairach_transform")
         self.add_link("select_renormalization_commissures.commissure_coordinates->SplitBrain.commissure_coordinates")
         self.add_link("select_renormalization_commissures.commissure_coordinates->CorticalFoldsGraph.commissure_coordinates")
         self.add_link("select_renormalization_commissures.commissure_coordinates->GreyWhiteClassification_1.commissure_coordinates")

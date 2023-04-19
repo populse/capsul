@@ -11,7 +11,23 @@ class SulciLabelling(Pipeline):
         self.add_process("recognition2000", "capsul.pipeline.test.fake_morphologist.sulcilabellingann.SulciLabellingANN")
         self.add_process("SPAM_recognition09", "capsul.pipeline.test.fake_morphologist.sulcilabellingspam.SulciLabellingSPAM")
         self.add_process("CNN_recognition19", "capsul.pipeline.test.fake_morphologist.sulcideeplabeling.SulciDeepLabeling", skip_invalid=True)
-        self.add_switch("select_Sulci_Recognition", ['recognition2000', 'SPAM_recognition09', 'CNN_recognition19'], ['output_graph'], opt_nodes=True, export_switch=False)
+        switch_options = {}
+        if 'recognition2000' in self.nodes:
+            switch_options['recognition2000'] = {
+                'output_graph': 'recognition2000.output_graph',
+            }
+        if 'SPAM_recognition09' in self.nodes:
+            switch_options['SPAM_recognition09'] = {
+                'output_graph': 'SPAM_recognition09.output_graph',
+            }
+        if 'CNN_recognition19' in self.nodes:
+            switch_options['CNN_recognition19'] = {
+                'output_graph': 'CNN_recognition19.labeled_graph',
+            }
+        self.create_switch(
+            "select_Sulci_Recognition", 
+            switch_options,
+            export_switch=False)
 
         # links
         self.export_parameter("select_Sulci_Recognition", "switch", "select_Sulci_Recognition", is_optional=True)
@@ -47,16 +63,13 @@ class SulciLabelling(Pipeline):
         self.export_parameter("CNN_recognition19", "skeleton", "CNN_recognition19_skeleton", is_optional=True)
         self.export_parameter("CNN_recognition19", "allow_multithreading", "CNN_recognition19_allow_multithreading", is_optional=True)
         self.export_parameter("CNN_recognition19", "cuda", "CNN_recognition19_cuda", is_optional=True)
-        self.add_link("recognition2000.output_graph->select_Sulci_Recognition.recognition2000_switch_output_graph")
         self.export_parameter("recognition2000", "energy_plot_file", "recognition2000_energy_plot_file", weak_link=True, is_optional=True)
-        self.add_link("SPAM_recognition09.output_graph->select_Sulci_Recognition.SPAM_recognition09_switch_output_graph")
         self.export_parameter("SPAM_recognition09", "global_recognition_posterior_probabilities", "SPAM_recognition09_global_recognition_posterior_probabilities", weak_link=True, is_optional=True)
         self.export_parameter("SPAM_recognition09", "global_recognition_output_transformation", "SPAM_recognition09_global_recognition_output_transformation", weak_link=True, is_optional=True)
         self.export_parameter("SPAM_recognition09", "global_recognition_output_t1_to_global_transformation", "SPAM_recognition09_global_recognition_output_t1_to_global_transformation", weak_link=True, is_optional=True)
         self.export_parameter("SPAM_recognition09", "local_recognition_posterior_probabilities", "SPAM_recognition09_local_recognition_posterior_probabilities", weak_link=True, is_optional=True)
         self.export_parameter("SPAM_recognition09", "local_recognition_output_local_transformations", "SPAM_recognition09_local_recognition_output_local_transformations", weak_link=True, is_optional=True)
         self.export_parameter("SPAM_recognition09", "markovian_recognition_posterior_probabilities", "SPAM_recognition09_markovian_recognition_posterior_probabilities", weak_link=True, is_optional=True)
-        self.add_link("CNN_recognition19.labeled_graph->select_Sulci_Recognition.CNN_recognition19_switch_output_graph")
         self.export_parameter("select_Sulci_Recognition", "output_graph", is_optional=False)
 
         # parameters order

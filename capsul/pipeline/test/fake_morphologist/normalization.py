@@ -14,15 +14,35 @@ class Normalization(Pipeline):
         self.nodes["NormalizeBaladin"].enabled = False
         self.nodes["NormalizeBaladin"].nodes["ReorientAnatomy"].enabled = False
         self.add_process("Normalization_AimsMIRegister", "capsul.pipeline.test.fake_morphologist.normalization_aimsmiregister.normalization_aimsmiregister")
-        self.add_switch("select_Normalization_pipeline", ['NormalizeFSL', 'NormalizeSPM', 'NormalizeBaladin', 'Normalization_AimsMIRegister'], ['transformation', 'normalized', 'reoriented_t1mri'], export_switch=False)
+        self.export_parameter("Normalization_AimsMIRegister", "anatomy_data", "t1mri", is_optional=False)
+        self.create_switch("select_Normalization_pipeline", {
+            'NormalizeFSL': {
+                'transformation': 'NormalizeFSL.transformation',
+                'normalized': 'NormalizeFSL.NormalizeFSL_normalized_anatomy_data', 
+                'reoriented_t1mri': 'NormalizeFSL.reoriented_t1mri'
+            }, 
+            'NormalizeSPM': {
+                'transformation': 'NormalizeSPM.transformation',
+                'normalized': 'NormalizeSPM.normalized_t1mri', 
+                'reoriented_t1mri': 'NormalizeSPM.reoriented_t1mri'
+            }, 
+            'NormalizeBaladin': {
+                'transformation': 'NormalizeBaladin.transformation',
+                'normalized': 'NormalizeBaladin.NormalizeBaladin_normalized_anatomy_data', 
+                'reoriented_t1mri': 'NormalizeBaladin.reoriented_t1mri'
+            },
+            'Normalization_AimsMIRegister': {
+                'transformation': 'Normalization_AimsMIRegister.transformation_to_MNI',
+                'normalized': 'Normalization_AimsMIRegister.normalized_anatomy_data', 
+                'reoriented_t1mri': 't1mri'
+            }},
+            export_switch=False)
 
         # links
         self.export_parameter("select_Normalization_pipeline", "switch", "select_Normalization_pipeline", is_optional=True)
-        self.export_parameter("Normalization_AimsMIRegister", "anatomy_data", "t1mri", is_optional=False)
         self.add_link("t1mri->NormalizeFSL.t1mri")
         self.add_link("t1mri->NormalizeSPM.t1mri")
         self.add_link("t1mri->NormalizeBaladin.t1mri")
-        self.add_link("t1mri->select_Normalization_pipeline.Normalization_AimsMIRegister_switch_reoriented_t1mri")
         self.export_parameter("NormalizeBaladin", "allow_flip_initial_MRI", is_optional=False)
         self.add_link("allow_flip_initial_MRI->NormalizeSPM.allow_flip_initial_MRI")
         self.add_link("allow_flip_initial_MRI->NormalizeFSL.allow_flip_initial_MRI")
@@ -52,25 +72,14 @@ class Normalization(Pipeline):
         self.export_parameter("Normalization_AimsMIRegister", "anatomical_template", "Normalization_AimsMIRegister_anatomical_template", is_optional=True)
         self.export_parameter("Normalization_AimsMIRegister", "mni_to_acpc", "Normalization_AimsMIRegister_mni_to_acpc", is_optional=True)
         self.export_parameter("Normalization_AimsMIRegister", "smoothing", "Normalization_AimsMIRegister_smoothing", is_optional=True)
-        self.add_link("NormalizeFSL.transformation->select_Normalization_pipeline.NormalizeFSL_switch_transformation")
-        self.add_link("NormalizeFSL.reoriented_t1mri->select_Normalization_pipeline.NormalizeFSL_switch_reoriented_t1mri")
         self.export_parameter("NormalizeFSL", "NormalizeFSL_transformation_matrix", "NormalizeFSL_NormalizeFSL_transformation_matrix", weak_link=True, is_optional=True)
-        self.add_link("NormalizeFSL.NormalizeFSL_normalized_anatomy_data->select_Normalization_pipeline.NormalizeFSL_switch_normalized")
         self.export_parameter("NormalizeSPM", "ReorientAnatomy_output_commissures_coordinates", "output_commissures_coordinates", is_optional=True)
         self.add_link("NormalizeFSL.ReorientAnatomy_output_commissures_coordinates->output_commissures_coordinates")
-        self.add_link("NormalizeSPM.transformation->select_Normalization_pipeline.NormalizeSPM_switch_transformation")
         self.export_parameter("NormalizeSPM", "spm_transformation", "NormalizeSPM_spm_transformation", weak_link=True, is_optional=True)
-        self.add_link("NormalizeSPM.normalized_t1mri->select_Normalization_pipeline.NormalizeSPM_switch_normalized")
-        self.add_link("NormalizeSPM.reoriented_t1mri->select_Normalization_pipeline.NormalizeSPM_switch_reoriented_t1mri")
         self.add_link("NormalizeSPM.ReorientAnatomy_output_commissures_coordinates->output_commissures_coordinates")
-        self.add_link("NormalizeBaladin.transformation->select_Normalization_pipeline.NormalizeBaladin_switch_transformation")
-        self.add_link("NormalizeBaladin.reoriented_t1mri->select_Normalization_pipeline.NormalizeBaladin_switch_reoriented_t1mri")
         self.export_parameter("NormalizeBaladin", "NormalizeBaladin_transformation_matrix", "NormalizeBaladin_NormalizeBaladin_transformation_matrix", weak_link=True, is_optional=True)
-        self.add_link("NormalizeBaladin.NormalizeBaladin_normalized_anatomy_data->select_Normalization_pipeline.NormalizeBaladin_switch_normalized")
         self.add_link("NormalizeBaladin.ReorientAnatomy_output_commissures_coordinates->output_commissures_coordinates")
         self.export_parameter("Normalization_AimsMIRegister", "transformation_to_template", "Normalization_AimsMIRegister_transformation_to_template", weak_link=True, is_optional=True)
-        self.add_link("Normalization_AimsMIRegister.normalized_anatomy_data->select_Normalization_pipeline.Normalization_AimsMIRegister_switch_normalized")
-        self.add_link("Normalization_AimsMIRegister.transformation_to_MNI->select_Normalization_pipeline.Normalization_AimsMIRegister_switch_transformation")
         self.export_parameter("Normalization_AimsMIRegister", "transformation_to_ACPC", "Normalization_AimsMIRegister_transformation_to_ACPC", weak_link=True, is_optional=True)
         self.export_parameter("select_Normalization_pipeline", "transformation", is_optional=False)
         self.export_parameter("select_Normalization_pipeline", "normalized", is_optional=False)

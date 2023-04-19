@@ -93,20 +93,21 @@ class SwitchPipeline(Pipeline):
             "capsul.pipeline.test.test_switch_subpipeline.DummyProcess")
 
         # Create Switch
-        self.add_switch("switch", ["one", "two"],
-                        ["switch_image", ])
+        self.create_switch("switch", {
+            "one": {
+                "switch_image": "way1.output_image"
+            },
+            "two": {
+                "switch_image": "way2.output_image"
+            }
+        })
 
         # Link input
         self.export_parameter("way1", "input_image")
         self.export_parameter("way1", "other_input")
 
-        # Links
-        self.add_link("way1.output_image->switch.one_switch_switch_image")
-
         self.add_link("input_image->way2.input_image")
         self.add_link("other_input->way2.other_input")
-
-        self.add_link("way2.output_image->switch.two_switch_switch_image")
 
         # Outputs
         self.export_parameter("way1", "other_output",

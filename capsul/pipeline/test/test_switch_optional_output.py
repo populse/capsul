@@ -29,12 +29,17 @@ class MyPipeline(Pipeline):
             "capsul.pipeline.test.test_switch_optional_output.DummyProcess")
         self.add_process("node3",
             "capsul.pipeline.test.test_switch_optional_output.DummyProcess")
-        self.add_switch("switch1", ["one", "two"], ["out"])
+        self.create_switch("switch1", {
+            "one": {
+                "out": "node1.output_image"
+            },
+            "two": {
+                "out": "node3.output_image"
+            }
+        })
 
         # Links
         self.add_link("node2.output_image->node3.input_image")
-        self.add_link("node1.output_image->switch1.one_switch_out")
-        self.add_link("node3.output_image->switch1.two_switch_out")
 
         # exports
         self.export_parameter("node1", "input_image", "input_image1")
