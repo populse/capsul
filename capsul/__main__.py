@@ -7,7 +7,6 @@ import sys
 
 from .api import Capsul
 from .config.configuration import ApplicationConfiguration
-from .qt_gui.widgets.settings_editor import SettingsEditor
 
 
 def executable_parser(executable):
@@ -39,11 +38,13 @@ run_parser.add_argument('executable')
 help_parser = subparsers.add_parser('help', help='Get help about a command or a process')
 help_parser.add_argument('command_or_executable')
 
+print('???')
 options, args = parser.parse_known_args()
 
 if options.subcommand == 'configure':
     # Other commands must be able to work without PyQt installed
     from soma.qt_gui.qt_backend import QtGui
+    from .qt_gui.widgets.settings_editor import SettingsEditor
 
     app_config = ApplicationConfiguration('global_config')
     app = QtGui.QApplication(sys.argv)
