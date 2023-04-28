@@ -226,7 +226,8 @@ def save_py_pipeline(pipeline, py_file):
                     option_content[output] = link_from
             options[option_name] = option_content
 
-        print(f'        self.create_switch({repr(name)}, {repr(options)}, switch_value={repr(switch.switch)})')
+        print(f'        self.create_switch({repr(name)}, {repr(options)}, switch_value={repr(switch.switch)})', file=pyf)
+
 
     def _write_processes(pipeline, pyf):
         print('        # nodes', file=pyf)
@@ -242,7 +243,7 @@ def save_py_pipeline(pipeline, py_file):
                 nodes.append((node_name, node))
         for node_name, node in proc_nodes + nodes:
             if isinstance(node, Switch):
-                _write_switch(node, pyf, node_name, node.enabled)
+                _write_switch(node, pyf, node_name)
             elif isinstance(node, Process) \
                     and isinstance(node, ProcessIteration):
                 _write_iteration(node, pyf, node_name, node.enabled)
