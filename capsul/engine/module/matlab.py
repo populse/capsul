@@ -38,6 +38,27 @@ def check_configurations():
     return None
 
 
+def check_notably_invalid_config(conf):
+    '''
+    Checks if the given module config is obviously invalid, for instance if a mandatory path is not filled
+
+    Returns
+    -------
+    invalid: list
+        list of invalid config keys
+    '''
+    invalid = []
+    for k in ('executable', 'mcr_directory'):
+        if getattr(conf, k, None) is None:
+            invalid.append(k)
+    if len(invalid) == 1:
+        # if one of the paths is filled, then it should be OK.
+        # however it may depend on uses (SPM standalone needs mcr_directory,
+        # for instance)
+        return []
+    return invalid
+
+
 def edition_widget(engine, environment, config_id='matlab'):
     ''' Edition GUI for matlab config - see
     :class:`~capsul.qt_gui.widgets.settings_editor.SettingsEditor`
@@ -65,22 +86,24 @@ def edition_widget(engine, environment, config_id='matlab'):
                 session.new_config(config_id, widget.environment, values)
             else:
                 for k in ('executable', 'mcr_directory', ):
-                    if (k == 'mcr_directory' and
-                                   values[k] and
-                                   not os.path.isdir(values[k])):
-                        raise NotADirectoryError('\nMatlab mcr_directory '
-                                                 'was not updated:\n{} is '
-                                                 'not existing!'.format(
-                                                                values[k]))
-                    elif (k == 'executable' and
-                                  values[k] and
-                                  not os.path.isfile(values[k])):
-                        raise FileNotFoundError('\nMatlab executable '
-                                                 'was not updated:\n{} is '
-                                                 'not existing!'.format(
-                                                                values[k]))
-                    else:
-                        setattr(conf, k, values[k])
+                    # don't check invalid files: they may be valid on a remote
+                    # server
+                    #if (k == 'mcr_directory' and
+                                   #values[k] and
+                                   #not os.path.isdir(values[k])):
+                        #raise NotADirectoryError('\nMatlab mcr_directory '
+                                                 #'was not updated:\n{} is '
+                                                 #'not existing!'.format(
+                                                                #values[k]))
+                    #elif (k == 'executable' and
+                                  #values[k] and
+                                  #not os.path.isfile(values[k])):
+                        #raise FileNotFoundError('\nMatlab executable '
+                                                 #'was not updated:\n{} is '
+                                                 #'not existing!'.format(
+                                                                #values[k]))
+                    #else:
+                    setattr(conf, k, values[k])
 
     controller = Controller()
     controller.add_trait('executable',

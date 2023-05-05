@@ -22,6 +22,22 @@ def init_settings(capsul_engine):
                                      'afni'})
 
 
+def check_notably_invalid_config(conf):
+    '''
+    Checks if the given module config is obviously invalid, for instance if a mandatory path is not filled
+
+    Returns
+    -------
+    invalid: list
+        list of invalid config keys
+    '''
+    invalid = []
+    for k in ('directory', ):
+        if getattr(conf, k, None) is None:
+            invalid.append(k)
+    return invalid
+
+
 def activate_configurations():
     '''
     Activate the AFNI module (set env variables) from the global configurations,
