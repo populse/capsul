@@ -1177,17 +1177,20 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         req = self.requirements()
         config = settings.select_configurations(environment, uses=req)
         success = True
-        for module in req:
+        new_req = config['capsul_engine']['uses']
+        for module in new_req:
             module_name = settings.module_name(module)
             if module_name not in config and message_list is not None:
-                message_list.append('requirement: %s is not met in %s'
-                                    % (req, self.name))
+                message_list.append('requirement: %s: %s is not met in %s'
+                                    % (module_name, new_req[module_name],
+                                       self.name))
                 success = False
             elif module_name not in config:
                 # if no message is expected, then we can return immediately
                 # without checking further requirements. Otherwise we
                 # continue to get a full list of unsatisfied requirements.
-                print('requirement:', req, 'not met in', self.name)
+                print('requirement:', module_name, ':', new_req[module_name],
+                      'not met in', self.name)
                 print('config:', settings.select_configurations(environment))
                 return None
         if success:
