@@ -45,6 +45,22 @@ def activate_configurations():
         if py_path:
             sys.path = py_path + [p for p in sys.path if p not in py_path]
 
+def check_notably_invalid_config(conf):
+    '''
+    Checks if the given module config is obviously invalid, for instance if a mandatory path is not filled
+
+    Returns
+    -------
+    invalid: list
+        list of invalid config keys
+    '''
+    invalid = []
+    for k in ('executable', ):
+        if getattr(conf, k, None) is None:
+            invalid.append(k)
+    return invalid
+
+
 def edition_widget(engine, environment, config_id='python'):
     ''' Edition GUI for python config - see
     :class:`~capsul.qt_gui.widgets.settings_editor.SettingsEditor`

@@ -53,6 +53,22 @@ def check_configurations():
     return None
 
 
+def check_notably_invalid_config(conf):
+    '''
+    Checks if the given module config is obviously invalid, for instance if a mandatory path is not filled
+
+    Returns
+    -------
+    invalid: list
+        list of invalid config keys
+    '''
+    invalid = []
+    for k in ('directory', 'config'):
+        if getattr(conf, k, None) is None:
+            invalid.append(k)
+    return invalid
+
+
 def complete_configurations():
     '''
     Try to automatically set or complete the capsul.engine.configurations for FSL.

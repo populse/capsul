@@ -160,6 +160,22 @@ def activate_configurations():
         del os.environ['SPM_STANDALONE']
 
 
+def check_notably_invalid_config(conf):
+    '''
+    Checks if the given module config is obviously invalid, for instance if a mandatory path is not filled
+
+    Returns
+    -------
+    invalid: list
+        list of invalid config keys
+    '''
+    invalid = []
+    for k in ('directory', 'version'):
+        if getattr(conf, k, None) is None:
+            invalid.append(k)
+    return invalid
+
+
 def edition_widget(engine, environment, config_id='any'):
     ''' Edition GUI for SPM config - see
     :class:`~capsul.qt_gui.widgets.settings_editor.SettingsEditor`
