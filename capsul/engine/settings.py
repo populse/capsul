@@ -98,7 +98,8 @@ class Settings:
             module_name = 'capsul.engine.module.' + module_name
         return module_name
     
-    def select_configurations(self, environment, uses=None):
+    def select_configurations(self, environment, uses=None,
+                              check_invalid_mods=False):
         '''
         Select a configuration for a given environment. A configuration is
         a dictionary whose keys are module names and values are
@@ -117,6 +118,9 @@ class Settings:
         environment and, if no result is found, the `'global'` environment
         (the value defined in `Settings.global_environment`) is used.
         
+        If `check_invalid_mods` is True, then each selected config module is
+        checked for missing values and discarded if there are.
+
         example
         -------
         To select a SPM version greater than 8 for an environment called
@@ -162,6 +166,19 @@ class Settings:
                                                                full_query))
                 else:
                     docs = []
+
+                if check_invalid_mods:
+                    # filter out invalid configs
+                    doc_t = docs
+                    docs = []
+                    for doc in doc_t:
+                        mod = sys.modules[module]
+                        invalid = []
+                        if hasattr(mod, 'check_notably_invalid_config'):
+                            invalid = mod.check_notably_invalid_config(doc)
+                        if len(invalid) == 0:
+                            docs.append(doc)
+
                 if len(docs) == 1:
                     selected_config = docs[0]
                 elif len(docs) > 1:
@@ -183,6 +200,19 @@ class Settings:
                                                                    full_query))
                     else:
                         docs = []
+
+                    if check_invalid_mods:
+                        # filter out invalid configs
+                        doc_t = docs
+                        docs = []
+                        for doc in doc_t:
+                            mod = sys.modules[module]
+                            invalid = []
+                            if hasattr(mod, 'check_notably_invalid_config'):
+                                invalid = mod.check_notably_invalid_config(doc)
+                            if len(invalid) == 0:
+                                docs.append(doc)
+
                     if len(docs) == 1:
                         selected_config = docs[0]
                     elif len(docs) > 1:

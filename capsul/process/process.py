@@ -1175,7 +1175,8 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         '''
         settings = self.get_study_config().engine.settings
         req = self.requirements()
-        config = settings.select_configurations(environment, uses=req)
+        config = settings.select_configurations(environment, uses=req,
+                                                check_invalid_mods=True)
         success = True
         new_req = config['capsul_engine']['uses']
         for module in new_req:
