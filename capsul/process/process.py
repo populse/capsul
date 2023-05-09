@@ -1178,7 +1178,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         config = settings.select_configurations(environment, uses=req,
                                                 check_invalid_mods=True)
         success = True
-        new_req = config['capsul_engine']['uses']
+        new_req = config.get('capsul_engine', {}).get('uses', {})
         for module in new_req:
             module_name = settings.module_name(module)
             if module_name not in config and message_list is not None:
