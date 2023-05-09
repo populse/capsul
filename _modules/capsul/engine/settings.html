@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 
 <html lang="en">
@@ -206,7 +205,8 @@
             <span class="n">module_name</span> <span class="o">=</span> <span class="s1">&#39;capsul.engine.module.&#39;</span> <span class="o">+</span> <span class="n">module_name</span>
         <span class="k">return</span> <span class="n">module_name</span></div>
     
-<div class="viewcode-block" id="Settings.select_configurations"><a class="viewcode-back" href="../../../api/engine.html#capsul.engine.settings.Settings.select_configurations">[docs]</a>    <span class="k">def</span> <span class="nf">select_configurations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">environment</span><span class="p">,</span> <span class="n">uses</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Settings.select_configurations"><a class="viewcode-back" href="../../../api/engine.html#capsul.engine.settings.Settings.select_configurations">[docs]</a>    <span class="k">def</span> <span class="nf">select_configurations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">environment</span><span class="p">,</span> <span class="n">uses</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                              <span class="n">check_invalid_mods</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Select a configuration for a given environment. A configuration is</span>
 <span class="sd">        a dictionary whose keys are module names and values are</span>
@@ -225,6 +225,9 @@
 <span class="sd">        environment and, if no result is found, the `&#39;global&#39;` environment</span>
 <span class="sd">        (the value defined in `Settings.global_environment`) is used.</span>
 <span class="sd">        </span>
+<span class="sd">        If `check_invalid_mods` is True, then each selected config module is</span>
+<span class="sd">        checked for missing values and discarded if there are.</span>
+
 <span class="sd">        example</span>
 <span class="sd">        -------</span>
 <span class="sd">        To select a SPM version greater than 8 for an environment called</span>
@@ -270,6 +273,19 @@
                                                                <span class="n">full_query</span><span class="p">))</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">docs</span> <span class="o">=</span> <span class="p">[]</span>
+
+                <span class="k">if</span> <span class="n">check_invalid_mods</span><span class="p">:</span>
+                    <span class="c1"># filter out invalid configs</span>
+                    <span class="n">doc_t</span> <span class="o">=</span> <span class="n">docs</span>
+                    <span class="n">docs</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">doc_t</span><span class="p">:</span>
+                        <span class="n">mod</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">module</span><span class="p">]</span>
+                        <span class="n">invalid</span> <span class="o">=</span> <span class="p">[]</span>
+                        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="s1">&#39;check_notably_invalid_config&#39;</span><span class="p">):</span>
+                            <span class="n">invalid</span> <span class="o">=</span> <span class="n">mod</span><span class="o">.</span><span class="n">check_notably_invalid_config</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">invalid</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="n">docs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">docs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                     <span class="n">selected_config</span> <span class="o">=</span> <span class="n">docs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
                 <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">docs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
@@ -291,6 +307,19 @@
                                                                    <span class="n">full_query</span><span class="p">))</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">docs</span> <span class="o">=</span> <span class="p">[]</span>
+
+                    <span class="k">if</span> <span class="n">check_invalid_mods</span><span class="p">:</span>
+                        <span class="c1"># filter out invalid configs</span>
+                        <span class="n">doc_t</span> <span class="o">=</span> <span class="n">docs</span>
+                        <span class="n">docs</span> <span class="o">=</span> <span class="p">[]</span>
+                        <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">doc_t</span><span class="p">:</span>
+                            <span class="n">mod</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">module</span><span class="p">]</span>
+                            <span class="n">invalid</span> <span class="o">=</span> <span class="p">[]</span>
+                            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="s1">&#39;check_notably_invalid_config&#39;</span><span class="p">):</span>
+                                <span class="n">invalid</span> <span class="o">=</span> <span class="n">mod</span><span class="o">.</span><span class="n">check_notably_invalid_config</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">invalid</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                                <span class="n">docs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+
                     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">docs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                         <span class="n">selected_config</span> <span class="o">=</span> <span class="n">docs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
                     <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">docs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
@@ -653,7 +682,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.1.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.0.
     </div>
   </body>
 </html>
