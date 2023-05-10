@@ -8,7 +8,7 @@ import tempfile
 import json
 from pathlib import Path
 
-from soma.controller import undefined
+from soma.controller import undefined, File
 
 from capsul.dataset import ProcessMetadata, ProcessSchema
 from capsul.api import (Capsul, executable, Pipeline)
@@ -42,11 +42,16 @@ class TestPipeline(Pipeline):
         self.add_process('left_hemi', 'capsul.test.test_completion.HemiPipeline')
         self.add_process('right_hemi', 'capsul.test.test_completion.HemiPipeline')
         self.nodes['right_hemi'].nodes['gw_segment'].side = 'right'
-        self.create_switch('normalization', {
-            'none': {'output': 'nobias.output'}, 
-            'fakespm12': {'output': 'fakespm_normalization_12.output'},
-            'aims':{'output': 'aims_normalization.output'}
-        })
+        # self.create_switch('normalization', {
+        #     'none': {'output': 'nobias.output'}, 
+        #     'fakespm12': {'output': 'fakespm_normalization_12.output'},
+        #     'aims':{'output': 'aims_normalization.output'}
+        # })
+
+        self.add_switch('normalization', ['none', 'fakespm12', 'aims'], ['output'])
+        self.add_link('nobias.output->normalization.none_switch_output')
+        self.add_link('fakespm_normalization_12.output->normalization.fakespm12_switch_output')
+        self.add_link('aims_normalization.output->normalization.aims_switch_output')
 
         self.add_link('nobias.output->fakespm_normalization_12.input')
         self.export_parameter('fakespm_normalization_12', 'template')
@@ -146,6 +151,8 @@ class TestCompletion(unittest.TestCase):
     def test_pipeline_completion(self):
 
         pipeline = executable('capsul.test.test_completion.TestPipeline')
+
+        assert(pipeline.field('normalized').type == File)
 
         engine = self.capsul.engine()
         execution_context = engine.execution_context(pipeline)

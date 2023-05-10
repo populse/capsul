@@ -10,13 +10,15 @@ Classes
 from copy import deepcopy
 import sys
 from collections import OrderedDict
-from capsul.pipeline.process_iteration import ProcessIteration
+from typing import Any
 
 from soma.undefined import undefined
+from soma.controller import field
 
-from capsul.process.process import Process, NipypeProcess
+from ..process.process import Process
 from .topological_sort import GraphNode
 from .topological_sort import Graph
+from .process_iteration import ProcessIteration
 from .pipeline_nodes import Switch
 
 from soma.controller import (Controller, 
@@ -901,6 +903,29 @@ class Pipeline(Process):
             dest_field.doc = source_field.metadata('doc')
             dest_node._switch_changed(getattr(dest_node, "switch", undefined),
                                       getattr(dest_node, "switch", undefined))
+            if dest_field.type is Any and source_field.type is not Any:
+                new_field = field(
+                    name=dest_field.name,
+                    type_=source_field.type,
+                    default=dest_field._dataclass_field.default,
+                    default_factory=dest_field._dataclass_field.default_factory,
+                    metadata=dest_field.metadata().copy(),
+                )
+                Controller.remove_field(dest_node, dest_field.name)
+                Controller.add_field(dest_node, dest_field.name, new_field)
+                
+                output_field = dest_node.field(dest_field.name.split('_switch_')[-1])
+                if output_field.type is Any:
+                    new_field = field(
+                        name=output_field.name,
+                        type_=source_field.type,
+                        default=output_field._dataclass_field.default,
+                        default_factory=output_field._dataclass_field.default_factory,
+                        metadata=output_field.metadata().copy(),
+                    )
+                    Controller.remove_field(dest_node, output_field.name)
+                    Controller.add_field(dest_node, output_field.name, new_field)
+
 
         # Refresh pipeline activation
         self.update_nodes_and_plugs_activation()

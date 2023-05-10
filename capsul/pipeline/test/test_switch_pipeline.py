@@ -44,7 +44,7 @@ class SwitchPipeline(Pipeline):
         self.add_process("way22",
              "capsul.pipeline.test.test_switch_pipeline.DummyProcess")
 
-        switch = self.create_switch("switch",
+        self.create_switch("switch",
             options = {
                 "one": {
                     "switch_image": "way1.output_image",
