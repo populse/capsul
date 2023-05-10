@@ -1298,7 +1298,8 @@
                 <span class="c1"># continue to get a full list of unsatisfied requirements.</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;requirement:&#39;</span><span class="p">,</span> <span class="n">module_name</span><span class="p">,</span> <span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="n">new_req</span><span class="p">[</span><span class="n">module_name</span><span class="p">],</span>
                       <span class="s1">&#39;not met in&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;config:&#39;</span><span class="p">,</span> <span class="n">settings</span><span class="o">.</span><span class="n">select_configurations</span><span class="p">(</span><span class="n">environment</span><span class="p">))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;config:&#39;</span><span class="p">,</span> <span class="n">settings</span><span class="o">.</span><span class="n">select_configurations</span><span class="p">(</span><span class="n">environment</span><span class="p">),</span>
+                      <span class="n">end</span><span class="o">=</span><span class="mi">2</span><span class="o">*</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
                 <span class="k">return</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">success</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">config</span>
