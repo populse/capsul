@@ -180,6 +180,7 @@ class TestPipelineWorkflow(unittest.TestCase):
                                #{'version': '12', 'standalone': True})
         study_config.spm_standalone = True
         study_config.spm_version = '12'
+        study_config.spm_directory = '/tmp'
         study_config.somaworkflow_keep_succeeded_workflows = False
         self.exec_ids = []
 
@@ -204,6 +205,13 @@ class TestPipelineWorkflow(unittest.TestCase):
     def test_full_wf(self):
         engine = self.study_config.engine
         self.pipeline.enable_all_pipeline_steps()
+        msgs = []
+        res = self.pipeline.check_requirements(msgs)
+        if res is None:
+            print('Pipeline requirements problem(s):', res, file=sys.stderr)
+            print(msgs, file=sys.stderr)
+            print('config:', file=sys.stderr)
+            print(engine.settings.select_configurations('global'), '\n', file=sys.stderr)
         wf = pipeline_workflow.workflow_from_pipeline(
             self.pipeline, study_config=self.study_config)
         # 5 jobs including the output directories creation
