@@ -18,6 +18,10 @@ parser.add_argument('-v', '--verbose',
                     action='count',
                     default=0,
                     help='Increase verbosity')
+parser.add_argument('-s',
+                    action='store_true',
+                    default=None,
+                    help='Do not capture stdout nor stderr')
 parser.add_argument('-x', '--exitfirst', 
                     action='store_true',
                     help='Exit instantly on first error or failed test')
@@ -50,6 +54,8 @@ if args.exitfirst:
     pytest_command.append('-x')
 if args.keyword:
     pytest_command += ['-k', args.keyword]
+if args.s:
+    pytest_command += ['-s']
 capsul_src = Path(__file__).parent.parent
 if args.html:
     Path(args.html).mkdir(exist_ok=True)
