@@ -1192,7 +1192,8 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
                 # continue to get a full list of unsatisfied requirements.
                 print('requirement:', module_name, ':', new_req[module_name],
                       'not met in', self.name)
-                print('config:', settings.select_configurations(environment))
+                print('config:', settings.select_configurations(environment),
+                      end=2*'\n')
                 return None
         if success:
             return config

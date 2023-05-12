@@ -33,8 +33,8 @@ def init_settings(capsul_engine):
 
 
 def config_dependencies(config):
-        if not config['standalone']:
-            return {'matlab': 'any'}
+    if not config['standalone']:
+        return {'matlab': 'any'}
 
 #def set_environ(config, environ):
     #spm_config = config.get('spm', {})
@@ -170,9 +170,11 @@ def check_notably_invalid_config(conf):
         list of invalid config keys
     '''
     invalid = []
-    for k in ('directory', 'version'):
-        if getattr(conf, k, None) is None:
-            invalid.append(k)
+    #for k in ('directory', 'version'):
+    #    if getattr(conf, k, None) is None:
+    #        invalid.append(k)
+    if getattr(conf, 'directory', None) is None:
+        invalid.append('directory')
     return invalid
 
 
