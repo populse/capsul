@@ -33,9 +33,8 @@ def init_settings(capsul_engine):
 
 
 def config_dependencies(config):
-    #if not config['standalone']:
-    #    return {'matlab': 'any'}
-    return {'matlab': 'any'}
+    if not config['standalone']:
+        return {'matlab': 'any'}
 
 #def set_environ(config, environ):
     #spm_config = config.get('spm', {})
