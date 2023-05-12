@@ -140,9 +140,8 @@
 
 
 <span class="k">def</span> <span class="nf">config_dependencies</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
-    <span class="c1">#if not config[&#39;standalone&#39;]:</span>
-    <span class="c1">#    return {&#39;matlab&#39;: &#39;any&#39;}</span>
-    <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;matlab&#39;</span><span class="p">:</span> <span class="s1">&#39;any&#39;</span><span class="p">}</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;standalone&#39;</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;matlab&#39;</span><span class="p">:</span> <span class="s1">&#39;any&#39;</span><span class="p">}</span>
 
 <span class="c1">#def set_environ(config, environ):</span>
     <span class="c1">#spm_config = config.get(&#39;spm&#39;, {})</span>
