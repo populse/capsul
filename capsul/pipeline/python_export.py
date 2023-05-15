@@ -60,7 +60,9 @@ def save_py_pipeline(pipeline, py_file):
             else:
                 classname = process.__class__.__name__
         procname = '.'.join((mod, classname))
+        print('reinstantiate/reload:', procname)
         proc_copy = executable(procname)
+        print('reloaded:', procname)
         make_opt = []
         for field in proc_copy.fields():
             fname = field.name
@@ -226,7 +228,28 @@ def save_py_pipeline(pipeline, py_file):
                     option_content[output] = link_from
             options[option_name] = option_content
 
-        print(f'        self.create_switch({repr(name)}, {repr(options)}, switch_value={repr(switch.switch)})', file=pyf)
+        inputs_set = set()
+        inputs = []
+        outputs = []
+        optional = []
+        for plug_name, plug in switch.plugs.items():
+            if plug.output:
+                outputs.append(plug_name)
+                if plug.optional:
+                    optional.append(plug_name)
+            else:
+                name_parts = plug_name.split("_switch_")
+                if len(name_parts) == 2 \
+                        and name_parts[0] not in inputs_set:
+                    inputs_set.add(name_parts[0])
+                    inputs.append(name_parts[0])
+        optional_p = ''
+        if len(optional) != 0:
+            optional_p = ', make_optional=%s' % repr(optional)
+
+        #print(f'        self.create_switch({repr(name)}, {repr(options)}, switch_value={repr(switch.switch)}, export_switch=False)', file=pyf)
+        print(f'        self.add_switch({repr(name)}, {repr(inputs)}, '
+              f'{repr(outputs)}{optional_p}, export_switch=False)', file=pyf)
 
 
     def _write_processes(pipeline, pyf):
