@@ -6,7 +6,6 @@ import sys
 import tempfile
 from soma.controller import File, field
 from capsul.api import Process, Pipeline, Capsul
-from soma_workflow import configuration as swconfig
 import shutil
 from six.moves import zip
 
@@ -117,9 +116,8 @@ def setUpModule():
     # the user's environment
     old_home = os.environ.get('HOME')
     try:
-        temp_home_dir = tempfile.mkdtemp('', prefix='soma_workflow')
+        temp_home_dir = tempfile.mkdtemp('', prefix='cpasul_tmp_')
         os.environ['HOME'] = temp_home_dir
-        swconfig.change_soma_workflow_directory(temp_home_dir)
     except BaseException:  # clean up in case of interruption
         if old_home is None:
             del os.environ['HOME']
