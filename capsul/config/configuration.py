@@ -227,8 +227,13 @@ class ConfigurationLayer(OpenKeyDictController[EngineConfiguration]):
     resource could be named "builtin".
     '''
 
-    def __init__(self):
+    def __init__(self, conf_dict=None):
         super().__init__()
+        self.add_builtin_fields()
+        if conf_dict is not None:
+            self.import_dict(conf_dict)
+
+    def add_builtin_fields(self):
         self.add_field('databases', dict[str, dict],
             default_factory=lambda: {'builtin': default_builtin_database})
         self.add_field(
@@ -238,8 +243,11 @@ class ConfigurationLayer(OpenKeyDictController[EngineConfiguration]):
             '...)')
 
     def import_dict(self, d, clear=False):
+        if clear:
+            super().import_dict({}, clear=True)
+            self.add_builtin_fields()
         builtin = self.databases['builtin']
-        super().import_dict(d, clear=clear)
+        super().import_dict(d, clear=False)
         self.databases.setdefault('builtin', builtin)
     
     def load(self, filename):
