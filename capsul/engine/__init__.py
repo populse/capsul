@@ -53,7 +53,8 @@ def execution_context(engine_label, engine_config, executable):
                 f'module {module_name}')
         # get the single remaining config
         valid_config = next(iter(valid_module_configs.values()))
-        execution_context.add_field(module_name, type_=ModuleConfiguration)
+        execution_context.add_field(module_name, type_=ModuleConfiguration,
+                                    override=True)
         setattr(execution_context, module_name,  valid_config)
     return execution_context
 
