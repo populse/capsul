@@ -14,7 +14,7 @@ class PopulseDBEngine(DatabaseEngine):
         self.db = Database(database_engine)
         with self.db as dbs:
             if not dbs.get_collection('path_metadata'):
-                # Create the schema if it does not exists                
+                # Create the schema if it does not exist
                 dbs.add_collection('named_directory', 'name')
                 dbs.add_field('named_directory', 'path', 'string')
                 

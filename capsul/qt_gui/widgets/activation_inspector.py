@@ -159,7 +159,7 @@ class ActivationInspector(QtGui.QWidget):
         else:
             raise ValueError(
                 "The record file '{0}' can't be created since the "
-                "base directory does not exists.".format(self.record_file))
+                "base directory does not exist.".format(self.record_file))
 
         # Execute the pipeline activation method
         self.pipeline.update_nodes_and_plugs_activation()

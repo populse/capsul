@@ -123,7 +123,7 @@ def check_configuration_values(study_config):
         if fsl_prefix:
             return 'FSL configuration must either use fsl_config or fsl_prefix but not both'
         if not osp.exists(study_config.fsl_config):
-            return 'File "%s" does not exists' % study_config.fsl_config
+            return 'File "%s" does not exist' % study_config.fsl_config
         if not study_config.fsl_config.endswith('fsl.sh'):
             return 'File "%s" is not a path to fsl.sh script' % study_config.fsl_config
     return None
