@@ -79,7 +79,7 @@ class MatlabConfig(StudyConfigModule):
         if not os.path.exists(self.study_config.matlab_exec):
             self.study_config.use_matlab = False
             if force_configuration:
-                raise EnvironmentError('"%s" does not exists. Matlab '
+                raise EnvironmentError('"%s" does not exist. Matlab '
                                       'configuration is not valid.' % \
                                       self.study_config.matlab_exec)
             return

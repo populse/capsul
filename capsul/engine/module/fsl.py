@@ -47,7 +47,7 @@ def check_configurations():
         if fsl_prefix:
             return 'FSL configuration must either use config or prefix but not both'
         if not osp.exists(fsl_config):
-            return 'File "%s" does not exists' % fsl_config
+            return 'File "%s" does not exist' % fsl_config
         if not fsl_config.endswith('fsl.sh'):
             return 'File "%s" is not a path to fsl.sh script' % fsl_config
     return None
