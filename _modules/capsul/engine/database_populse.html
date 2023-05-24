@@ -121,7 +121,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="o">=</span> <span class="n">Database</span><span class="p">(</span><span class="n">database_engine</span><span class="p">)</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="k">as</span> <span class="n">dbs</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">dbs</span><span class="o">.</span><span class="n">get_collection</span><span class="p">(</span><span class="s1">&#39;path_metadata&#39;</span><span class="p">):</span>
-                <span class="c1"># Create the schema if it does not exists                </span>
+                <span class="c1"># Create the schema if it does not exist</span>
                 <span class="n">dbs</span><span class="o">.</span><span class="n">add_collection</span><span class="p">(</span><span class="s1">&#39;named_directory&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">)</span>
                 <span class="n">dbs</span><span class="o">.</span><span class="n">add_field</span><span class="p">(</span><span class="s1">&#39;named_directory&#39;</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">,</span> <span class="s1">&#39;string&#39;</span><span class="p">)</span>
                 
@@ -293,7 +293,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
     </div>
   </body>
 </html>
