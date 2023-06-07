@@ -291,7 +291,7 @@ class StudyConfig(Controller):
                     self.load_module(dep_module_name, config)
             return module
 
-    def run(self, process_or_pipeline, output_directory= None,
+    def run(self, process_or_pipeline, output_directory=None,
             execute_qc_nodes=True, verbose=0, configuration_dict=None,
             **kwargs):
         """Method to execute a process or a pipline in a study configuration
@@ -338,7 +338,7 @@ class StudyConfig(Controller):
         for k, v in six.iteritems(kwargs):
             setattr(process_or_pipeline, k, v)
         # output_directory cannot be in kwargs
-        if output_directory not in (None, Undefined) \
+        if output_directory not in (None, Undefined, '') \
                 and 'output_directory' in process_or_pipeline.traits():
             process_or_pipeline.output_directory = output_directory
 
@@ -353,16 +353,16 @@ class StudyConfig(Controller):
 
 
         # Use the local machine to execute the pipeline or process
-        if output_directory is None or output_directory is Undefined:
+        if output_directory is None or output_directory is Undefined \
+                or output_directory == '':
             if 'output_directory' in process_or_pipeline.traits():
                 output_directory = getattr(process_or_pipeline,
                                             'output_directory')
-            if output_directory is None or output_directory is Undefined:
+            if output_directory in (None, Undefined, ''):
                 output_directory = self.output_directory
          # Not all processes need an output_directory defined on
         # StudyConfig
-        if output_directory is not None \
-                and output_directory is not Undefined:
+        if output_directory not in (None, Undefined, ''):
             # Check the output directory is valid
             if not isinstance(output_directory, six.string_types):
                 raise ValueError(
