@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 from capsul.api import Process
 from traits.api import File, Undefined
