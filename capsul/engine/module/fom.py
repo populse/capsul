@@ -88,7 +88,9 @@ def init_settings(capsul_engine):
 
 
 def config_dependencies(config):
-    return {'axon': 'any', 'spm': 'any', 'attributes': 'any'}
+    return {'axon': 'any',
+            #'spm': 'any',
+            'attributes': 'any'}
 
 
 def config_updated(capsul_engine, environment, param=None, value=None):
