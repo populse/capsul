@@ -263,16 +263,27 @@ def main():
     usage = '''Usage: python -m capsul [options] processname [arg1] [arg2] ...
     [argx=valuex] [argy=valuey] ...
 
-    Example:
-    python -m capsul threshold ~/data/irm.ima /tmp/th.nii threshold1=80
+    Example::
+
+        python -m capsul threshold ~/data/irm.ima /tmp/th.nii threshold1=80
 
     Named arguments (in the shape argx=valuex) may address sub-processes of a
-    pipeline, using the dot separator:
+    pipeline, using the dot separator::
 
-    PrepareSubject.t1mri=/home/myself/mymri.nii
+        PrepareSubject.t1mri=/home/myself/mymri.nii
 
     For a more precise description, please look at the web documentation:
     https://brainvisa.info/capsul/user_guide_tree/index.html
+
+    Configuration:
+
+    The ``--config`` option allows to pass a Capsul configuration file (a JSON
+    dict). If you have a configuration in Brainvisa/Axon and want to convert
+    it, use the following::
+
+        axon-runprocess capsul://capsul.engine.write_engine_config engine.json
+
+    Then the file ``engine.json`` will be OK.
     '''
 
     # Set up logging on stderr. This must be called before any logging takes
