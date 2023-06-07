@@ -22,7 +22,7 @@ class WriteEngineConfig(Process):
     """
     output_config_file = File(
         output=True, optional=False, allowed_extensions=['.json'],
-        desc="outout JSON config file")
+        desc="output JSON config file")
 
     def requirements(self):
         # requires current settings modules
