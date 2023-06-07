@@ -115,6 +115,19 @@ To get help about a process, its parameters, and available attributes to control
 
   python -m capsul --process-help morphologist.capsul.morphologist.Morphologist
 
+**Configuration:**
+
+Capsul configuration may be specified via the ``--config`` option, or the older ``--studyconfig`` option:
+
+.. code-block:: bash
+
+    python -m capsul --config engine.json -a subject=subjet01 -a center=subjects morphologist.capsul.morphologist.Morphologist
+
+The config may be imported from BrainVisa/Axon config using the process ``capsul.engine.write_engine_config``:
+
+.. code-block:: bash
+
+    axon-runprocess capsul://capsul.engine.write_engine_config engine.json
 
 .. Simple, sequential execution
 .. ============================

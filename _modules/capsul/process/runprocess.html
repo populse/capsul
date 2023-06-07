@@ -369,16 +369,27 @@
     <span class="n">usage</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;Usage: python -m capsul [options] processname [arg1] [arg2] ...</span>
 <span class="s1">    [argx=valuex] [argy=valuey] ...</span>
 
-<span class="s1">    Example:</span>
-<span class="s1">    python -m capsul threshold ~/data/irm.ima /tmp/th.nii threshold1=80</span>
+<span class="s1">    Example::</span>
+
+<span class="s1">        python -m capsul threshold ~/data/irm.ima /tmp/th.nii threshold1=80</span>
 
 <span class="s1">    Named arguments (in the shape argx=valuex) may address sub-processes of a</span>
-<span class="s1">    pipeline, using the dot separator:</span>
+<span class="s1">    pipeline, using the dot separator::</span>
 
-<span class="s1">    PrepareSubject.t1mri=/home/myself/mymri.nii</span>
+<span class="s1">        PrepareSubject.t1mri=/home/myself/mymri.nii</span>
 
 <span class="s1">    For a more precise description, please look at the web documentation:</span>
 <span class="s1">    https://brainvisa.info/capsul/user_guide_tree/index.html</span>
+
+<span class="s1">    Configuration:</span>
+
+<span class="s1">    The ``--config`` option allows to pass a Capsul configuration file (a JSON</span>
+<span class="s1">    dict). If you have a configuration in Brainvisa/Axon and want to convert</span>
+<span class="s1">    it, use the following::</span>
+
+<span class="s1">        axon-runprocess capsul://capsul.engine.write_engine_config engine.json</span>
+
+<span class="s1">    Then the file ``engine.json`` will be OK.</span>
 <span class="s1">    &#39;&#39;&#39;</span>
 
     <span class="c1"># Set up logging on stderr. This must be called before any logging takes</span>
