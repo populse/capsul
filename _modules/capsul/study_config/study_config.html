@@ -397,7 +397,7 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">load_module</span><span class="p">(</span><span class="n">dep_module_name</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">module</span></div>
 
-<div class="viewcode-block" id="StudyConfig.run"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.study_config.StudyConfig.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process_or_pipeline</span><span class="p">,</span> <span class="n">output_directory</span><span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="StudyConfig.run"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.study_config.StudyConfig.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process_or_pipeline</span><span class="p">,</span> <span class="n">output_directory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">execute_qc_nodes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">configuration_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Method to execute a process or a pipeline in a study configuration</span>
@@ -444,7 +444,7 @@
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">kwargs</span><span class="p">):</span>
             <span class="nb">setattr</span><span class="p">(</span><span class="n">process_or_pipeline</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
         <span class="c1"># output_directory cannot be in kwargs</span>
-        <span class="k">if</span> <span class="n">output_directory</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">)</span> \
+        <span class="k">if</span> <span class="n">output_directory</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> \
                 <span class="ow">and</span> <span class="s1">&#39;output_directory&#39;</span> <span class="ow">in</span> <span class="n">process_or_pipeline</span><span class="o">.</span><span class="n">traits</span><span class="p">():</span>
             <span class="n">process_or_pipeline</span><span class="o">.</span><span class="n">output_directory</span> <span class="o">=</span> <span class="n">output_directory</span>
 
@@ -459,16 +459,16 @@
 
 
         <span class="c1"># Use the local machine to execute the pipeline or process</span>
-        <span class="k">if</span> <span class="n">output_directory</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">output_directory</span> <span class="ow">is</span> <span class="n">Undefined</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">output_directory</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">output_directory</span> <span class="ow">is</span> <span class="n">Undefined</span> \
+                <span class="ow">or</span> <span class="n">output_directory</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
             <span class="k">if</span> <span class="s1">&#39;output_directory&#39;</span> <span class="ow">in</span> <span class="n">process_or_pipeline</span><span class="o">.</span><span class="n">traits</span><span class="p">():</span>
                 <span class="n">output_directory</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">process_or_pipeline</span><span class="p">,</span>
                                             <span class="s1">&#39;output_directory&#39;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">output_directory</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">output_directory</span> <span class="ow">is</span> <span class="n">Undefined</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">output_directory</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">):</span>
                 <span class="n">output_directory</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_directory</span>
          <span class="c1"># Not all processes need an output_directory defined on</span>
         <span class="c1"># StudyConfig</span>
-        <span class="k">if</span> <span class="n">output_directory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> \
-                <span class="ow">and</span> <span class="n">output_directory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">Undefined</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">output_directory</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">):</span>
             <span class="c1"># Check the output directory is valid</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">output_directory</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
