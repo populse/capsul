@@ -28,9 +28,12 @@ def check_configurations():
     '''
     matlab_executable = capsul.engine.configurations.get(
         'capsul.engine.module.matlab', {}).get('executable')
-    if not matlab_executable:
-        return 'matlab.executable is not defined'
-    if not os.path.exists(matlab_executable):
+    mcr = capsul.engine.configurations.get(
+        'capsul.engine.module.matlab', {}).get('mcr_directory')
+    if not matlab_executable and not mcr:
+        return \
+            'both matlab.executable and matlab.mcr_directory are not defined'
+    if matlab_executable and not os.path.exists(matlab_executable):
         return 'Matlab executable is defined as "%s" but this path does not exist' % matlab_executable
     return None
 
