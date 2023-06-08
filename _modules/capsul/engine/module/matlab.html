@@ -135,9 +135,12 @@
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">matlab_executable</span> <span class="o">=</span> <span class="n">capsul</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">configurations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
         <span class="s1">&#39;capsul.engine.module.matlab&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;executable&#39;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">matlab_executable</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s1">&#39;matlab.executable is not defined&#39;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">matlab_executable</span><span class="p">):</span>
+    <span class="n">mcr</span> <span class="o">=</span> <span class="n">capsul</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">configurations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+        <span class="s1">&#39;capsul.engine.module.matlab&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;mcr_directory&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">matlab_executable</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">mcr</span><span class="p">:</span>
+        <span class="k">return</span> \
+            <span class="s1">&#39;both matlab.executable and matlab.mcr_directory are not defined&#39;</span>
+    <span class="k">if</span> <span class="n">matlab_executable</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">matlab_executable</span><span class="p">):</span>
         <span class="k">return</span> <span class="s1">&#39;Matlab executable is defined as &quot;</span><span class="si">%s</span><span class="s1">&quot; but this path does not exist&#39;</span> <span class="o">%</span> <span class="n">matlab_executable</span>
     <span class="k">return</span> <span class="kc">None</span></div>
 
