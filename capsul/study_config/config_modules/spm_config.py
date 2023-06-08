@@ -36,7 +36,8 @@ class SPMConfig(StudyConfigModule):
         self.study_config.add_trait("spm_directory", Directory(
             Undefined,
             output=False,
-            desc="Directory containing SPM.",
+            desc="Directory containing SPM. In standalone mode, this is the "
+            "MCR path instead, SPM path is part of the spm_exec variable.",
             groups=['spm']))
         self.study_config.add_trait("spm_standalone", Bool(
             Undefined,
@@ -96,23 +97,29 @@ class SPMConfig(StudyConfigModule):
                                        if x.version not in ('', None)
                                        else 0)
                                        * 1000 - int(bool(x.standalone)))
+                    mlconfigs = list(session.configs('matlab', 'global'))
+                    mlconfig = None
+                    if len(mlconfigs) != 0:
+                        mlconfig = mlconfigs[0]
                     if len(configs) != 0:
                         config = configs[0]
                         directory = config.directory \
                             if config.directory not in (None, '') \
                             else Undefined
-                        self.study_config.spm_directory = directory
+                        #self.study_config.spm_directory = directory
+                        if mlconfig and mlconfig.mcr_directory:
+                            self.study_config.spm_directory \
+                                = mlconfig.mcr_directory
                         self.study_config.spm_standalone \
                             = bool(config.standalone)
                         if config.version is not None:
                             self.study_config.spm_version = config.version
                         else:
                             self.study_config.spm_version = '0'
-                        if self.study_config.spm_directory not in (None,
-                                                                  Undefined):
+                        if directory not in (None, Undefined):
                             if config.version:
                                 spm_exec = \
-                                    osp.join(self.study_config.spm_directory,
+                                    osp.join(directory,
                                             'run_spm%s.sh' % config.version)
                                 if os.path.exists(spm_exec):
                                     spm_exec = [spm_exec]
@@ -120,7 +127,7 @@ class SPMConfig(StudyConfigModule):
                                     spm_exec = []
                             else:
                                 spm_exec = glob.glob(osp.join(
-                                    self.study_config.spm_directory,
+                                    directory,
                                     'run_spm*.sh'))
                             if len(spm_exec) != 0:
                                 self.study_config.spm_exec = spm_exec[0]
@@ -162,18 +169,21 @@ class SPMConfig(StudyConfigModule):
                         session.new_config(
                             'spm', 'global',
                             {'directory':
-                                self.study_config.spm_directory
-                                    if self.study_config.spm_directory
+                                osp.dirname(self.study_config.spm_exec)
+                                    if self.study_config.spm_exec
+                                  #self.study_config.spm_directory
+                                    #if self.study_config.spm_directory
                                         is not Undefined
                                     else None,
                             'version': version,
                             'standalone': standalone,
                             cif: id})
                     else:
-                        tparam = {'spm_directory': 'directory',
+                        tparam = { #'spm_directory': 'directory',
                                   'spm_standalone': 'standalone',
                                   'spm_version': 'version'}
-                        params = ['spm_directory', 'spm_standalone',
+                        params = [#'spm_directory',
+                                  'spm_standalone',
                                   'spm_version']
                         defaults = {'directory': None, 'standalone': False,
                                     'version': '12'}
@@ -183,5 +193,25 @@ class SPMConfig(StudyConfigModule):
                             if val is Undefined:
                                 val = defaults.get(ceparam, None)
                             setattr(config, ceparam, val)
+                        val = self.study_config.spm_exec
+                        if val is Undefined:
+                            val = None
+                        else:
+                            val = osp.dirname(self.study_config.spm_exec)
+                            config.directory = val
+
+                    if self.study_config.spm_directory \
+                            and self.study_config.spm_standalone:
+                        config = session.config('matlab', 'global',
+                                                selection='%s == "matlab"'
+                                                % cif)
+                        if config is None:
+                            session.new_config(
+                                'matlab', 'global',
+                                {'mcr_directory':
+                                    self.study_config.spm_directory})
+                        else:
+                            config.mcr_directory \
+                                = self.study_config.spm_directory
         finally:
             del self._syncing
