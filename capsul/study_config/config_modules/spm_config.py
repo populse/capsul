@@ -198,7 +198,7 @@ class SPMConfig(StudyConfigModule):
                             val = None
                         else:
                             val = osp.dirname(self.study_config.spm_exec)
-                            config.directory = val
+                        config.directory = val
 
                     if self.study_config.spm_directory \
                             and self.study_config.spm_standalone:
@@ -211,8 +211,9 @@ class SPMConfig(StudyConfigModule):
                         if config is None:
                             session.new_config(
                                 'matlab', 'global',
-                                {'mcr_directory': spm_dir})
+                                {'mcr_directory': spm_dir,
+                                 'config_id': 'matlab'})
                         else:
-                            config.mcr_directory = spm_directory
+                            config.mcr_directory = spm_dir
         finally:
             del self._syncing
