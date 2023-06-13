@@ -205,13 +205,14 @@ class SPMConfig(StudyConfigModule):
                         config = session.config('matlab', 'global',
                                                 selection='%s == "matlab"'
                                                 % cif)
+                        spm_dir = self.study_config.spm_directory
+                        if spm_dir is Undefined:
+                            spm_dir = None
                         if config is None:
                             session.new_config(
                                 'matlab', 'global',
-                                {'mcr_directory':
-                                    self.study_config.spm_directory})
+                                {'mcr_directory': spm_dir})
                         else:
-                            config.mcr_directory \
-                                = self.study_config.spm_directory
+                            config.mcr_directory = spm_directory
         finally:
             del self._syncing
