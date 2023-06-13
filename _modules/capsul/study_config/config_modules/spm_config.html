@@ -304,21 +304,23 @@
                             <span class="n">val</span> <span class="o">=</span> <span class="kc">None</span>
                         <span class="k">else</span><span class="p">:</span>
                             <span class="n">val</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">spm_exec</span><span class="p">)</span>
-                            <span class="n">config</span><span class="o">.</span><span class="n">directory</span> <span class="o">=</span> <span class="n">val</span>
+                        <span class="n">config</span><span class="o">.</span><span class="n">directory</span> <span class="o">=</span> <span class="n">val</span>
 
                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">spm_directory</span> \
                             <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">spm_standalone</span><span class="p">:</span>
                         <span class="n">config</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s1">&#39;matlab&#39;</span><span class="p">,</span> <span class="s1">&#39;global&#39;</span><span class="p">,</span>
                                                 <span class="n">selection</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> == &quot;matlab&quot;&#39;</span>
                                                 <span class="o">%</span> <span class="n">cif</span><span class="p">)</span>
+                        <span class="n">spm_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">spm_directory</span>
+                        <span class="k">if</span> <span class="n">spm_dir</span> <span class="ow">is</span> <span class="n">Undefined</span><span class="p">:</span>
+                            <span class="n">spm_dir</span> <span class="o">=</span> <span class="kc">None</span>
                         <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                             <span class="n">session</span><span class="o">.</span><span class="n">new_config</span><span class="p">(</span>
                                 <span class="s1">&#39;matlab&#39;</span><span class="p">,</span> <span class="s1">&#39;global&#39;</span><span class="p">,</span>
-                                <span class="p">{</span><span class="s1">&#39;mcr_directory&#39;</span><span class="p">:</span>
-                                    <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">spm_directory</span><span class="p">})</span>
+                                <span class="p">{</span><span class="s1">&#39;mcr_directory&#39;</span><span class="p">:</span> <span class="n">spm_dir</span><span class="p">,</span>
+                                 <span class="s1">&#39;config_id&#39;</span><span class="p">:</span> <span class="s1">&#39;matlab&#39;</span><span class="p">})</span>
                         <span class="k">else</span><span class="p">:</span>
-                            <span class="n">config</span><span class="o">.</span><span class="n">mcr_directory</span> \
-                                <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">spm_directory</span>
+                            <span class="n">config</span><span class="o">.</span><span class="n">mcr_directory</span> <span class="o">=</span> <span class="n">spm_dir</span>
         <span class="k">finally</span><span class="p">:</span>
             <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_syncing</span></div>
 </pre></div>

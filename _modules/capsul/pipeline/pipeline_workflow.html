@@ -1639,10 +1639,11 @@
     <span class="n">engine</span> <span class="o">=</span> <span class="n">study_config</span><span class="o">.</span><span class="n">engine</span>
 
     <span class="k">if</span> <span class="n">check_requirements</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">check_requirements</span><span class="p">(</span><span class="n">environment</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ml</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">check_requirements</span><span class="p">(</span><span class="n">environment</span><span class="p">,</span> <span class="n">message_list</span><span class="o">=</span><span class="n">ml</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s1">&#39;The pipeline requirements are not met in the current &#39;</span>
-                <span class="s1">&#39;configuration settings.&#39;</span><span class="p">)</span>
+                <span class="s1">&#39;configuration settings: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">ml</span><span class="p">))</span>
 
     <span class="n">temp_pipeline</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">Pipeline</span><span class="p">):</span>
