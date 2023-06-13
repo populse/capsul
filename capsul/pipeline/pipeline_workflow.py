@@ -1533,10 +1533,11 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
     engine = study_config.engine
 
     if check_requirements:
-        if pipeline.check_requirements(environment) is None:
+        ml = []
+        if pipeline.check_requirements(environment, message_list=ml) is None:
             raise ValueError(
                 'The pipeline requirements are not met in the current '
-                'configuration settings.')
+                'configuration settings: %s' % str(ml))
 
     temp_pipeline = False
     if not isinstance(pipeline, Pipeline):
