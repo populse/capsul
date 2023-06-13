@@ -251,7 +251,8 @@ class TestCapsulEngine(unittest.TestCase):
                  'standalone': True,
                  cif: '8'},
              'capsul_engine':
-                {'uses': {'capsul.engine.module.spm': 'any'}}})
+                {'uses': {'capsul.engine.module.spm': 'any',
+                          'capsul.engine.module.matlab': 'any'}}})
         self.assertEqual(
             self.ce.settings.select_configurations(
                 'global',  uses={'spm': 'version=="12"'}),
