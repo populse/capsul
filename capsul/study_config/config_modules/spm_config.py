@@ -133,9 +133,14 @@ class SPMConfig(StudyConfigModule):
                                 self.study_config.spm_exec = spm_exec[0]
                             else:
                                 self.study_config.spm_exec = Undefined
+                        if self.study_config.spm_directory \
+                                    not in (None, Undefined) \
+                                and self.study_config.spm_exec \
+                                    not in (None, Undefined):
                             self.study_config.use_spm = True
                         else:
                             self.study_config.use_spm = False
+
         finally:
             del self._syncing
 
