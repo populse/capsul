@@ -13,9 +13,8 @@ import json
 import glob
 
 from capsul.api import capsul_engine
-from capsul.api import Process, Pipeline
+from capsul.api import Process
 from capsul.engine import activate_configuration
-from capsul import engine
 from soma_workflow import configuration as swconfig
 from traits.api import File
 
@@ -63,13 +62,14 @@ class MatlabProcess(Process):
         if not mconf:
             raise RuntimeError('Matlab config is not present')
 
+
 class PythonProcess(Process):
     output_config = File(output=True, desc='output file to write config',
                          allowed_extensions=['.json'])
 
     # python requirements are handled automatically
-    #def requirements(self):
-        #return {'python': 'any'}
+    # def requirements(self):
+    #     return {'python': 'any'}
 
     def _run_process(self):
         import capsul.engine
@@ -91,13 +91,15 @@ def tearDownModule():
         del os.environ['HOME']
     else:
         os.environ['HOME'] = old_home
-    #print('temp_home_dir:', temp_home_dir)
+    # print('temp_home_dir:', temp_home_dir)
     shutil.rmtree(temp_home_dir)
 
 
 def check_nipype_spm():
     # look for hardcoded paths, I have no other way at hand...
     spm_standalone_paths = ['/usr/local/spm12-standalone',
+                            '/drf/local/spm12-standalone',
+                            '/volatile/local/spm12-standalone',
                             '/i2bm/local/spm12-standalone']
     spm_standalone_path = [p for p in spm_standalone_paths if os.path.isdir(p)]
     if not spm_standalone_path:
@@ -115,6 +117,8 @@ def check_nipype_spm():
                         mcr_path = l.split('=', 1)[1]
         if not mcr_path:
             mcr_paths = ['/usr/local/matlab/MATLAB_Runtime',
+                         '/drf/local/matlab/MATLAB_Runtime',
+                         '/volatile/local/spm12-standalone/mcr',
                          '/i2bm/local/matlab/MATLAB_Runtime', ]
             for p in mcr_paths:
                 mcr = glob.glob(osp.join(p, 'v*'))
@@ -136,7 +140,7 @@ class TestCapsulEngine(unittest.TestCase):
     def setUp(self):
         self.sqlite_file = str(tempfile.mktemp(suffix='.sqlite'))
         self.ce = capsul_engine(self.sqlite_file)
-    
+
     def tearDown(self):
         self.ce = None
         # garbage collect to ensure the database is closed
@@ -146,29 +150,28 @@ class TestCapsulEngine(unittest.TestCase):
         if os.path.exists(self.sqlite_file):
             os.remove(self.sqlite_file)
 
-
     def test_engine_settings(self):
         # In the following, we use explicit values for config_id_field
         # (which is a single string value that must be unique for each
         # config). This is not mandatory but it avoids to have randomly
         # generated values making testing results more difficult to tackle.
         self.maxDiff = 2000
-        
+
         cif = self.ce.settings.config_id_field
         with self.ce.settings as settings:
             # Create a new section object for 'fsl' in 'global' environment
             config = settings.config('fsl', 'global')
             if config:
                 settings.remove_config('fsl', 'global',
-                                        getattr(config, cif))
-            fsl = settings.new_config('fsl', 'global', {cif:'5'})
+                                       getattr(config, cif))
+            fsl = settings.new_config('fsl', 'global', {cif: '5'})
             fsl.directory = '/there'
 
             # Create a global AFNI configuration
             config = settings.config('afni', 'global')
             if config:
                 settings.remove_config('afni', 'global',
-                                        getattr(config, cif))
+                                       getattr(config, cif))
             settings.new_config('afni', 'global', {'directory': '/there',
                                                    cif: '22'})
 
@@ -183,15 +186,15 @@ class TestCapsulEngine(unittest.TestCase):
             # Create two global SPM configurations
             settings.new_config('spm', 'global', {'version': '8',
                                                   'standalone': True,
-                                                  cif:'8'})
+                                                  cif: '8'})
             settings.new_config('spm', 'global', {'version': '12',
                                                   'standalone': False,
-                                                  cif:'12'})
+                                                  cif: '12'})
             # Create one SPM configuration for 'my_machine'
             settings.new_config('spm', 'my_machine', {'version': '20',
                                                       'standalone': True,
-                                                      cif:'20'})
-    
+                                                      cif: '20'})
+
         self.assertEqual(
             self.ce.settings.select_configurations('my_machine'),
             {'capsul_engine': {'uses': {'capsul.engine.module.fsl': 'ALL',
@@ -203,15 +206,15 @@ class TestCapsulEngine(unittest.TestCase):
                                           'directory': '/there',
                                           cif: '5'},
              'capsul.engine.module.afni': {
-                'config_environment': 'global','directory': '/there',
+                'config_environment': 'global', 'directory': '/there',
                 cif: '22'},
              'capsul.engine.module.ants': {
                  'config_environment': 'global', 'directory': '/there',
                  cif: '235'},
              'capsul.engine.module.spm': {'config_environment': 'my_machine',
-                                           'version': '20',
-                                           'standalone': True,
-                                           cif: '20'}})
+                                          'version': '20',
+                                          'standalone': True,
+                                          cif: '20'}})
         self.assertRaises(EnvironmentError,
                           lambda:
                               self.ce.settings.select_configurations('global'))
@@ -220,7 +223,7 @@ class TestCapsulEngine(unittest.TestCase):
                                                    uses={'fsl': 'any'}),
             {'capsul.engine.module.fsl':
                 {'config_environment': 'global', 'directory': '/there',
-                 cif:'5'},
+                 cif: '5'},
              'capsul_engine':
                 {'uses': {'capsul.engine.module.fsl': 'any'}}})
 
@@ -228,8 +231,8 @@ class TestCapsulEngine(unittest.TestCase):
             self.ce.settings.select_configurations('global',
                                                    uses={'afni': 'any'}),
             {'capsul.engine.module.afni':
-                 {'config_environment': 'global', 'directory': '/there',
-                  cif: '22'},
+                {'config_environment': 'global', 'directory': '/there',
+                 cif: '22'},
              'capsul_engine':
                  {'uses': {'capsul.engine.module.afni': 'any'}}})
 
@@ -237,8 +240,8 @@ class TestCapsulEngine(unittest.TestCase):
             self.ce.settings.select_configurations('global',
                                                    uses={'ants': 'any'}),
             {'capsul.engine.module.ants':
-                 {'config_environment': 'global', 'directory': '/there',
-                  cif: '235'},
+                {'config_environment': 'global', 'directory': '/there',
+                 cif: '235'},
              'capsul_engine':
                  {'uses': {'capsul.engine.module.ants': 'any'}}})
 
@@ -293,7 +296,7 @@ print(sys.argv)
                 if config:
                     settings.remove_config('fsl', 'global',
                                            getattr(config, cif))
-                fsl = settings.new_config('fsl', 'global', {cif:'5'})
+                fsl = settings.new_config('fsl', 'global', {cif: '5'})
                 fsl.directory = tdir
                 fsl.prefix = 'fsl5.0-'
 
@@ -329,7 +332,6 @@ print(sys.argv)
     def test_nipype_spm_config(self):
         tdir = tempfile.mkdtemp(prefix='capsul_spm')
         try:
-            cif = self.ce.settings.config_id_field
             spm_path, mcr_path = check_nipype_spm()
             # FIXME: do something with mcr_path
             t1_src = osp.join(spm_path,
@@ -348,10 +350,13 @@ print(sys.argv)
                                    {'directory': spm_path, 'standalone': True,
                                     'version': '12'})
                 session.new_config('nipype', 'global', {})
+                if mcr_path:
+                    session.new_config('matlab', 'global',
+                                       {'mcr_directory': mcr_path})
 
             self.ce.study_config.use_soma_workflow = True
             self.ce.study_config.somaworkflow_keep_failed_workflows = True
-            #self.ce.study_config.somaworkflow_keep_succeeded_workflows = True
+            # self.ce.study_config.somaworkflow_keep_succeeded_workflows = True
 
             conf = self.ce.settings.select_configurations(
                 'global', uses={'nipype': 'any', 'spm': 'any'})
@@ -365,7 +370,7 @@ print(sys.argv)
             self.assertTrue(osp.exists(osp.join(tdir, 'sT1.nii')))
 
         finally:
-            #print('tdir:', tdir)
+            # print('tdir:', tdir)
             shutil.rmtree(tdir)
 
     @unittest.skipIf(sys.platform.startswith('win'),
@@ -402,7 +407,7 @@ print(sys.argv)
                 {'config_id': 'matlab', 'executable': matlab_exe,
                  'config_environment': 'global'})
         finally:
-            #print('tdir:', tdir)
+            # print('tdir:', tdir)
             shutil.rmtree(tdir)
 
     @unittest.skipIf(sys.platform.startswith('win'),
@@ -447,7 +452,7 @@ print(sys.argv)
             for path in py_path:
                 self.assertTrue(path in paths)
         finally:
-            #print('tdir:', tdir)
+            # print('tdir:', tdir)
             shutil.rmtree(tdir)
 
 
