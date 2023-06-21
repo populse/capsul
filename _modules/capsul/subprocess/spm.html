@@ -138,8 +138,6 @@
 <span class="kn">import</span> <span class="nn">soma.subprocess</span>
 <span class="kn">from</span> <span class="nn">traits.api</span> <span class="kn">import</span> <span class="n">Undefined</span>
 
-<span class="kn">from</span> <span class="nn">soma.path</span> <span class="kn">import</span> <span class="n">find_in_path</span>
-<span class="kn">from</span> <span class="nn">capsul.engine.module</span> <span class="kn">import</span> <span class="n">spm</span> <span class="k">as</span> <span class="n">spm_engine</span>
 
 <div class="viewcode-block" id="find_spm"><a class="viewcode-back" href="../../../api/subprocess.html#capsul.subprocess.spm.find_spm">[docs]</a><span class="k">def</span> <span class="nf">find_spm</span><span class="p">(</span><span class="n">spm_version</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">matlab_exec</span><span class="o">=</span><span class="s1">&#39;matlab&#39;</span><span class="p">,</span> <span class="n">matlab_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Function to return the root directory of SPM.</span>
@@ -188,6 +186,7 @@
 
     <span class="k">return</span> <span class="n">last_line</span></div>
 
+
 <div class="viewcode-block" id="check_spm_configuration"><a class="viewcode-back" href="../../../api/subprocess.html#capsul.subprocess.spm.check_spm_configuration">[docs]</a><span class="k">def</span> <span class="nf">check_spm_configuration</span><span class="p">(</span><span class="n">study_config</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Obsolete.</span>
@@ -202,7 +201,9 @@
     <span class="k">if</span> <span class="s1">&#39;SPMConfig&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">study_config</span><span class="o">.</span><span class="n">modules</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">EnvironmentError</span><span class="p">(</span><span class="s1">&#39;SPMConfig module is missing in StudyConfig.&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">study_config</span><span class="o">.</span><span class="n">use_spm</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">EnvironmentError</span><span class="p">(</span><span class="s1">&#39;Configuration is set not to use SPM. Set use_spm to True in order to use SPM.&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">EnvironmentError</span><span class="p">(</span>
+            <span class="s1">&#39;Configuration is set not to use SPM. Set use_spm to True in &#39;</span>
+            <span class="s1">&#39;order to use SPM.&#39;</span><span class="p">)</span>
     <span class="c1"># Configuration must be valid otherwise</span>
     <span class="c1"># try to update configuration and recheck is validity</span>
     <span class="k">if</span> <span class="n">check_configuration_values</span><span class="p">(</span><span class="n">study_config</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -212,6 +213,7 @@
             <span class="k">raise</span> <span class="ne">EnvironmentError</span><span class="p">(</span><span class="n">error_message</span><span class="p">)</span>
     <span class="n">study_config</span><span class="o">.</span><span class="n">use_spm</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">study_config</span><span class="o">.</span><span class="n">_spm_config_checked</span> <span class="o">=</span> <span class="kc">True</span></div>
+
 
 <div class="viewcode-block" id="check_configuration_values"><a class="viewcode-back" href="../../../api/subprocess.html#capsul.subprocess.spm.check_configuration_values">[docs]</a><span class="k">def</span> <span class="nf">check_configuration_values</span><span class="p">(</span><span class="n">study_config</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
@@ -224,18 +226,18 @@
     <span class="k">if</span> <span class="n">study_config</span><span class="o">.</span><span class="n">spm_directory</span> <span class="ow">is</span> <span class="n">Undefined</span><span class="p">:</span>
         <span class="k">return</span> <span class="s1">&#39;No SPM directory defined&#39;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">study_config</span><span class="o">.</span><span class="n">spm_directory</span><span class="p">):</span>
-         <span class="k">return</span> <span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">&#39; is not a valid SPM directory&quot;</span> <span class="o">%</span> <span class="n">study_config</span><span class="o">.</span><span class="n">spm_directory</span>
+        <span class="k">return</span> <span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">&#39; is not a valid SPM directory&quot;</span> <span class="o">%</span> <span class="n">study_config</span><span class="o">.</span><span class="n">spm_directory</span>
     <span class="k">if</span> <span class="n">study_config</span><span class="o">.</span><span class="n">spm_standalone</span> <span class="ow">is</span> <span class="n">Undefined</span><span class="p">:</span>
         <span class="k">return</span> <span class="s1">&#39;SPM standalone usage is undefined&#39;</span>
     <span class="k">if</span> <span class="n">study_config</span><span class="o">.</span><span class="n">spm_standalone</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">study_config</span><span class="o">.</span><span class="n">spm_exec</span> <span class="ow">is</span> <span class="n">Undefined</span><span class="p">:</span>
             <span class="k">return</span> <span class="s1">&#39;spm_exec must be defined to use SPM standalone&#39;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">study_config</span><span class="o">.</span><span class="n">spm_exec</span><span class="p">):</span>
-            <span class="k">return</span> <span class="s1">&#39;&quot;</span><span class="si">%s</span><span class="s1">&quot; is not a valid mrc directory for SPM standalone&#39;</span> <span class="o">%</span> <span class="n">study_config</span><span class="o">.</span><span class="n">spm_exec</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">study_config</span><span class="o">.</span><span class="n">spm_mcr_directory</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s1">&#39;&quot;</span><span class="si">%s</span><span class="s1">&quot; is not a valid mrc directory for SPM standalone&#39;</span> \
+                <span class="o">%</span> <span class="n">study_config</span><span class="o">.</span><span class="n">spm_mcr_directory</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">study_config</span><span class="o">.</span><span class="n">use_matlab</span><span class="p">:</span>
             <span class="k">return</span> <span class="s1">&#39;Matlab is disabled. Cannot use SPM via Matlab&#39;</span></div>
-
 
 
 <div class="viewcode-block" id="auto_configuration"><a class="viewcode-back" href="../../../api/subprocess.html#capsul.subprocess.spm.auto_configuration">[docs]</a><span class="k">def</span> <span class="nf">auto_configuration</span><span class="p">(</span><span class="n">study_config</span><span class="p">):</span>
@@ -251,24 +253,25 @@
             <span class="k">if</span> <span class="n">study_config</span><span class="o">.</span><span class="n">spm_standalone</span> <span class="ow">is</span> <span class="n">Undefined</span><span class="p">:</span>
                 <span class="n">study_config</span><span class="o">.</span><span class="n">spm_standalone</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">elif</span> <span class="ow">not</span> <span class="n">study_config</span><span class="o">.</span><span class="n">spm_standalone</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">EnvironmentError</span><span class="p">(</span><span class="s1">&#39;Requested SPM non standalone but &#39;</span>
-                    <span class="s1">&#39;directory &quot;</span><span class="si">%s</span><span class="s1">&quot; contains SPM standalone&#39;</span> <span class="o">%</span> \
-                        <span class="n">study_config</span><span class="o">.</span><span class="n">spm_directory</span><span class="p">)</span>
-            
+                <span class="k">raise</span> <span class="ne">EnvironmentError</span><span class="p">(</span>
+                    <span class="s1">&#39;Requested SPM non standalone but directory &quot;</span><span class="si">%s</span><span class="s1">&quot; contains &#39;</span>
+                    <span class="s1">&#39;SPM standalone&#39;</span> <span class="o">%</span> <span class="n">study_config</span><span class="o">.</span><span class="n">spm_directory</span><span class="p">)</span>
+
             <span class="n">spm_version</span> <span class="o">=</span> <span class="n">spm_sh</span><span class="p">[</span><span class="mi">0</span><span class="p">][:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span>
             <span class="n">spm_version</span> <span class="o">=</span> <span class="n">spm_version</span><span class="p">[</span><span class="n">spm_version</span><span class="o">.</span><span class="n">rfind</span><span class="p">(</span><span class="s1">&#39;run_spm&#39;</span><span class="p">)</span><span class="o">+</span><span class="mi">7</span><span class="p">:]</span>
             <span class="k">if</span> <span class="n">study_config</span><span class="o">.</span><span class="n">spm_version</span> <span class="ow">is</span> <span class="n">Undefined</span><span class="p">:</span>
                 <span class="n">study_config</span><span class="o">.</span><span class="n">spm_version</span> <span class="o">=</span> <span class="n">spm_version</span>
             <span class="k">elif</span> <span class="n">study_config</span><span class="o">.</span><span class="n">spm_version</span> <span class="o">!=</span> <span class="n">spm_version</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">EnvironmentError</span><span class="p">(</span><span class="s1">&#39;Requested SPM </span><span class="si">%s</span><span class="s1"> but directory&#39;</span>
-                    <span class="s1">&#39; &quot;</span><span class="si">%s</span><span class="s1">&quot; contains SPM </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">study_config</span><span class="o">.</span><span class="n">spm_version</span><span class="p">,</span> 
-                                               <span class="n">study_config</span><span class="o">.</span><span class="n">spm_directory</span><span class="p">,</span> 
-                                               <span class="n">spm_version</span><span class="p">))</span>
-            <span class="n">spm_exec</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">study_config</span><span class="o">.</span><span class="n">spm_directory</span><span class="p">,</span> <span class="s1">&#39;mcr&#39;</span><span class="p">,</span> <span class="s1">&#39;v*&#39;</span><span class="p">))</span>
-            <span class="k">if</span> <span class="n">spm_exec</span><span class="p">:</span>
-                <span class="n">study_config</span><span class="o">.</span><span class="n">spm_exec</span> <span class="o">=</span> <span class="n">spm_exec</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">raise</span> <span class="ne">EnvironmentError</span><span class="p">(</span>
+                    <span class="s1">&#39;Requested SPM </span><span class="si">%s</span><span class="s1"> but directory &quot;</span><span class="si">%s</span><span class="s1">&quot; contains SPM </span><span class="si">%s</span><span class="s1">&#39;</span>
+                    <span class="o">%</span> <span class="p">(</span><span class="n">study_config</span><span class="o">.</span><span class="n">spm_version</span><span class="p">,</span> <span class="n">study_config</span><span class="o">.</span><span class="n">spm_directory</span><span class="p">,</span>
+                       <span class="n">spm_version</span><span class="p">))</span>
+            <span class="n">mcr_dir</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">study_config</span><span class="o">.</span><span class="n">spm_directory</span><span class="p">,</span> <span class="s1">&#39;mcr&#39;</span><span class="p">,</span>
+                                         <span class="s1">&#39;v*&#39;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">mcr_dir</span><span class="p">:</span>
+                <span class="n">study_config</span><span class="o">.</span><span class="n">spm_mcr_directory</span> <span class="o">=</span> <span class="n">mcr_dir</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">return</span>
-    
+
     <span class="c1"># Matlab</span>
     <span class="c1"># determine SPM version (currently only 8 or 12 are supported)</span>
     <span class="k">if</span> <span class="n">study_config</span><span class="o">.</span><span class="n">spm_directory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">Undefined</span> \
@@ -284,17 +287,16 @@
         <span class="k">if</span> <span class="n">study_config</span><span class="o">.</span><span class="n">spm_version</span> <span class="ow">is</span> <span class="n">Undefined</span><span class="p">:</span>
             <span class="n">study_config</span><span class="o">.</span><span class="n">spm_version</span> <span class="o">=</span> <span class="n">spm_version</span>
         <span class="k">elif</span> <span class="n">study_config</span><span class="o">.</span><span class="n">spm_version</span> <span class="o">!=</span> <span class="n">spm_version</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">EnvironmentError</span><span class="p">(</span><span class="s1">&#39;Requested SPM </span><span class="si">%s</span><span class="s1"> but directory&#39;</span>
-                <span class="s1">&#39; &quot;</span><span class="si">%s</span><span class="s1">&quot; contains SPM </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">study_config</span><span class="o">.</span><span class="n">spm_version</span><span class="p">,</span> 
-                                            <span class="n">study_config</span><span class="o">.</span><span class="n">spm_directory</span><span class="p">,</span> 
-                                            <span class="n">spm_version</span><span class="p">))</span></div>
+            <span class="k">raise</span> <span class="ne">EnvironmentError</span><span class="p">(</span>
+                <span class="s1">&#39;Requested SPM </span><span class="si">%s</span><span class="s1"> but directory &quot;</span><span class="si">%s</span><span class="s1">&quot; contains SPM </span><span class="si">%s</span><span class="s1">&#39;</span>
+                <span class="o">%</span> <span class="p">(</span><span class="n">study_config</span><span class="o">.</span><span class="n">spm_version</span><span class="p">,</span> <span class="n">study_config</span><span class="o">.</span><span class="n">spm_directory</span><span class="p">,</span>
+                   <span class="n">spm_version</span><span class="p">))</span></div>
 
 
 <span class="k">def</span> <span class="nf">spm_command</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="n">batch_file</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">study_config</span><span class="o">.</span><span class="n">spm_standalone</span><span class="p">:</span>
-        <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">study_config</span><span class="o">.</span><span class="n">spm_directory</span><span class="p">,</span> 
-                        <span class="s1">&#39;run_spm</span><span class="si">%s</span><span class="s1">.sh&#39;</span> <span class="o">%</span> <span class="n">study_config</span><span class="o">.</span><span class="n">spm_version</span><span class="p">),</span>
-               <span class="n">study_config</span><span class="o">.</span><span class="n">spm_exec</span><span class="p">,</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="n">study_config</span><span class="o">.</span><span class="n">spm_exec</span><span class="p">,</span>
+               <span class="n">study_config</span><span class="o">.</span><span class="n">spm_mcr_directory</span><span class="p">,</span>
                <span class="s1">&#39;script&#39;</span><span class="p">,</span>
                <span class="n">batch_file</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">cmd</span>
@@ -302,17 +304,18 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Running SPM with matlab is not &#39;</span>
                                   <span class="s1">&#39;implemented yet&#39;</span><span class="p">)</span>
 
+
 <div class="viewcode-block" id="Popen"><a class="viewcode-back" href="../../../api/subprocess.html#capsul.subprocess.spm.Popen">[docs]</a><span class="k">class</span> <span class="nc">Popen</span><span class="p">(</span><span class="n">soma</span><span class="o">.</span><span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Equivalent to Python soma.subprocess.Popen for SPM batch</span>
 <span class="sd">    &#39;&#39;&#39;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">study_config</span><span class="p">,</span> <span class="n">batch_file</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">check_spm_configuration</span><span class="p">(</span><span class="n">study_config</span><span class="p">)</span>
         <span class="n">cmd</span> <span class="o">=</span> <span class="n">spm_command</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="n">batch_file</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Popen</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
-   
 
-        
+
 <div class="viewcode-block" id="call"><a class="viewcode-back" href="../../../api/subprocess.html#capsul.subprocess.spm.call">[docs]</a><span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="n">batch_file</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Equivalent to Python soma.subprocess.call for SPM batch</span>
@@ -320,6 +323,7 @@
     <span class="n">check_spm_configuration</span><span class="p">(</span><span class="n">study_config</span><span class="p">)</span>
     <span class="n">cmd</span> <span class="o">=</span> <span class="n">spm_command</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="n">batch_file</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">soma</span><span class="o">.</span><span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="check_call"><a class="viewcode-back" href="../../../api/subprocess.html#capsul.subprocess.spm.check_call">[docs]</a><span class="k">def</span> <span class="nf">check_call</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="n">batch_file</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
@@ -338,11 +342,12 @@
     <span class="n">cmd</span> <span class="o">=</span> <span class="n">spm_command</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="n">batch_file</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">soma</span><span class="o">.</span><span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
+
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">capsul.api</span> <span class="kn">import</span> <span class="n">StudyConfig</span>
     <span class="kn">from</span> <span class="nn">capsul.soma.subprocess.spm</span> <span class="kn">import</span> <span class="n">check_call</span> <span class="k">as</span> <span class="n">call_spm</span>
     <span class="kn">import</span> <span class="nn">tempfile</span>
-    
+
     <span class="n">sc</span> <span class="o">=</span> <span class="n">StudyConfig</span><span class="p">(</span><span class="n">spm_directory</span><span class="o">=</span><span class="s1">&#39;/home/yc176684/spm12-standalone-7219&#39;</span><span class="p">)</span>
     <span class="n">batch</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="n">suffix</span><span class="o">=</span><span class="s1">&#39;.m&#39;</span><span class="p">)</span>
     <span class="n">batch</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;fprintf(1, &#39;</span><span class="si">%s</span><span class="s2">&#39;, spm(&#39;dir&#39;));&quot;</span><span class="p">)</span>
