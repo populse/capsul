@@ -32,8 +32,6 @@ import glob
 import soma.subprocess
 from traits.api import Undefined
 
-from soma.path import find_in_path
-from capsul.engine.module import spm as spm_engine
 
 def find_spm(spm_version='', matlab_exec='matlab', matlab_path=None):
     """ Function to return the root directory of SPM.
@@ -82,6 +80,7 @@ def find_spm(spm_version='', matlab_exec='matlab', matlab_path=None):
 
     return last_line
 
+
 def check_spm_configuration(study_config):
     '''
     Obsolete.
@@ -96,7 +95,9 @@ def check_spm_configuration(study_config):
     if 'SPMConfig' not in study_config.modules:
         raise EnvironmentError('SPMConfig module is missing in StudyConfig.')
     if study_config.use_spm is False:
-        raise EnvironmentError('Configuration is set not to use SPM. Set use_spm to True in order to use SPM.')
+        raise EnvironmentError(
+            'Configuration is set not to use SPM. Set use_spm to True in '
+            'order to use SPM.')
     # Configuration must be valid otherwise
     # try to update configuration and recheck is validity
     if check_configuration_values(study_config) is not None:
@@ -106,6 +107,7 @@ def check_spm_configuration(study_config):
             raise EnvironmentError(error_message)
     study_config.use_spm = True
     study_config._spm_config_checked = True
+
 
 def check_configuration_values(study_config):
     '''
@@ -118,18 +120,18 @@ def check_configuration_values(study_config):
     if study_config.spm_directory is Undefined:
         return 'No SPM directory defined'
     if not osp.isdir(study_config.spm_directory):
-         return "'%s' is not a valid SPM directory" % study_config.spm_directory
+        return "'%s' is not a valid SPM directory" % study_config.spm_directory
     if study_config.spm_standalone is Undefined:
         return 'SPM standalone usage is undefined'
     if study_config.spm_standalone:
         if study_config.spm_exec is Undefined:
             return 'spm_exec must be defined to use SPM standalone'
-        if not osp.isdir(study_config.spm_exec):
-            return '"%s" is not a valid mrc directory for SPM standalone' % study_config.spm_exec
+        if not osp.isdir(study_config.spm_mcr_directory):
+            return '"%s" is not a valid mrc directory for SPM standalone' \
+                % study_config.spm_mcr_directory
     else:
         if not study_config.use_matlab:
             return 'Matlab is disabled. Cannot use SPM via Matlab'
-
 
 
 def auto_configuration(study_config):
@@ -145,24 +147,25 @@ def auto_configuration(study_config):
             if study_config.spm_standalone is Undefined:
                 study_config.spm_standalone = True
             elif not study_config.spm_standalone:
-                raise EnvironmentError('Requested SPM non standalone but '
-                    'directory "%s" contains SPM standalone' % \
-                        study_config.spm_directory)
-            
+                raise EnvironmentError(
+                    'Requested SPM non standalone but directory "%s" contains '
+                    'SPM standalone' % study_config.spm_directory)
+
             spm_version = spm_sh[0][:-3]
             spm_version = spm_version[spm_version.rfind('run_spm')+7:]
             if study_config.spm_version is Undefined:
                 study_config.spm_version = spm_version
             elif study_config.spm_version != spm_version:
-                raise EnvironmentError('Requested SPM %s but directory'
-                    ' "%s" contains SPM %s' % (study_config.spm_version, 
-                                               study_config.spm_directory, 
-                                               spm_version))
-            spm_exec = glob.glob(osp.join(study_config.spm_directory, 'mcr', 'v*'))
-            if spm_exec:
-                study_config.spm_exec = spm_exec[0]
+                raise EnvironmentError(
+                    'Requested SPM %s but directory "%s" contains SPM %s'
+                    % (study_config.spm_version, study_config.spm_directory,
+                       spm_version))
+            mcr_dir = glob.glob(osp.join(study_config.spm_directory, 'mcr',
+                                         'v*'))
+            if mcr_dir:
+                study_config.spm_mcr_directory = mcr_dir[0]
         return
-    
+
     # Matlab
     # determine SPM version (currently only 8 or 12 are supported)
     if study_config.spm_directory is not Undefined \
@@ -178,17 +181,16 @@ def auto_configuration(study_config):
         if study_config.spm_version is Undefined:
             study_config.spm_version = spm_version
         elif study_config.spm_version != spm_version:
-            raise EnvironmentError('Requested SPM %s but directory'
-                ' "%s" contains SPM %s' % (study_config.spm_version, 
-                                            study_config.spm_directory, 
-                                            spm_version))
+            raise EnvironmentError(
+                'Requested SPM %s but directory "%s" contains SPM %s'
+                % (study_config.spm_version, study_config.spm_directory,
+                   spm_version))
 
 
 def spm_command(study_config, batch_file):
     if study_config.spm_standalone:
-        cmd = [osp.join(study_config.spm_directory, 
-                        'run_spm%s.sh' % study_config.spm_version),
-               study_config.spm_exec,
+        cmd = [study_config.spm_exec,
+               study_config.spm_mcr_directory,
                'script',
                batch_file]
         return cmd
@@ -196,17 +198,18 @@ def spm_command(study_config, batch_file):
         raise NotImplementedError('Running SPM with matlab is not '
                                   'implemented yet')
 
+
 class Popen(soma.subprocess.Popen):
     '''
     Equivalent to Python soma.subprocess.Popen for SPM batch
     '''
+
     def __init__(self, study_config, batch_file, **kwargs):
         check_spm_configuration(study_config)
         cmd = spm_command(study_config, batch_file)
         super(Popen, self).__init__(cmd, **kwargs)
-   
 
-        
+
 def call(study_config, batch_file, **kwargs):
     '''
     Equivalent to Python soma.subprocess.call for SPM batch
@@ -214,6 +217,7 @@ def call(study_config, batch_file, **kwargs):
     check_spm_configuration(study_config)
     cmd = spm_command(study_config, batch_file)
     return soma.subprocess.call(cmd, **kwargs)
+
 
 def check_call(study_config, batch_file, **kwargs):
     '''
@@ -232,11 +236,12 @@ def check_output(study_config, batch_file, **kwargs):
     cmd = spm_command(study_config, batch_file)
     return soma.subprocess.check_output(cmd, **kwargs)
 
+
 if __name__ == '__main__':
     from capsul.api import StudyConfig
     from capsul.soma.subprocess.spm import check_call as call_spm
     import tempfile
-    
+
     sc = StudyConfig(spm_directory='/home/yc176684/spm12-standalone-7219')
     batch = tempfile.NamedTemporaryFile(suffix='.m')
     batch.write("fprintf(1, '%s', spm('dir'));")
