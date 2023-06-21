@@ -180,7 +180,8 @@ class TestPipelineWorkflow(unittest.TestCase):
                                #{'version': '12', 'standalone': True})
         study_config.spm_standalone = True
         study_config.spm_version = '12'
-        study_config.spm_directory = '/tmp/mcr/v97'
+        study_config.spm_directory = '/tmp/spm'
+        study_config.spm_mcr_directory = '/tmp/mcr/v97'
         study_config.spm_exec = '/tmp/spm/run_spm12.sh'
         study_config.somaworkflow_keep_succeeded_workflows = False
         self.exec_ids = []
