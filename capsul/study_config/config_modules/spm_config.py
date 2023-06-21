@@ -36,8 +36,7 @@ class SPMConfig(StudyConfigModule):
         self.study_config.add_trait("spm_directory", Directory(
             Undefined,
             output=False,
-            desc="Directory containing SPM. In standalone mode, this is the "
-            "MCR path instead, SPM path is part of the spm_exec variable.",
+            desc="Directory containing SPM.",
             groups=['spm']))
         self.study_config.add_trait("spm_standalone", Bool(
             Undefined,
@@ -50,11 +49,17 @@ class SPMConfig(StudyConfigModule):
         self.study_config.add_trait("spm_exec", File(
             Undefined,
             output=False,
-            desc="SPM standalone (MCR) command path.",
+            desc="SPM standalone (MCR) command path (run_spm12.sh file).",
             groups=['spm']))
+        self.study_config.add_trait(
+            'spm_mcr_directory',
+            Directory(Undefined, output=False,
+                      desc='Matlab MCR directory for standalone version',
+                      groups=['spm']))
         self.study_config.add_trait("use_spm", Bool(
             Undefined,
-            desc="If True, SPM configuration is checked on module initialization.",
+            desc="If True, SPM configuration is checked on module "
+                 "initialization.",
             groups=['spm']))
 
     def initialize_module(self):
@@ -93,10 +98,11 @@ class SPMConfig(StudyConfigModule):
                     configs = list(session.configs('spm', 'global'))
                     configs = sorted(
                         configs,
-                        key=lambda x: (-int(x.version)
-                                       if x.version not in ('', None)
-                                       else 0)
-                                       * 1000 - int(bool(x.standalone)))
+                        key=lambda x: (
+                            -int(x.version)
+                                if x.version not in ('', None)
+                                else 0)
+                            * 1000 - int(bool(x.standalone)))
                     mlconfigs = list(session.configs('matlab', 'global'))
                     mlconfig = None
                     if len(mlconfigs) != 0:
@@ -106,9 +112,9 @@ class SPMConfig(StudyConfigModule):
                         directory = config.directory \
                             if config.directory not in (None, '') \
                             else Undefined
-                        #self.study_config.spm_directory = directory
+                        self.study_config.spm_directory = directory
                         if mlconfig and mlconfig.mcr_directory:
-                            self.study_config.spm_directory \
+                            self.study_config.spm_mcr_directory \
                                 = mlconfig.mcr_directory
                         self.study_config.spm_standalone \
                             = bool(config.standalone)
@@ -120,7 +126,7 @@ class SPMConfig(StudyConfigModule):
                             if config.version:
                                 spm_exec = \
                                     osp.join(directory,
-                                            'run_spm%s.sh' % config.version)
+                                             'run_spm%s.sh' % config.version)
                                 if os.path.exists(spm_exec):
                                     spm_exec = [spm_exec]
                                 else:
@@ -136,7 +142,10 @@ class SPMConfig(StudyConfigModule):
                         if self.study_config.spm_directory \
                                     not in (None, Undefined) \
                                 and self.study_config.spm_exec \
-                                    not in (None, Undefined):
+                                    not in (None, Undefined) \
+                                and (not self.study_config.spm_standalone
+                                     or self.study_config.spm_mcr_directory
+                                        not in (None, Undefined)):
                             self.study_config.use_spm = True
                         else:
                             self.study_config.use_spm = False
@@ -171,23 +180,21 @@ class SPMConfig(StudyConfigModule):
                                       if getattr(conf, cif) != id]
                         for config_id in config_ids:
                             session.remove_config('spm', 'global', config_id)
-                        session.new_config(
-                            'spm', 'global',
-                            {'directory':
-                                osp.dirname(self.study_config.spm_exec)
-                                    if self.study_config.spm_exec
-                                  #self.study_config.spm_directory
-                                    #if self.study_config.spm_directory
+                        sconf = {
+                            'directory':
+                                self.study_config.spm_directory
+                                    if self.study_config.spm_directory
                                         is not Undefined
                                     else None,
                             'version': version,
                             'standalone': standalone,
-                            cif: id})
+                            cif: id}
+                        session.new_config('spm', 'global', sconf)
                     else:
-                        tparam = { #'spm_directory': 'directory',
+                        tparam = {'spm_directory': 'directory',
                                   'spm_standalone': 'standalone',
                                   'spm_version': 'version'}
-                        params = [#'spm_directory',
+                        params = ['spm_directory',
                                   'spm_standalone',
                                   'spm_version']
                         defaults = {'directory': None, 'standalone': False,
@@ -205,20 +212,20 @@ class SPMConfig(StudyConfigModule):
                             val = osp.dirname(self.study_config.spm_exec)
                         config.directory = val
 
-                    if self.study_config.spm_directory \
+                    if self.study_config.spm_mcr_directory \
                             and self.study_config.spm_standalone:
                         config = session.config('matlab', 'global',
                                                 selection='%s == "matlab"'
                                                 % cif)
-                        spm_dir = self.study_config.spm_directory
-                        if spm_dir is Undefined:
-                            spm_dir = None
+                        mcr_dir = self.study_config.spm_mcr_directory
+                        if mcr_dir is Undefined:
+                            mcr_dir = None
                         if config is None:
                             session.new_config(
                                 'matlab', 'global',
-                                {'mcr_directory': spm_dir,
+                                {'mcr_directory': mcr_dir,
                                  'config_id': 'matlab'})
                         else:
-                            config.mcr_directory = spm_dir
+                            config.mcr_directory = mcr_dir
         finally:
             del self._syncing
