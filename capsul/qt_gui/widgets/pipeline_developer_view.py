@@ -1538,7 +1538,7 @@ class PipelineScene(QtGui.QGraphicsScene):
         if hasattr(self, 'glinks'):
             del self.glinks
         if 'gnodes' in self.__dict__:
-            import sip
+            from soma.qt_gui.qt_backend import sip
             gnode = None
             for gnode in self.gnodes.values():
                 gnode._release()
@@ -1857,7 +1857,7 @@ class PipelineScene(QtGui.QGraphicsScene):
             self.gnodes.pop(node_name, None)
             self.dim.pop(node_name, None)
             self.pos.pop(node_name, None)
-            import sip
+            from soma.qt_gui.qt_backend import sip
             sip.transferback(gnode)
             #import objgraph
             #objgraph.show_backrefs(gnode)
@@ -1994,7 +1994,7 @@ class PipelineScene(QtGui.QGraphicsScene):
         # handle removed nodes
         for node_name in removed_nodes:
             self.removeItem(self.gnodes[node_name])
-            import sip
+            from soma.qt_gui.qt_backend import sip
             sip.transferback(self.gnodes[node_name])
             del self.gnodes[node_name]
 
@@ -2348,7 +2348,7 @@ class PipelineScene(QtGui.QGraphicsScene):
             # already done (possibly via a notification)
             return
         todel = set()
-        import sip
+        from soma.qt_gui.qt_backend import sip
         for link, glink in six.iteritems(self.glinks):
             if link[0][0] == node_name or link[1][0] == node_name:
                 self.removeItem(glink)
@@ -2797,7 +2797,7 @@ class PipelineDeveloperView(QGraphicsView):
         and a new scene should not be built
         '''
         # Setup callback to update view when pipeline state is modified
-        import sip
+        from soma.qt_gui.qt_backend import sip
         pipeline = None
         if self.scene is not None and hasattr(self.scene, 'pipeline'):
             pipeline = self.scene.pipeline
@@ -2824,7 +2824,7 @@ class PipelineDeveloperView(QGraphicsView):
             # "The view does not take ownership of scene.", however in PyQt it
             # does, and only releases it when the QGraphicsView is deleted.
             # Thus we have to force it by hand:
-            import sip
+            from soma.qt_gui.qt_backend import sip
             sip.transferback(self.scene)
             self.scene = None
             import gc
