@@ -25,26 +25,24 @@ def configure_spm():
     Configure Nipype SPM interface if CapsulEngine had been used to set
     the appropriate configuration variables in os.environ.
     '''
-    spm_directory = os.environ.get('SPM_DIRECTORY')
-    if not spm_directory:
-        spm_directory = os.environ.get('SPM_HOME')
-    if spm_directory:
+    from . import spm as spmc
+
+    standalone = (os.environ.get('SPM_STANDALONE') == 'yes')
+    if standalone:
         from nipype.interfaces import spm
-        
-        standalone = (os.environ.get('SPM_STANDALONE') == 'yes')
-        if standalone:
-            import glob
-            spm_exec_glob = osp.join(spm_directory, 'mcr', 'v*')
-            spm_exec = glob.glob(spm_exec_glob)
-            if spm_exec:
-                spm_exec = spm_exec[0]
-                spm.SPMCommand.set_mlab_paths(
-                    matlab_cmd=osp.join(spm_directory, 'run_spm%s.sh' % os.environ.get('SPM_VERSION','')) + ' ' + spm_exec + ' script',
-                    use_mcr=True)
 
-        else:
-            # Matlab spm version
+        spm_cmd = spmc.spm_command(None)
+        spm.SPMCommand.set_mlab_paths(
+            matlab_cmd=' '.join(spm_cmd + ['script']),
+            use_mcr=True)
 
+    else:
+        # Matlab spm version
+
+        spm_directory = os.environ.get('SPM_DIRECTORY')
+        if not spm_directory:
+            spm_directory = os.environ.get('SPM_HOME')
+        if spm_directory:
             from nipype.interfaces import matlab
 
             matlab.MatlabCommand.set_default_paths(
