@@ -334,7 +334,6 @@ print(sys.argv)
         tdir = tempfile.mkdtemp(prefix='capsul_spm')
         try:
             spm_path, mcr_path = check_nipype_spm()
-            # FIXME: do something with mcr_path
             t1_src = osp.join(spm_path,
                               'spm12_mcr/spm12/toolbox/OldNorm/T1.nii')
             if not osp.exists(t1_src):
