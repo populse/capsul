@@ -98,8 +98,8 @@ def tearDownModule():
 def check_nipype_spm():
     # look for hardcoded paths, I have no other way at hand...
     spm_standalone_paths = ['/usr/local/spm12-standalone',
-                            '/drf/local/spm12-standalone',
                             '/volatile/local/spm12-standalone',
+                            '/drf/local/spm12-standalone',
                             '/i2bm/local/spm12-standalone']
     spm_standalone_path = [p for p in spm_standalone_paths if os.path.isdir(p)]
     if not spm_standalone_path:
@@ -117,8 +117,9 @@ def check_nipype_spm():
                         mcr_path = l.split('=', 1)[1]
         if not mcr_path:
             mcr_paths = ['/usr/local/matlab/MATLAB_Runtime',
-                         '/drf/local/matlab/MATLAB_Runtime',
                          '/volatile/local/spm12-standalone/mcr',
+                         '/volatile/local/MATLAB_Runtime',
+                         '/drf/local/matlab/MATLAB_Runtime',
                          '/i2bm/local/matlab/MATLAB_Runtime', ]
             for p in mcr_paths:
                 mcr = glob.glob(osp.join(p, 'v*'))
