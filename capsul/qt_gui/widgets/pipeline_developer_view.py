@@ -2835,13 +2835,29 @@ class PipelineDeveloperView(QGraphicsView):
         '''
         Zoom the view in, applying a 1.2 zoom factor
         '''
-        self.scale(1.2, 1.2)
+        scf = 1.2
+        self.scale(scf, scf)
+        cur_pos = self.mapFromGlobal(Qt.QCursor.pos())
+        c_pos = Qt.QPointF(self.width() / 2, self.height() / 2)
+        p = (cur_pos - c_pos) * (scf - 1.)
+        self.horizontalScrollBar().setValue(
+            self.horizontalScrollBar().value() + int(p.x()))
+        self.verticalScrollBar().setValue(
+            self.verticalScrollBar().value() + int(p.y()))
 
     def zoom_out(self):
         '''
         Zoom the view out, applying a 1/1.2 zool factor
         '''
-        self.scale(1.0 / 1.2, 1.0 / 1.2)
+        scf = 1. / 1.2
+        self.scale(scf, scf)
+        cur_pos = self.mapFromGlobal(Qt.QCursor.pos())
+        c_pos = Qt.QPointF(self.width() / 2, self.height() / 2)
+        p = (cur_pos - c_pos) * (scf - 1.)
+        self.horizontalScrollBar().setValue(
+            self.horizontalScrollBar().value() + int(p.x()))
+        self.verticalScrollBar().setValue(
+            self.verticalScrollBar().value() + int(p.y()))
 
     def edition_enabled(self):
         '''
