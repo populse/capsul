@@ -4135,6 +4135,7 @@ class PipelineDeveloperView(QGraphicsView):
                 node_name = class_name.lower() + str(i)
 
         pipeline.nodes[node_name] = node
+        pipeline._set_subprocess_context_name(node, node_name)
 
         gnode = self.scene.add_node(node_name, node)
         gnode.setPos(self.mapToScene(self.mapFromGlobal(self.click_pos)))
