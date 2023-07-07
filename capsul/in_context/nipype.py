@@ -44,6 +44,7 @@ def configure_spm():
             spm_directory = os.environ.get('SPM_HOME')
         if spm_directory:
             from nipype.interfaces import matlab
+            from nipype.interfaces import spm
 
             matlab.MatlabCommand.set_default_paths(
                 [spm_directory])  # + add_to_default_matlab_path)
