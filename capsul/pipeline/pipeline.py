@@ -860,6 +860,7 @@ class Pipeline(Process):
                     parameter_name in make_optional):
                 self.do_not_export.add((name, parameter_name))
 
+        self._set_subprocess_context_name(node, name)
         study_config = getattr(self, 'study_config', None)
         if study_config:
             node.set_study_config(study_config)
