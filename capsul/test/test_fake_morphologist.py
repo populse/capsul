@@ -14,30 +14,6 @@ from capsul.api import Capsul
 from capsul.config.configuration import ModuleConfiguration, default_engine_start_workers
 from capsul.dataset import ProcessMetadata, ProcessSchema, MetadataSchema, BrainVISASchema
 
-class FakeSPMConfiguration(ModuleConfiguration):
-    ''' SPM configuration module
-    '''
-    name = 'fakespm'
-    directory: Directory
-    version: str
-
-    def __init__(self):
-        super().__init__()
-
-    def is_valid_config(self, requirements):
-        required_version = requirements.get('version')
-        if required_version \
-                and getattr(self, 'version', undefined) != required_version:
-            return False
-        return True
-
-def init_execution_context(execution_context):
-    '''
-    Configure an execution context given a capsul_engine and some requirements.
-    '''
-    config =  execution_context.config['modules']['spm']
-    execution_context.spm = FakeSPMConfiguration()
-    execution_context.spm.import_dict(config)
 
 class SharedSchema(MetadataSchema):
     '''Metadata schema for BrainVISA shared dataset
@@ -188,13 +164,13 @@ from capsul.pipeline.test.fake_morphologist.sulcideeplabeling \
 
 
 normalization_t1_spm12_reinit.requirements = {
-    'fakespm': {
+    'spm': {
         'version': '12'
     }
 }
 
 class SPM12NormalizationBIDS(ProcessSchema, schema='bids', process=normalization_t1_spm12_reinit):
-    output = {'part': 'normalized_fakespm12'}
+    output = {'part': 'normalized_spm12'}
 
 class SPM12NormalizationBrainVISA(ProcessSchema, schema='brainvisa', process=normalization_t1_spm12_reinit):
     transformations_information = {'analysis': undefined,
@@ -208,14 +184,14 @@ class SPM12NormalizationShared(ProcessSchema, schema='shared', process=normaliza
 
 
 normalization_t1_spm8_reinit.requirements = {
-    'fakespm': {
+    'spm': {
         'version': '8'
     }
 }
 
 
 class SPM8NormalizationBIDS(ProcessSchema, schema='bids', process=normalization_t1_spm8_reinit):
-    output = {'part': 'normalized_fakespm8'}
+    output = {'part': 'normalized_spm8'}
 
 class SPM8NormalizationBrainVISA(ProcessSchema, schema='brainvisa', process=normalization_t1_spm8_reinit):
     transformations_information = {'analysis': undefined,
@@ -693,9 +669,9 @@ class TestFakeMorphologist(unittest.TestCase):
         # Configuration base dictionary
         config = {
             'builtin': {
-                'config_modules': [
-                    'capsul.test.test_fake_morphologist',
-                ],
+                #'config_modules': [
+                    #'spm',
+                #],
                 'dataset': {
                     'input': {
                         'path': str(self.bids),
@@ -724,16 +700,24 @@ class TestFakeMorphologist(unittest.TestCase):
             fakespm_config = {
                 'directory': str(fakespm),
                 'version': version,
+                'standalone': True,
             }
-            config['builtin'].setdefault('fakespm', {})[f'fakespm_{version}'] = fakespm_config
-            
+            config['builtin'].setdefault('spm', {})[
+                f'spm_{version}_standalone'] = fakespm_config
+
+        matlab_config = {
+            'mcr_directory': str(tmp / 'software' / 'matlab'),
+        }
+        config['builtin'].setdefault('matlab', {})['matlab'] = matlab_config
 
         # Create a configuration file
         self.config_file = tmp / 'capsul_config.json'
         with self.config_file.open('w') as f:
             json.dump(config, f)
 
-        self.capsul = Capsul('test_fake_morphologist', site_file=self.config_file, user_file=None)
+        Capsul.delete_singleton()
+        self.capsul = Capsul('test_fake_morphologist',
+                             site_file=self.config_file, user_file=None)
         return super().setUp()
 
     def tearDown(self):
@@ -771,19 +755,27 @@ class TestFakeMorphologist(unittest.TestCase):
                         'metadata_schema': 'shared',
                     },
                 },
-                'fakespm': {
-                    'fakespm_12': {
+                'spm': {
+                    'spm_12_standalone': {
                         'directory': str(self.tmp / 'software' / 'fakespm-12'),
-                        'version': '12'
+                        'version': '12',
+                        'standalone': True,
                     },
-                    'fakespm_8': {
-                        'directory': str( self.tmp / 'software' / 'fakespm-8'),
-                        'version': '8'
+                    'spm_8_standalone': {
+                        'directory': str(self.tmp / 'software' / 'fakespm-8'),
+                        'version': '8',
+                        'standalone': True,
                     }
                 },
-                'config_modules': ['capsul.test.test_fake_morphologist'],
+                'matlab': {
+                    'matlab': {
+                        'mcr_directory': str(self.tmp / 'software' / 'matlab'),
+                    },
+                },
+                #'config_modules': ['capsul.test.test_fake_morphologist'],
             }
         }
+        print('\nconfig:', self.capsul.config.asdict(), '\n')
         self.assertEqual(self.capsul.config.asdict(), expected_config)
 
         engine = self.capsul.engine()
@@ -795,7 +787,7 @@ class TestFakeMorphologist(unittest.TestCase):
         
         context = engine.execution_context(morphologist)
         expected_context = {
-            'config_modules': ['capsul.test.test_fake_morphologist'],
+            #'config_modules': ['capsul.test.test_fake_morphologist'],
             'dataset': {
                 'input': {
                     'path': str(self.tmp / 'bids'),
@@ -812,11 +804,12 @@ class TestFakeMorphologist(unittest.TestCase):
             },
         }
         dict_context = context.asdict()
-        #print('context:')
-        #print(dict_context)
+        ds_context = {'dataset': dict_context['dataset']}
         #print('requirements:')
         #print(engine.executable_requirements(morphologist))
         self.assertEqual(dict_context, expected_context)
+        # spms = list(expected_config['builtin']['spm'].values())
+        # self.assertTrue(dict_context['spm'] in spms)
 
         morphologist.select_Talairach = 'Normalization'
         morphologist.perform_skull_stripped_renormalization = 'skull_stripped'
@@ -830,10 +823,15 @@ class TestFakeMorphologist(unittest.TestCase):
         #print('requirements:')
         #print(engine.executable_requirements(morphologist))
         fakespm12_conf = {
-            'directory': str( self.tmp / 'software' / 'fakespm-12'),
-            'version': '12'
+            'directory': str(self.tmp / 'software' / 'fakespm-12'),
+            'version': '12',
+            'standalone': True,
         }
-        expected_context['fakespm'] = fakespm12_conf
+        matlab_conf = {
+            'mcr_directory': str(self.tmp / 'software' / 'matlab'),
+        }
+        expected_context['spm'] = fakespm12_conf
+        expected_context['matlab'] = matlab_conf
         dict_context = context.asdict()
         self.assertEqual(dict_context, expected_context)
 
@@ -852,7 +850,8 @@ class TestFakeMorphologist(unittest.TestCase):
 
         morphologist_iteration.Normalization_select_Normalization_pipeline = [
             'NormalizeSPM', 'Normalization_AimsMIRegister', 'NormalizeSPM']
-        expected_context['fakespm'] = fakespm12_conf
+        expected_context['spm'] = fakespm12_conf
+        expected_context['matlab'] = matlab_conf
         context = engine.execution_context(morphologist_iteration)
         dict_context = context.asdict()
         self.assertEqual(dict_context, expected_context)
