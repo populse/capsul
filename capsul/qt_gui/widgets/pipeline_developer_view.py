@@ -4027,33 +4027,33 @@ class PipelineDeveloperView(QGraphicsView):
             self.add_named_process(proc_module, node_name)
 
     def add_named_process(self, proc_module, node_name=None):
-            pipeline = self.scene.pipeline
+        pipeline = self.scene.pipeline
 
-            if not node_name:
-                if isinstance(proc_module, six.string_types):
-                    class_name = proc_module
-                else:
-                    class_name = proc_module.__name__
-                i = 1
+        if not node_name:
+            if isinstance(proc_module, six.string_types):
+                class_name = proc_module
+            else:
+                class_name = proc_module.__name__
+            i = 1
+            node_name = '%s_%d' % (class_name.lower(), i)
+
+            while node_name in pipeline.nodes and i < 100:
+                i += 1
                 node_name = '%s_%d' % (class_name.lower(), i)
 
-                while node_name in pipeline.nodes and i < 100:
-                    i += 1
-                    node_name = '%s_%d' % (class_name.lower(), i)
+        engine = pipeline.get_study_config().engine
+        try:
+            process = engine.get_process_instance(proc_module)
+        except Exception:
+            traceback.print_exc()
+            return
+        pipeline.add_process(node_name, process)
 
-            engine = pipeline.get_study_config().engine
-            try:
-                process = engine.get_process_instance(proc_module)
-            except Exception as e:
-                traceback.print_exc()
-                return
-            pipeline.add_process(node_name, process)
+        node = pipeline.nodes[node_name]
+        gnode = self.scene.add_node(node_name, node)
+        gnode.setPos(self.mapToScene(self.mapFromGlobal(self.click_pos)))
 
-            node = pipeline.nodes[node_name]
-            gnode = self.scene.add_node(node_name, node)
-            gnode.setPos(self.mapToScene(self.mapFromGlobal(self.click_pos)))
-
-            return process
+        return process
 
     def add_node(self):
         '''
