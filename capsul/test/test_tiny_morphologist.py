@@ -343,11 +343,14 @@ class TestTinyMorphologist(unittest.TestCase):
             
 
         # Create a configuration file
+        # first, delete any pre-existing one
+        Capsul.delete_singleton()
         self.config_file = tmp / 'capsul_config.json'
         with self.config_file.open('w') as f:
             json.dump(config, f)
 
-        self.capsul = Capsul('test_tiny_morphologist', site_file=self.config_file, user_file=None)
+        self.capsul = Capsul('test_tiny_morphologist',
+                             site_file=self.config_file, user_file=None)
         return super().setUp()
 
     def tearDown(self):
@@ -385,18 +388,19 @@ class TestTinyMorphologist(unittest.TestCase):
                         'version': '12'
                     },
                     'fakespm_8': {
-                        'directory': str( self.tmp / 'software' / 'fakespm-8'),
+                        'directory': str(self.tmp / 'software' / 'fakespm-8'),
                         'version': '8'
                     }
                 },
                 'config_modules': ['capsul.test.test_tiny_morphologist'],
-            }            
+            }
         }
         self.assertEqual(self.capsul.config.asdict(), expected_config)
 
         engine = self.capsul.engine()
-        tiny_morphologist = self.capsul.executable('capsul.test.test_tiny_morphologist.TinyMorphologist')
-        
+        tiny_morphologist = self.capsul.executable(
+            'capsul.test.test_tiny_morphologist.TinyMorphologist')
+
         context = engine.execution_context(tiny_morphologist)
         expected_context = {
             'config_modules': ['capsul.test.test_tiny_morphologist'],
