@@ -25,7 +25,7 @@ def execution_context(engine_label, engine_config, executable):
     # So for now, give it only the dataset and config_modules part, removing
     # all modules config.
     cdict = engine_config.asdict()
-    for conf_item in ('dataset', 'config_modules'):
+    for conf_item in ('dataset', 'config_modules', 'python_modules'):
         if conf_item in cdict:
             config[conf_item] = cdict[conf_item]
     execution_context = ExecutionContext(executable=executable,
