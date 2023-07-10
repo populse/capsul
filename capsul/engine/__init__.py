@@ -12,14 +12,31 @@ from ..database import engine_database
 
 
 def execution_context(engine_label, engine_config, executable):
+    config = {}
+
+    # ExecutionContext constructor takes a config dict as input, *BUT* it is
+    # not the engine_config we get here: engine_config contains all the
+    # possible values of config modules, ie
+    # {'spm': {'spm12-standalone': {...}, 'spm8': {...}}
+    # whereas EXecutionContext expects an execution-side single, filtered
+    # config: {'spm': {...}}
+    # Thie filtering is done here in this function, but later after the context
+    # is built.
+    # So for now, give it only the dataset and config_modules part, removing
+    # all modules config.
+    cdict = engine_config.asdict()
+    for conf_item in ('dataset', 'config_modules'):
+        if conf_item in cdict:
+            config[conf_item] = cdict[conf_item]
     execution_context = ExecutionContext(executable=executable,
-        config=engine_config.asdict())
+                                         config=config)
 
     req_to_check = execution_context.executable_requirements(executable)
     done_req = []  # record requirements to avoid loops
     valid_configs = {}
     needed_modules = set()
 
+    # just now we filter configurations with requirements.
     while req_to_check:
         module_name, requirements = req_to_check.popitem()
         if (module_name, requirements) in done_req:
@@ -57,6 +74,7 @@ def execution_context(engine_label, engine_config, executable):
                                     override=True)
         setattr(execution_context, module_name,  valid_config)
     return execution_context
+
 
 class Engine:
 
@@ -140,7 +158,7 @@ class Engine:
                 missing.append(field.name)
         if missing:
             raise ValueError(f'Value missing for the following parameters: {", ".join(missing)}')
-    
+
     def start(self, executable, debug=False):
         # Starts workers if necessary
         econtext = self.execution_context(executable)
@@ -153,8 +171,9 @@ class Engine:
         # pprint(workflow.parameters.no_proxy())
         # print('----')
         # pprint(workflow.jobs)
-        execution_id = self.database.new_execution(executable, self.engine_id,
-            econtext, workflow, start_time=datetime.now())
+        execution_id = self.database.new_execution(
+            executable, self.engine_id, econtext, workflow,
+            start_time=datetime.now())
         self.start_workers()
         return execution_id
 
