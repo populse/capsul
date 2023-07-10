@@ -4128,7 +4128,7 @@ class PipelineDeveloperView(QGraphicsView):
         if not node_name and node:
             class_name = node.__class__.__name__
             i = 1
-            node_name = class_name.lower() + str(i)
+            node_name = '%s_%d' % (class_name.lower(), i)
 
             while node_name in pipeline.nodes and i < 100:
                 i += 1
