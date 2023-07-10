@@ -4132,7 +4132,7 @@ class PipelineDeveloperView(QGraphicsView):
 
             while node_name in pipeline.nodes and i < 100:
                 i += 1
-                node_name = class_name.lower() + str(i)
+                node_name = '%s_%d' % (class_name.lower(), i)
 
         pipeline.nodes[node_name] = node
         pipeline._set_subprocess_context_name(node, node_name)
