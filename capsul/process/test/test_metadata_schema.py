@@ -179,7 +179,6 @@ class TestCompletion(unittest.TestCase):
                           f'{temp_home_dir}/out/DummyProcess_bidule_muppets_stalter',
                           f'{temp_home_dir}/out/DummyProcess_bidule_muppets_waldorf'])
 
-
     def test_run_iteraton(self):
 
         pipeline = Capsul().executable_iteration(
@@ -203,7 +202,7 @@ class TestCompletion(unittest.TestCase):
         # create input files
         for s in subjects:
             with open(Path(execution_context.dataset.input.path) /
-                    f'DummyProcess_truc_muppets_{s}', 'w') as f:
+                      f'DummyProcess_truc_muppets_{s}', 'w') as f:
                 f.write(f'{s}\n')
 
         # run
@@ -212,7 +211,7 @@ class TestCompletion(unittest.TestCase):
 
         # check outputs
         out_files = [Path(execution_context.dataset.output.path)
-            / f'DummyProcess_bidule_muppets_{s}' for s in subjects]
+                     / f'DummyProcess_bidule_muppets_{s}' for s in subjects]
         for s, out_file in zip(subjects, out_files):
             self.assertTrue(out_file.is_file())
             with open(out_file) as f:
