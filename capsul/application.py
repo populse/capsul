@@ -53,11 +53,11 @@ def _is_nipype_interface_subclass(obj):
 
 
 class Capsul(Singleton):
-    '''User entry point to Capsul features. 
+    '''User entry point to Capsul features.
     This objects reads Capsul configuration in site and user environments.
-    It allows configuration customization and instanciation of a 
+    It allows configuration customization and instanciation of a
     CapsulEngine instance to reach an execution environment.
-    
+
     Example:
 
         from capsul.api import Capsul
@@ -66,9 +66,10 @@ class Capsul(Singleton):
         with capsul.engine() as capsul_engine:
             capsul_engine.run(e)
 
-    '''    
+    '''
 
-    def __singleton_init__(self, app_name='capsul', user_file=undefined, site_file=undefined):
+    def __singleton_init__(self, app_name='capsul', user_file=undefined,
+                           site_file=undefined):
         if user_file is undefined:
             user_file = os.environ.get('CAPSUL_USER_CONFIG')
             if user_file is None:

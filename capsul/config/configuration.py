@@ -249,7 +249,7 @@ class ConfigurationLayer(OpenKeyDictController[EngineConfiguration]):
         builtin = self.databases['builtin']
         super().import_dict(d, clear=False)
         self.databases.setdefault('builtin', builtin)
-    
+
     def load(self, filename):
         ''' Load configuration from a JSON or YAML file
         '''
@@ -264,7 +264,8 @@ class ConfigurationLayer(OpenKeyDictController[EngineConfiguration]):
                 if conf:
                     break
             if not conf:
-                raise RuntimeError(f'No valid configuration found in "{filename}"')
+                raise RuntimeError(
+                    f'No valid configuration found in "{filename}"')
         elif filename.endswith('.yaml'):
             # YAML support is optional, yaml module may not
             # be installed

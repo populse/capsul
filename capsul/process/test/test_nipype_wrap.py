@@ -27,11 +27,11 @@ def init_spm_config():
         return False
 
     spm_search_dirs = ['/host/usr/local/spm12-standalone',
-                        '/usr/local/spm12-standalone',
-                        '/i2bm/local/spm12-standalone']
+                       '/usr/local/spm12-standalone',
+                       '/i2bm/local/spm12-standalone']
     mcr_search_dirs = ['/host/usr/local/Matlab/mcr/v97',
-                        '/usr/local/Matlab/mcr/v97',
-                        '/i2bm/local/Matlab/mcr/v97']
+                       '/usr/local/Matlab/mcr/v97',
+                       '/i2bm/local/Matlab/mcr/v97']
 
     spm_dir = None
     for spm_dir in spm_search_dirs:
@@ -133,7 +133,8 @@ class TestNipypeWrap(unittest.TestCase):
                          'spm12']
         for template_dir_s in template_dirs:
             template_dir = osp.join(
-                c.config.builtin.spm.spm12_standalone.directory, template_dir_s)
+                c.config.builtin.spm.spm12_standalone.directory,
+                template_dir_s)
             if osp.isdir(template_dir):
                 break
         self.assertTrue(
