@@ -98,15 +98,16 @@ class TestPipeline(unittest.TestCase):
         self.pipeline.output_image = self.output_file.name
 
     def tearDown(self):
-        Capsul.delete_singleton()
+        pass
 
     def test_iterative_pipeline_connection(self):
         """ Method to test if an iterative node and built in iterative
         process are correctly connected.
         """
 
+        capsul = Capsul()
         # Test the output connection
-        with Capsul().engine() as ce:
+        with capsul.engine() as ce:
             ce.run(self.pipeline, timeout=5)
         with open(self.pipeline.output_image,'rb') as f:
             result = f.read()

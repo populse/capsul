@@ -148,7 +148,8 @@ class DummyPipelineIterSimple(Pipeline):
 class TestPipelineWorkflow(unittest.TestCase):
 
     def setUp(self):
-        self.pipeline = Capsul.executable(DummyPipeline)
+        self.capsul = Capsul()
+        self.pipeline = self.capsul.executable(DummyPipeline)
         self.tmpdir = tempfile.mkdtemp()
         self.pipeline.input = osp.join(self.tmpdir, 'file_in.nii')
         self.pipeline.output1 = osp.join(self.tmpdir, '/tmp/file_out1.nii')
@@ -160,8 +161,6 @@ class TestPipelineWorkflow(unittest.TestCase):
             shutil.rmtree(self.tmpdir)
         except Exception:
             pass
-        Capsul.delete_singleton()
-
 
     def test_full_wf(self):
         self.pipeline.enable_all_pipeline_steps()
@@ -170,7 +169,6 @@ class TestPipelineWorkflow(unittest.TestCase):
         self.assertEqual(len(wf.jobs), 4)
         # 3 deps
         self.assertEqual(sum(len(job['wait_for']) for job in wf.jobs.values()), 3)
-
 
     def test_partial_wf1(self):
         self.pipeline.enable_all_pipeline_steps()
@@ -199,7 +197,7 @@ class TestPipelineWorkflow(unittest.TestCase):
         
         with open(pipeline.input, 'w') as f:
             print('MAIN INPUT', file=f)
-        with Capsul().engine() as engine:
+        with self.capsul.engine() as engine:
             engine.run(pipeline)
 
         self.assertTrue(osp.exists(pipeline.output1))
@@ -222,13 +220,13 @@ class TestPipelineWorkflow(unittest.TestCase):
                                  osp.join(self.tmpdir, 'file_out2')]
 
         wf = CapsulWorkflow(pipeline)
-        njobs = niter + 1  # 1 after 
+        njobs = niter + 1  # 1 after
         self.assertEqual(len(wf.jobs), njobs)
 
         for i, filein in enumerate(pipeline.input):
             with open(filein, 'w') as f:
                 print('MAIN INPUT %d' % i, file=f)
-        with Capsul().engine() as engine:
+        with self.capsul.engine() as engine:
             status = engine.run(pipeline)
 
         self.assertEqual(status, 'ended')
@@ -257,7 +255,7 @@ class TestPipelineWorkflow(unittest.TestCase):
             with open(filein, 'w') as f:
                 print('MAIN INPUT %d' % i, file=f)
 
-        with Capsul().engine() as engine:
+        with self.capsul.engine() as engine:
             status = engine.run(pipeline)
 
         self.assertEqual(status, 'ended')

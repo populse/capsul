@@ -15,6 +15,7 @@ from capsul.execution_context import CapsulWorkflow
 
 debug = False
 
+
 def setUpModule():
     global old_home
     global temp_home_dir
@@ -26,7 +27,7 @@ def setUpModule():
         app_name = 'test_iterative_process'
         temp_home_dir = Path(tempfile.mkdtemp(prefix=f'capsul_{app_name}_'))
         os.environ['HOME'] = str(temp_home_dir)
-        Capsul(app_name)    
+        Capsul(app_name)
     except BaseException:  # clean up in case of interruption
         if old_home is None:
             del os.environ['HOME']
@@ -43,7 +44,6 @@ def tearDownModule():
     else:
         os.environ['HOME'] = old_home
     shutil.rmtree(temp_home_dir)
-    Capsul.delete_singleton()
 
 
 class DummyProcess(Process):
@@ -163,7 +163,7 @@ class TestPipeline(unittest.TestCase):
         """
         self.directory = tempfile.mkdtemp(prefix="capsul_test")
 
-        self.capsul = Capsul()
+        self.capsul = Capsul('test_iterative_process')
 
         # Construct the pipeline
         self.pipeline = self.capsul.executable(MyPipeline)
@@ -192,7 +192,6 @@ class TestPipeline(unittest.TestCase):
             print('directory %s not removed.' % self.directory)
         else:
             shutil.rmtree(self.directory)
-        Capsul.delete_singleton()
         self.capsul = None
         
     def test_iterative_pipeline_connection(self):
@@ -204,7 +203,7 @@ class TestPipeline(unittest.TestCase):
                 fobj.write("input: %s\n" % f)
 
         # Test the output connection
-        with Capsul().engine() as engine:
+        with self.capsul.engine() as engine:
             engine.run(self.pipeline, timeout=5)
 
         self.assertIn("toto-5.0-3.0",

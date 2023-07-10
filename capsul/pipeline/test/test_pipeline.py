@@ -144,7 +144,6 @@ class TestPipeline(unittest.TestCase):
         finally:
             if os.path.exists(tmp[1]):
                 os.unlink(tmp[1])
-        Capsul.delete_singleton()
 
     def run_pipeline_io(self, filename):
         pipeline = executable(MyPipeline)

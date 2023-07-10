@@ -109,8 +109,7 @@ class TestCompletion(unittest.TestCase):
                         }
                     }
                 }, f)
-            Capsul.delete_singleton()
-            capsul = Capsul(app_name, site_file=site_file)
+            self.capsul = Capsul(app_name, site_file=site_file)
 
         except BaseException:  # clean up in case of interruption
             if old_home is None:
@@ -127,15 +126,15 @@ class TestCompletion(unittest.TestCase):
             del os.environ['HOME']
         else:
             os.environ['HOME'] = old_home
+        self.capsul = None
         shutil.rmtree(temp_home_dir)
-        Capsul.delete_singleton()
 
     def test_completion(self):
         global temp_home_dir
     
         process = executable(
             'capsul.process.test.test_metadata_schema.DummyProcess')
-        execution_context = Capsul().engine().execution_context(process)
+        execution_context = self.capsul.engine().execution_context(process)
 
         metadata = ProcessMetadata(process, execution_context)
 
@@ -153,10 +152,10 @@ class TestCompletion(unittest.TestCase):
 
 
     def test_iteration(self):
-        pipeline = Capsul().executable_iteration(
+        pipeline = self.capsul.executable_iteration(
             'capsul.process.test.test_metadata_schema.DummyProcess',
             iterative_plugs=['truc', 'bidule'])
-        execution_context = Capsul().engine().execution_context(pipeline)
+        execution_context = self.capsul.engine().execution_context(pipeline)
 
         metadata = ProcessMetadata(pipeline, execution_context)
 
@@ -181,11 +180,11 @@ class TestCompletion(unittest.TestCase):
 
     def test_run_iteraton(self):
 
-        pipeline = Capsul().executable_iteration(
+        pipeline = self.capsul.executable_iteration(
             'capsul.process.test.test_metadata_schema.DummyProcess',
             iterative_plugs=['truc', 'bidule'])
         pipeline.f = 42
-        execution_context = Capsul().engine().execution_context(pipeline)
+        execution_context = self.capsul.engine().execution_context(pipeline)
         subjects = ['kermit', 'piggy', 'stalter', 'waldorf']
 
         metadata = ProcessMetadata(pipeline, execution_context)
@@ -206,7 +205,7 @@ class TestCompletion(unittest.TestCase):
                 f.write(f'{s}\n')
 
         # run
-        with Capsul().engine() as engine:
+        with self.capsul.engine() as engine:
             engine.run(pipeline, timeout=5)
 
         # check outputs

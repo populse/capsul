@@ -245,7 +245,6 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
                 shutil.rmtree(self.tmpdir)
         elif os.path.exists(self.tmpdir):
             print('leaving temp dir:', self.tmpdir, file=sys.stderr)
-        self.capsul.delete_singleton()
 
     def test_direct_run(self):
         self.pipeline.node2_switch = 'node2'

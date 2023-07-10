@@ -22,7 +22,21 @@ except ImportError:
     nipype = None
 
 
+capsul_app = None
+
+
+def get_capsul_app():
+    global capsul_app
+
+    if capsul_app is None:
+        capsul_app = Capsul()
+
+    return capsul_app
+
+
 def init_spm_config():
+    global capsul_app
+
     if nipype is None:
         return False
 
@@ -51,8 +65,8 @@ def init_spm_config():
     if not osp.isdir(mcr_dir):
         return False
 
-    Capsul.delete_singleton()
-    c = Capsul()
+    if capsul_app is None:
+        capsul_app = Capsul()
 
     config = ApplicationConfiguration('capsul_test_nipype_spm')
     user_conf_dict = {
@@ -76,7 +90,7 @@ def init_spm_config():
     config.user = user_conf_dict
     config.merge_configs()
 
-    c.config = config.merged_config
+    capsul_app.config = config.merged_config
     # print('local config:', c.config.asdict())
 
     return True
@@ -95,6 +109,10 @@ class TestNipypeWrap(unittest.TestCase):
         else:
             # default is nifti
             self.output_extension = '.nii'
+
+    def tearDown(self):
+        global capsul_app
+        capsul_app = None
 
     @unittest.skipIf(nipype is None, 'nipype is not installed')
     def test_nipype_automatic_wrap(self):
@@ -126,7 +144,7 @@ class TestNipypeWrap(unittest.TestCase):
         # other tests will run and define a different Capsul object
         init_spm_config()
 
-        c = Capsul()
+        c = get_capsul_app()
 
         template_dirs = ['spm12_mcr/spm12/spm12',
                          'spm12_mcr/spm12',
@@ -172,4 +190,5 @@ class TestNipypeWrap(unittest.TestCase):
 
 
 def tearDownModule():
-    Capsul.delete_singleton()
+    global capsul_app
+    capsul_app = None

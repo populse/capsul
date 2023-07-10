@@ -41,6 +41,8 @@ help_parser.add_argument('command_or_executable')
 print('???')
 options, args = parser.parse_known_args()
 
+capsul = Capsul()
+
 if options.subcommand == 'configure':
     # Other commands must be able to work without PyQt installed
     from soma.qt_gui.qt_backend import QtGui
@@ -48,7 +50,6 @@ if options.subcommand == 'configure':
 
     app_config = ApplicationConfiguration('global_config')
     app = QtGui.QApplication(sys.argv)
-    capsul = Capsul()
     w = SettingsEditor(capsul.engine())
     w.show()
     app.exec_()
@@ -90,7 +91,7 @@ elif options.subcommand == 'run':
             value = json.loads(value)
         kwargs[name] = value
     executable.import_dict(kwargs)
-    with Capsul().engine() as ce:
+    with capsul.engine() as ce:
         ce.assess_ready_to_start(executable)
         execution_id = ce.start(executable)
         try:

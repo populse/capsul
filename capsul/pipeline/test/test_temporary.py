@@ -149,8 +149,8 @@ class TestTemporary(unittest.TestCase):
         self.pipeline.input = '/tmp/file_in.nii'
         self.pipeline.output = self.output
 
-        # Create Capsul singleton
-        Capsul()
+        # Create Capsul instance
+        self.capsul = Capsul()
         # study_config = StudyConfig(modules=['SomaWorkflowConfig'])
         # study_config.input_directory = '/tmp'
         # study_config.somaworkflow_computing_resource = 'localhost'
@@ -163,12 +163,10 @@ class TestTemporary(unittest.TestCase):
         if '--keep-tmp' not in sys.argv[1:]:
             if os.path.exists(self.output):
               os.unlink(self.output)
-        Capsul.delete_singleton()
-
 
     def test_direct_run_temporary(self):
         self.pipeline.nb_outputs = 3
-        with Capsul().engine() as ce:
+        with self.capsul.engine() as ce:
             ce.run(self.pipeline, timeout=5)
         with open(self.pipeline.output) as f:
             res_out = f.readlines()

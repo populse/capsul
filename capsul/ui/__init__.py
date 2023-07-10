@@ -29,22 +29,28 @@ class CapsulRoutes(WebRoutes):
 
 
 class CapsulBackend(WebBackend):
+
+    def capsul(self):
+        if not hasattr(self, '_capsul'):
+            self._capsul = Capsul()
+        return self._capsul
+
     def engines(self) -> list:
-        return [engine.engine_status() for engine in Capsul().engines()]
+        return [engine.engine_status() for engine in self.capsul().engines()]
 
 
     def engine_status(self, engine_label: str) -> dict:
         try:
-            engine = Capsul().engine(engine_label)
+            engine = self.capsul().engine(engine_label)
         except ValueError:
             return {}
         return engine.engine_status()
 
 
     def executions_summary(self, engine_label: str) -> list:
-        return Capsul().engine(engine_label).executions_summary()
+        return self.capsul().engine(engine_label).executions_summary()
 
 
     def execution_report(self, engine_label: str, execution_id: str) -> dict:
-        with Capsul().engine(engine_label) as engine:
+        with self.capsul().engine(engine_label) as engine:
             return engine.database.execution_report_json(engine.engine_id, execution_id)

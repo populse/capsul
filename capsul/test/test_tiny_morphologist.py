@@ -343,8 +343,6 @@ class TestTinyMorphologist(unittest.TestCase):
             
 
         # Create a configuration file
-        # first, delete any pre-existing one
-        Capsul.delete_singleton()
         self.config_file = tmp / 'capsul_config.json'
         with self.config_file.open('w') as f:
             json.dump(config, f)
@@ -355,7 +353,6 @@ class TestTinyMorphologist(unittest.TestCase):
 
     def tearDown(self):
         self.capsul = None
-        Capsul.delete_singleton()
         shutil.rmtree(self.tmp)
         return super().tearDown()
 

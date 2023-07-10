@@ -715,7 +715,6 @@ class TestFakeMorphologist(unittest.TestCase):
         with self.config_file.open('w') as f:
             json.dump(config, f)
 
-        Capsul.delete_singleton()
         self.capsul = Capsul('test_fake_morphologist',
                              site_file=self.config_file, user_file=None)
         return super().setUp()
@@ -724,7 +723,6 @@ class TestFakeMorphologist(unittest.TestCase):
         #print('tmp dir:', self.tmp)
         #input('continue ?')
         self.capsul = None
-        Capsul.delete_singleton()
         shutil.rmtree(self.tmp)
         return super().tearDown()
 

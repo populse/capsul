@@ -91,7 +91,7 @@ class TestPipelineWithTemp(unittest.TestCase):
         self.iter_pipeline = Capsul.executable(MyIterativePipeline)
 
     def tearDown(self):
-        Capsul.delete_singleton()
+        pass
 
     def test_pipeline_with_temp(self):
         input_f = tempfile.mkstemp(suffix='capsul_input.txt')
@@ -107,8 +107,9 @@ class TestPipelineWithTemp(unittest.TestCase):
             self.pipeline.input_image = input_name
             self.pipeline.output_image = output_name
 
+            capsul = Capsul()
             # run sequentially
-            with Capsul().engine() as ce:
+            with capsul.engine() as ce:
                 ce.run(self.pipeline, timeout=5)
 
             # test
@@ -142,7 +143,8 @@ class TestPipelineWithTemp(unittest.TestCase):
                                                input_name]
             self.iter_pipeline.output = output_name
 
-            with Capsul().engine() as ce:
+            capsul = Capsul()
+            with capsul.engine() as ce:
                 ce.run(self.iter_pipeline, timeout=5)
 
             # test

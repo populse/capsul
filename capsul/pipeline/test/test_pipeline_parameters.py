@@ -199,11 +199,10 @@ class TestPipelineMethods(unittest.TestCase):
         """
 
         shutil.rmtree(self.temp_folder)
-        Capsul.delete_singleton()
 
     def test_int(self):
         def create_pipeline():
-            pipeline =  Capsul.custom_pipeline()
+            pipeline = Capsul.custom_pipeline()
             pipeline.add_process("node_1", TestInt)
             pipeline.export_parameter("node_1", "in_1", "in_1")
             pipeline.export_parameter("node_1", "in_2", "in_2")
@@ -214,11 +213,13 @@ class TestPipelineMethods(unittest.TestCase):
         in_2 = 4
         out = 6
 
+        capsul = Capsul()
+
         pipeline1 = create_pipeline()
         pipeline1.in_1 = in_1
         pipeline1.in_2 = in_2
 
-        with Capsul().engine() as ce:
+        with capsul.engine() as ce:
             ce.run(pipeline1, timeout=5)
         save_pipeline_parameters(self.path, pipeline1)
 
@@ -256,7 +257,8 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1.in_1 = 2.0
         pipeline1.in_2 = 4.0
 
-        with Capsul().engine() as ce:
+        capsul = Capsul()
+        with capsul.engine() as ce:
             ce.run(pipeline1, timeout=5)
 
         in_1 = 2.0
@@ -267,7 +269,7 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1.in_1 = in_1
         pipeline1.in_2 = in_2
 
-        with Capsul().engine() as ce:
+        with capsul.engine() as ce:
             ce.run(pipeline1, timeout=5)
 
         save_pipeline_parameters(self.path, pipeline1)
@@ -310,7 +312,8 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1.in_1 = in_1
         pipeline1.in_2 = in_2
 
-        with Capsul().engine() as ce:
+        capsul = Capsul()
+        with capsul.engine() as ce:
             ce.run(pipeline1, timeout=5)
 
         save_pipeline_parameters(self.path, pipeline1)
@@ -353,7 +356,9 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1.in_1 = in_1
         pipeline1.in_2 = in_2
 
-        with Capsul().engine() as ce:
+        capsul = Capsul()
+
+        with capsul.engine() as ce:
             ce.run(pipeline1, timeout=5)
 
         save_pipeline_parameters(self.path, pipeline1)
@@ -400,7 +405,9 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1.in_1 = in_1
         pipeline1.in_2 = in_2
 
-        with Capsul().engine() as ce:
+        capsul = Capsul()
+
+        with capsul.engine() as ce:
             ce.run(pipeline1, timeout=5)
 
         save_pipeline_parameters(self.path, pipeline1)
@@ -467,7 +474,9 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1.in_1 = in_1
         pipeline1.in_2 = in_2
 
-        with Capsul().engine() as ce:
+        capsul = Capsul()
+
+        with capsul.engine() as ce:
             ce.run(pipeline1, timeout=5)
 
         save_pipeline_parameters(self.path, pipeline1)
@@ -534,7 +543,9 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1.in_1 = in_1
         pipeline1.in_2 = in_2
 
-        with Capsul().engine() as ce:
+        capsul = Capsul()
+
+        with capsul.engine() as ce:
             ce.run(pipeline1, timeout=5)
 
         save_pipeline_parameters(self.path, pipeline1)
@@ -601,7 +612,9 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1.in_1 = in_1
         pipeline1.in_2 = in_2
 
-        with Capsul().engine() as ce:
+        capsul = Capsul()
+
+        with capsul.engine() as ce:
             ce.run(pipeline1, timeout=5)
 
         save_pipeline_parameters(self.path, pipeline1)
@@ -668,7 +681,9 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1.in_1 = in_1
         pipeline1.in_2 = in_2
 
-        with Capsul().engine() as ce:
+        capsul = Capsul()
+
+        with capsul.engine() as ce:
             ce.run(pipeline1, timeout=5)
 
         save_pipeline_parameters(self.path, pipeline1)
@@ -735,7 +750,9 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1.in_1 = in_1
         pipeline1.in_2 = in_2
 
-        with Capsul().engine() as ce:
+        capsul = Capsul()
+
+        with capsul.engine() as ce:
             ce.run(pipeline1, timeout=5)
         pipeline1.out
         
