@@ -118,7 +118,7 @@ class TestCompletion(unittest.TestCase):
         config = {
             'builtin': {
                 'config_modules': [
-                    'capsul.test.test_fake_morphologist',
+                    'capsul.test.test_tiny_morphologist',
                 ],
                 'dataset': {
                     'input': {
