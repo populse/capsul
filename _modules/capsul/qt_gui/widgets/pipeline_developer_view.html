@@ -4238,7 +4238,7 @@
 
             <span class="k">while</span> <span class="n">node_name</span> <span class="ow">in</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">nodes</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">100</span><span class="p">:</span>
                 <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="n">node_name</span> <span class="o">=</span> <span class="n">class_name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                <span class="n">node_name</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">_</span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">class_name</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">i</span><span class="p">)</span>
 
         <span class="n">pipeline</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">node</span>
         <span class="n">pipeline</span><span class="o">.</span><span class="n">_set_subprocess_context_name</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">node_name</span><span class="p">)</span>
