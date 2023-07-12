@@ -23,6 +23,7 @@ from soma.undefined import undefined
 
 global_debug = False
 
+
 class Dataset(Controller):
     '''
     Dataset representation.
@@ -58,7 +59,7 @@ class Dataset(Controller):
                         metadata_schema = json.load(f).get('metadata_schema')
         if metadata_schema:
             self.metadata_schema = metadata_schema
-    
+
     @classmethod
     def find_schema(cls, metadata_schema):
         return cls.schemas.get(metadata_schema)
@@ -76,6 +77,7 @@ class Dataset(Controller):
             raise ValueError(f'Invalid metadata schema "{self.metadata_schema}" for path "{self.path}"')
         self.schema = schema_cls(base_path=self.path)
 
+
 class MetadataSchema(Controller):
     '''Schema of metadata associated to a file in a :class:`Dataset`
 
@@ -88,7 +90,7 @@ class MetadataSchema(Controller):
     def __init_subclass__(cls) -> None:
         result = super().__init_subclass__()
         Dataset.schemas[cls.schema_name] = cls
-        return result    
+        return result
 
     def __init__(self, base_path='', **kwargs):
         super().__init__(**kwargs)
@@ -100,7 +102,7 @@ class MetadataSchema(Controller):
     def get(self, name, default=None):
         '''
         Shortcut to get an attribute with a None default value.
-        Used in :meth:`_path_list` specialization to have a 
+        Used in :meth:`_path_list` specialization to have a
         shorter code.
         '''
         return getattr(self, name, default)
@@ -111,12 +113,18 @@ class MetadataSchema(Controller):
 
         This method calls :meth:`_path_listh` which should be implemented in
         subclasses.
-        '''            
+        '''
         return functools.reduce(operator.truediv,
                                 self._path_list(),
                                 self.base_path)
 
     def _path_list(self):
+        ''' Builds a path from metadata values in the fields of the current
+        MetadataSchema fields. The returned path is a list of directories and
+        ends with a filename. The resulting path is an
+        ``os.path.join(path_list).``
+        '''
+
         raise NotImplementedError(
             '_path_list() must be specialized in MetadataSchema subclasses.')
 
@@ -128,6 +136,7 @@ class MetadataSchema(Controller):
         '''
         raise NotImplementedError(
             'metadata() must be specialized in MetadataSchema subclasses.')
+
 
 class BIDSSchema(MetadataSchema):
     ''' Metadata schema for BIDS datasets
@@ -235,35 +244,41 @@ class BIDSSchema(MetadataSchema):
         else:
             relative_path = path
             path = self.base_path / path
-        if path.exists():
-            m = self.path_pattern.match(str(relative_path))
-            if m:
-                result.update((k,v) for k, v in m.groupdict().items() if v is not None)
-            folder = result.get('folder')
-            sub = result.get('sub')
-            if folder and sub:
-                ses = result.get('ses')
-                if ses:
-                    sessions_file = self.base_path / folder / f'sub-{sub}' /  f'sub-{sub}_sessions.tsv'
-                    if sessions_file.exists():
-                        sessions_data = self.tsv_to_dict(sessions_file)
-                        session_metadata = sessions_data.get(f'ses-{ses}', {})
-                        result.update(session_metadata)
-                    scans_file = self.base_path / folder / f'sub-{sub}' / f'ses-{ses}' / f'sub-{sub}_ses-{ses}_scans.tsv'
-                else:
-                    scans_file = self.base_path / folder / f'sub-{sub}' / f'sub-{sub}_scans.tsv'
-                if scans_file.exists():
-                    scans_data = self.tsv_to_dict(scans_file)
-                    scan_metadata = scans_data.get(str(path.relative_to(scans_file.parent)), {})
-                    result.update(scan_metadata)
-                extension = result.get('extension')
-                if extension:
-                    json_path = path.parent / (path.name[:-len(extension)-1] + '.json')
-                else:
-                    json_path = path.parent / (path.name + '.json')                    
-                if json_path.exists():
-                    with open(json_path) as f:
-                        result.update(json.load(f))
+        m = self.path_pattern.match(str(relative_path))
+        if m:
+            result.update((k, v) for k, v in m.groupdict().items()
+                          if v is not None)
+        folder = result.get('folder')
+        sub = result.get('sub')
+        if folder and sub:
+            ses = result.get('ses')
+            if ses:
+                sessions_file = self.base_path / folder / f'sub-{sub}' \
+                    / f'sub-{sub}_sessions.tsv'
+                if sessions_file.exists():
+                    sessions_data = self.tsv_to_dict(sessions_file)
+                    session_metadata = sessions_data.get(f'ses-{ses}', {})
+                    result.update(session_metadata)
+                scans_file = self.base_path / folder / f'sub-{sub}' \
+                    / f'ses-{ses}' / f'sub-{sub}_ses-{ses}_scans.tsv'
+            else:
+                scans_file = self.base_path / folder / f'sub-{sub}' \
+                    / f'sub-{sub}_scans.tsv'
+            if scans_file.exists():
+                scans_data = self.tsv_to_dict(scans_file)
+                scan_metadata = scans_data.get(
+                    str(path.relative_to(scans_file.parent)), {})
+                result.update(scan_metadata)
+            extension = result.get('extension')
+            if extension:
+                json_path = path.parent / (path.name[:-len(extension)-1]
+                                           + '.json')
+            else:
+                json_path = path.parent / (path.name + '.json')
+            if json_path.exists():
+                with open(json_path) as f:
+                    result.update(json.load(f))
+
         return result
 
     def find(self, **kwargs):
@@ -300,7 +315,7 @@ class BIDSSchema(MetadataSchema):
         for d in directories:
             for sd in d.glob(globs[0]):
                 yield sd
-                
+
 
 class BrainVISASchema(MetadataSchema):
     '''Metadata schema for BrainVISA datasets.
@@ -383,6 +398,7 @@ class SchemaMapping:
     def __init_subclass__(cls) -> None:
         Dataset.schema_mappings[(cls.source_schema, cls.dest_schema)] = cls
 
+
 class BidsToBrainVISA(SchemaMapping):
     source_schema = 'bids'
     dest_schema = 'brainvisa'
@@ -397,7 +413,30 @@ class BidsToBrainVISA(SchemaMapping):
         if process:
             dest.process = process
 
+
 class ProcessSchema:
+    '''
+    Schema definition for a given process.
+
+    Needs to be subclassed as in, for instance::
+
+        from capsul.pipeline.test.fake_morphologist.normalization_t1_spm12_reinit \\
+            import normalization_t1_spm12_reinit
+
+        class SPM12NormalizationBIDS(ProcessSchema,
+                                     schema='bids',
+                                     process=normalization_t1_spm12_reinit):
+            output = {'part': 'normalized_spm12'}
+
+    This assigns metadata to a process parameters. Here in the example, the
+    parameter ``output`` of the process ``normalization_t1_spm12_reinit`` gets
+    a metadata dict ``{'part': 'normalized_spm12'}``.
+
+    The class does not need to be instantiated or registered anywhere: just its
+    declaration registets it automatically. Thus just importing the subclass
+    definition is enough.
+    '''
+
     def __init_subclass__(cls, schema, process) -> None:
         from .application import get_node_class
 
@@ -410,7 +449,7 @@ class ProcessSchema:
         schemas[schema] = cls
         cls.schema = schema
         setattr(process, 'metadata_schemas', schemas)
-                    
+
 
 class MetadataModifier:
     def __init__(self, schema_name, process, parameter):
@@ -463,6 +502,7 @@ class MetadataModifier:
                         setattr(metadata, k, v)
             else:
                 modifier(metadata, process, parameter)
+
 
 class Prepend:
     def __init__(self, key, value, sep='_'):

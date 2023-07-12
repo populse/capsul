@@ -5,8 +5,120 @@
 Parameters completion
 #####################
 
-Completion model
-================
+Completion in Capsul v3
+=======================
+
+This is not a doc yet, I write down thnigs that I seem to understand at the time I read them in the code.
+
+:mod:`capsul.dataset` contains classes :class:`~capsul.dataset.ProcessMetadata`, :class:`~capsul.dataset.ProcessSchema`, :class:`~capsul.dataset.MetadataSchema`, :class:`~capsul.dataset.BrainVISASchema`.
+
+* Schemas must be defined, by subclassing :class:`~capsul.dataset.MetadataSchema`, like in :class:`~capsul.dataset.BIDSSchema` or :class:`~capsul.dataset.BrainVISASSchema`.
+
+It defines metadata fora given schema name (like ``shared``), and the way to build a filename from metadata and optionally the inverse.
+
+::
+
+    class SharedSchema(MetadataSchema):
+        '''Metadata schema for BrainVISA shared dataset
+        '''
+        schema_name = 'shared'
+        data_id: str = ''
+        side: str = None
+        graph_version: str = None
+        model_version: str = None
+
+        def _path_list(self):
+
+            path_list = []
+            filename = []
+            if self.data_id == 'normalization_template':
+                path_list = ['anatomical_templates']
+                filename.append('MNI152_T1_2mm.nii.gz')
+            elif self.data_id == 'trans_mni_to_acpc':
+                path_list = ['transformation']
+                filename.append('spm_template_novoxels_TO_talairach.trm')
+            # ...
+
+            path_list.append(''.join(filename))
+            return path_list
+
+
+* Metadata values are assigned to a process parameters via :class:`~capsul.dataset.ProcessSchema` subclasses.
+
+If a process uses several datasets with different schemas for different parameters (for instance input, output, shared datasets), several :class:`~capsul.dataset.ProcessSchema` subclasses may be declared for the same process class.
+
+As the used shema is specified in the :class:`~capsul.dataset.ProcessSchema` subclass declaration, several subclasses may be declared for the same process parameters with different schemas. The schema selection will be done, for each dataset, at the time of data selection.
+
+* set this in the Capsul config::
+
+    config = {
+        'builtin': {
+            'dataset': {
+                'input': {
+                    'path': '/tmp/bids',
+                    'metadata_schema': 'bids',
+                },
+                'output': {
+                    'path': '/tmp/brainvisa',
+                    'metadata_schema': 'brainvisa',
+                },
+                'shared': {
+                    'path': '/tmp/shared',
+                    'metadata_schema': 'shared',
+                },
+            }
+        }
+    }
+
+    config_file = '/tmp/capsul_config.json'
+    with open(config_file, 'w') as f:
+        json.dump(config, f)
+
+    capsul = Capsul('test_fake_morphologist', site_file=config_file,
+                    user_file=None)
+
+* Assign datasets and metadata schemas to a given process parameters
+
+::
+
+    datasets = {
+        't1mri': 'input',
+        'PrepareSubject_Normalization_Normalization_AimsMIRegister_anatomical_template': 'shared',
+        'PrepareSubject_TalairachFromNormalization_normalized_referential': 'shared',
+        'PrepareSubject_TalairachFromNormalization_transform_chain_ACPC_to_Normalized': 'shared',
+        'PrepareSubject_TalairachFromNormalization_acpc_referential': 'shared',
+        'PrepareSubject_StandardACPC_older_MNI_normalization': None,
+        'PrepareSubject_Normalization_commissures_coordinates': None,
+        'PrepareSubject_Normalization_NormalizeFSL_template': 'shared',
+        'PrepareSubject_Normalization_NormalizeSPM_template': 'shared',
+        'PrepareSubject_Normalization_NormalizeSPM_ConvertSPMnormalizationToAIMS_normalized_volume': None,
+    }
+
+    morphologist = capsul.executable(
+        'capsul.pipeline.test.fake_morphologist.morphologist.Morphologist')
+    metadata = ProcessMetadata(morphologist, execution_context,
+                               datasets=datasets)
+
+* metadata needs to be filled in, either by hand::
+
+    metadata.subject = 'aleksander'
+    # etc.
+
+or using an input filename in a schema which has defined the ``metadata`` method::
+
+    input = '/tmp/bids/rawdata/sub-aleksander/ses-m0/anat/sub-aleksander_ses-m0_T1w.nii'
+    input_metadata \
+        = execution_context.dataset['input'].schema.metadata(input)
+
+    metadata.bids = input_metadata
+
+* Then run the completion::
+
+    metadata.generate_paths(morphologist)
+
+
+Completion model [v2, obsolete]
+===============================
 
 Using completion
 ----------------
