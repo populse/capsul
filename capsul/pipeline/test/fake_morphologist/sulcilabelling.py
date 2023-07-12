@@ -11,32 +11,16 @@ class SulciLabelling(Pipeline):
         self.add_process("recognition2000", "capsul.pipeline.test.fake_morphologist.sulcilabellingann.SulciLabellingANN")
         self.add_process("SPAM_recognition09", "capsul.pipeline.test.fake_morphologist.sulcilabellingspam.SulciLabellingSPAM")
         self.add_process("CNN_recognition19", "capsul.pipeline.test.fake_morphologist.sulcideeplabeling.SulciDeepLabeling", skip_invalid=True)
-        switch_options = {}
-        if 'recognition2000' in self.nodes:
-            switch_options['recognition2000'] = {
-                'output_graph': 'recognition2000.output_graph',
-            }
-        if 'SPAM_recognition09' in self.nodes:
-            switch_options['SPAM_recognition09'] = {
-                'output_graph': 'SPAM_recognition09.output_graph',
-            }
-        if 'CNN_recognition19' in self.nodes:
-            switch_options['CNN_recognition19'] = {
-                'output_graph': 'CNN_recognition19.labeled_graph',
-            }
-        self.create_switch(
-            "select_Sulci_Recognition", 
-            switch_options,
-            export_switch=False)
+        self.add_switch('select_Sulci_Recognition', ['recognition2000', 'SPAM_recognition09', 'CNN_recognition19'], ['output_graph'], export_switch=False)
 
         # links
         self.export_parameter("select_Sulci_Recognition", "switch", "select_Sulci_Recognition", is_optional=True)
-        self.export_parameter("CNN_recognition19", "graph", "data_graph", is_optional=False)
-        self.add_link("data_graph->recognition2000.data_graph")
+        self.export_parameter("recognition2000", "data_graph", is_optional=False)
+        self.add_link("data_graph->CNN_recognition19.graph")
         self.add_link("data_graph->SPAM_recognition09.data_graph")
         self.export_parameter("recognition2000", "fix_random_seed", is_optional=False)
-        self.add_link("fix_random_seed->CNN_recognition19.fix_random_seed")
         self.add_link("fix_random_seed->SPAM_recognition09.fix_random_seed")
+        self.add_link("fix_random_seed->CNN_recognition19.fix_random_seed")
         self.export_parameter("recognition2000", "model", "recognition2000_model", is_optional=True)
         self.export_parameter("recognition2000", "model_hint", "recognition2000_model_hint", is_optional=True)
         self.export_parameter("recognition2000", "rate", "recognition2000_rate", is_optional=True)
@@ -63,13 +47,16 @@ class SulciLabelling(Pipeline):
         self.export_parameter("CNN_recognition19", "skeleton", "CNN_recognition19_skeleton", is_optional=True)
         self.export_parameter("CNN_recognition19", "allow_multithreading", "CNN_recognition19_allow_multithreading", is_optional=True)
         self.export_parameter("CNN_recognition19", "cuda", "CNN_recognition19_cuda", is_optional=True)
+        self.add_link("recognition2000.output_graph->select_Sulci_Recognition.recognition2000_switch_output_graph")
         self.export_parameter("recognition2000", "energy_plot_file", "recognition2000_energy_plot_file", weak_link=True, is_optional=True)
+        self.add_link("SPAM_recognition09.output_graph->select_Sulci_Recognition.SPAM_recognition09_switch_output_graph")
         self.export_parameter("SPAM_recognition09", "global_recognition_posterior_probabilities", "SPAM_recognition09_global_recognition_posterior_probabilities", weak_link=True, is_optional=True)
         self.export_parameter("SPAM_recognition09", "global_recognition_output_transformation", "SPAM_recognition09_global_recognition_output_transformation", weak_link=True, is_optional=True)
         self.export_parameter("SPAM_recognition09", "global_recognition_output_t1_to_global_transformation", "SPAM_recognition09_global_recognition_output_t1_to_global_transformation", weak_link=True, is_optional=True)
         self.export_parameter("SPAM_recognition09", "local_recognition_posterior_probabilities", "SPAM_recognition09_local_recognition_posterior_probabilities", weak_link=True, is_optional=True)
         self.export_parameter("SPAM_recognition09", "local_recognition_output_local_transformations", "SPAM_recognition09_local_recognition_output_local_transformations", weak_link=True, is_optional=True)
         self.export_parameter("SPAM_recognition09", "markovian_recognition_posterior_probabilities", "SPAM_recognition09_markovian_recognition_posterior_probabilities", weak_link=True, is_optional=True)
+        self.add_link("CNN_recognition19.labeled_graph->select_Sulci_Recognition.CNN_recognition19_switch_output_graph")
         self.export_parameter("select_Sulci_Recognition", "output_graph", is_optional=False)
 
         # parameters order
@@ -114,13 +101,13 @@ class SulciLabelling(Pipeline):
 
         # default and initial values
         self.fix_random_seed = False
-        self.recognition2000_model = '/casa/host/build/share/brainvisa-share-5.1/models/models_2008/discriminative_models/3.0/Lfolds_noroots/Lfolds_noroots.arg'
+        self.recognition2000_model = '/casa/host/build/share/brainvisa-share-5.2/models/models_2008/discriminative_models/3.0/Rfolds_noroots/Rfolds_noroots.arg'
         self.recognition2000_model_hint = 0
         self.recognition2000_rate = 0.98
         self.recognition2000_stopRate = 0.05
         self.recognition2000_niterBelowStopProp = 1
         self.recognition2000_forbid_unknown_label = False
-        self.SPAM_recognition09_global_recognition_labels_translation_map = '/casa/host/build/share/brainvisa-share-5.1/nomenclature/translation/sulci_model_2008.trl'
+        self.SPAM_recognition09_global_recognition_labels_translation_map = '/casa/host/build/share/brainvisa-share-5.2/nomenclature/translation/sulci_model_2008.trl'
         self.SPAM_recognition09_global_recognition_model_type = 'Global registration'
 
         # nodes positions

@@ -22,8 +22,8 @@ class BaladinNormalizationPipeline(Pipeline):
         self.export_parameter("ConvertBaladinNormalizationToAIMS", "set_transformation_in_source_volume", is_optional=False)
         self.export_parameter("ReorientAnatomy", "allow_flip_initial_MRI", is_optional=False)
         self.export_parameter("ReorientAnatomy", "commissures_coordinates", "ReorientAnatomy_commissures_coordinates", is_optional=True)
-        self.export_parameter("NormalizeBaladin", "transformation_matrix", "NormalizeBaladin_transformation_matrix", is_optional=True)
         self.add_link("NormalizeBaladin.transformation_matrix->ConvertBaladinNormalizationToAIMS.read")
+        self.export_parameter("NormalizeBaladin", "transformation_matrix", "NormalizeBaladin_transformation_matrix", is_optional=True)
         self.export_parameter("NormalizeBaladin", "normalized_anatomy_data", "NormalizeBaladin_normalized_anatomy_data", is_optional=True)
         self.export_parameter("ConvertBaladinNormalizationToAIMS", "write", "ConvertBaladinNormalizationToAIMS_write", is_optional=True)
         self.add_link("ConvertBaladinNormalizationToAIMS.write->ReorientAnatomy.transformation")
@@ -46,7 +46,7 @@ class BaladinNormalizationPipeline(Pipeline):
             "ReorientAnatomy_output_commissures_coordinates"))
 
         # default and initial values
-        self.template = '/casa/host/build/share/brainvisa-share-5.1/anatomical_templates/MNI152_T1_1mm.nii.gz'
+        self.template = '/casa/host/build/share/brainvisa-share-5.2/anatomical_templates/MNI152_T1_1mm.nii.gz'
         self.set_transformation_in_source_volume = True
         self.allow_flip_initial_MRI = False
 

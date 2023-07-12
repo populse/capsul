@@ -12,7 +12,7 @@ class SulciLabellingANN(Process):
 
         self.add_field("data_graph", File, read=True, allowed_extensions=['.arg', '.data'], write=False)
         self.add_field("model", File, read=True, allowed_extensions=['.arg', '.data'], write=False)
-        self.model = '/casa/host/build/share/brainvisa-share-5.1/models/models_2008/discriminative_models/3.0/Lfolds_noroots/Lfolds_noroots.arg'
+        self.model = '/casa/host/build/share/brainvisa-share-5.2/models/models_2008/discriminative_models/3.0/Rfolds_noroots/Rfolds_noroots.arg'
         self.add_field("output_graph", File, write=True, allowed_extensions=['.arg', '.data'], read=True)
         self.add_field("model_hint", Literal[0,1])
         self.model_hint = 0

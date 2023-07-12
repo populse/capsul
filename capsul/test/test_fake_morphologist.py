@@ -999,8 +999,12 @@ class TestFakeMorphologist(unittest.TestCase):
                 'SulciRecognition_1_SPAM_recognition09_local_recognition_posterior_probabilities',
                 'SulciRecognition_1_SPAM_recognition09_local_recognition_output_local_transformations',
                 'SulciRecognition_1_SPAM_recognition09_markovian_recognition_posterior_probabilities',
+                'GlobalMorphometry_brain_volumes_file',
+                'GlobalMorphometry_left_csf',
+                'GlobalMorphometry_right_csf',
+                'Report_report',
             ],
-            'bids': ['t1mri'],
+            'bids': ['t1mri', 'Report_normative_brain_stats'],
             'shared': [
                 'PrepareSubject_TalairachFromNormalization_normalized_referential',
                 'PrepareSubject_TalairachFromNormalization_acpc_referential',

@@ -17,7 +17,7 @@ class TalairachTransformationFromNormalization(Process):
         self.add_field("source_referential", File, read=True, write=False)
         self.add_field("normalized_referential", File, read=True, write=False)
         self.add_field("acpc_referential", File, read=True, optional=True, write=False)
-        self.acpc_referential = '/casa/host/build/share/brainvisa-share-5.1/registration/Talairach-AC_PC-Anatomist.referential'
+        self.acpc_referential = '/casa/host/build/share/brainvisa-share-5.2/registration/Talairach-AC_PC-Anatomist.referential'
         self.add_field("transform_chain_ACPC_to_Normalized", File, read=True, write=False)
 
     def execute(self, context):

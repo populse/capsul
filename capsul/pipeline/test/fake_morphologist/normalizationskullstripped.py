@@ -14,6 +14,12 @@ class NormalizationSkullStripped(Pipeline):
 
         self.nodes["Normalization"].plugs["reoriented_t1mri"].optional = True
 
+        self.nodes["Normalization"].NormalizeSPM_template = undefined
+        self.nodes["Normalization"].NormalizeBaladin_template = undefined
+        self.nodes["Normalization"].Normalization_AimsMIRegister_anatomical_template = undefined
+        self.nodes["Normalization"].nodes["NormalizeSPM"].template = undefined
+        self.nodes["Normalization"].nodes["NormalizeBaladin"].template = undefined
+        self.nodes["Normalization"].nodes["Normalization_AimsMIRegister"].anatomical_template = undefined
         self.nodes["Normalization"].nodes["Normalization_AimsMIRegister"].field("normalized_anatomy_data").optional = True
 
         self.nodes["Normalization"].nodes["Normalization_AimsMIRegister"].plugs["normalized_anatomy_data"].optional = True
@@ -26,6 +32,10 @@ class NormalizationSkullStripped(Pipeline):
 
         self.nodes["Normalization"].nodes["select_Normalization_pipeline"].plugs["reoriented_t1mri"].optional = True
 
+        self.nodes["Normalization"].nodes["NormalizeSPM"].nodes["normalization_t1_spm12_reinit"].anatomical_template = undefined
+        self.nodes["Normalization"].nodes["NormalizeSPM"].nodes["normalization_t1_spm8_reinit"].anatomical_template = undefined
+        self.nodes["Normalization"].nodes["NormalizeBaladin"].nodes["NormalizeBaladin"].anatomical_template = undefined
+        self.nodes["Normalization"].nodes["NormalizeBaladin"].nodes["ConvertBaladinNormalizationToAIMS"].registered_volume = undefined
         self.nodes["Normalization"].nodes["NormalizeBaladin"].nodes["ReorientAnatomy"].enabled = False
         self.add_process("TalairachFromNormalization", "capsul.pipeline.test.fake_morphologist.talairachtransformationfromnormalization.TalairachTransformationFromNormalization", make_optional=['commissure_coordinates'])
         self.nodes["TalairachFromNormalization"].field("Talairach_transform").optional = False
@@ -41,10 +51,10 @@ class NormalizationSkullStripped(Pipeline):
         self.export_parameter("TalairachFromNormalization", "t1mri", is_optional=False)
         self.add_link("t1mri->SkullStripping.t1mri")
         self.export_parameter("SkullStripping", "brain_mask", is_optional=False)
-        self.export_parameter("Normalization", "NormalizeSPM_template", "template", is_optional=True)
-        self.add_link("template->Normalization.Normalization_AimsMIRegister_anatomical_template")
+        self.export_parameter("Normalization", "NormalizeBaladin_template", "template", is_optional=True)
         self.add_link("template->Normalization.NormalizeFSL_template")
-        self.add_link("template->Normalization.NormalizeBaladin_template")
+        self.add_link("template->Normalization.Normalization_AimsMIRegister_anatomical_template")
+        self.add_link("template->Normalization.NormalizeSPM_template")
         self.export_parameter("Normalization", "select_Normalization_pipeline", "Normalization_select_Normalization_pipeline", is_optional=True)
         self.export_parameter("Normalization", "allow_flip_initial_MRI", "Normalization_allow_flip_initial_MRI", is_optional=True)
         self.export_parameter("Normalization", "commissures_coordinates", "Normalization_commissures_coordinates", is_optional=True)
@@ -72,8 +82,8 @@ class NormalizationSkullStripped(Pipeline):
         self.export_parameter("TalairachFromNormalization", "transform_chain_ACPC_to_Normalized", "TalairachFromNormalization_transform_chain_ACPC_to_Normalized", is_optional=True)
         self.add_link("SkullStripping.skull_stripped->Normalization.t1mri")
         self.export_parameter("SkullStripping", "skull_stripped", is_optional=False)
-        self.add_link("Normalization.transformation->TalairachFromNormalization.normalization_transformation")
         self.export_parameter("Normalization", "transformation", is_optional=True)
+        self.add_link("Normalization.transformation->TalairachFromNormalization.normalization_transformation")
         self.export_parameter("Normalization", "reoriented_t1mri", "Normalization_reoriented_t1mri", is_optional=True)
         self.export_parameter("Normalization", "normalized", "Normalization_normalized", is_optional=True)
         self.export_parameter("Normalization", "NormalizeFSL_NormalizeFSL_transformation_matrix", "Normalization_NormalizeFSL_NormalizeFSL_transformation_matrix", is_optional=True)
@@ -142,9 +152,9 @@ class NormalizationSkullStripped(Pipeline):
         self.Normalization_NormalizeSPM_ConvertSPMnormalizationToAIMS_target = 'MNI template'
         self.Normalization_NormalizeSPM_ConvertSPMnormalizationToAIMS_removeSource = False
         self.Normalization_NormalizeBaladin_set_transformation_in_source_volume = True
-        self.Normalization_Normalization_AimsMIRegister_mni_to_acpc = '/casa/host/build/share/brainvisa-share-5.1/transformation/talairach_TO_spm_template_novoxels.trm'
+        self.Normalization_Normalization_AimsMIRegister_mni_to_acpc = '/casa/host/build/share/brainvisa-share-5.2/transformation/talairach_TO_spm_template_novoxels.trm'
         self.Normalization_Normalization_AimsMIRegister_smoothing = 1.0
-        self.TalairachFromNormalization_acpc_referential = '/casa/host/build/share/brainvisa-share-5.1/registration/Talairach-AC_PC-Anatomist.referential'
+        self.TalairachFromNormalization_acpc_referential = '/casa/host/build/share/brainvisa-share-5.2/registration/Talairach-AC_PC-Anatomist.referential'
 
         # nodes positions
         self.node_position = {

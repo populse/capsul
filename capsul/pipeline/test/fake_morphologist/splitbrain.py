@@ -20,7 +20,7 @@ class SplitBrain(Process):
         self.add_field("use_template", bool)
         self.use_template = True
         self.add_field("split_template", File, read=True, allowed_extensions=['.nii.gz', '.svs', '.bmp', '.dcm', '', '.i', '.v', '.fdf', '.mgh', '.mgz', '.gif', '.ima', '.dim', '.ndpi', '.vms', '.vmu', '.jpg', '.scn', '.mnc', '.nii', '.pbm', '.pgm', '.png', '.ppm', '.img', '.hdr', '.svslide', '.tiff', '.tif', '.vimg', '.vinfo', '.vhdr', '.bif', '.xbm', '.xpm', '.czi', '.mnc.gz'], write=False)
-        self.split_template = '/casa/host/build/share/brainvisa-share-5.1/hemitemplate/closedvoronoi.ima'
+        self.split_template = '/casa/host/build/share/brainvisa-share-5.2/hemitemplate/closedvoronoi.ima'
         self.add_field("mode", Literal['Watershed (2011)','Voronoi'])
         self.mode = 'Watershed (2011)'
         self.add_field("variant", Literal['regularized','GW Barycentre','WM Standard Deviation'])
