@@ -58,17 +58,13 @@ Functions
 
 """
 
-from __future__ import print_function
-
-from __future__ import absolute_import
-from capsul.api import get_process_instance
 from capsul.api import StudyConfig
 from capsul.api import capsul_engine
 from capsul.api import Pipeline
 from capsul.attributes.completion_engine import ProcessCompletionEngine
-
+import os
 import logging
-import sys, re, types
+import sys, re
 from optparse import OptionParser, OptionGroup
 from traits.api import Undefined, List
 try:
@@ -81,10 +77,12 @@ import six
 # Define the logger
 logger = logging.getLogger(__name__)
 
+
 class ProcessParamError(Exception):
     ''' Exception used in the ``runprocess`` module
     '''
     pass
+
 
 def set_process_param_from_str(process, k, arg):
     """Set a process parameter from a string representation."""
@@ -526,8 +524,13 @@ def main():
         output_file_processing=file_processing[1],
         write_workflow_only=options.write_workflow)
 
+    # if there was no exception, we assume the process has succeeded.
+    # sys.exit(0)
+    # no error, do a dirty exit, but avoid cleanup crashes after the process
+    # has succeeded...
+    os._exit(0)
 
-    sys.exit(0)
+    # otherwise it has raised an exception, exit "normally"
 
 
 if __name__ == '__main__':
