@@ -164,17 +164,13 @@
 
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
-
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
-<span class="kn">from</span> <span class="nn">capsul.api</span> <span class="kn">import</span> <span class="n">get_process_instance</span>
 <span class="kn">from</span> <span class="nn">capsul.api</span> <span class="kn">import</span> <span class="n">StudyConfig</span>
 <span class="kn">from</span> <span class="nn">capsul.api</span> <span class="kn">import</span> <span class="n">capsul_engine</span>
 <span class="kn">from</span> <span class="nn">capsul.api</span> <span class="kn">import</span> <span class="n">Pipeline</span>
 <span class="kn">from</span> <span class="nn">capsul.attributes.completion_engine</span> <span class="kn">import</span> <span class="n">ProcessCompletionEngine</span>
-
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">types</span>
+<span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">re</span>
 <span class="kn">from</span> <span class="nn">optparse</span> <span class="kn">import</span> <span class="n">OptionParser</span><span class="p">,</span> <span class="n">OptionGroup</span>
 <span class="kn">from</span> <span class="nn">traits.api</span> <span class="kn">import</span> <span class="n">Undefined</span><span class="p">,</span> <span class="n">List</span>
 <span class="k">try</span><span class="p">:</span>
@@ -187,10 +183,12 @@
 <span class="c1"># Define the logger</span>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
+
 <div class="viewcode-block" id="ProcessParamError"><a class="viewcode-back" href="../../../api/process.html#capsul.process.runprocess.ProcessParamError">[docs]</a><span class="k">class</span> <span class="nc">ProcessParamError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39; Exception used in the ``runprocess`` module</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">pass</span></div>
+
 
 <div class="viewcode-block" id="set_process_param_from_str"><a class="viewcode-back" href="../../../api/process.html#capsul.process.runprocess.set_process_param_from_str">[docs]</a><span class="k">def</span> <span class="nf">set_process_param_from_str</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">arg</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Set a process parameter from a string representation.&quot;&quot;&quot;</span>
@@ -632,8 +630,13 @@
         <span class="n">output_file_processing</span><span class="o">=</span><span class="n">file_processing</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
         <span class="n">write_workflow_only</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">write_workflow</span><span class="p">)</span>
 
+    <span class="c1"># if there was no exception, we assume the process has succeeded.</span>
+    <span class="c1"># sys.exit(0)</span>
+    <span class="c1"># no error, do a dirty exit, but avoid cleanup crashes after the process</span>
+    <span class="c1"># has succeeded...</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">_exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
 
-    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
+    <span class="c1"># otherwise it has raised an exception, exit &quot;normally&quot;</span>
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
