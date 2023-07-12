@@ -13,107 +13,8 @@ from soma.controller import Directory, undefined
 from capsul.api import Capsul
 from capsul.config.configuration import ModuleConfiguration, default_engine_start_workers
 from capsul.dataset import ProcessMetadata, ProcessSchema, MetadataSchema, BrainVISASchema
+from capsul.schemas.brainvisa import BrainVISASharedSchema
 
-
-class SharedSchema(MetadataSchema):
-    '''Metadata schema for BrainVISA shared dataset
-    '''
-    schema_name = 'shared'
-    data_id: str = ''
-    side: str = None
-    graph_version: str = None
-    model_version: str = None
-
-    def _path_list(self):
-        '''
-        The path has the following pattern:
-        <something>
-        '''
-
-        full_side = {'L': 'left', 'R': 'right'}
-        path_list = []
-        filename = []
-        if self.data_id == 'normalization_template':
-            path_list = ['anatomical_templates']
-            filename.append('MNI152_T1_2mm.nii.gz')
-        elif self.data_id == 'trans_mni_to_acpc':
-            path_list = ['transformation']
-            filename.append('spm_template_novoxels_TO_talairach.trm')
-        elif self.data_id == 'acpc_ref':
-            path_list = ['registration']
-            filename.append('Talairach-AC_PC-Anatomist.referential')
-        elif self.data_id == 'trans_acpc_to_mni':
-            path_list = ['transformation']
-            filename.append('talairach_TO_spm_template_novoxels.trm')
-        elif self.data_id == 'icbm152_ref':
-            path_list = ['registration']
-            filename.append('Talairach-MNI_template-SPM.referential')
-        elif self.data_id == 'hemi_split_template':
-            path_list = ['hemitemplate']
-            filename.append('closedvoronoi.ima')
-        elif self.data_id == 'sulcal_morphometry_sulci_file':
-            path_list = ['nomenclature', 'translation']
-            filename.append('sulci_default_list.json')
-        elif self.data_id == 'sulci_spam_recognition_labels_trans':
-            path_list = ['nomenclature', 'translation']
-            filename.append(f'sulci_model_20{self.model_version}.trl')
-        elif self.data_id == 'sulci_ann_recognition_model':
-            path_list = ['models', f'models_20{self.model_version}', 'discriminative_models', self.graph_version, f'{self.side}folds_noroots']
-            filename.append(f'{self.side}folds_noroots.arg')
-        elif self.data_id == 'sulci_spam_recognition_global_model':
-            path_list = [
-                'models', f'models_20{self.model_version}', 'descriptive_models', 'segments',
-                f'global_registered_spam_{full_side[self.side]}']
-            filename.append('spam_distribs.dat')
-        elif self.data_id == 'sulci_spam_recognition_local_model':
-            path_list = [
-                'models', f'models_20{self.model_version}', 'descriptive_models', 'segments',
-                f'locally_from_global_registred_spam_{full_side[self.side]}']
-            filename.append('spam_distribs.dat')
-        elif self.data_id == 'sulci_spam_recognition_global_labels_priors':
-            path_list = [
-                'models', f'models_20{self.model_version}', 'descriptive_models', 'labels_priors',
-                f'frequency_segments_priors_{full_side[self.side]}']
-            filename.append('frequency_segments_priors.dat')
-        elif self.data_id == 'sulci_spam_recognition_local_refs':
-            path_list = [
-                'models', f'models_20{self.model_version}', 'descriptive_models', 'segments',
-                f'locally_from_global_registred_spam_{full_side[self.side]}']
-            filename.append('local_referentials.dat')
-        elif self.data_id == 'sulci_spam_recognition_local_dir_priors':
-            path_list = [
-                'models', f'models_20{self.model_version}', 'descriptive_models', 'segments',
-                f'locally_from_global_registred_spam_{full_side[self.side]}']
-            filename.append('bingham_direction_trm_priors.dat')
-        elif self.data_id == 'sulci_spam_recognition_local_angle_priors':
-            path_list = [
-                'models', f'models_20{self.model_version}', 'descriptive_models', 'segments',
-                f'locally_from_global_registred_spam_{full_side[self.side]}']
-            filename.append('vonmises_angle_trm_priors.dat')
-        elif self.data_id == 'sulci_spam_recognition_local_trans_priors':
-            path_list = [
-                'models', f'models_20{self.model_version}', 'descriptive_models', 'segments',
-                f'locally_from_global_registred_spam_{full_side[self.side]}']
-            filename.append('gaussian_translation_trm_priors.dat')
-        elif self.data_id == 'sulci_spam_recognition_markov_rels':
-            path_list = [
-                'models', f'models_20{self.model_version}', 'descriptive_models', 'segments_relations',
-                f'mindist_relations_{full_side[self.side]}']
-            filename.append('gamma_exponential_mixture_distribs.dat')
-        elif self.data_id == 'sulci_cnn_recognition_model':
-            path_list = [
-                'models', f'models_20{self.model_version}', 'cnn_models']
-            filename.append(f'sulci_unet_model_{full_side[self.side]}.mdsm')
-        elif self.data_id == 'sulci_cnn_recognition_param':
-            path_list = [
-                'models', f'models_20{self.model_version}', 'cnn_models']
-            filename.append(f'sulci_unet_model_params_{full_side[self.side]}.mdsm')
-        else:
-            filename.append(self.data_id)
-        path_list.append(''.join(filename))
-        return path_list
-
-#Dataset.schemas['shared'] = SharedSchema
 
 # patch processes to setup their requirements and schemas
 
@@ -179,7 +80,7 @@ class SPM12NormalizationBrainVISA(ProcessSchema, schema='brainvisa', process=nor
     normalized_anatomy_data = {'analysis': undefined,
                                'prefix': 'normalized_SPM'}
 
-class SPM12NormalizationShared(ProcessSchema, schema='shared', process=normalization_t1_spm12_reinit):
+class SPM12NormalizationShared(ProcessSchema, schema='brainvisa_shared', process=normalization_t1_spm12_reinit):
     anatomical_template = {'data_id': 'normalization_template'}
 
 
@@ -200,7 +101,7 @@ class SPM8NormalizationBrainVISA(ProcessSchema, schema='brainvisa', process=norm
     normalized_anatomy_data = {'analysis': undefined,
                                'prefix': 'normalized_SPM'}
 
-class SPM8NormalizationShared(ProcessSchema, schema='shared', process=normalization_t1_spm8_reinit):
+class SPM8NormalizationShared(ProcessSchema, schema='brainvisa_shared', process=normalization_t1_spm8_reinit):
     anatomical_template = {'data_id': 'normalization_template'}
 
 
@@ -216,7 +117,7 @@ class AimsNormalizationBrainVISA(ProcessSchema, schema='brainvisa', process=norm
         'extension': 'trm'
     }
 
-class AimsNormalizationShared(ProcessSchema, schema='shared', process=normalization_aimsmiregister):
+class AimsNormalizationShared(ProcessSchema, schema='brainvisa_shared', process=normalization_aimsmiregister):
     anatomical_template = {'data_id': 'normalization_template'}
 
 
@@ -405,8 +306,8 @@ class SulciDeepLabelingBrainVISA(ProcessSchema, schema='brainvisa',
         '*': {'seg_directory': 'folds'}}
 
     labeled_graph = {'suffix':
-                        lambda **kwargs:
-                            f'{kwargs["metadata"].sulci_recognition_session}',
+                     lambda **kwargs:
+                         f'{kwargs["metadata"].sulci_recognition_session}',
                      'extension': 'arg'}
 
 
@@ -427,7 +328,7 @@ class MorphologistBrainVISA(ProcessSchema, schema='brainvisa',
     _nodes = {
         'GreyWhiteClassification': {'*': {'side': 'L'}},
         'GreyWhiteTopology': {'*': {'side': 'L'}},
-        'GreyWhiteMesh' : {'*': {'sidebis': 'L'}},
+        'GreyWhiteMesh': {'*': {'sidebis': 'L'}},
         'PialMesh': {'*': {'sidebis': 'L'}},
         'SulciSkeleton': {'*': {'side': 'L'}},
         'CorticalFoldsGraph': {'*': {'side': 'L'}},
@@ -459,7 +360,7 @@ class MorphologistBrainVISA(ProcessSchema, schema='brainvisa',
         'suffix': None,
         'extension': 'nii',
     }
-    t1mri_referential= {
+    t1mri_referential = {
         'analysis': undefined,
         'seg_directory': 'registration',
         'short_prefix': 'RawT1-',
@@ -484,7 +385,7 @@ class MorphologistBrainVISA(ProcessSchema, schema='brainvisa',
     }
 
 
-class MorphologistShared(ProcessSchema, schema='shared', process=Morphologist):
+class MorphologistShared(ProcessSchema, schema='brainvisa_shared', process=Morphologist):
     PrepareSubject_Normalization_Normalization_AimsMIRegister_anatomical_template = {'data_id': 'normalization_template'}
     PrepareSubject_Normalization_NormalizeFSL_template = {'data_id': 'normalization_template'}
     PrepareSubject_Normalization_NormalizeSPM_template = {'data_id': 'normalization_template'}
@@ -683,7 +584,7 @@ class TestFakeMorphologist(unittest.TestCase):
                     },
                     'shared': {
                         'path': get_shared_path(),
-                        'metadata_schema': 'shared',
+                        'metadata_schema': 'brainvisa_shared',
                     },
                 }
             }
@@ -750,7 +651,7 @@ class TestFakeMorphologist(unittest.TestCase):
                     },
                     'shared': {
                         'path': get_shared_path(),
-                        'metadata_schema': 'shared',
+                        'metadata_schema': 'brainvisa_shared',
                     },
                 },
                 'spm': {
@@ -797,7 +698,7 @@ class TestFakeMorphologist(unittest.TestCase):
                 },
                 'shared': {
                     'path': get_shared_path(),
-                    'metadata_schema': 'shared',
+                    'metadata_schema': 'brainvisa_shared',
                 },
             },
         }
@@ -1005,7 +906,7 @@ class TestFakeMorphologist(unittest.TestCase):
                 'Report_report',
             ],
             'bids': ['t1mri', 'Report_normative_brain_stats'],
-            'shared': [
+            'brainvisa_shared': [
                 'PrepareSubject_TalairachFromNormalization_normalized_referential',
                 'PrepareSubject_TalairachFromNormalization_acpc_referential',
                 'PrepareSubject_TalairachFromNormalization_transform_chain_ACPC_to_Normalized',
