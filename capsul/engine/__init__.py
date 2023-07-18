@@ -44,7 +44,11 @@ def execution_context(engine_label, engine_config, executable):
         done_req.append((module_name, requirements))
         needed_modules.add(module_name)
 
-        module_configs = getattr(engine_config, module_name, {})
+        module_configs = getattr(engine_config, module_name, None)
+        if module_configs is None:
+            # maybe the module is not loaded in the config. Load it.
+            engine_config.add_module(module_name)
+            module_configs = getattr(engine_config, module_name, {})
         if not isinstance(module_configs, Controller):
             raise ValueError(f'Unknown requirement: "{module_name}"')
         for module_field in module_configs.fields():
