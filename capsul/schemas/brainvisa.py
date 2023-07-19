@@ -115,11 +115,78 @@ class BrainVISASharedSchema(MetadataSchema):
         return path_list
 
 
+morphologist_datasets = {
+    't1mri': 'input',
+    'PrepareSubject_Normalization_Normalization_AimsMIRegister_anatomical_template': 'shared',
+    'PrepareSubject_TalairachFromNormalization_normalized_referential': 'shared',
+    'PrepareSubject_TalairachFromNormalization_transform_chain_ACPC_to_Normalized': 'shared',
+    'PrepareSubject_TalairachFromNormalization_acpc_referential': 'shared',
+    'PrepareSubject_StandardACPC_older_MNI_normalization': None,
+    'PrepareSubject_Normalization_commissures_coordinates': None,
+    'PrepareSubject_Normalization_NormalizeFSL_template': 'shared',
+    'PrepareSubject_Normalization_NormalizeSPM_template': 'shared',
+    'PrepareSubject_Normalization_NormalizeSPM_ConvertSPMnormalizationToAIMS_normalized_volume': None,
+    'PrepareSubject_Normalization_NormalizeBaladin_template': 'shared',
+    'PrepareSubject_Normalization_Normalization_AimsMIRegister_mni_to_acpc': 'shared',
+    'BrainSegmentation_lesion_mask': None,
+    'Renorm_template': 'shared',
+    'Renorm_Normalization_NormalizeSPM_ConvertSPMnormalizationToAIMS_normalized_volume': None,
+    'Renorm_Normalization_Normalization_AimsMIRegister_mni_to_acpc': 'shared',
+    'HeadMesh_remove_mask': None,
+    'SplitBrain_split_template': 'shared',
+    'GreyWhiteClassification_lesion_mask': None,
+    'SulciRecognition_SPAM_recognition09_global_recognition_labels_priors': 'shared',
+    'SulciRecognition_SPAM_recognition09_global_recognition_initial_transformation': None,
+    'SulciRecognition_SPAM_recognition09_global_recognition_model': 'shared',
+    'SulciRecognition_SPAM_recognition09_local_recognition_model': 'shared',
+    'SulciRecognition_SPAM_recognition09_local_recognition_local_referentials': 'shared',
+    'SulciRecognition_SPAM_recognition09_local_recognition_direction_priors': 'shared',
+    'SulciRecognition_SPAM_recognition09_local_recognition_angle_priors': 'shared',
+    'SulciRecognition_SPAM_recognition09_local_recognition_translation_priors': 'shared',
+    'SulciRecognition_SPAM_recognition09_markovian_recognition_model': 'shared',
+    'SulciRecognition_SPAM_recognition09_markovian_recognition_segments_relations_model': 'shared',
+    'SulciRecognition_CNN_recognition19_model_file': 'shared',
+    'SulciRecognition_CNN_recognition19_param_file': 'shared',
+    'GreyWhiteClassification_1_lesion_mask': None,
+    'SulciRecognition_1_SPAM_recognition09_global_recognition_labels_priors': 'shared',
+    'SulciRecognition_1_SPAM_recognition09_global_recognition_initial_transformation': None,
+    'SulciRecognition_1_SPAM_recognition09_global_recognition_model': 'shared',
+    'SulciRecognition_1_SPAM_recognition09_local_recognition_model': 'shared',
+    'SulciRecognition_1_SPAM_recognition09_local_recognition_local_referentials': 'shared',
+    'SulciRecognition_1_SPAM_recognition09_local_recognition_direction_priors': 'shared',
+    'SulciRecognition_1_SPAM_recognition09_local_recognition_angle_priors': 'shared',
+    'SulciRecognition_1_SPAM_recognition09_local_recognition_translation_priors': 'shared',
+    'SulciRecognition_1_SPAM_recognition09_markovian_recognition_model': 'shared',
+    'SulciRecognition_1_SPAM_recognition09_markovian_recognition_segments_relations_model': 'shared',
+    'SulciRecognition_1_CNN_recognition19_model_file': 'shared',
+    'SulciRecognition_1_CNN_recognition19_param_file': 'shared',
+    'SPAM_recognition_labels_translation_map': 'shared',
+    'SulciRecognition_recognition2000_model': 'shared',
+    'SulciRecognition_1_recognition2000_model': 'shared',
+    'sulcal_morphometry_sulci_file': 'shared',
+    'GlobalMorphometry_subject': 'output',
+    'Report_normative_brain_stats': None,
+    'Report_subject': 'output',
+}
+''' standard, shared datasets associated with shared input data for
+Morphologist
+'''
+
+
 def declare_morpho_schemas(morpho_module):
+    ''' Declares Morphologist and sub-processes completion schemas for
+    BIDS, BrainVisa and shared organizations.
+
+    It may apply to the "real" Morphologist pipeline (morphologist.capsul
+    parent module), or to the "fake" morphologist test replica
+    (capsul.pipeline.test.fake_morphologist parent module)
+    '''
 
     axon_module = morpho_module
+    cnn_module = '{}.sulcideeplabeling'.format(morpho_module)
     if morpho_module.startswith('morphologist.'):
         axon_module = '{}.axon'.format(morpho_module)
+        cnn_module = 'deepsulci.sulci_labeling.capsul.labeling'
 
     morphologist = importlib.import_module(
         '{}.morphologist'.format(morpho_module))
@@ -163,8 +230,11 @@ def declare_morpho_schemas(morpho_module):
         '{}.sulcilabellingspamlocal'.format(axon_module))
     sulcilabellingspammarkov = importlib.import_module(
         '{}.sulcilabellingspammarkov'.format(axon_module))
-    sulcideeplabeling = importlib.import_module(
-        '{}.sulcideeplabeling'.format(axon_module))
+    sulcideeplabeling = importlib.import_module(cnn_module)
+    brainvolumes = importlib.import_module(
+        '{}.brainvolumes'.format(axon_module))
+    morpho_report = importlib.import_module(
+        '{}.morpho_report'.format(axon_module))
 
     # patch processes to setup their requirements and schemas
 
@@ -197,6 +267,8 @@ def declare_morpho_schemas(morpho_module):
     SulciLabellingSPAMMarkov \
         = sulcilabellingspammarkov.SulciLabellingSPAMMarkov
     SulciDeepLabeling = sulcideeplabeling.SulciDeepLabeling
+    morpho_report = morpho_report.morpho_report
+    brainvolumes = brainvolumes.brainvolumes
 
     class MorphologistBIDS(ProcessSchema, schema='bids', process=Morphologist):
         _ = {
@@ -236,14 +308,18 @@ def declare_morpho_schemas(morpho_module):
             'sidebis': None,
             'seg_directory': None,
             'suffix': None,
-            'extension': 'nii',
+            'extension': 'nii.gz',
         }
         t1mri_nobias = {
+            'analysis': lambda **kwargs: f'{kwargs["metadata"].analysis}',
             'side': None,
             'sidebis': None,
             'seg_directory': None,
             'suffix': None,
-            'extension': 'nii',
+            'extension': 'nii.gz',
+        }
+        commissure_coordinates = {
+            'extension': 'APC',
         }
         t1mri_referential = {
             'analysis': undefined,
@@ -262,12 +338,17 @@ def declare_morpho_schemas(morpho_module):
             'side': None,
             'sidebis': None,
             'extension': 'trm'}
+        HeadMesh_head_mesh = {
+
+        }
         left_labelled_graph = {
             'part': 'left_hemi'
         }
         right_labelled_graph = {
             'part': 'right_hemi'
         }
+        Report_subject = {'modality': None}
+        GlobalMorphometry_subject = {'modality': None}
 
     class SPM12NormalizationBIDS(ProcessSchema, schema='bids',
                                  process=normalization_t1_spm12_reinit):
@@ -309,6 +390,12 @@ def declare_morpho_schemas(morpho_module):
             'analysis': undefined,
             'suffix': 'fsl',
             'extension': 'mat'
+        }
+        normalized_anatomy_data = {
+            'analysis': undefined,
+            'prefix': 'normalized_FSL',
+            'suffix': None,
+            'extension': 'nii.gz'
         }
 
     class T1BiasCorrectionBIDS(ProcessSchema, schema='bids',
@@ -484,6 +571,78 @@ def declare_morpho_schemas(morpho_module):
                             lambda **kwargs:
                                 f'{kwargs["metadata"].sulci_recognition_session}',
                          'extension': 'arg'}
+
+    class BrainVolumesBIDS(ProcessSchema, schema='bids',
+                           process=brainvolumes):
+        pass
+
+    class BrainVolumesBrainVISA(ProcessSchema, schema='brainvisa',
+                                process=brainvolumes):
+        _ = {
+            '*': {'seg_directory': 'segmentation'}}
+        left_csf = {
+            'prefix': 'csf',
+            'side': 'L',
+            'sulci_graph_version': None,
+            'sulci_recognition_session': None,
+            'extension': 'nii.gz',
+        }
+        right_csf = {
+            'prefix': 'csf',
+            'side': 'R',
+            'sulci_graph_version': None,
+            'sulci_recognition_session': None,
+            'extension': 'nii.gz',
+        }
+        brain_volumes_file = {
+            'prefix': 'brain_volumes',
+            'suffix': None,
+            'side': None,
+            'sidebis': None,
+            'sulci_graph_version': None,
+            'sulci_recognition_session': None,
+            'extension': 'csv',
+        }
+        subject = {
+            'seg_directory': None,
+            'prefix': None,
+            'center': undefined,
+            'side': None,
+            'modality': None,
+            'acquisition': None,
+            'analysis': undefined,
+            'subject_in_filename': False,
+            'extension': None
+        }
+
+    class MorphoReportBIDS(ProcessSchema, schema='bids',
+                           process=morpho_report):
+        pass
+
+    class MorphoReportBrainVISA(ProcessSchema, schema='brainvisa',
+                                process=morpho_report):
+        _ = {
+            '*': {'seg_directory': None}}
+        report = {
+            'prefix': None,
+            'side': None,
+            'sidebis': None,
+            'subject_in_filename': False,
+            'sulci_graph_version': None,
+            'sulci_recognition_session': None,
+            'suffix': 'morphologist_report',
+            'extension': 'pdf'
+        }
+        subject = {
+            'prefix': None,
+            'center': undefined,
+            'side': None,
+            'modality': None,
+            'acquisition': None,
+            'analysis': undefined,
+            'subject_in_filename': False,
+            'extension': None
+        }
 
     class MorphologistShared(ProcessSchema, schema='brainvisa_shared',
                              process=Morphologist):
