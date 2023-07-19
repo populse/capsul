@@ -46,12 +46,13 @@ class Dataset(Controller):
 
     def __init__(self, path=None, metadata_schema=None):
         super().__init__(self)
-        self.on_attribute_change.add(self.schema_change_callback, 'metadata_schema')
+        self.on_attribute_change.add(self.schema_change_callback,
+                                     'metadata_schema')
         if path is not None:
             if isinstance(path, Path):
                 self.path = str(path)
             else:
-                self.path = path          
+                self.path = path
             if metadata_schema is None:
                 capsul_json = Path(self.path) / 'capsul.json'
                 if capsul_json.exists():
@@ -117,6 +118,12 @@ class MetadataSchema(Controller):
         return functools.reduce(operator.truediv,
                                 self._path_list(),
                                 self.base_path)
+
+    def build_param(self, path_type=False):
+        if path_type:
+            return self.build_path()
+        return '/'.join([str(p) for p in self._path_list()
+                         if p not in (None, undefined, '')])
 
     def _path_list(self):
         ''' Builds a path from metadata values in the fields of the current
@@ -194,7 +201,8 @@ class BIDSSchema(MetadataSchema):
         if self.data_type:
             path_list.append(self.data_type)
         elif not self.process:
-            raise ValueError('BIDS schema requires a value for either data_type or process')
+            raise ValueError('BIDS schema requires a value for either '
+                             'data_type or process')
 
         filename = [f'sub-{self.sub}',
                     f'ses-{self.ses}']
@@ -208,7 +216,7 @@ class BIDSSchema(MetadataSchema):
             filename[-1] += f'.{self.extension}'
         path_list.append('_'.join(filename))
         return path_list
-    
+
     def tsv_to_dict(self, tsv):
         '''
         Reads a TSV file and convert it to a dictionary of dictionaries
@@ -245,11 +253,25 @@ class BIDSSchema(MetadataSchema):
             relative_path = path
             path = self.base_path / path
         m = self.path_pattern.match(str(relative_path))
+        extsuffix = ''
         if m:
+            if m.groupdict().get('extension') == 'gz':
+                m2 = self.path_pattern.match(str(relative_path)[:-3])
+                if m2:
+                    m = m2
+                    extsuffix += '.gz'
+
             result.update((k, v) for k, v in m.groupdict().items()
                           if v is not None)
         folder = result.get('folder')
         sub = result.get('sub')
+        extension = result.get('extension')
+        if extsuffix:
+            if extension:
+                extension += extsuffix
+            else:
+                extension = 'gz'
+            result['extension'] = extension
         if folder and sub:
             ses = result.get('ses')
             if ses:
@@ -282,8 +304,8 @@ class BIDSSchema(MetadataSchema):
         return result
 
     def find(self, **kwargs):
-        ''' Find path from existing files given fixed values for some parameters
-        (using :func:`glob.glob` and filenames parsing)
+        ''' Find path from existing files given fixed values for some
+        parameters (using :func:`glob.glob` and filenames parsing)
 
         Returns
         -------
@@ -294,7 +316,7 @@ class BIDSSchema(MetadataSchema):
         else:
             layout = self.__class__(self.base_path, **kwargs)
         for field in layout.fields():
-            value = getattr(layout, field.name, undefined) 
+            value = getattr(layout, field.name, undefined)
             if value is undefined:
                 if not field.optional:
                     # Force the value of the attribute without
@@ -311,7 +333,7 @@ class BIDSSchema(MetadataSchema):
                         new_directories.append(sd)
             globs = globs[1:]
             directories = new_directories
-        
+
         for d in directories:
             for sd in d.glob(globs[0]):
                 yield sd
@@ -339,6 +361,7 @@ class BrainVISASchema(MetadataSchema):
     extension: str = None
     side: str = None
     sidebis: str = None  # when used as a sufffix
+    subject_in_filename: bool = True
 
     find_attrs = re.compile(
         r'(?P<folder>[^-_/]*)/'
@@ -356,10 +379,9 @@ class BrainVISASchema(MetadataSchema):
         {center}/{subject}/[{modality}/][{process/][{acquisition}/][{preprocessings}/][{longitudinal}/][{analysis}/][seg_directory/][{sulci_graph_version}/[{sulci_recognition_session}]]/[side][{prefix}_][short_prefix]{subject}[_to_avg_{longitudinal}}[_{sidebis}{suffix}][.{extension}]
         '''
 
-        attributes = tuple(f.name for f in self.fields())
-
         path_list = [self.center, self.subject]
-        for key in ('modality', 'process', 'acquisition', 'preprocessings', 'longitudinal'):
+        for key in ('modality', 'process', 'acquisition', 'preprocessings',
+                    'longitudinal'):
             value = getattr(self, key, None)
             if value:
                 path_list.append(value)
@@ -379,11 +401,13 @@ class BrainVISASchema(MetadataSchema):
             filename.append(f'{self.prefix}_')
         if self.short_prefix:
             filename.append(f'{self.short_prefix}')
-        filename.append(self.subject)
+        if self.subject_in_filename:
+            filename.append(self.subject)
         if self.longitudinal:
             filename.append(f'_to_avg_{self.longitudinal}')
         if self.suffix or self.sidebis:
-            filename.append('_')
+            if filename:
+                filename.append('_')
             if self.sidebis:
                 filename.append(f'{self.sidebis}')
             if self.suffix:
@@ -405,7 +429,8 @@ class BidsToBrainVISA(SchemaMapping):
 
     @staticmethod
     def map_schemas(source, dest):
-        dest.center = 'whaterver'
+        if dest.center is undefined:
+            dest.center = 'subjects'
         dest.subject = source.sub
         dest.acquisition = source.ses
         dest.extension = source.extension
@@ -479,11 +504,11 @@ class MetadataModifier:
 
     def __repr__(self):
         return f'MetadataModifier({self.process.label}, {self.parameter}, {self.modifiers})'
-    
+
     @property
     def is_empty(self):
         return not self.modifiers
-    
+
     def add_modifier(self, modifier):
         if modifier is None:
             return
@@ -491,13 +516,15 @@ class MetadataModifier:
             self.modifiers.append(modifier)
         else:
             raise ValueError(f'Invalid value for schema modification for parameter {self.parameter}: {modifier}')
-        
+
     def apply(self, metadata, process, parameter):
         for modifier in self.modifiers:
             if isinstance(modifier, dict):
                 for k, v in modifier.items():
                     if callable(v):
-                        setattr(metadata, k, v(metadata=metadata, process=process, parameter=parameter))
+                        setattr(metadata, k,
+                                v(metadata=metadata, process=process,
+                                  parameter=parameter))
                     else:
                         setattr(metadata, k, v)
             else:
@@ -580,11 +607,12 @@ class ProcessMetadata(Controller):
             if dataset:
                 self.dataset_per_parameter[field.name] = dataset_name
                 schema = dataset.metadata_schema
-                self.parameters_per_schema.setdefault(schema, []).append(field.name)
+                self.parameters_per_schema.setdefault(schema, []).append(
+                    field.name)
                 self.schema_per_parameter[field.name] = schema
                 if field.is_list() or field.name in iterative_parameters:
                     self.iterative_schemas.add(schema)
-        
+
         for schema_name in self.parameters_per_schema:
             schema_cls = Dataset.find_schema(schema_name)
             if schema_cls is None:
@@ -604,17 +632,28 @@ class ProcessMetadata(Controller):
                     schema = self.schema_per_parameter.get(field.name)
                     self.dprint(f'  {field.name} -> dataset={dataset}, schema={schema}')
             self.dprint('  Iterative schemas:', self.iterative_schemas)
-    
+
     def dprint(self, *args, **kwargs):
         if isinstance(self.debug, bool) and self.debug:
             self.debug = sys.stderr
         if self.debug:
             print(*args, file=self.debug, **kwargs)
-    
+
     def parameter_dataset_name(self, process, field):
         '''
         Find the name of the dataset associated to a process parameter
         '''
+        dataset_name = None
+        # 1: get manually given datasets
+        if self.datasets:
+            dataset_name = self.datasets.get(field.name)
+        # Associates a Dataset name with the field
+        if dataset_name is None:
+            dataset_name = getattr(field, 'dataset', None)
+        if dataset_name is not None:
+            return dataset_name
+
+        # not manually given: filter out non-path fields
         inner_field = None
         inner_field_name = None
         if isinstance(process, Pipeline):
@@ -630,15 +669,8 @@ class ProcessMetadata(Controller):
         else:
             path_type = field.path_type
         if path_type:
-            dataset_name = None
-            # 1: get manually given datasets
-            if self.datasets:
-                dataset_name = self.datasets.get(field.name)
-            # Associates a Dataset name with the field
-            if dataset_name is None:
-                dataset_name = getattr(field, 'dataset', None)
             # fallback 1: get in inner_field (of an inner process)
-            if dataset_name is None and inner_field:
+            if inner_field:
                 dataset_name = getattr(inner_field, 'dataset', None)
             # fallback 3: use "input" or "output"
             if dataset_name is None and (not self.datasets
@@ -778,7 +810,8 @@ class ProcessMetadata(Controller):
                     for modifier in metadata_modifications.get(parameter, []):
                         modifier.apply(metadata, executable, parameter)
                     try:
-                        path = str(metadata.build_path())   
+                        path = str(metadata.build_param(
+                            executable.field(parameter).path_type))
                     except Exception:
                         path = undefined
                     if self.debug:
