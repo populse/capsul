@@ -86,7 +86,8 @@ class ExecutionContext(Controller):
                     result.update(self.executable_requirements(process))
         elif isinstance(executable, Pipeline):
             for node in executable.all_nodes():
-                if node is not executable and isinstance(node, Process) and node.activated:
+                if node is not executable and isinstance(node, Process) \
+                        and node.activated:
                     result.update(self.executable_requirements(node))
         result.update(getattr(executable, 'requirements', {}))
         return result
@@ -95,7 +96,7 @@ class ExecutionContext(Controller):
 class CapsulWorkflow(Controller):
     parameters: DictWithProxy
     jobs: dict
-    
+
     def __init__(self, executable, debug=False):
         super().__init__()
         top_parameters = DictWithProxy(all_proxies=True)
