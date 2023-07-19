@@ -258,9 +258,10 @@ class Pipeline(Process):
         # Refresh pipeline activation
         self._disable_update_nodes_and_plugs_activation -= 1
         self.update_nodes_and_plugs_activation()
-        super().__setattr__('enable_parameter_links', True)
         for k, v in kwargs.items():
             setattr(self, k, v)
+        super().__setattr__('enable_parameter_links', True)
+        self.dispatch_all_values()
 
     def pipeline_definition(self):
         """ Define pipeline structure, nodes, sub-pipelines, switches, and
@@ -1018,7 +1019,7 @@ class Pipeline(Process):
 
         if node is None:
             raise ValueError(f'Invalid pipeline node name: {node_name}')
-        
+
         # Make a copy of the field
         source_field = node.field(plug_name)
 
@@ -1033,12 +1034,11 @@ class Pipeline(Process):
                 f"Parameter '{plug_name}' of node '{node_name or 'pipeline'}' cannot be exported to pipeline "
                 f"parameter '{pipeline_parameter}'")
 
-
         # Now add the parameter to the pipeline
         if not self.field(pipeline_parameter):
             self.add_field(pipeline_parameter, source_field)
 
-        f= self.field(pipeline_parameter)
+        f = self.field(pipeline_parameter)
 
         # Set user enabled parameter only if specified
         # Important because this property is automatically set during
@@ -2229,18 +2229,23 @@ class Pipeline(Process):
                 and name in self.plugs:
             self.dispatch_value(self, name, value)
         return result
-    
+
     def dispatch_value(self, node, name, value):
+        ''' Propagate the value from a pipeline plug through links
+        '''
         for node, plug in self.dispatch_plugs(node, name):
             if getattr(node, plug, None) != value:
                 setattr(node, plug, value)
-    
+
     def dispatch_plugs(self, node, name):
+        ''' generator through linked plugs
+        '''
         enable_parameter_links = self.enable_parameter_links
         self.enable_parameter_links = False
         done = {(node, name)}
-        stack = list(self.get_linked_items(node, 
-            name, 
+        stack = list(self.get_linked_items(
+            node,
+            name,
             in_sub_pipelines=False,
             activated_only=False,
             process_only=False))
@@ -2257,18 +2262,27 @@ class Pipeline(Process):
                     process_only=False))
         self.enable_parameter_links = enable_parameter_links
 
+    def dispatch_all_values(self):
+        '''
+        '''
+        for f in self.user_fields():
+            name = f.name
+            value = getattr(self, name)
+            self.dispatch_value(self, name, value)
+
     def get_linked_items(self, node, plug_name=None, in_sub_pipelines=True,
                          activated_only=True, process_only=True,
                          direction=None, in_outer_pipelines=False):
-        '''Return the real process(es) node and plug connected to the given plug.
+        ''' Return the real process(es) node and plug connected to the given
+        plug.
         Going through switches and inside subpipelines, ignoring nodes that are
         not activated.
         The result is a generator of pairs (node, plug_name).
         '''
         if plug_name is None:
-            stack =[(node, plug) for plug in node.plugs]
+            stack = [(node, plug) for plug in node.plugs]
         else:
-            stack =[(node, plug_name)]
+            stack = [(node, plug_name)]
         while stack:
             node, plug_name = stack.pop(0)
             if activated_only and not node.activated:
