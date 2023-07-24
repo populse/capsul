@@ -310,6 +310,13 @@ def declare_morpho_schemas(morpho_module):
             'suffix': None,
             'extension': 'nii.gz',
         }
+        Renorm_skull_stripped = {
+            'extension': 'nii.gz',
+        }
+        normalized_t1mri = {
+            'analysis': undefined,
+            'extension': 'nii.gz',
+        }
         t1mri_nobias = {
             'analysis': lambda **kwargs: f'{kwargs["metadata"].analysis}',
             'side': None,
@@ -319,7 +326,11 @@ def declare_morpho_schemas(morpho_module):
             'extension': 'nii.gz',
         }
         commissure_coordinates = {
+            'analysis': undefined,
             'extension': 'APC',
+        }
+        BrainSegmentation_brain_mask = {
+            'extension': 'nii.gz',
         }
         t1mri_referential = {
             'analysis': undefined,
@@ -387,11 +398,13 @@ def declare_morpho_schemas(morpho_module):
     class FSLNormalizationBrainVISA(ProcessSchema, schema='brainvisa',
                                     process=Normalization_FSL_reinit):
         transformation_matrix = {
+            'seg_directory': 'registration',
             'analysis': undefined,
             'suffix': 'fsl',
             'extension': 'mat'
         }
         normalized_anatomy_data = {
+            'seg_directory': None,
             'analysis': undefined,
             'prefix': 'normalized_FSL',
             'suffix': None,
@@ -404,6 +417,12 @@ def declare_morpho_schemas(morpho_module):
 
     class T1BiasCorrectionBrainVISA(ProcessSchema, schema='brainvisa',
                                     process=T1BiasCorrection):
+        _ = {
+            '*': {
+                'seg_directory': None,
+                'analysis': lambda **kwargs: f'{kwargs["metadata"].analysis}',
+            }
+        }
         t1mri_nobias = {'prefix': 'nobias'}
         b_field = {'prefix': 'biasfield'}
         hfiltered = {'prefix': 'hfiltered'}
