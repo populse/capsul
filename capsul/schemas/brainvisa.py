@@ -310,9 +310,9 @@ def declare_morpho_schemas(morpho_module):
             'suffix': None,
             'extension': 'nii.gz',
         }
-        Renorm_skull_stripped = {
-            'extension': 'nii.gz',
-        }
+        #Renorm_skull_stripped = {
+            #'extension': 'nii.gz',
+        #}
         normalized_t1mri = {
             'analysis': undefined,
             'extension': 'nii.gz',
@@ -329,9 +329,9 @@ def declare_morpho_schemas(morpho_module):
             'analysis': undefined,
             'extension': 'APC',
         }
-        BrainSegmentation_brain_mask = {
-            'extension': 'nii.gz',
-        }
+        #BrainSegmentation_brain_mask = {
+            #'extension': 'nii.gz',
+        #}
         t1mri_referential = {
             'analysis': undefined,
             'seg_directory': 'registration',
@@ -442,6 +442,11 @@ def declare_morpho_schemas(morpho_module):
             '*': {'seg_directory': 'segmentation'}
         }
         brain_mask = {'prefix': 'brain'}
+        _meta_links = {
+            'histo_analysis': {
+                '*': [],
+            }
+        }
 
     class skullstrippingBrainVISA(ProcessSchema, schema='brainvisa',
                                   process=skullstripping):

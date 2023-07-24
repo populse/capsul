@@ -266,7 +266,7 @@ class TestFakeMorphologist(unittest.TestCase):
         dict_context = context.asdict()
         ds_context = {'dataset': dict_context['dataset']}
         #print('requirements:')
-        #print(engine.executable_requirements(morphologist))
+        #print(context.executable_requirements(morphologist))
         self.assertEqual(dict_context, expected_context)
         # spms = list(expected_config['builtin']['spm'].values())
         # self.assertTrue(dict_context['spm'] in spms)
@@ -281,7 +281,7 @@ class TestFakeMorphologist(unittest.TestCase):
         #print('context:')
         #print(dict_context)
         #print('requirements:')
-        #print(engine.executable_requirements(morphologist))
+        #print(context.executable_requirements(morphologist))
         fakespm12_conf = {
             'directory': str(self.tmp / 'software' / 'fakespm-12'),
             'version': '12',
