@@ -578,13 +578,14 @@ def dpprint(debug, item):
 
 class ProcessMetadata(Controller):
 
-    def __init__(self, executable, execution_context, datasets=None, debug=False):
+    def __init__(self, executable, execution_context, datasets=None,
+                 debug=False):
         super().__init__()
         self.executable = executable
         self.execution_context = execution_context
         self.datasets = datasets
         self._current_iteration = None
-        self.debug=debug
+        self.debug = debug
 
         self.parameters_per_schema = {}
         self.schema_per_parameter = {}
@@ -678,8 +679,22 @@ class ProcessMetadata(Controller):
                 dataset_name = ('output' if field.is_output() else 'input')
             return dataset_name
         return None
-    
+
     def metadata_modifications(self, process):
+        ''' Modifications are propagated recursively from inputs. All input
+        parameters bring their metadata modifications to the whole process (and
+        thus to all its outputs).
+
+        This is a bit overkill since outputs get metatata from all indirect
+        outputs, some of them being very specific (like the format extension of
+        a particular upstream process output parameter, which, then, will
+        propagate to all downstream outputs). Moreover we don't always
+        completely know the ordering of parameters, which has a large
+        ifluence here since possibly contradicting metadata are applied in
+        (recursive) parameters order. For instance 'prefix' or 'suffix' are set
+        differently at many places earlier.
+        '''
+
         result = {}
         if isinstance(process, ProcessIteration):
             for iprocess in process.iterate_over_process_parmeters():
@@ -690,7 +705,7 @@ class ProcessMetadata(Controller):
                     else:
                         result[k] = v
         else:
-            for field in process.user_fields():                
+            for field in process.user_fields():
                 if process.plugs[field.name].activated:
                     self.dprint(f'  Parse schema modifications for {field.name}')
                     schema = self.schema_per_parameter.get(field.name)
@@ -803,7 +818,8 @@ class ProcessMetadata(Controller):
                 for parameter in parameters:
                     self.dprint(f'  find value for {parameter} in schema {schema}')
                     dataset = self.dataset_per_parameter[parameter]
-                    metadata = Dataset.find_schema(schema)(base_path=f'!{{dataset.{dataset}.path}}')
+                    metadata = Dataset.find_schema(schema)(
+                        base_path=f'!{{dataset.{dataset}.path}}')
                     s = self.get_schema(schema)
                     if s:
                         metadata.import_dict(s.asdict())
