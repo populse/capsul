@@ -557,7 +557,7 @@ class MetadataModifier:
                                     self.add_modifier(modifier)
 
     def __repr__(self):
-        return f'MetadataModifier({self.process.label}, {self.parameter}, {self.modifiers})'
+        return f'MetadataModifier({self.process.label}, {self.parameter}, {self.modifiers}, filtered_meta={self.filtered_meta})'
 
     @property
     def is_empty(self):
@@ -765,6 +765,7 @@ class ProcessMetadata(Controller):
                         result[k] = v
         else:
             for field in process.user_fields():
+                # self.debug = (field.name == 'split_brain')
                 if process.plugs[field.name].activated:
                     self.dprint(f'  Parse schema modifications for {field.name}')
                     schema = self.schema_per_parameter.get(field.name)
@@ -807,13 +808,19 @@ class ProcessMetadata(Controller):
                                             stack.extend(ext)
                                             done.update(i[0] for i in ext)
                                             if self.debug:
-                                                for n, p in ext:
-                                                    self.dprint(f'        + {n.full_name}.{p}')
+                                                for n, p, ni, s, d in ext:
+                                                    self.dprint(f'        + {n.full_name}.{p}, {ni} {s} {d}')
                         todo.append((process, field.name, None, None, None))
                         for node, node_parameter, intra_node, intra_src, \
                                 intra_dst in todo:
-                            self.dprint(
-                                f'    resolve {node.name}.{node_parameter}')
+                            if self.debug:
+                                inname = (intra_node.full_name
+                                          if intra_node is not None
+                                          else None)
+                                self.dprint(
+                                    f'    resolve {node.name}.'
+                                    f'{node_parameter} '
+                                    f'{inname} {intra_src} {intra_dst}')
                             filtered_meta = None
                             if intra_node is not None:
                                 filtered_meta = self.get_linked_metadata(
@@ -823,6 +830,9 @@ class ProcessMetadata(Controller):
                                 filtered_meta=filtered_meta)
                             if not modifier.is_empty:
                                 self.dprint(f'        {modifier.modifiers}')
+                                if filtered_meta is not None:
+                                    self.dprint(
+                                        f'filtered_meta: {filtered_meta}')
                                 result.setdefault(field.name,
                                                   []).append(modifier)
                 else:
@@ -850,6 +860,30 @@ class ProcessMetadata(Controller):
                             else:
                                 filt_meta += filt
 
+        # now look in pipeline schema _nodes definitions
+        full_node_name = node.full_name
+        pipeline_schema = getattr(self.executable, 'metadata_schemas',
+                                  {}).get(schema_name)
+        if pipeline_schema:
+            nodes = getattr(pipeline_schema, '_nodes', {})
+            for npattern, ndef in nodes.items():
+                if fnmatch.fnmatch(full_node_name, npattern):
+                    meta_links = ndef.get('_meta_links', {})
+                    #if meta_links:
+                        #print('node schema:', npattern, 'matches', full_node_name)
+                        #print('has meta_links:', meta_links)
+                    for spattern, dfilt in meta_links.items():
+                        if fnmatch.fnmatch(src, spattern):
+                            for dpattern, filt in dfilt.items():
+                                if fnmatch.fnmatch(dst, dpattern):
+                                    #print('filt:', filt)
+                                    if filt_meta is None:
+                                        filt_meta = filt
+                                    else:
+                                        filt_meta += filt
+
+        #if filt_meta is not None:
+            #print('filt_meta for', schema_name, node.name, src, dst, ':', filt_meta)
         return filt_meta
 
     def get_schema(self, schema_name, index=None):
