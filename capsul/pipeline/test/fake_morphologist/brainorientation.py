@@ -19,8 +19,8 @@ class BrainOrientation(Pipeline):
         self.export_parameter("select_AC_PC_Or_Normalization", "switch", "select_AC_PC_Or_Normalization", is_optional=True)
         self.export_parameter("Normalization", "t1mri", "T1mri", is_optional=False)
         self.add_link("T1mri->StandardACPC.T1mri")
-        self.export_parameter("Normalization", "allow_flip_initial_MRI", is_optional=False)
-        self.add_link("allow_flip_initial_MRI->StandardACPC.allow_flip_initial_MRI")
+        self.export_parameter("StandardACPC", "allow_flip_initial_MRI", is_optional=False)
+        self.add_link("allow_flip_initial_MRI->Normalization.allow_flip_initial_MRI")
         self.export_parameter("StandardACPC", "Normalised", "StandardACPC_Normalised", is_optional=True)
         self.export_parameter("StandardACPC", "Anterior_Commissure", "StandardACPC_Anterior_Commissure", is_optional=True)
         self.export_parameter("StandardACPC", "Posterior_Commissure", "StandardACPC_Posterior_Commissure", is_optional=True)
@@ -60,8 +60,8 @@ class BrainOrientation(Pipeline):
         self.add_link("StandardACPC.reoriented_t1mri->select_AC_PC_Or_Normalization.StandardACPC_switch_reoriented_t1mri")
         self.export_parameter("Normalization", "transformation", "normalization_transformation", weak_link=True, is_optional=True)
         self.add_link("Normalization.transformation->TalairachFromNormalization.normalization_transformation")
-        self.add_link("Normalization.reoriented_t1mri->TalairachFromNormalization.t1mri")
         self.add_link("Normalization.reoriented_t1mri->select_AC_PC_Or_Normalization.Normalization_switch_reoriented_t1mri")
+        self.add_link("Normalization.reoriented_t1mri->TalairachFromNormalization.t1mri")
         self.export_parameter("Normalization", "normalized", "Normalization_normalized", weak_link=True, is_optional=True)
         self.export_parameter("Normalization", "NormalizeFSL_NormalizeFSL_transformation_matrix", "Normalization_NormalizeFSL_NormalizeFSL_transformation_matrix", weak_link=True, is_optional=True)
         self.export_parameter("Normalization", "NormalizeSPM_spm_transformation", "Normalization_NormalizeSPM_spm_transformation", weak_link=True, is_optional=True)
@@ -130,6 +130,7 @@ class BrainOrientation(Pipeline):
         self.allow_flip_initial_MRI = False
         self.StandardACPC_Normalised = 'No'
         self.StandardACPC_remove_older_MNI_normalization = True
+        self.Normalization_select_Normalization_pipeline = 'NormalizeSPM'
         self.Normalization_init_translation_origin = 0
         self.Normalization_NormalizeFSL_alignment = 'Not Aligned but Same Orientation'
         self.Normalization_NormalizeFSL_set_transformation_in_source_volume = True
