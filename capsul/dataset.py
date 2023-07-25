@@ -579,7 +579,6 @@ class MetadataModifier:
                             and k not in self.filtered_meta \
                             and not any([fnmatch.fnmatch(k, fm)
                                          for fm in self.filtered_meta]):
-                        print('skip modifier', k, 'in', self.filtered_meta)
                         continue
                     if callable(v):
                         setattr(metadata, k,
