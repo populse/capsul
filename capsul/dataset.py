@@ -757,7 +757,7 @@ class ProcessMetadata(Controller):
         result = {}
         if isinstance(process, ProcessIteration):
             for iprocess in process.iterate_over_process_parmeters():
-                iresult = self.metadata_modifications(iprocess.process)
+                iresult = self.metadata_modifications(iprocess)
                 for k, v in iresult.items():
                     if k in process.iterative_parameters:
                         result.setdefault(k, []).append(v)
@@ -765,9 +765,10 @@ class ProcessMetadata(Controller):
                         result[k] = v
         else:
             for field in process.user_fields():
-                # self.debug = (field.name == 'split_brain')
+                # self.debug = (field.name == 't1mri_nobias')
                 if process.plugs[field.name].activated:
-                    self.dprint(f'  Parse schema modifications for {field.name}')
+                    self.dprint(
+                        f'  Parse schema modifications for {field.name}')
                     schema = self.schema_per_parameter.get(field.name)
                     if schema:
                         todo = []
@@ -922,10 +923,10 @@ class ProcessMetadata(Controller):
                         raise ValueError(f'Iteration on schema {first_schema} has {iteration_size} element(s) which is not equal to schema {schema} ({schema_iteration_size} element(s))')
                 else:
                     empty_iterative_schema.add(schema)
-            
+
             for schema in empty_iterative_schema:
                 setattr(self, schema, [Dataset.find_schema(schema)() for i in range(iteration_size)])
-            
+
             iteration_values = {}
             for iteration in range(iteration_size):
                 self._current_iteration = iteration
