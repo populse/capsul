@@ -15,9 +15,9 @@ class SulciLabelling(Pipeline):
 
         # links
         self.export_parameter("select_Sulci_Recognition", "switch", "select_Sulci_Recognition", is_optional=True)
-        self.export_parameter("recognition2000", "data_graph", is_optional=False)
+        self.export_parameter("SPAM_recognition09", "data_graph", is_optional=False)
         self.add_link("data_graph->CNN_recognition19.graph")
-        self.add_link("data_graph->SPAM_recognition09.data_graph")
+        self.add_link("data_graph->recognition2000.data_graph")
         self.export_parameter("recognition2000", "fix_random_seed", is_optional=False)
         self.add_link("fix_random_seed->SPAM_recognition09.fix_random_seed")
         self.add_link("fix_random_seed->CNN_recognition19.fix_random_seed")
@@ -100,6 +100,7 @@ class SulciLabelling(Pipeline):
             "CNN_recognition19_cuda"))
 
         # default and initial values
+        self.select_Sulci_Recognition = 'CNN_recognition19'
         self.fix_random_seed = False
         self.recognition2000_model = '/casa/host/build/share/brainvisa-share-5.2/models/models_2008/discriminative_models/3.0/Rfolds_noroots/Rfolds_noroots.arg'
         self.recognition2000_model_hint = 0

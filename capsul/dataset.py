@@ -460,6 +460,57 @@ class ProcessSchema:
     The class does not need to be instantiated or registered anywhere: just its
     declaration registets it automatically. Thus just importing the subclass
     definition is enough.
+
+    Metadata can be assigned by parameter name, in a variable corresponding to
+    the parameter field::
+
+        output = {'part': 'normalized_spm12'}
+
+    or using wildcards. For this, a variable name cannot contain the character
+    ``*`` for instance. So we are using the special class variable ``_``, which
+    itself is a dict containing wildcard keys::
+
+        _ = {
+            '*': {'seg_directory': 'segmentation'},
+            '*_graph': {'extension': 'arg'}
+        }
+
+    Moreover in a pipeline, sub-nodes may be assigned metadata. This can be
+    given as a dict in the ``_nodes`` class variable::
+
+        _nodes = {
+            'LeftGreyWhiteClassification': {'*': {'side': 'L'}},
+            'RightGreyWhiteClassification': {'*': {'side': 'R'}},
+        }
+
+    Another special class variable may contain metadata links between the
+    process input and output parameters. This ``_meta_links`` variable is also
+    a dict (2 levels dict actually), and contains the list of metadata which
+    are propagated from a source parameter to a destination one inside the
+    given process (for the fiven schema)::
+
+        _meta_links = {
+            'histo_analysis': {
+                'histo': ['prefix', 'side'],
+            }
+        }
+
+    in this example, the output parameter ``histo`` of the process will get its
+    ``prefix`` and ``side`` metadata from the input parameter
+    ``histo_analysis``.
+
+    By default, all metadata are systematically passed from inputs to outputs,
+    and merged in parameters order.
+
+    It is also possible to use wildcards in source and destination parameter
+    names, and the value may be an empty list (meaning that no metadata is
+    copied from this source to this destination)::
+
+    _meta_links = {
+            'histo_analysis': {
+                '*': [],
+            }
+        }
     '''
 
     def __init_subclass__(cls, schema, process) -> None:
@@ -477,12 +528,14 @@ class ProcessSchema:
 
 
 class MetadataModifier:
-    def __init__(self, schema_name, process, parameter):
+    def __init__(self, schema_name, process, parameter, filtered_meta=None):
         self.process = process
         self.parameter = parameter
         self.modifiers = []
+        self.filtered_meta = filtered_meta
 
-        process_schema = getattr(process, 'metadata_schemas', {}).get(schema_name)
+        process_schema = getattr(process, 'metadata_schemas',
+                                 {}).get(schema_name)
         if process_schema:
             for pattern, modifier in getattr(process_schema, '_', {}).items():
                 if fnmatch.fnmatch(parameter, pattern):
@@ -491,7 +544,8 @@ class MetadataModifier:
             self.add_modifier(modifier)
         pipeline = process.get_pipeline()
         if pipeline:
-            pipeline_schema = getattr(pipeline, 'metadata_schemas', {}).get(schema_name)
+            pipeline_schema = getattr(pipeline, 'metadata_schemas',
+                                      {}).get(schema_name)
             if pipeline_schema:
                 nodes_schema = getattr(pipeline_schema, '_nodes', None)
                 if nodes_schema:
@@ -503,7 +557,7 @@ class MetadataModifier:
                                     self.add_modifier(modifier)
 
     def __repr__(self):
-        return f'MetadataModifier({self.process.label}, {self.parameter}, {self.modifiers})'
+        return f'MetadataModifier({self.process.label}, {self.parameter}, {self.modifiers}, filtered_meta={self.filtered_meta})'
 
     @property
     def is_empty(self):
@@ -517,18 +571,32 @@ class MetadataModifier:
         else:
             raise ValueError(f'Invalid value for schema modification for parameter {self.parameter}: {modifier}')
 
-    def apply(self, metadata, process, parameter):
+    def apply(self, metadata, process, parameter, initial_meta):
+        debug = False  # (parameter == 't1mri_nobias')
+        if debug: print('apply modifier to', parameter, ':', self, metadata, initial_meta)
         for modifier in self.modifiers:
             if isinstance(modifier, dict):
                 for k, v in modifier.items():
+                    if self.filtered_meta is not None \
+                            and k not in self.filtered_meta \
+                            and not any([fnmatch.fnmatch(k, fm)
+                                         for fm in self.filtered_meta]):
+                        continue
                     if callable(v):
+                        if debug:
+                            print('call modifier funciton for', k)
+                            print(':', v(metadata=metadata, process=process,
+                                  parameter=parameter, initial_meta=initial_meta))
                         setattr(metadata, k,
                                 v(metadata=metadata, process=process,
-                                  parameter=parameter))
+                                  parameter=parameter,
+                                  initial_meta=initial_meta))
                     else:
                         setattr(metadata, k, v)
             else:
-                modifier(metadata, process, parameter)
+                if debug: print('call modifier funciton')
+                modifier(metadata, process, parameter,
+                         initial_meta=initial_meta)
 
 
 class Prepend:
@@ -537,7 +605,7 @@ class Prepend:
         self.value = value
         self.sep = sep
     
-    def __call__(self, metadata, process, parameter):
+    def __call__(self, metadata, process, parameter, initial_meta):
         current_value = getattr(metadata, self.key, '')
         setattr(metadata, self.key, self.value + (self.sep + current_value if current_value else ''))
 
@@ -550,7 +618,7 @@ class Append:
         self.value = value
         self.sep = sep
     
-    def __call__(self, metadata, process, parameter):
+    def __call__(self, metadata, process, parameter, initial_meta):
         current_value = getattr(metadata, self.key, '')
         setattr(metadata, self.key, (current_value + self.sep if current_value else '') + self.value)
 
@@ -698,7 +766,7 @@ class ProcessMetadata(Controller):
         result = {}
         if isinstance(process, ProcessIteration):
             for iprocess in process.iterate_over_process_parmeters():
-                iresult = self.metadata_modifications(iprocess.process)
+                iresult = self.metadata_modifications(iprocess)
                 for k, v in iresult.items():
                     if k in process.iterative_parameters:
                         result.setdefault(k, []).append(v)
@@ -706,44 +774,132 @@ class ProcessMetadata(Controller):
                         result[k] = v
         else:
             for field in process.user_fields():
+                # self.debug = (field.name == 't1mri_nobias')
                 if process.plugs[field.name].activated:
-                    self.dprint(f'  Parse schema modifications for {field.name}')
+                    self.dprint(
+                        f'  Parse schema modifications for {field.name}')
                     schema = self.schema_per_parameter.get(field.name)
                     if schema:
                         todo = []
                         done = set()
                         if isinstance(process, Pipeline):
-                            stack = list(process.get_linked_items(process, field.name, in_outer_pipelines=True))
+                            # stack of (linked_node, linked_param,
+                            # intra_link_node, intra_link_param_input,
+                            # intra_link_param_output)
+                            stack = [(l[0], l[1], None, None, None)
+                                     for l in process.get_linked_items(
+                                         process, field.name,
+                                         in_outer_pipelines=True)]
                             while stack:
-                                node, node_parameter = stack.pop(0)
-                                self.dprint(f'    connected to {node.full_name}.{node_parameter}')
-                                todo.insert(0, (node, node_parameter))
+                                node, node_parameter, intra_node, intra_src, \
+                                    intra_dst = stack.pop(0)
+                                self.dprint(
+                                    '    connected to '
+                                    f'{node.full_name}.{node_parameter}')
+                                todo.insert(
+                                    0, (node, node_parameter, intra_node,
+                                        intra_src, intra_dst))
                                 done.add(node)
                                 if field.is_output():
                                     for node_field in node.user_fields():
-                                        if node.plugs[node_field.name].activated and not node_field.is_output():
-                                            ext = [i for i in 
-                                                   process.get_linked_items(node, 
-                                                                            node_field.name,
-                                                                            process_only=False,
-                                                                            direction='links_from')
+                                        if node.plugs[
+                                                node_field.name].activated \
+                                                and not node_field.is_output():
+                                            ext = [(i[0], i[1], node,
+                                                    node_field.name,
+                                                    node_parameter)
+                                                   for i in
+                                                   process.get_linked_items(
+                                                       node,
+                                                       node_field.name,
+                                                       process_only=False,
+                                                       direction='links_from')
                                                   if isinstance(i[0], Process) and i[0] not in done]
                                             stack.extend(ext)
                                             done.update(i[0] for i in ext)
                                             if self.debug:
-                                                for n, p in ext:
-                                                    self.dprint(f'        + {n.full_name}.{p}')
-                        todo.append((process, field.name))
-                        for node, node_parameter in todo:
-                            self.dprint(f'    resolve {node.name}.{node_parameter}')
-                            modifier = MetadataModifier(schema, node, node_parameter)
+                                                for n, p, ni, s, d in ext:
+                                                    self.dprint(f'        + {n.full_name}.{p}, {ni} {s} {d}')
+                        todo.append((process, field.name, None, None, None))
+                        for node, node_parameter, intra_node, intra_src, \
+                                intra_dst in todo:
+                            if self.debug:
+                                inname = (intra_node.full_name
+                                          if intra_node is not None
+                                          else None)
+                                self.dprint(
+                                    f'    resolve {node.name}.'
+                                    f'{node_parameter} '
+                                    f'{inname} {intra_src} {intra_dst}')
+                            filtered_meta = None
+                            if intra_node is not None:
+                                filtered_meta = self.get_linked_metadata(
+                                    schema, intra_node, intra_src, intra_dst)
+                            modifier = MetadataModifier(
+                                schema, node, node_parameter,
+                                filtered_meta=filtered_meta)
                             if not modifier.is_empty:
                                 self.dprint(f'        {modifier.modifiers}')
-                                result.setdefault(field.name, []).append(modifier)
+                                if filtered_meta is not None:
+                                    self.dprint(
+                                        '        filtered_meta: '
+                                        f'{filtered_meta}')
+                                result.setdefault(field.name,
+                                                  []).append(modifier)
                 else:
                     self.dprint(f'  {field.name} ignored (inactive)')
         return result
-    
+
+    def get_linked_metadata(self, schema_name, node, src, dst):
+        ''' Returns the list of "linked" metadata between parameters src and
+        dst in node node for the given schema.
+
+        Such links are described in ProcessSchema.
+        '''
+
+        process_schema = getattr(node, 'metadata_schemas',
+                                 {}).get(schema_name)
+        filt_meta = None
+        if process_schema:
+            for spattern, dfilt in getattr(process_schema, '_meta_links',
+                                           {}).items():
+                if fnmatch.fnmatch(src, spattern):
+                    for dpattern, filt in dfilt.items():
+                        if fnmatch.fnmatch(dst, dpattern):
+                            if filt_meta is None:
+                                filt_meta = filt
+                            else:
+                                filt_meta += filt
+
+        # now look in pipeline schema _nodes definitions
+        full_node_name = node.full_name
+        executable = self.executable
+        if isinstance(executable, ProcessIteration):
+            executable = executable.process
+        pipeline_schema = getattr(executable, 'metadata_schemas',
+                                  {}).get(schema_name)
+        if pipeline_schema:
+            nodes = getattr(pipeline_schema, '_nodes', {})
+            for npattern, ndef in nodes.items():
+                if fnmatch.fnmatch(full_node_name, npattern):
+                    meta_links = ndef.get('_meta_links', {})
+                    #if meta_links:
+                        #print('node schema:', npattern, 'matches', full_node_name)
+                        #print('has meta_links:', meta_links)
+                    for spattern, dfilt in meta_links.items():
+                        if fnmatch.fnmatch(src, spattern):
+                            for dpattern, filt in dfilt.items():
+                                if fnmatch.fnmatch(dst, dpattern):
+                                    #print('filt:', filt)
+                                    if filt_meta is None:
+                                        filt_meta = filt
+                                    else:
+                                        filt_meta += filt
+
+        #if filt_meta is not None:
+            #print('filt_meta for', schema_name, node.name, src, dst, ':', filt_meta)
+        return filt_meta
+
     def get_schema(self, schema_name, index=None):
         schema = getattr(self, schema_name)
         if isinstance(schema, list):
@@ -780,10 +936,10 @@ class ProcessMetadata(Controller):
                         raise ValueError(f'Iteration on schema {first_schema} has {iteration_size} element(s) which is not equal to schema {schema} ({schema_iteration_size} element(s))')
                 else:
                     empty_iterative_schema.add(schema)
-            
+
             for schema in empty_iterative_schema:
                 setattr(self, schema, [Dataset.find_schema(schema)() for i in range(iteration_size)])
-            
+
             iteration_values = {}
             for iteration in range(iteration_size):
                 self._current_iteration = iteration
@@ -824,7 +980,7 @@ class ProcessMetadata(Controller):
                     if s:
                         metadata.import_dict(s.asdict())
                     for modifier in metadata_modifications.get(parameter, []):
-                        modifier.apply(metadata, executable, parameter)
+                        modifier.apply(metadata, executable, parameter, s)
                     try:
                         path = str(metadata.build_param(
                             executable.field(parameter).path_type))

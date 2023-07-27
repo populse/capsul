@@ -123,7 +123,11 @@ class TestFakeMorphologist(unittest.TestCase):
                     with open(scans_file, 'a') as f:
                         f.write(f'{file.relative_to(session_dir)}\tscan metadata for {file_name}\n')
 
-                    with file.with_suffix('.json').open('w') as f:
+                    if file.suffix == '.gz':
+                        json_file = Path(str(file)[:-3]).with_suffix('.json')
+                    else:
+                        json_file = file.with_suffix('.json')
+                    with json_file.open('w') as f:
                         json.dump(dict(
                             json_metadata=f'JSON metadata for {file_name}'
                         ),f)
@@ -266,7 +270,7 @@ class TestFakeMorphologist(unittest.TestCase):
         dict_context = context.asdict()
         ds_context = {'dataset': dict_context['dataset']}
         #print('requirements:')
-        #print(engine.executable_requirements(morphologist))
+        #print(context.executable_requirements(morphologist))
         self.assertEqual(dict_context, expected_context)
         # spms = list(expected_config['builtin']['spm'].values())
         # self.assertTrue(dict_context['spm'] in spms)
@@ -281,7 +285,7 @@ class TestFakeMorphologist(unittest.TestCase):
         #print('context:')
         #print(dict_context)
         #print('requirements:')
-        #print(engine.executable_requirements(morphologist))
+        #print(context.executable_requirements(morphologist))
         fakespm12_conf = {
             'directory': str(self.tmp / 'software' / 'fakespm-12'),
             'version': '12',
@@ -397,7 +401,8 @@ class TestFakeMorphologist(unittest.TestCase):
             'extension': 'nii.gz',
             'session_metadata': 'session metadata for sub-aleksander_ses-m0_T2w.nii.gz',
             'scan_metadata': 'scan metadata for sub-aleksander_ses-m0_T1w.nii.gz',
-            'json_metadata': 'JSON metadata for sub-aleksander_ses-m0_T1w.nii.gz'})
+            'json_metadata': 'JSON metadata for sub-aleksander_ses-m0_T1w.nii.gz'
+        })
 
         expected_params_per_schema = {
             'brainvisa': [
@@ -985,6 +990,7 @@ def with_iteration(engine):
     metadata = ProcessMetadata(morphologist_iteration, execution_context,
                                datasets=morphologist_datasets)
     metadata.bids = iter_meta_bids
+    metadata.brainvisa.center = 'whatever'
     metadata.brainvisa.analysis = analysis
     metadata.generate_paths(morphologist_iteration)
 
@@ -992,17 +998,17 @@ def with_iteration(engine):
     return execution_id
 
 
-def without_iteration(engine):    
-    select_Talairach=[
-        'StandardACPC', 
-        'Normalization', 
+def without_iteration(engine):
+    select_Talairach = [
+        'StandardACPC',
+        'Normalization',
         'Normalization']
     perform_skull_stripped_renormalization = [
-        'initial', 
-        'skull_stripped', 
+        'initial',
+        'skull_stripped',
         'skull_stripped']
     Normalization_select_Normalization_pipeline = [
-        'NormalizeSPM', 
+        'NormalizeSPM',
         'Normalization_AimsMIRegister',
         'NormalizeSPM']
     spm_normalization_version = [

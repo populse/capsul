@@ -131,7 +131,7 @@ class TestCompletion(unittest.TestCase):
                     },
                     'shared': {
                         'path': str(self.brainvisa),
-                        'metadata_schema': 'shared',
+                        'metadata_schema': 'brainvisa_shared',
                     },
                 }
             }
@@ -188,12 +188,12 @@ class TestCompletion(unittest.TestCase):
             'input': '!{dataset.input.path}/rawdata/sub-aleksander/ses-m0/anat/sub-aleksander_ses-m0_T1w.nii',
             # 'template': '!{fakespm.directory}/template',
             'template': '!{dataset.shared.path}',
-            'nobias': '!{dataset.output.path}/whaterver/aleksander/test_pipeline/m0/default_analysis/nobias_aleksander.nii',
-            'normalized': '!{dataset.output.path}/whaterver/aleksander/test_pipeline/m0/default_analysis/nobias_aleksander.nii',
-            'left_gw_classif': '!{dataset.output.path}/whaterver/aleksander/test_pipeline/m0/default_analysis/segmentation/Lgrey_white_aleksander.nii',
-            'left_gw_mesh': '!{dataset.output.path}/whaterver/aleksander/test_pipeline/m0/default_analysis/Laleksander.gii',
-            'right_gw_classif': '!{dataset.output.path}/whaterver/aleksander/test_pipeline/m0/default_analysis/segmentation/Rgrey_white_aleksander.nii',
-            'right_gw_mesh': '!{dataset.output.path}/whaterver/aleksander/test_pipeline/m0/default_analysis/Raleksander.gii',
+            'nobias': '!{dataset.output.path}/subjects/aleksander/test_pipeline/m0/default_analysis/nobias_aleksander.nii',
+            'normalized': '!{dataset.output.path}/subjects/aleksander/test_pipeline/m0/default_analysis/nobias_aleksander.nii',
+            'left_gw_classif': '!{dataset.output.path}/subjects/aleksander/test_pipeline/m0/default_analysis/segmentation/Lgrey_white_aleksander.nii',
+            'left_gw_mesh': '!{dataset.output.path}/subjects/aleksander/test_pipeline/m0/default_analysis/Laleksander.gii',
+            'right_gw_classif': '!{dataset.output.path}/subjects/aleksander/test_pipeline/m0/default_analysis/segmentation/Rgrey_white_aleksander.nii',
+            'right_gw_mesh': '!{dataset.output.path}/subjects/aleksander/test_pipeline/m0/default_analysis/Raleksander.gii',
         }
 
         self.maxDiff = 3000
@@ -208,9 +208,9 @@ class TestCompletion(unittest.TestCase):
                 '!{dataset.input.path}/rawdata/sub-aleksander/ses-m0/anat/sub-aleksander_ses-m0_T1w.nii',
             ],
             'right_gw_classif': [
-                '!{dataset.output.path}/whaterver/aleksander/test_pipeline/m0/default_analysis/segmentation/Rgrey_white_aleksander.nii',
-                '!{dataset.output.path}/whaterver/aleksander/test_pipeline/m0/default_analysis/segmentation/Rgrey_white_aleksander.nii',
-                '!{dataset.output.path}/whaterver/aleksander/test_pipeline/m0/default_analysis/segmentation/Rgrey_white_aleksander.nii',
+                '!{dataset.output.path}/subjects/aleksander/test_pipeline/m0/default_analysis/segmentation/Rgrey_white_aleksander.nii',
+                '!{dataset.output.path}/subjects/aleksander/test_pipeline/m0/default_analysis/segmentation/Rgrey_white_aleksander.nii',
+                '!{dataset.output.path}/subjects/aleksander/test_pipeline/m0/default_analysis/segmentation/Rgrey_white_aleksander.nii',
             ],
         }
 
