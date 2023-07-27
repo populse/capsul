@@ -463,7 +463,8 @@ def declare_morpho_schemas(morpho_module):
         _ = {
             '*': {
                 'seg_directory': None,
-                'analysis': lambda **kwargs: f'{kwargs["metadata"].analysis}',
+                'analysis': lambda **kwargs:
+                    f'{kwargs["initial_meta"].analysis}',
             }
         }
         t1mri_nobias = {'prefix': 'nobias'}
@@ -520,7 +521,7 @@ def declare_morpho_schemas(morpho_module):
         }
         split_brain = {'prefix': 'voronoi',
                        'analysis': lambda **kwargs:
-                           f'{kwargs["metadata"].analysis}'}
+                           f'{kwargs["initial_meta"].analysis}'}
         _meta_links = {
             'histo_analysis': {'*': []}
         }
