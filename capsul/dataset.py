@@ -14,6 +14,7 @@ import operator
 from pathlib import Path
 import re
 import sys
+import importlib
 
 from capsul.pipeline.pipeline import Process, Pipeline
 from capsul.pipeline.process_iteration import ProcessIteration
@@ -63,7 +64,15 @@ class Dataset(Controller):
 
     @classmethod
     def find_schema(cls, metadata_schema):
-        return cls.schemas.get(metadata_schema)
+        schema = cls.schemas.get(metadata_schema)
+        if schema is None:
+            try:
+                # try to import the schema from capsul.schemas
+                importlib.import_module(f'capsul.schemas.{metadata_schema}')
+            except ImportError:
+                pass  # oh well...
+            schema = cls.schemas.get(metadata_schema)
+        return schema
 
     @classmethod
     def find_schema_mapping(cls, source_schema, target_schema):
