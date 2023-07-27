@@ -748,6 +748,15 @@ class ProcessMetadata(Controller):
             return dataset_name
         return None
 
+    def meta_nodes_state_hash(self, process):
+        kdict = {'proc': process.full_name}
+        for pname, plug in process.plugs.items():
+            kdict[f'plug:{pname}'] = plug.activated
+        if isinstance(process, Pipeline):
+            for node in process.all_nodes():
+                kdict[f'node:{node.full_name}'] = node.activated
+        return hash(frozenset(kdict.items()))
+
     def metadata_modifications(self, process):
         ''' Modifications are propagated recursively from inputs. All input
         parameters bring their metadata modifications to the whole process (and
@@ -773,6 +782,11 @@ class ProcessMetadata(Controller):
                     else:
                         result[k] = v
         else:
+            cache_key = self.meta_nodes_state_hash(process)
+            cached = getattr(self, '_meta_modif_cache', {}).get(cache_key)
+            if cached is not None:
+                return cached
+
             for field in process.user_fields():
                 # self.debug = (field.name == 't1mri_nobias')
                 if process.plugs[field.name].activated:
@@ -848,6 +862,11 @@ class ProcessMetadata(Controller):
                                                   []).append(modifier)
                 else:
                     self.dprint(f'  {field.name} ignored (inactive)')
+
+        # cache the result
+        self._meta_modif_cache = getattr(self, '_meta_modif_cache', {})
+        self._meta_modif_cache[cache_key] = result
+
         return result
 
     def get_linked_metadata(self, schema_name, node, src, dst):
