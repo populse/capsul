@@ -571,7 +571,9 @@ class MetadataModifier:
         else:
             raise ValueError(f'Invalid value for schema modification for parameter {self.parameter}: {modifier}')
 
-    def apply(self, metadata, process, parameter):
+    def apply(self, metadata, process, parameter, initial_meta):
+        debug = False  # (parameter == 't1mri_nobias')
+        if debug: print('apply modifier to', parameter, ':', self, metadata, initial_meta)
         for modifier in self.modifiers:
             if isinstance(modifier, dict):
                 for k, v in modifier.items():
@@ -581,13 +583,20 @@ class MetadataModifier:
                                          for fm in self.filtered_meta]):
                         continue
                     if callable(v):
+                        if debug:
+                            print('call modifier funciton for', k)
+                            print(':', v(metadata=metadata, process=process,
+                                  parameter=parameter, initial_meta=initial_meta))
                         setattr(metadata, k,
                                 v(metadata=metadata, process=process,
-                                  parameter=parameter))
+                                  parameter=parameter,
+                                  initial_meta=initial_meta))
                     else:
                         setattr(metadata, k, v)
             else:
-                modifier(metadata, process, parameter)
+                if debug: print('call modifier funciton')
+                modifier(metadata, process, parameter,
+                         initial_meta=initial_meta)
 
 
 class Prepend:
@@ -596,7 +605,7 @@ class Prepend:
         self.value = value
         self.sep = sep
     
-    def __call__(self, metadata, process, parameter):
+    def __call__(self, metadata, process, parameter, initial_meta):
         current_value = getattr(metadata, self.key, '')
         setattr(metadata, self.key, self.value + (self.sep + current_value if current_value else ''))
 
@@ -609,7 +618,7 @@ class Append:
         self.value = value
         self.sep = sep
     
-    def __call__(self, metadata, process, parameter):
+    def __call__(self, metadata, process, parameter, initial_meta):
         current_value = getattr(metadata, self.key, '')
         setattr(metadata, self.key, (current_value + self.sep if current_value else '') + self.value)
 
@@ -833,7 +842,8 @@ class ProcessMetadata(Controller):
                                 self.dprint(f'        {modifier.modifiers}')
                                 if filtered_meta is not None:
                                     self.dprint(
-                                        f'filtered_meta: {filtered_meta}')
+                                        '        filtered_meta: '
+                                        f'{filtered_meta}')
                                 result.setdefault(field.name,
                                                   []).append(modifier)
                 else:
@@ -863,7 +873,10 @@ class ProcessMetadata(Controller):
 
         # now look in pipeline schema _nodes definitions
         full_node_name = node.full_name
-        pipeline_schema = getattr(self.executable, 'metadata_schemas',
+        executable = self.executable
+        if isinstance(executable, ProcessIteration):
+            executable = executable.process
+        pipeline_schema = getattr(executable, 'metadata_schemas',
                                   {}).get(schema_name)
         if pipeline_schema:
             nodes = getattr(pipeline_schema, '_nodes', {})
@@ -967,7 +980,7 @@ class ProcessMetadata(Controller):
                     if s:
                         metadata.import_dict(s.asdict())
                     for modifier in metadata_modifications.get(parameter, []):
-                        modifier.apply(metadata, executable, parameter)
+                        modifier.apply(metadata, executable, parameter, s)
                     try:
                         path = str(metadata.build_param(
                             executable.field(parameter).path_type))
