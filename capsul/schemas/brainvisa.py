@@ -392,6 +392,7 @@ def declare_morpho_schemas(morpho_module):
     class SPM12NormalizationBIDS(ProcessSchema, schema='bids',
                                  process=normalization_t1_spm12_reinit):
         output = {'part': 'normalized_spm12'}
+        normalized_anatomy_data = {'extension': 'nii'}
 
     class SPM12NormalizationBrainVISA(ProcessSchema, schema='brainvisa',
                                       process=normalization_t1_spm12_reinit):
@@ -399,7 +400,8 @@ def declare_morpho_schemas(morpho_module):
                                         'suffix': 'sn',
                                         'extension': 'mat'}
         normalized_anatomy_data = {'analysis': undefined,
-                                   'prefix': 'normalized_SPM'}
+                                   'prefix': 'normalized_SPM',
+                                   'extension': 'nii'}
 
     class SPM12NormalizationShared(ProcessSchema, schema='brainvisa_shared',
                                    process=normalization_t1_spm12_reinit):
@@ -408,6 +410,7 @@ def declare_morpho_schemas(morpho_module):
     class SPM8NormalizationBIDS(ProcessSchema, schema='bids',
                                 process=normalization_t1_spm8_reinit):
         output = {'part': 'normalized_spm8'}
+        normalized_anatomy_data = {'extension': 'nii'}
 
     class SPM8NormalizationBrainVISA(ProcessSchema, schema='brainvisa',
                                      process=normalization_t1_spm8_reinit):
@@ -415,7 +418,8 @@ def declare_morpho_schemas(morpho_module):
                                         'suffix': 'sn',
                                         'extension': 'mat'}
         normalized_anatomy_data = {'analysis': undefined,
-                                   'prefix': 'normalized_SPM'}
+                                   'prefix': 'normalized_SPM',
+                                   'extension': 'nii'}
 
     class SPM8NormalizationShared(ProcessSchema, schema='brainvisa_shared',
                                   process=normalization_t1_spm8_reinit):
