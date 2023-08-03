@@ -26,6 +26,9 @@ class BrainVISASharedSchema(MetadataSchema):
         if self.data_id == 'normalization_template':
             path_list = ['anatomical_templates']
             filename = 'MNI152_T1_2mm.nii.gz'
+        elif self.data_id == 'normalization_template_brain':
+            path_list = ['anatomical_templates']
+            filename = 'MNI152_T1_2mm_brain.nii'
         elif self.data_id == 'trans_mni_to_acpc':
             path_list = ['transformation']
             filename = 'spm_template_novoxels_TO_talairach.trm'
@@ -343,6 +346,7 @@ def declare_morpho_schemas(morpho_module):
             'seg_directory': None,
             'analysis': undefined,
             'prefix': None,
+            'side': None,
             'extension': 'APC',
         }
         t1mri_referential = {
@@ -354,6 +358,8 @@ def declare_morpho_schemas(morpho_module):
             'extension': 'referential'}
         Talairach_transform = {
             'analysis': undefined,
+            'sulci_graph_version': None,
+            'sulci_recognition_session': None,
             'seg_directory': 'registration',
             'prefix': '',
             'short_prefix': 'RawT1-',
@@ -759,7 +765,7 @@ def declare_morpho_schemas(morpho_module):
         PrepareSubject_Normalization_NormalizeBaladin_template = {'data_id': 'normalization_template'}
         PrepareSubject_Normalization_Normalization_AimsMIRegister_mni_to_acpc = {'data_id': 'trans_acpc_to_mni'}
         PrepareSubject_TalairachFromNormalization_acpc_referential = {'data_id': 'acpc_ref'}
-        Renorm_template =  {'data_id': 'normalization_template'}
+        Renorm_template =  {'data_id': 'normalization_template_brain'}
         Renorm_Normalization_Normalization_AimsMIRegister_mni_to_acpc = {'data_id': 'trans_mni_to_acpc'}
         PrepareSubject_TalairachFromNormalization_normalized_referential = {'data_id': 'icbm152_ref'}
         PrepareSubject_TalairachFromNormalization_transform_chain_ACPC_to_Normalized = {'data_id': 'trans_acpc_to_mni'}
