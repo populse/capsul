@@ -9,6 +9,10 @@
 <h2>Jobs</h2>
 <div id="jobs">
 </div>
+
+<h2>Parameters values</h2>
+<div id="parameters_values">
+</div>
 {% endblock %}
 {% block script %}
 <script>
@@ -58,6 +62,10 @@
         tr.innerHTML= '<th>' + i + '</th><td>' + report[i] + '</td>';
         details_table.appendChild(tr);
     }
+
+    tr = document.createElement('tr');
+    tr.innerHTML= '<th>temporary dir</th><td><pre>' + JSON.stringify(report['temporary_directory'], undefined, 2) + '</pre></td>';
+    details_table.appendChild(tr);
 
     tr = document.createElement('tr');
     tr.innerHTML= '<th>execution context</th><td><pre>' + JSON.stringify(report['execution_context'], undefined, 2) + '</pre></td>';
@@ -136,11 +144,31 @@
             '<li><strong>wait for: </strong>' + JSON.stringify(job.wait_for ?? []) + '</li>' +
             '<li><strong>waited by: </strong>' + JSON.stringify(job.waited_by ?? []) + '</li>' +
             '<li><strong>parameters index: </strong><pre>' + JSON.stringify(job.parameters_index, undefined, 2) + '</pre></li>' +
+            '<li><strong>parameters: </strong><pre>' + JSON.stringify(job.parameters, undefined, 2) + '</pre></li>' +
             '<li><details><summary><strong>stdout</strong> (' + stdout.length + '):</summary><pre>' +
                 stdout + '</pre></details></li>' +
             '<li><details><summary><strong>stderr</strong> (' + stderr.length + '):</summary><pre>' +
                 stderr + '</pre></details></li>';
         job_element.appendChild(ul);
+    }
+
+    let parameters_values = report['workflow_parameters'];
+    let parameters_element = document.getElementById('parameters_values');
+    let i = 0;
+    let params = document.createElement('details');
+    params.setAttribute('open', 0);
+    parameters_element.appendChild(params);
+    let e = document.createElement('summary');
+    e.innerText = 'parameters list';
+    params.appendChild(e);
+    let ul = document.createElement('ul');
+    params.appendChild(ul);
+
+    for (const param of parameters_values) {
+        let param_element = document.createElement('li');
+        ul.appendChild(param_element);
+        param_element.innerHTML = i + ': ' + JSON.stringify(parameters_values[i]);
+        i += 1;
     }
 
     for (summary of document.querySelectorAll('summary')) {

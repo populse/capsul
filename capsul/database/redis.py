@@ -654,10 +654,13 @@ class RedisExecutionDatabase(ExecutionDatabase):
     def execution_report_json(self, engine_id, execution_id):
         (label, execution_context, status, error,
          error_detail, start_time, end_time, waiting, ready,
-         ongoing, done, failed, jobs) = self._full_report(keys=[f'capsul:{engine_id}:{execution_id}'])
+         ongoing, done, failed, jobs) = self._full_report(
+             keys=[f'capsul:{engine_id}:{execution_id}'])
+        parameters_values = self.workflow_parameters_values_json(engine_id,
+                                                                 execution_id)
         result = dict(
             label=label,
-            engine_id = engine_id,
+            engine_id=engine_id,
             execution_id=execution_id,
             execution_context=json.loads(execution_context),
             status=status,
@@ -671,10 +674,17 @@ class RedisExecutionDatabase(ExecutionDatabase):
             done=done,
             failed=failed,
             jobs=[json.loads(i) for i in jobs],
-            engine_debug = {},
+            engine_debug={},
         )
+        result['temporary_directory'] = self.tmp(engine_id, execution_id)
+        result['workflow_parameters'] = parameters_values
+
+        for job in result['jobs']:
+            job['parameters'] = self.job_parameters_from_values(
+                job, parameters_values)
+
         return result
-    
+
 
     def dispose(self, engine_id, execution_id):
         keys = [

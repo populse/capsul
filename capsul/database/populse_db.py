@@ -304,27 +304,37 @@ class Populse_dbExecutionDatabase(ExecutionDatabase):
             session['execution'].update_document(execution_id, execution)
             return result
 
-    def execution_report_json(self, execution_id):
+    def execution_report_json(self, engine_id, execution_id):
         with self.database as session:
             result = dict(
-                label = self.label(execution_id),
-                execution_context = self.execution_context_json(execution_id),
-                status = self.status(execution_id),
-                error = self.error(execution_id),
-                error_detail = self.error_detail(execution_id),
-                start_time = self.start_time_json(execution_id),
-                end_time = self.end_time_json(execution_id),
-                waiting = self.waiting(execution_id),
-                ready = self.ready(execution_id),
-                ongoing = self.ongoing(execution_id),
-                done = self.done(execution_id),
-                failed = self.failed(execution_id),
-                jobs = list(self.jobs_json(execution_id)),
-                workflow_parameters = self.workflow_parameters_json(execution_id),
-                engine_debug = {}
+                label=self.label(execution_id),
+                execution_context=self.execution_context_json(execution_id),
+                status=self.status(execution_id),
+                error=self.error(execution_id),
+                error_detail=self.error_detail(execution_id),
+                start_time=self.start_time_json(execution_id),
+                end_time=self.end_time_json(execution_id),
+                waiting=self.waiting(execution_id),
+                ready=self.ready(execution_id),
+                ongoing=self.ongoing(execution_id),
+                done=self.done(execution_id),
+                failed=self.failed(execution_id),
+                jobs=list(self.jobs_json(execution_id)),
+                workflow_parameters=self.workflow_parameters_json(
+                    execution_id),
+                engine_debug={}
             )
+        parameters_values = self.workflow_parameters_values_json(engine_id,
+                                                                 execution_id)
+        result['temporary_directory'] = self.tmp(engine_id, execution_id)
+        result['workflow_parameters'] = parameters_values
+
+        for job in result['jobs']:
+            job['parameters'] = self.job_parameters_from_values(
+                job, parameters_values)
+
         return result
-        
+
     def dispose(self, execution_id):
         with self.database as session:
             if self.status(execution_id) == 'ended':

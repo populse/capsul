@@ -217,7 +217,7 @@ class ExecutionDatabase:
             j = report.get(n)
             if j:
                 report[n] = self._time_from_json(j)
-        
+
         for job in report['jobs']:
             self._job_from_json(job)
             if job['uuid'] in report['done']:
@@ -233,7 +233,17 @@ class ExecutionDatabase:
             else:
                 job['status'] = 'unknown'
         return report
-    
+
+    def job_parameters_from_values(self, job_dict, parameters_values):
+        indices = job_dict.get('parameters_index', {})
+        result = {}
+        for k, i in indices.items():
+            if isinstance(i, list):
+                result[k] = [parameters_values[j] for j in i]
+            else:
+                result[k] = parameters_values[i]
+        return result
+
     def print_execution_report(self, report, file=sys.stdout):
         print('====================\n'
               '| Execution report |\n'
