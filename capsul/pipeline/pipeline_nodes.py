@@ -235,6 +235,16 @@ class Switch(Node):
             setattr(self, output_plug_name,
                     getattr(self, corresponding_input_plug_name, undefined))
 
+            if self.pipeline is not None:
+                f = self.field(output_plug_name)
+                for n, p in self.pipeline.get_linked_items(
+                        self, corresponding_input_plug_name,
+                        direction='links_from'):
+                    # copy input field metadata
+                    for k, v in n.field(p).metadata().items():
+                        setattr(f, k, v)
+                    break
+
             # Propagate the associated field documentation
             out_field = self.field(output_plug_name)
             in_field = self.field(corresponding_input_plug_name)
@@ -304,6 +314,14 @@ class Switch(Node):
             if self.switch == switch_selection:
                 self.__block_output_propagation = True
                 setattr(self, output_plug_name, new)
+                if self.pipeline is not None:
+                    f = self.field(output_plug_name)
+                    for n, p in self.pipeline.get_linked_items(
+                            self, name, direction='links_from'):
+                        # copy input field metadata
+                        for k, v in n.field(p).metadata().items():
+                            setattr(f, k, v)
+                        break
                 self.__block_output_propagation = False
 
     def __setstate__(self, state):
