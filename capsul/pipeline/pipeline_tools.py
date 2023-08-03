@@ -1526,3 +1526,95 @@ def write_fake_pipeline(pipeline, module_name, dirname, sleep_time=0):
         save_pipeline(pipeline, filename)
 
     del sys.path[0]
+
+
+def topological_sort_nodes(nodes):
+    ''' Sort nodes topologically according to their links.
+    All linked nodes must be in the nodes list: if switched or pipelines are
+    removed, the sort will be broken.
+
+    In the output list, pipeline nodes will appear twice, in tuples:
+
+    (pipeline, 0) is the position of the input plugs of the pipeline
+
+    (pipeline, 1) is the position of the output plugs of the pipeline
+
+    nodes inside the pipeline will logically be between both.
+    '''
+    nsort = []
+    done = set()
+    todo = list(nodes)
+    while todo:
+        node = todo.pop(0)
+        if node in done:
+            continue
+
+        i = -1
+        cont = False
+        for plug in node.plugs.values():
+            if not plug.output:
+                for ld in plug.links_from:
+                    n = ld[2]
+                    n0 = n
+                    if isinstance(n, Pipeline):
+                        if not ld[3].output:
+                            n = (n, 0)  # begin of pipeline
+                        else:
+                            n = (n, 1)  # end of pipeline
+                    if n in done:
+                        ni = nsort.index(n)  # WARNING: expensive search
+                        if ni > i:
+                            i = ni
+                    else:
+                        todo.insert(0, n0)
+                        cont = True
+                        break
+                if cont:
+                    break
+        if cont:
+            continue
+
+        # print('insert', node.full_name, ':', i+1)
+        # if i >= 0:
+            # print('    after', nsort[i].full_name if not isinstance(nsort[i], tuple) else (nsort[i][0].full_name, nsort[i][1]) )
+        if isinstance(node, Pipeline):
+            nsort.insert(i+1, (node, 0))
+            nsort.insert(i+2, (node, 1))
+            done.add((node, 0))
+            done.add((node, 1))
+        else:
+            nsort.insert(i+1, node)
+        done.add(node)
+    return nsort
+
+
+def propagate_meta(executable, nodes=None):
+    ''' Propagate metadata from processes output plugs to downstream
+    switches and upper level pipelines plugs, recursively in topological order.
+
+    If ``nodes`` is provided, it should be the nodes list already in
+    topological order. It may be passed if reused in order to avoid
+    calling :func:`topological_sort_nodes` several times.
+    '''
+    if nodes is None:
+        nodes = topological_sort_nodes(
+            executable.all_nodes())
+    for node in nodes:
+        if isinstance(node, Switch):
+            node.propagate_fields_metadata()
+        if isinstance(node, tuple):
+            if node[1] == 0:
+                # pipeline inputs
+                continue
+            node = node[0]
+        for pname, plug in node.plugs.items():
+            if plug.output:
+                f = node.field(pname)
+                for ld in plug.links_to:
+                    n = ld[2]
+                    p = ld[1]
+                    fo = n.field(p)
+                    if fo.is_output():
+                        # copy field metadata
+                        for k, v in f.metadata().items():
+                            setattr(fo, k, v)
