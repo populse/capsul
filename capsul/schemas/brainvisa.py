@@ -110,7 +110,7 @@ class BrainVISASharedSchema(MetadataSchema):
         elif self.data_id == 'sulci_cnn_recognition_param':
             path_list = [
                 'models', f'models_20{self.model_version}', 'cnn_models']
-            filename = f'sulci_unet_model_params_{full_side[self.side]}.mdsm'
+            filename = f'sulci_unet_model_params_{full_side[self.side]}.json'
         else:
             filename = self.data_id
 
