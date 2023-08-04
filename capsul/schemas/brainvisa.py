@@ -695,6 +695,7 @@ def declare_morpho_schemas(morpho_module):
             'sulci_graph_version': None,
             'sulci_recognition_session': None,
             'suffix': None,
+            'extension': 'nii.gz',  # should not be hard-coded but I failed
         }
         right_csf = {
             'prefix': 'csf',
@@ -703,6 +704,7 @@ def declare_morpho_schemas(morpho_module):
             'sulci_graph_version': None,
             'sulci_recognition_session': None,
             'suffix': None,
+            'extension': 'nii.gz',  # should not be hard-coded but I failed
         }
         brain_volumes_file = {
             'prefix': 'brain_volumes',
@@ -725,7 +727,11 @@ def declare_morpho_schemas(morpho_module):
             'extension': None
         }
         _meta_links = {
-            '*_labelled_graph': {'*': []}
+            '*_labelled_graph': {'*': []},
+            '*_grey_white': {'*': []},
+            '*_mesh': {'*': []},
+            'left_grey_white': {'left_csf': ['extension']},  # no effect ..?
+            'right_grey_white': {'right_csf': ['extension']},  # no effect ..?
         }
 
     class MorphoReportBIDS(ProcessSchema, schema='bids',
