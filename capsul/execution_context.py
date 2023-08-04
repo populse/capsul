@@ -196,8 +196,17 @@ class CapsulWorkflow(Controller):
                 outputs = job.get('write_parameters', [])
                 add_dep = False
                 for param in outputs:
-                    value = self.parameters_values[parameters_index[param]]
-                    todo = [value]
+                    todo = [parameters_index[param]]
+                    pindices = []
+                    while todo:
+                        pind = todo.pop(0)
+                        if isinstance(pind, (list, tuple)):
+                            todo += pind
+                        else:
+                            pindices.append(pind)
+
+                    value = [self.parameters_values[pind] for pind in pindices]
+                    todo = value
                     while todo:
                         value = todo.pop(0)
                         if isinstance(value, (list, tuple)):
