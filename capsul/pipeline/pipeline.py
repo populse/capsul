@@ -2356,8 +2356,7 @@ class Pipeline(Process):
                                     stack.append((dest_node, dest_plug_name))
                                 for input_plug_name, output_plug_name \
                                         in dest_node.connections():
-                                    if plug.output ^ isinstance(node,
-                                                                Pipeline):
+                                    if current_direction == 'links_to':
                                         if dest_plug_name == input_plug_name:
                                             if not process_only \
                                                     and (dest_node,
