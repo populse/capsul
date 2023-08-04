@@ -260,7 +260,9 @@ class CapsulWorkflow(Controller):
                 if field.is_output():
                     for dest_node, dest_plug_name \
                             in executable.get_linked_items(
-                                process, field.name, direction='links_to'):
+                                process, field.name, direction='links_to',
+                                in_sub_pipelines=True,
+                                in_outer_pipelines=True):
                         if (isinstance(dest_node, Process)
                                 and dest_node.activated
                                 and dest_node not in disabled_nodes
@@ -344,8 +346,12 @@ class CapsulWorkflow(Controller):
             if isinstance(executable, Pipeline):
                 for field in process.user_fields():
                     if field.is_output():
-                        for dest_node, plug_name in executable.get_linked_items(process, field.name, 
-                                direction='links_to'):
+                        for dest_node, plug_name \
+                                in executable.get_linked_items(
+                                    process, field.name,
+                                    direction='links_to',
+                                    in_sub_pipelines=True,
+                                    in_outer_pipelines=True):
                             if isinstance(dest_node, Pipeline):
                                 continue
                             process_chronology.setdefault(
@@ -412,8 +418,12 @@ class CapsulWorkflow(Controller):
                 parameters[field.name] = proxy
                 if field.is_output() and isinstance(
                         executable, (Pipeline, ProcessIteration)):
-                    for dest_node, plug_name in executable.get_linked_items(process, field.name, 
-                            direction='links_to'):
+                    for dest_node, plug_name \
+                            in executable.get_linked_items(
+                                process, field.name,
+                                direction='links_to',
+                                in_sub_pipelines=True,
+                                in_outer_pipelines=True):
                         if isinstance(dest_node, Pipeline):
                             continue
                         process_chronology.setdefault(
@@ -421,6 +431,14 @@ class CapsulWorkflow(Controller):
                             set()).add(
                                 process.uuid + ','.join(process_iterations.get(process.uuid, [])))
         return parameters
+
+    def find_job(self, full_name):
+        for job in self.jobs.values():
+            pl = [p for p in job['parameters_location'] if p != 'nodes']
+            name = '.'.join(pl)
+            if name == full_name:
+                return job
+        return None
 
 
 def find_temporary_to_generate(executable):
