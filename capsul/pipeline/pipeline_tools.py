@@ -28,10 +28,6 @@ Functions
 -----------------------------------
 :func:`set_pipeline_state_from_dict`
 ------------------------------------
-:func:`get_output_directories`
-------------------------------
-:func:`create_output_directories`
----------------------------------
 :func:`save_pipeline`
 ---------------------
 :func:`load_pipeline_parameters`
@@ -1111,68 +1107,6 @@ def set_pipeline_state_from_dict(pipeline, state_dict):
         if sub_nodes:
             nodes += [(proc.nodes[node_name], sub_dict)
                       for node_name, sub_dict in sub_nodes.items()]
-
-
-def get_output_directories(process):
-    '''
-    Get output directories for a process, pipeline, or node
-
-    Returns
-    -------
-    dirs: dict
-        organized directories list: a dict with recursive nodes mapping.
-        In each element, the "directories" key holds a directories names set,
-        and "nodes" is a dict with sub-nodes (node_name, dict mapping,
-        organized the same way)
-    flat_dirs: set
-        set of all directories in the pipeline, as a flat set.
-    '''
-    all_dirs = set()
-    root_dirs = {}
-    nodes = [(process, '', root_dirs)]
-    disabled_nodes = set()
-    if isinstance(process, Pipeline):
-        disabled_nodes = process.disabled_pipeline_steps_nodes()
-
-    while nodes:
-        node, node_name, dirs = nodes.pop(0)
-        plugs = getattr(node, 'plugs', None)
-        if plugs is None:
-            plugs = [field.name for field in node.fields()]
-        process = node
-        dirs_set = set()
-        dirs['directories'] = dirs_set
-        for param_name in plugs:
-            field = process.field(param_name)
-            if process.metadata(field).get('write', False) \
-                    and field.is_path():
-                value = getattr(process, param_name, undefined)
-                if value is not None and value is not undefined:
-                    directory = os.path.dirname(value)
-                    if directory not in ('', '.'):
-                        all_dirs.add(directory)
-                        dirs_set.add(directory)
-        sub_nodes = getattr(process, 'nodes', None)
-        if sub_nodes:
-            # TODO: handle disabled steps
-            sub_dict = {}
-            dirs['nodes'] = sub_dict
-            for node_name, node in sub_nodes.items():
-                if node_name != '' and node.activated and node.enabled \
-                        and not node in disabled_nodes:
-                    sub_node_dict = {}
-                    sub_dict[node_name] = sub_node_dict
-                    nodes.append((node, node_name, sub_node_dict))
-    return root_dirs, all_dirs
-
-
-def create_output_directories(process):
-    '''
-    Create output directories for a process, pipeline or node.
-    '''
-    for directory in get_output_directories(process)[1]:
-        if not os.path.exists(directory):
-            os.makedirs(directory)
 
 
 def save_pipeline(pipeline, filename):
