@@ -164,30 +164,37 @@ class TestPipelineWorkflow(unittest.TestCase):
 
     def test_full_wf(self):
         self.pipeline.enable_all_pipeline_steps()
-        wf = CapsulWorkflow(self.pipeline)
+        wf = CapsulWorkflow(self.pipeline, create_output_dirs=False)
         # 4 jobs
         self.assertEqual(len(wf.jobs), 4)
         # 3 deps
-        self.assertEqual(sum(len(job['wait_for']) for job in wf.jobs.values()), 3)
+        self.assertEqual(sum(len(job['wait_for']) for job in wf.jobs.values()),
+                         3)
+        wf = CapsulWorkflow(self.pipeline, create_output_dirs=True)
+        # 5 jobs with the directories creation
+        self.assertEqual(len(wf.jobs), 5)
+        # 4 deps
+        self.assertEqual(sum(len(job['wait_for']) for job in wf.jobs.values()),
+                         4)
 
     def test_partial_wf1(self):
         self.pipeline.enable_all_pipeline_steps()
         self.pipeline.pipeline_steps.step3 = False
-        wf = CapsulWorkflow(self.pipeline)
+        wf = CapsulWorkflow(self.pipeline, create_output_dirs=False)
         self.assertEqual(len(wf.jobs), 3)
         self.assertEqual(sum(len(job['wait_for']) for job in wf.jobs.values()), 2)
 
     def test_partial_wf2(self):
         self.pipeline.enable_all_pipeline_steps()
         self.pipeline.pipeline_steps.step2 = False
-        wf = CapsulWorkflow(self.pipeline)
+        wf = CapsulWorkflow(self.pipeline, create_output_dirs=False)
         self.assertEqual(len(wf.jobs), 3)
         self.assertEqual(sum(len(job['wait_for']) for job in wf.jobs.values()), 0)
 
     def test_partial_wf3_fail(self):
         self.pipeline.enable_all_pipeline_steps()
         self.pipeline.pipeline_steps.step1 = False
-        wf = CapsulWorkflow(self.pipeline)
+        wf = CapsulWorkflow(self.pipeline, create_output_dirs=False)
         self.assertEqual(len(wf.jobs), 3)
         self.assertEqual(sum(len(job['wait_for']) for job in wf.jobs.values()), 2)
 
@@ -219,7 +226,7 @@ class TestPipelineWorkflow(unittest.TestCase):
         pipeline.intermediate = [osp.join(self.tmpdir, 'file_out1'),
                                  osp.join(self.tmpdir, 'file_out2')]
 
-        wf = CapsulWorkflow(pipeline)
+        wf = CapsulWorkflow(pipeline, create_output_dirs=False)
         njobs = niter + 1  # 1 after
         self.assertEqual(len(wf.jobs), njobs)
 
@@ -247,7 +254,7 @@ class TestPipelineWorkflow(unittest.TestCase):
         pipeline.output2 = osp.join(self.tmpdir, 'file_out2')
         pipeline.output3 = osp.join(self.tmpdir, 'file_out3')
 
-        wf = CapsulWorkflow(pipeline)
+        wf = CapsulWorkflow(pipeline, create_output_dirs=False)
         njobs = 4*niter + 3  # 3 after
         self.assertEqual(len(wf.jobs), njobs)
 

@@ -581,7 +581,7 @@ class MetadataModifier:
             raise ValueError(f'Invalid value for schema modification for parameter {self.parameter}: {modifier}')
 
     def apply(self, metadata, process, parameter, initial_meta):
-        debug = False  # (parameter == 't1mri_nobias')
+        debug = False  # (parameter == 'nobias')
         if debug: print('apply modifier to', parameter, ':', self, metadata, initial_meta)
         for modifier in self.modifiers:
             if isinstance(modifier, dict):
@@ -798,6 +798,7 @@ class ProcessMetadata(Controller):
 
             for field in process.user_fields():
                 # self.debug = (field.name == 't1mri_nobias')
+                done_mod = set()
                 if process.plugs[field.name].activated:
                     self.dprint(
                         f'  Parse schema modifications for {field.name}')
@@ -858,17 +859,22 @@ class ProcessMetadata(Controller):
                             if intra_node is not None:
                                 filtered_meta = self.get_linked_metadata(
                                     schema, intra_node, intra_src, intra_dst)
-                            modifier = MetadataModifier(
-                                schema, node, node_parameter,
-                                filtered_meta=filtered_meta)
-                            if not modifier.is_empty:
-                                self.dprint(f'        {modifier.modifiers}')
-                                if filtered_meta is not None:
-                                    self.dprint(
-                                        '        filtered_meta: '
-                                        f'{filtered_meta}')
-                                result.setdefault(field.name,
-                                                  []).append(modifier)
+                            if (node, node_parameter) not in done_mod:
+                                # (avoid having several times the same modifier
+                                # via different paths, some Prepend(), Append()
+                                # may be duplicate)
+                                modifier = MetadataModifier(
+                                    schema, node, node_parameter,
+                                    filtered_meta=filtered_meta)
+                                if not modifier.is_empty:
+                                    self.dprint(f'        {modifier.modifiers}')
+                                    if filtered_meta is not None:
+                                        self.dprint(
+                                            '        filtered_meta: '
+                                            f'{filtered_meta}')
+                                    result.setdefault(field.name,
+                                                    []).append(modifier)
+                            done_mod.add((node, node_parameter))
                 else:
                     self.dprint(f'  {field.name} ignored (inactive)')
 
@@ -941,6 +947,7 @@ class ProcessMetadata(Controller):
         return schema
 
     def generate_paths(self, executable):
+        # self.debug = True
         if self.debug:
             if self._current_iteration is not None:
                 iteration = f'[{self._current_iteration}]'

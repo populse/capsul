@@ -1518,7 +1518,7 @@ class Pipeline(Process):
         graph = self.workflow_graph(remove_disabled_steps)
 
         
-        # Start the topologival sort
+        # Start the topological sort
         ordered_list = graph.topological_sort()
 
         def walk_workflow(wokflow, workflow_list):
@@ -1541,7 +1541,7 @@ class Pipeline(Process):
         workflow_list = []
         walk_workflow(ordered_list, workflow_list)
 
-        return workflow_list 
+        return workflow_list
 
     def find_empty_parameters(self):
         """ Find internal File/Directory parameters not exported to the main
@@ -2248,18 +2248,21 @@ class Pipeline(Process):
             name,
             in_sub_pipelines=False,
             activated_only=False,
-            process_only=False))
+            process_only=False,
+            direction=('links_from', 'links_to')))
         while stack:
             item = stack.pop()
             if item not in done:
                 node, plug = item
                 yield (node, plug)
                 done.add(item)
-                stack.extend(self.get_linked_items(node, 
-                    plug, 
+                stack.extend(self.get_linked_items(
+                    node,
+                    plug,
                     in_sub_pipelines=False,
                     activated_only=False,
-                    process_only=False))
+                    process_only=False,
+                    direction=('links_from', 'links_to')))
         self.enable_parameter_links = enable_parameter_links
 
     def dispatch_all_values(self):
@@ -2278,19 +2281,31 @@ class Pipeline(Process):
         Going through switches and inside subpipelines, ignoring nodes that are
         not activated.
         The result is a generator of pairs (node, plug_name).
+
+        direction may be a sting, 'links_from', 'links_to', or a tuple
+        ('linnks_from', 'links_to').
         '''
         if plug_name is None:
             stack = [(node, plug) for plug in node.plugs]
         else:
             stack = [(node, plug_name)]
+        done = set()
+
         while stack:
-            node, plug_name = stack.pop(0)
+            current = stack.pop(0)
+            if current in done:
+                continue
+            done.add(current)
+            node, plug_name = current
             if activated_only and not node.activated:
                 continue
             plug = node.plugs.get(plug_name)
             if plug:
                 if direction is not None:
-                    directions = (direction,)
+                    if isinstance(direction, (tuple, list)):
+                        directions = direction
+                    else:
+                        directions = (direction,)
                 else:
                     if isinstance(node, Pipeline):
                         if in_outer_pipelines:
@@ -2304,41 +2319,67 @@ class Pipeline(Process):
                     else:
                         directions = ('links_from',)
                 for current_direction in directions:
-                    for dest_plug_name, dest_node in (i[1:3] for i in getattr(plug, current_direction)):
-                        if dest_node is node or (activated_only
-                                                and not dest_node.activated):
+                    for dest_plug_name, dest_node in \
+                            (i[1:3] for i in getattr(plug, current_direction)):
+                        if dest_node is node \
+                                or (activated_only
+                                    and not dest_node.activated):
                             continue
                         if isinstance(dest_node, Pipeline):
-                            if ((in_sub_pipelines and dest_node is not self) or 
-                                (in_outer_pipelines and isinstance(dest_node, Pipeline))):
-                                for n, p in self.get_linked_items(dest_node,
-                                                                  dest_plug_name,
-                                                                  activated_only=activated_only,
-                                                                  process_only=process_only,
-                                                                  in_sub_pipelines=in_sub_pipelines,
-                                                                  direction=current_direction,
-                                                                  in_outer_pipelines=in_outer_pipelines):
+                            if ((in_sub_pipelines and dest_node is not self)
+                                    or in_outer_pipelines):
+                                for n, p in self.get_linked_items(
+                                        dest_node,
+                                        dest_plug_name,
+                                        activated_only=activated_only,
+                                        process_only=process_only,
+                                        in_sub_pipelines=in_sub_pipelines,
+                                        direction=current_direction,
+                                        in_outer_pipelines=in_outer_pipelines):
                                     if n is not node:
-                                        yield (n, p)
-                            yield (dest_node, dest_plug_name)
+                                        if (n, p) not in done:
+                                            yield (n, p)
+                            if (dest_node, dest_plug_name) not in done:
+                                yield (dest_node, dest_plug_name)
                         elif isinstance(dest_node, Switch):
                             if dest_plug_name == 'switch':
                                 if not process_only:
-                                    yield (dest_node, dest_plug_name)
+                                    if (dest_node, dest_plug_name) \
+                                            not in done:
+                                        yield (dest_node, dest_plug_name)
                             else:
-                                for input_plug_name, output_plug_name in dest_node.connections():
-                                    if plug.output ^ isinstance(node, Pipeline):
+                                if direction is None \
+                                        or (isinstance(direction,
+                                                       (tuple, list))
+                                            and len(direction) == 2):
+                                    # if bidirectional search only
+                                    stack.append((dest_node, dest_plug_name))
+                                for input_plug_name, output_plug_name \
+                                        in dest_node.connections():
+                                    if current_direction == 'links_to':
                                         if dest_plug_name == input_plug_name:
-                                            if not process_only:
-                                                yield (dest_node, output_plug_name)
-                                            stack.append((dest_node, output_plug_name))
+                                            if not process_only \
+                                                    and (dest_node,
+                                                         output_plug_name) \
+                                                        not in done:
+                                                yield (
+                                                    dest_node,
+                                                    output_plug_name)
+                                            stack.append((dest_node,
+                                                          output_plug_name))
                                     else:
                                         if dest_plug_name == output_plug_name:
-                                            if not process_only:
-                                                yield (dest_node, input_plug_name)
-                                            stack.append((dest_node, input_plug_name))
+                                            if not process_only \
+                                                    and (dest_node,
+                                                         input_plug_name) \
+                                                        not in done:
+                                                yield (
+                                                    dest_node, input_plug_name)
+                                            stack.append((dest_node,
+                                                          input_plug_name))
                         else:
-                            yield (dest_node, dest_plug_name)
+                            if (dest_node, dest_plug_name) not in done:
+                                yield (dest_node, dest_plug_name)
 
     def json(self, include_parameters=True):
         result = super().json(include_parameters=include_parameters)
