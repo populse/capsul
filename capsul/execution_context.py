@@ -108,8 +108,10 @@ class CapsulWorkflow(Controller):
         jobs_per_process = {}
         process_chronology = {}
         processes_proxies = {}
-        nodes = pipeline_tools.topological_sort_nodes(executable.all_nodes())
-        pipeline_tools.propagate_meta(executable, nodes)
+        if isinstance(executable, Pipeline):
+            nodes = pipeline_tools.topological_sort_nodes(
+                executable.all_nodes())
+            pipeline_tools.propagate_meta(executable, nodes)
         job_parameters = self._create_jobs(
             top_parameters=top_parameters,
             executable=executable,
