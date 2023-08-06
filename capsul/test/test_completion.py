@@ -88,15 +88,17 @@ class TestPipelineBrainVISA(ProcessSchema, schema='brainvisa',
         '*': {'process': 'test_pipeline'},
     }
     _nodes = {
+        'nobias': {
+            'output': {'seg_directory': None},  #, 'prefix': 'nobias'},
+        },
         'split': {
-            '*': {'seg_directory': 'segmentation'},
+            '*_output': {'seg_directory': 'plouf'},
             'left_output':{'side': 'L', 'suffix': ''},
             'right_output': {'side': 'R', 'suffix': ''},
         }
     }
     right_gw_mesh = {'extension': 'gii', 'seg_directory': None, 'prefix': ''}
     left_gw_mesh = {'extension': 'gii', 'seg_directory': None, 'prefix': ''}
-
 
 
 

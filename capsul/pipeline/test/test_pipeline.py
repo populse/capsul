@@ -150,7 +150,7 @@ class TestPipeline(unittest.TestCase):
         from capsul.pipeline import pipeline_tools
         pipeline_tools.save_pipeline(pipeline, filename)
         pipeline2 = executable(filename)
-        wf = CapsulWorkflow(pipeline2)
+        wf = CapsulWorkflow(pipeline2, create_output_dirs=False)
         if self.debug:
             from soma.qt_gui.qt_backend import QtGui
             from capsul.qt_gui.widgets import PipelineDeveloperView
