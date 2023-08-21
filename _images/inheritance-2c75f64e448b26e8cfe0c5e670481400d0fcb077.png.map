@@ -1,0 +1,7 @@
+<map id="inheritance75dab25d1b" name="inheritance75dab25d1b">
+<area shape="rect" id="node1" href="https://docs.enthought.com/traits/traits_api_reference/ctraits.html#traits.ctraits.CHasTraits" target="_top" title="Base class for HasTraits." alt="" coords="34,55,125,80"/>
+<area shape="rect" id="node3" href="https://docs.enthought.com/traits/traits_api_reference/has_traits.html#traits.has_traits.HasTraits" target="_top" title="Enables any Python class derived from it to have trait attributes." alt="" coords="201,55,284,80"/>
+<area shape="rect" id="node2" href="https://populse.github.io/soma-base/api.html#soma.controller.controller.Controller" target="_top" title="A Controller contains some traits: attributes typing and observer" alt="" coords="332,55,419,80"/>
+<area shape="rect" id="node4" href="#capsul.study_config.study_config.StudyConfig" target="_top" title="Class to store the study parameters and processing options." alt="" coords="467,55,567,80"/>
+<area shape="rect" id="node5" href="#capsul.study_config.study_config.StudyConfigModule" target="_top" title=":class:`StudyConfig` module base class (abstract)" alt="" coords="5,5,153,31"/>
+</map>

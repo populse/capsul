@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,13 +12,13 @@
   <link rel="stylesheet" href="../../../_static/css/bootstrap-responsive.css"/>
   <link rel="icon" href="../../../_static/capsul_logo.svg"/>
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=f0b81668" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
     
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/documentation_options.js?v=4d935f96"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -150,7 +150,9 @@
 <span class="kn">import</span> <span class="nn">sys</span>
 
 
-<div class="viewcode-block" id="Settings"><a class="viewcode-back" href="../../../api/engine.html#capsul.engine.settings.Settings">[docs]</a><span class="k">class</span> <span class="nc">Settings</span><span class="p">:</span>
+<div class="viewcode-block" id="Settings">
+<a class="viewcode-back" href="../../../api/engine.html#capsul.engine.settings.Settings">[docs]</a>
+<span class="k">class</span> <span class="nc">Settings</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Main class for the management of CapsulEngine settings. Since these</span>
 <span class="sd">    settings are always stored in a populse_db database, it is necessary to</span>
@@ -191,7 +193,9 @@
     <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">populse_db</span><span class="o">.</span><span class="fm">__exit__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Settings.module_name"><a class="viewcode-back" href="../../../api/engine.html#capsul.engine.settings.Settings.module_name">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Settings.module_name">
+<a class="viewcode-back" href="../../../api/engine.html#capsul.engine.settings.Settings.module_name">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">module_name</span><span class="p">(</span><span class="n">module_name</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Return a complete module name (which must be a valid Python module</span>
@@ -204,8 +208,11 @@
         <span class="k">if</span> <span class="s1">&#39;.&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">module_name</span><span class="p">:</span>
             <span class="n">module_name</span> <span class="o">=</span> <span class="s1">&#39;capsul.engine.module.&#39;</span> <span class="o">+</span> <span class="n">module_name</span>
         <span class="k">return</span> <span class="n">module_name</span></div>
+
     
-<div class="viewcode-block" id="Settings.select_configurations"><a class="viewcode-back" href="../../../api/engine.html#capsul.engine.settings.Settings.select_configurations">[docs]</a>    <span class="k">def</span> <span class="nf">select_configurations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">environment</span><span class="p">,</span> <span class="n">uses</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="Settings.select_configurations">
+<a class="viewcode-back" href="../../../api/engine.html#capsul.engine.settings.Settings.select_configurations">[docs]</a>
+    <span class="k">def</span> <span class="nf">select_configurations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">environment</span><span class="p">,</span> <span class="n">uses</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                               <span class="n">check_invalid_mods</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Select a configuration for a given environment. A configuration is</span>
@@ -358,6 +365,7 @@
 
         <span class="k">return</span> <span class="n">configurations</span></div>
 
+
     <span class="k">def</span> <span class="nf">export_config_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">environment</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">conf</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="n">environment</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -398,7 +406,9 @@
         <span class="k">return</span> <span class="n">conf</span>
 
 
-<div class="viewcode-block" id="Settings.import_configs"><a class="viewcode-back" href="../../../api/engine.html#capsul.engine.settings.Settings.import_configs">[docs]</a>    <span class="k">def</span> <span class="nf">import_configs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">environment</span><span class="p">,</span> <span class="n">config_dict</span><span class="p">,</span> <span class="n">cont_on_error</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="Settings.import_configs">
+<a class="viewcode-back" href="../../../api/engine.html#capsul.engine.settings.Settings.import_configs">[docs]</a>
+    <span class="k">def</span> <span class="nf">import_configs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">environment</span><span class="p">,</span> <span class="n">config_dict</span><span class="p">,</span> <span class="n">cont_on_error</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Import config values from a dictionary as given by</span>
 <span class="sd">        :meth:`select_configurations`.</span>
@@ -436,15 +446,22 @@
                                   <span class="s1">&#39;environment:&#39;</span><span class="p">,</span> <span class="n">environment</span><span class="p">,</span> <span class="s1">&#39;, module:&#39;</span><span class="p">,</span>
                                   <span class="n">module</span><span class="p">,</span> <span class="s1">&#39;, config:&#39;</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Settings.get_all_environments"><a class="viewcode-back" href="../../../api/engine.html#capsul.engine.settings.Settings.get_all_environments">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_environments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Settings.get_all_environments">
+<a class="viewcode-back" href="../../../api/engine.html#capsul.engine.settings.Settings.get_all_environments">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_all_environments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Get all environment values in the database</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">with</span> <span class="bp">self</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">session</span><span class="o">.</span><span class="n">get_all_environments</span><span class="p">()</span></div></div>
+            <span class="k">return</span> <span class="n">session</span><span class="o">.</span><span class="n">get_all_environments</span><span class="p">()</span></div>
+</div>
+
     
     
-<div class="viewcode-block" id="SettingsSession"><a class="viewcode-back" href="../../../api/engine.html#capsul.engine.settings.SettingsSession">[docs]</a><span class="k">class</span> <span class="nc">SettingsSession</span><span class="p">:</span>
+<div class="viewcode-block" id="SettingsSession">
+<a class="viewcode-back" href="../../../api/engine.html#capsul.engine.settings.SettingsSession">[docs]</a>
+<span class="k">class</span> <span class="nc">SettingsSession</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Settings use/modifiction session, returned by &quot;with settings as session:&quot;</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -460,7 +477,9 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">module_notifiers</span> <span class="o">=</span> <span class="n">module_notifiers</span>
 
-<div class="viewcode-block" id="SettingsSession.collection_name"><a class="viewcode-back" href="../../../api/engine.html#capsul.engine.settings.SettingsSession.collection_name">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="SettingsSession.collection_name">
+<a class="viewcode-back" href="../../../api/engine.html#capsul.engine.settings.SettingsSession.collection_name">[docs]</a>
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">collection_name</span><span class="p">(</span><span class="n">module</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Return the name of the populse_db collection corresponding to a</span>
@@ -470,8 +489,11 @@
         <span class="n">module</span> <span class="o">=</span> <span class="n">Settings</span><span class="o">.</span><span class="n">module_name</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
         <span class="n">collection</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">Settings</span><span class="o">.</span><span class="n">collection_prefix</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">collection</span></div>
+
     
-<div class="viewcode-block" id="SettingsSession.ensure_module_fields"><a class="viewcode-back" href="../../../api/engine.html#capsul.engine.settings.SettingsSession.ensure_module_fields">[docs]</a>    <span class="k">def</span> <span class="nf">ensure_module_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">,</span> <span class="n">fields</span><span class="p">):</span>
+<div class="viewcode-block" id="SettingsSession.ensure_module_fields">
+<a class="viewcode-back" href="../../../api/engine.html#capsul.engine.settings.SettingsSession.ensure_module_fields">[docs]</a>
+    <span class="k">def</span> <span class="nf">ensure_module_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">,</span> <span class="n">fields</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Make sure that the given module exists in settings and create the given fields if they do not exist. `fields` is a list of dictionaries with three items:</span>
 <span class="sd">        - name: the name of the key</span>
@@ -491,8 +513,11 @@
                                     <span class="n">field_type</span><span class="o">=</span><span class="n">field</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">],</span>
                                     <span class="n">description</span><span class="o">=</span><span class="n">field</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">collection</span></div>
+
     
-<div class="viewcode-block" id="SettingsSession.new_config"><a class="viewcode-back" href="../../../api/engine.html#capsul.engine.settings.SettingsSession.new_config">[docs]</a>    <span class="k">def</span> <span class="nf">new_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">,</span> <span class="n">environment</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+<div class="viewcode-block" id="SettingsSession.new_config">
+<a class="viewcode-back" href="../../../api/engine.html#capsul.engine.settings.SettingsSession.new_config">[docs]</a>
+    <span class="k">def</span> <span class="nf">new_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">,</span> <span class="n">environment</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Creates a new configuration document for a module in the given </span>
 <span class="sd">        environment. Values is a dictionary used to set values for the </span>
@@ -517,7 +542,10 @@
         <span class="n">config</span><span class="o">.</span><span class="n">notify</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">config</span></div>
 
-<div class="viewcode-block" id="SettingsSession.remove_config"><a class="viewcode-back" href="../../../api/engine.html#capsul.engine.settings.SettingsSession.remove_config">[docs]</a>    <span class="k">def</span> <span class="nf">remove_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">,</span> <span class="n">environment</span><span class="p">,</span> <span class="n">config_id</span><span class="p">):</span>
+
+<div class="viewcode-block" id="SettingsSession.remove_config">
+<a class="viewcode-back" href="../../../api/engine.html#capsul.engine.settings.SettingsSession.remove_config">[docs]</a>
+    <span class="k">def</span> <span class="nf">remove_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">,</span> <span class="n">environment</span><span class="p">,</span> <span class="n">config_id</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Removes a configuration (document in the database) for a given module /</span>
 <span class="sd">        environment, idenfified by its `Settings.config_id_field` value.</span>
@@ -526,7 +554,10 @@
         <span class="nb">id</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">-</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">config_id</span><span class="p">,</span> <span class="n">environment</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_dbs</span><span class="o">.</span><span class="n">remove_document</span><span class="p">(</span><span class="n">collection</span><span class="p">,</span> <span class="nb">id</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="SettingsSession.configs"><a class="viewcode-back" href="../../../api/engine.html#capsul.engine.settings.SettingsSession.configs">[docs]</a>    <span class="k">def</span> <span class="nf">configs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">,</span> <span class="n">environment</span><span class="p">,</span> <span class="n">selection</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="SettingsSession.configs">
+<a class="viewcode-back" href="../../../api/engine.html#capsul.engine.settings.SettingsSession.configs">[docs]</a>
+    <span class="k">def</span> <span class="nf">configs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">,</span> <span class="n">environment</span><span class="p">,</span> <span class="n">selection</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Returns a generator that iterates over all configuration</span>
 <span class="sd">        documents created for the given module and environment.</span>
@@ -555,7 +586,10 @@
                     <span class="n">notifiers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">module_notifiers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">Settings</span><span class="o">.</span><span class="n">module_name</span><span class="p">(</span>
                         <span class="n">module</span><span class="p">),</span> <span class="p">[]))</span></div>
 
-<div class="viewcode-block" id="SettingsSession.config"><a class="viewcode-back" href="../../../api/engine.html#capsul.engine.settings.SettingsSession.config">[docs]</a>    <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">,</span> <span class="n">environment</span><span class="p">,</span> <span class="n">selection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">any</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+<div class="viewcode-block" id="SettingsSession.config">
+<a class="viewcode-back" href="../../../api/engine.html#capsul.engine.settings.SettingsSession.config">[docs]</a>
+    <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">,</span> <span class="n">environment</span><span class="p">,</span> <span class="n">selection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">any</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Selects configurations (like in :meth:`congigs`) and ensures at most</span>
 <span class="sd">        one one is selected</span>
@@ -586,7 +620,10 @@
             <span class="k">return</span> <span class="n">configs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="SettingsSession.get_all_environments"><a class="viewcode-back" href="../../../api/engine.html#capsul.engine.settings.SettingsSession.get_all_environments">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_environments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="SettingsSession.get_all_environments">
+<a class="viewcode-back" href="../../../api/engine.html#capsul.engine.settings.SettingsSession.get_all_environments">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_all_environments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Get all environment values in the database</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -609,7 +646,9 @@
                     <span class="o">%</span> <span class="p">(</span><span class="n">Settings</span><span class="o">.</span><span class="n">environment_field</span><span class="p">,</span> <span class="n">table</span><span class="p">)</span>
                 <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dbs</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
                 <span class="n">environments</span><span class="o">.</span><span class="n">update</span><span class="p">([</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">res</span><span class="p">])</span>
-        <span class="k">return</span> <span class="n">environments</span></div></div>
+        <span class="k">return</span> <span class="n">environments</span></div>
+</div>
+
 
 <span class="k">class</span> <span class="nc">SettingsConfig</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">populse_session</span><span class="p">,</span> <span class="n">collection</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">environment</span><span class="p">,</span>
@@ -681,8 +720,8 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.2.
     </div>
   </body>
 </html>

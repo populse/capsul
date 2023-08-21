@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -13,13 +13,13 @@
   <link rel="stylesheet" href="../_static/css/bootstrap-responsive.css"/>
   <link rel="icon" href="../_static/capsul_logo.svg"/>
 
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=f0b81668" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
     
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/documentation_options.js?v=4d935f96"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
@@ -104,13 +104,17 @@
           <div class="body" role="main">
             
   <section id="capsul-attributes-module">
-<h1>capsul.attributes module<a class="headerlink" href="#capsul-attributes-module" title="Permalink to this heading">¶</a></h1>
-<div class="graphviz"><img src="../_images/inheritance-1d084e6cbc7e1df0d0fac53b60908681eeb6362e.png" alt="Inheritance diagram of capsul.attributes, capsul.attributes.attributes_factory, capsul.attributes.attributes_schema, capsul.attributes.completion_engine_factory, capsul.attributes.completion_engine_iteration, capsul.attributes.completion_engine, capsul.attributes.fom_completion_engine" usemap="#inheritancee5a96be6ce" class="inheritance graphviz" /></div>
+<h1>capsul.attributes module<a class="headerlink" href="#capsul-attributes-module" title="Link to this heading">¶</a></h1>
+<div class="graphviz"><img src="../_images/inheritance-937c89b2e1071c61c0f95fe3469c0fbf0fe9c2d9.png" alt="Inheritance diagram of capsul.attributes, capsul.attributes.attributes_factory, capsul.attributes.attributes_schema, capsul.attributes.completion_engine_factory, capsul.attributes.completion_engine_iteration, capsul.attributes.completion_engine, capsul.attributes.fom_completion_engine" usemap="#inheritancee5a96be6ce" class="inheritance graphviz" /></div>
 <map id="inheritancee5a96be6ce" name="inheritancee5a96be6ce">
 <area shape="rect" id="node1" href="#capsul.attributes.attributes_factory.AttributesFactory" target="_top" title="AttributesFactory holds an attributes schema" alt="" coords="318,219,434,241"/>
+<area shape="rect" id="node2" href="https://populse.github.io/soma-base/api.html#soma.factory.ClassFactory" target="_top" title="*ClassFactory* is the base class for creating factories that can look" alt="" coords="63,219,154,241"/>
 <area shape="rect" id="node3" href="#capsul.attributes.attributes_schema.AttributesSchema" target="_top" title="An AttributesSchema has a name, which is used as an identifier to specify completion." alt="" coords="48,176,169,199"/>
 <area shape="rect" id="node4" href="#capsul.attributes.completion_engine_factory.BuiltinProcessCompletionEngineFactory" target="_top" title="BuiltinProcessCompletionEngineFactory" alt="" coords="254,134,498,156"/>
 <area shape="rect" id="node5" href="#capsul.attributes.completion_engine.ProcessCompletionEngineFactory" target="_top" title="Get a :class:`ProcessCompletionEngine` instance" alt="" coords="5,134,212,156"/>
+<area shape="rect" id="node6" href="https://docs.enthought.com/traits/traits_api_reference/ctraits.html#traits.ctraits.CHasTraits" target="_top" title="Base class for HasTraits." alt="" coords="69,91,148,113"/>
+<area shape="rect" id="node8" href="https://docs.enthought.com/traits/traits_api_reference/has_traits.html#traits.has_traits.HasTraits" target="_top" title="Enables any Python class derived from it to have trait attributes." alt="" coords="340,91,412,113"/>
+<area shape="rect" id="node7" href="https://populse.github.io/soma-base/api.html#soma.controller.controller.Controller" target="_top" title="A Controller contains some traits: attributes typing and observer" alt="" coords="585,59,661,81"/>
 <area shape="rect" id="node9" href="#capsul.attributes.attributes_schema.EditableAttributes" target="_top" title="A set of attributes (group) used to define process parameters" alt="" coords="795,16,915,38"/>
 <area shape="rect" id="node17" href="#capsul.attributes.attributes_schema.ProcessAttributes" target="_top" title="This is the base class for managing attributes for a process." alt="" coords="796,59,914,81"/>
 <area shape="rect" id="node13" href="#capsul.attributes.completion_engine.ProcessCompletionEngine" target="_top" title="Parameters completion from attributes for a process or pipeline node" alt="" coords="540,123,706,145"/>
@@ -121,53 +125,53 @@
 <area shape="rect" id="node18" href="#capsul.attributes.completion_engine.SwitchCompletionEngine" target="_top" title="Completion engine specislization for a switch. The switch will" alt="" coords="775,188,935,210"/>
 <area shape="rect" id="node14" href="#capsul.attributes.fom_completion_engine.FomProcessCompletionEngineIteration" target="_top" title="FomProcessCompletionEngineIteration" alt="" coords="1004,145,1243,167"/>
 <area shape="rect" id="node16" href="#capsul.attributes.completion_engine.PathCompletionEngineFactory" target="_top" title="Get a :class:`PathCompletionEngine` instance" alt="" coords="15,5,203,27"/>
-</map><span class="target" id="module-capsul.attributes"></span><p>capsul.attributes module contains the infrastructure and utility functions needed to define and use a completion system in CAPSUL processes and pipelines.</p>
-<section id="module-capsul.attributes.attributes_factory">
-<span id="capsul-attributes-attributes-factory-submodule"></span><h2>capsul.attributes.attributes_factory submodule<a class="headerlink" href="#module-capsul.attributes.attributes_factory" title="Permalink to this heading">¶</a></h2>
-<p>Attributes factory module</p>
+</map><p id="module-capsul.attributes">capsul.attributes module contains the infrastructure and utility functions needed to define and use a completion system in CAPSUL processes and pipelines.</p>
+<section id="capsul-attributes-attributes-factory-submodule">
+<h2>capsul.attributes.attributes_factory submodule<a class="headerlink" href="#capsul-attributes-attributes-factory-submodule" title="Link to this heading">¶</a></h2>
+<p id="module-capsul.attributes.attributes_factory">Attributes factory module</p>
 <section id="classes">
-<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this heading">¶</a></h3>
+<h3>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h3>
 <section id="attributesfactory">
-<h4><a class="reference internal" href="#capsul.attributes.attributes_factory.AttributesFactory" title="capsul.attributes.attributes_factory.AttributesFactory"><code class="xref py py-class docutils literal notranslate"><span class="pre">AttributesFactory</span></code></a><a class="headerlink" href="#attributesfactory" title="Permalink to this heading">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.attributes.attributes_factory.AttributesFactory" title="capsul.attributes.attributes_factory.AttributesFactory"><code class="xref py py-class docutils literal notranslate"><span class="pre">AttributesFactory</span></code></a><a class="headerlink" href="#attributesfactory" title="Link to this heading">¶</a></h4>
 </section>
 </section>
 <dl class="py class">
 <dt class="sig sig-object py" id="capsul.attributes.attributes_factory.AttributesFactory">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.attributes.attributes_factory.</span></span><span class="sig-name descname"><span class="pre">AttributesFactory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">class_types</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/attributes_factory.html#AttributesFactory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.attributes_factory.AttributesFactory" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.attributes.attributes_factory.</span></span><span class="sig-name descname"><span class="pre">AttributesFactory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">class_types</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/attributes_factory.html#AttributesFactory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.attributes_factory.AttributesFactory" title="Link to this definition">¶</a></dt>
 <dd><p>AttributesFactory holds an attributes schema</p>
 </dd></dl>
 
 </section>
-<section id="module-capsul.attributes.attributes_schema">
-<span id="capsul-attributes-attributes-schema-submodule"></span><h2>capsul.attributes.attributes_schema submodule<a class="headerlink" href="#module-capsul.attributes.attributes_schema" title="Permalink to this heading">¶</a></h2>
-<p>A schema defines attrinbutes used within a completion framework</p>
+<section id="capsul-attributes-attributes-schema-submodule">
+<h2>capsul.attributes.attributes_schema submodule<a class="headerlink" href="#capsul-attributes-attributes-schema-submodule" title="Link to this heading">¶</a></h2>
+<p id="module-capsul.attributes.attributes_schema">A schema defines attrinbutes used within a completion framework</p>
 <section id="id1">
-<h3>Classes<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h3>
+<h3>Classes<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
 <section id="attributesschema">
-<h4><a class="reference internal" href="#capsul.attributes.attributes_schema.AttributesSchema" title="capsul.attributes.attributes_schema.AttributesSchema"><code class="xref py py-class docutils literal notranslate"><span class="pre">AttributesSchema</span></code></a><a class="headerlink" href="#attributesschema" title="Permalink to this heading">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.attributes.attributes_schema.AttributesSchema" title="capsul.attributes.attributes_schema.AttributesSchema"><code class="xref py py-class docutils literal notranslate"><span class="pre">AttributesSchema</span></code></a><a class="headerlink" href="#attributesschema" title="Link to this heading">¶</a></h4>
 </section>
 <section id="editableattributes">
-<h4><a class="reference internal" href="#capsul.attributes.attributes_schema.EditableAttributes" title="capsul.attributes.attributes_schema.EditableAttributes"><code class="xref py py-class docutils literal notranslate"><span class="pre">EditableAttributes</span></code></a><a class="headerlink" href="#editableattributes" title="Permalink to this heading">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.attributes.attributes_schema.EditableAttributes" title="capsul.attributes.attributes_schema.EditableAttributes"><code class="xref py py-class docutils literal notranslate"><span class="pre">EditableAttributes</span></code></a><a class="headerlink" href="#editableattributes" title="Link to this heading">¶</a></h4>
 </section>
 <section id="processattributes">
-<h4><a class="reference internal" href="#capsul.attributes.attributes_schema.ProcessAttributes" title="capsul.attributes.attributes_schema.ProcessAttributes"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessAttributes</span></code></a><a class="headerlink" href="#processattributes" title="Permalink to this heading">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.attributes.attributes_schema.ProcessAttributes" title="capsul.attributes.attributes_schema.ProcessAttributes"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessAttributes</span></code></a><a class="headerlink" href="#processattributes" title="Link to this heading">¶</a></h4>
 </section>
 </section>
 <section id="functions">
-<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this heading">¶</a></h3>
+<h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">¶</a></h3>
 <section id="set-attribute">
-<h4><a class="reference internal" href="#capsul.attributes.attributes_schema.set_attribute" title="capsul.attributes.attributes_schema.set_attribute"><code class="xref py py-func docutils literal notranslate"><span class="pre">set_attribute()</span></code></a><a class="headerlink" href="#set-attribute" title="Permalink to this heading">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.attributes.attributes_schema.set_attribute" title="capsul.attributes.attributes_schema.set_attribute"><code class="xref py py-func docutils literal notranslate"><span class="pre">set_attribute()</span></code></a><a class="headerlink" href="#set-attribute" title="Link to this heading">¶</a></h4>
 </section>
 </section>
 <dl class="py class">
 <dt class="sig sig-object py" id="capsul.attributes.attributes_schema.AttributesSchema">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.attributes.attributes_schema.</span></span><span class="sig-name descname"><span class="pre">AttributesSchema</span></span><a class="reference internal" href="../_modules/capsul/attributes/attributes_schema.html#AttributesSchema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.attributes_schema.AttributesSchema" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.attributes.attributes_schema.</span></span><span class="sig-name descname"><span class="pre">AttributesSchema</span></span><a class="reference internal" href="../_modules/capsul/attributes/attributes_schema.html#AttributesSchema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.attributes_schema.AttributesSchema" title="Link to this definition">¶</a></dt>
 <dd><p>An AttributesSchema has a name, which is used as an identifier to specify completion.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="capsul.attributes.attributes_schema.EditableAttributes">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.attributes.attributes_schema.</span></span><span class="sig-name descname"><span class="pre">EditableAttributes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/attributes_schema.html#EditableAttributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.attributes_schema.EditableAttributes" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.attributes.attributes_schema.</span></span><span class="sig-name descname"><span class="pre">EditableAttributes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/attributes_schema.html#EditableAttributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.attributes_schema.EditableAttributes" title="Link to this definition">¶</a></dt>
 <dd><p>A set of attributes (group) used to define process parameters
 attributes. Attributes are traits in the EditableAttributes Controller.</p>
 <p>Initilaize the Controller class.</p>
@@ -183,7 +187,7 @@ user traits between instances.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="capsul.attributes.attributes_schema.ProcessAttributes">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.attributes.attributes_schema.</span></span><span class="sig-name descname"><span class="pre">ProcessAttributes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/attributes_schema.html#ProcessAttributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.attributes_schema.ProcessAttributes" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.attributes.attributes_schema.</span></span><span class="sig-name descname"><span class="pre">ProcessAttributes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/attributes_schema.html#ProcessAttributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.attributes_schema.ProcessAttributes" title="Link to this definition">¶</a></dt>
 <dd><p>This is the base class for managing attributes for a process.</p>
 <p>It stores attributes associated with a Process, for each of its parameters.
 Attribute values can be accessed “globally” (for the whole process) as
@@ -207,13 +211,13 @@ procedure call the ‘add_trait’ method in order to not share
 user traits between instances.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="capsul.attributes.attributes_schema.ProcessAttributes.copy">
-<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">with_values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/attributes_schema.html#ProcessAttributes.copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.attributes_schema.ProcessAttributes.copy" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">with_values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/attributes_schema.html#ProcessAttributes.copy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.attributes_schema.ProcessAttributes.copy" title="Link to this definition">¶</a></dt>
 <dd><p>overloads <code class="xref py py-meth docutils literal notranslate"><span class="pre">soma.Controller.copy()</span></code></p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="capsul.attributes.attributes_schema.ProcessAttributes.copy_to_single">
-<span class="sig-name descname"><span class="pre">copy_to_single</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">with_values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/attributes_schema.html#ProcessAttributes.copy_to_single"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.attributes_schema.ProcessAttributes.copy_to_single" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">copy_to_single</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">with_values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/attributes_schema.html#ProcessAttributes.copy_to_single"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.attributes_schema.ProcessAttributes.copy_to_single" title="Link to this definition">¶</a></dt>
 <dd><p>Similar to <a class="reference internal" href="#capsul.attributes.attributes_schema.ProcessAttributes.copy" title="capsul.attributes.attributes_schema.ProcessAttributes.copy"><code class="xref py py-meth docutils literal notranslate"><span class="pre">copy()</span></code></a>, excepts that it converts list attributes
 into single values. This is useful within the completion system
 infrastructure, to get from an attributes set containing lists
@@ -224,13 +228,13 @@ determine a single path.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="capsul.attributes.attributes_schema.ProcessAttributes.get_parameters_attributes">
-<span class="sig-name descname"><span class="pre">get_parameters_attributes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/attributes_schema.html#ProcessAttributes.get_parameters_attributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.attributes_schema.ProcessAttributes.get_parameters_attributes" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_parameters_attributes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/attributes_schema.html#ProcessAttributes.get_parameters_attributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.attributes_schema.ProcessAttributes.get_parameters_attributes" title="Link to this definition">¶</a></dt>
 <dd><p>Get attributes for each process parameter</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="capsul.attributes.attributes_schema.ProcessAttributes.set_parameter_attributes">
-<span class="sig-name descname"><span class="pre">set_parameter_attributes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">editable_attributes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_attibute_values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/attributes_schema.html#ProcessAttributes.set_parameter_attributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.attributes_schema.ProcessAttributes.set_parameter_attributes" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">set_parameter_attributes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">editable_attributes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_attibute_values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/attributes_schema.html#ProcessAttributes.set_parameter_attributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.attributes_schema.ProcessAttributes.set_parameter_attributes" title="Link to this definition">¶</a></dt>
 <dd><p>Set attributes associated with a single process parameter.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -250,25 +254,25 @@ attributes are transformed into lists.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="capsul.attributes.attributes_schema.set_attribute">
-<span class="sig-prename descclassname"><span class="pre">capsul.attributes.attributes_schema.</span></span><span class="sig-name descname"><span class="pre">set_attribute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">object</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/attributes_schema.html#set_attribute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.attributes_schema.set_attribute" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">capsul.attributes.attributes_schema.</span></span><span class="sig-name descname"><span class="pre">set_attribute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">object</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/attributes_schema.html#set_attribute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.attributes_schema.set_attribute" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </section>
-<section id="module-capsul.attributes.completion_engine_factory">
-<span id="capsul-attributes-completion-engine-factory-submodule"></span><h2>capsul.attributes.completion_engine_factory submodule<a class="headerlink" href="#module-capsul.attributes.completion_engine_factory" title="Permalink to this heading">¶</a></h2>
-<p>Instantiate a default <a class="reference internal" href="#capsul.attributes.completion_engine.ProcessCompletionEngine" title="capsul.attributes.completion_engine.ProcessCompletionEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessCompletionEngine</span></code></a></p>
+<section id="capsul-attributes-completion-engine-factory-submodule">
+<h2>capsul.attributes.completion_engine_factory submodule<a class="headerlink" href="#capsul-attributes-completion-engine-factory-submodule" title="Link to this heading">¶</a></h2>
+<p id="module-capsul.attributes.completion_engine_factory">Instantiate a default <a class="reference internal" href="#capsul.attributes.completion_engine.ProcessCompletionEngine" title="capsul.attributes.completion_engine.ProcessCompletionEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessCompletionEngine</span></code></a></p>
 <section id="id2">
-<h3>Classes<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h3>
+<h3>Classes<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
 <section id="builtinprocesscompletionenginefactory">
-<h4><a class="reference internal" href="#capsul.attributes.completion_engine_factory.BuiltinProcessCompletionEngineFactory" title="capsul.attributes.completion_engine_factory.BuiltinProcessCompletionEngineFactory"><code class="xref py py-class docutils literal notranslate"><span class="pre">BuiltinProcessCompletionEngineFactory</span></code></a><a class="headerlink" href="#builtinprocesscompletionenginefactory" title="Permalink to this heading">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.attributes.completion_engine_factory.BuiltinProcessCompletionEngineFactory" title="capsul.attributes.completion_engine_factory.BuiltinProcessCompletionEngineFactory"><code class="xref py py-class docutils literal notranslate"><span class="pre">BuiltinProcessCompletionEngineFactory</span></code></a><a class="headerlink" href="#builtinprocesscompletionenginefactory" title="Link to this heading">¶</a></h4>
 </section>
 </section>
 <dl class="py class">
 <dt class="sig sig-object py" id="capsul.attributes.completion_engine_factory.BuiltinProcessCompletionEngineFactory">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.attributes.completion_engine_factory.</span></span><span class="sig-name descname"><span class="pre">BuiltinProcessCompletionEngineFactory</span></span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine_factory.html#BuiltinProcessCompletionEngineFactory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine_factory.BuiltinProcessCompletionEngineFactory" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.attributes.completion_engine_factory.</span></span><span class="sig-name descname"><span class="pre">BuiltinProcessCompletionEngineFactory</span></span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine_factory.html#BuiltinProcessCompletionEngineFactory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine_factory.BuiltinProcessCompletionEngineFactory" title="Link to this definition">¶</a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="capsul.attributes.completion_engine_factory.BuiltinProcessCompletionEngineFactory.get_completion_engine">
-<span class="sig-name descname"><span class="pre">get_completion_engine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine_factory.html#BuiltinProcessCompletionEngineFactory.get_completion_engine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine_factory.BuiltinProcessCompletionEngineFactory.get_completion_engine" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_completion_engine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine_factory.html#BuiltinProcessCompletionEngineFactory.get_completion_engine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine_factory.BuiltinProcessCompletionEngineFactory.get_completion_engine" title="Link to this definition">¶</a></dt>
 <dd><p>Factory for ProcessCompletionEngine: get an ProcessCompletionEngine
 instance for a node or process in the context of a given StudyConfig.</p>
 <p>The study_config should specify which completion system(s) is (are)
@@ -281,19 +285,19 @@ conform to the API.</p>
 </dd></dl>
 
 </section>
-<section id="module-capsul.attributes.completion_engine_iteration">
-<span id="capsul-attributes-completion-engine-iteration-submodule"></span><h2>capsul.attributes.completion_engine_iteration submodule<a class="headerlink" href="#module-capsul.attributes.completion_engine_iteration" title="Permalink to this heading">¶</a></h2>
-<p><a class="reference internal" href="#capsul.attributes.completion_engine.ProcessCompletionEngine" title="capsul.attributes.completion_engine.ProcessCompletionEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessCompletionEngine</span></code></a> dealing with process iterations.
+<section id="capsul-attributes-completion-engine-iteration-submodule">
+<h2>capsul.attributes.completion_engine_iteration submodule<a class="headerlink" href="#capsul-attributes-completion-engine-iteration-submodule" title="Link to this heading">¶</a></h2>
+<p id="module-capsul.attributes.completion_engine_iteration"><a class="reference internal" href="#capsul.attributes.completion_engine.ProcessCompletionEngine" title="capsul.attributes.completion_engine.ProcessCompletionEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessCompletionEngine</span></code></a> dealing with process iterations.
 This is an internal machinery.</p>
 <section id="id3">
-<h3>Classes<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h3>
+<h3>Classes<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
 <section id="processcompletionengineiteration">
-<h4><a class="reference internal" href="#capsul.attributes.completion_engine_iteration.ProcessCompletionEngineIteration" title="capsul.attributes.completion_engine_iteration.ProcessCompletionEngineIteration"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessCompletionEngineIteration</span></code></a><a class="headerlink" href="#processcompletionengineiteration" title="Permalink to this heading">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.attributes.completion_engine_iteration.ProcessCompletionEngineIteration" title="capsul.attributes.completion_engine_iteration.ProcessCompletionEngineIteration"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessCompletionEngineIteration</span></code></a><a class="headerlink" href="#processcompletionengineiteration" title="Link to this heading">¶</a></h4>
 </section>
 </section>
 <dl class="py class">
 <dt class="sig sig-object py" id="capsul.attributes.completion_engine_iteration.ProcessCompletionEngineIteration">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.attributes.completion_engine_iteration.</span></span><span class="sig-name descname"><span class="pre">ProcessCompletionEngineIteration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine_iteration.html#ProcessCompletionEngineIteration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine_iteration.ProcessCompletionEngineIteration" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.attributes.completion_engine_iteration.</span></span><span class="sig-name descname"><span class="pre">ProcessCompletionEngineIteration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine_iteration.html#ProcessCompletionEngineIteration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine_iteration.ProcessCompletionEngineIteration" title="Link to this definition">¶</a></dt>
 <dd><p><a class="reference internal" href="#capsul.attributes.completion_engine.ProcessCompletionEngine" title="capsul.attributes.completion_engine.ProcessCompletionEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessCompletionEngine</span></code></a>
 specialization for iterative process.</p>
 <p>Iterated attributes are given by get_iterated_attributes().
@@ -301,14 +305,14 @@ Completion performs a single iteration step, stored in
 self.capsul_iteration_step</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="capsul.attributes.completion_engine_iteration.ProcessCompletionEngineIteration.complete_iteration_step">
-<span class="sig-name descname"><span class="pre">complete_iteration_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine_iteration.html#ProcessCompletionEngineIteration.complete_iteration_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine_iteration.ProcessCompletionEngineIteration.complete_iteration_step" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">complete_iteration_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine_iteration.html#ProcessCompletionEngineIteration.complete_iteration_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine_iteration.ProcessCompletionEngineIteration.complete_iteration_step" title="Link to this definition">¶</a></dt>
 <dd><p>Complete the parameters on the iterated process for a given
 iteration step.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="capsul.attributes.completion_engine_iteration.ProcessCompletionEngineIteration.complete_parameters">
-<span class="sig-name descname"><span class="pre">complete_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process_inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">complete_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine_iteration.html#ProcessCompletionEngineIteration.complete_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine_iteration.ProcessCompletionEngineIteration.complete_parameters" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">complete_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process_inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">complete_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine_iteration.html#ProcessCompletionEngineIteration.complete_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine_iteration.ProcessCompletionEngineIteration.complete_parameters" title="Link to this definition">¶</a></dt>
 <dd><p>Completes file parameters from given inputs parameters, which may
 include both “regular” process parameters (file names) and attributes.</p>
 <dl class="field-list simple">
@@ -331,7 +335,7 @@ workflow in
 
 <dl class="py method">
 <dt class="sig sig-object py" id="capsul.attributes.completion_engine_iteration.ProcessCompletionEngineIteration.get_attribute_values">
-<span class="sig-name descname"><span class="pre">get_attribute_values</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine_iteration.html#ProcessCompletionEngineIteration.get_attribute_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine_iteration.ProcessCompletionEngineIteration.get_attribute_values" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_attribute_values</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine_iteration.html#ProcessCompletionEngineIteration.get_attribute_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine_iteration.ProcessCompletionEngineIteration.get_attribute_values" title="Link to this definition">¶</a></dt>
 <dd><p>Get attributes Controller associated to a process</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -345,7 +349,7 @@ workflow in
 
 <dl class="py method">
 <dt class="sig sig-object py" id="capsul.attributes.completion_engine_iteration.ProcessCompletionEngineIteration.get_induced_iterative_parameters">
-<span class="sig-name descname"><span class="pre">get_induced_iterative_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine_iteration.html#ProcessCompletionEngineIteration.get_induced_iterative_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine_iteration.ProcessCompletionEngineIteration.get_induced_iterative_parameters" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_induced_iterative_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine_iteration.html#ProcessCompletionEngineIteration.get_induced_iterative_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine_iteration.ProcessCompletionEngineIteration.get_induced_iterative_parameters" title="Link to this definition">¶</a></dt>
 <dd><p>Iterating over some parameters, and triggering completion through
 attributes, imply that some other parameters will also vary with the
 iteration.
@@ -359,53 +363,53 @@ included in iterative parameters: it is induced by the iteration over
 
 <dl class="py method">
 <dt class="sig sig-object py" id="capsul.attributes.completion_engine_iteration.ProcessCompletionEngineIteration.get_iterated_attributes">
-<span class="sig-name descname"><span class="pre">get_iterated_attributes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine_iteration.html#ProcessCompletionEngineIteration.get_iterated_attributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine_iteration.ProcessCompletionEngineIteration.get_iterated_attributes" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_iterated_attributes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine_iteration.html#ProcessCompletionEngineIteration.get_iterated_attributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine_iteration.ProcessCompletionEngineIteration.get_iterated_attributes" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 </section>
-<section id="module-capsul.attributes.completion_engine">
-<span id="capsul-attributes-completion-engine-submodule"></span><h2>capsul.attributes.completion_engine submodule<a class="headerlink" href="#module-capsul.attributes.completion_engine" title="Permalink to this heading">¶</a></h2>
-<p>Completion system for Capsul</p>
+<section id="capsul-attributes-completion-engine-submodule">
+<h2>capsul.attributes.completion_engine submodule<a class="headerlink" href="#capsul-attributes-completion-engine-submodule" title="Link to this heading">¶</a></h2>
+<p id="module-capsul.attributes.completion_engine">Completion system for Capsul</p>
 <section id="id4">
-<h3>Classes<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h3>
+<h3>Classes<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
 <section id="processcompletionengine">
-<h4><a class="reference internal" href="#capsul.attributes.completion_engine.ProcessCompletionEngine" title="capsul.attributes.completion_engine.ProcessCompletionEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessCompletionEngine</span></code></a><a class="headerlink" href="#processcompletionengine" title="Permalink to this heading">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.attributes.completion_engine.ProcessCompletionEngine" title="capsul.attributes.completion_engine.ProcessCompletionEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessCompletionEngine</span></code></a><a class="headerlink" href="#processcompletionengine" title="Link to this heading">¶</a></h4>
 </section>
 <section id="switchcompletionengine">
-<h4><a class="reference internal" href="#capsul.attributes.completion_engine.SwitchCompletionEngine" title="capsul.attributes.completion_engine.SwitchCompletionEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">SwitchCompletionEngine</span></code></a><a class="headerlink" href="#switchcompletionengine" title="Permalink to this heading">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.attributes.completion_engine.SwitchCompletionEngine" title="capsul.attributes.completion_engine.SwitchCompletionEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">SwitchCompletionEngine</span></code></a><a class="headerlink" href="#switchcompletionengine" title="Link to this heading">¶</a></h4>
 </section>
 <section id="pathcompletionengine">
-<h4><a class="reference internal" href="#capsul.attributes.completion_engine.PathCompletionEngine" title="capsul.attributes.completion_engine.PathCompletionEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">PathCompletionEngine</span></code></a><a class="headerlink" href="#pathcompletionengine" title="Permalink to this heading">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.attributes.completion_engine.PathCompletionEngine" title="capsul.attributes.completion_engine.PathCompletionEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">PathCompletionEngine</span></code></a><a class="headerlink" href="#pathcompletionengine" title="Link to this heading">¶</a></h4>
 </section>
 <section id="processcompletionenginefactory">
-<h4><a class="reference internal" href="#capsul.attributes.completion_engine.ProcessCompletionEngineFactory" title="capsul.attributes.completion_engine.ProcessCompletionEngineFactory"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessCompletionEngineFactory</span></code></a><a class="headerlink" href="#processcompletionenginefactory" title="Permalink to this heading">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.attributes.completion_engine.ProcessCompletionEngineFactory" title="capsul.attributes.completion_engine.ProcessCompletionEngineFactory"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessCompletionEngineFactory</span></code></a><a class="headerlink" href="#processcompletionenginefactory" title="Link to this heading">¶</a></h4>
 </section>
 <section id="pathcompletionenginefactory">
-<h4><a class="reference internal" href="#capsul.attributes.completion_engine.PathCompletionEngineFactory" title="capsul.attributes.completion_engine.PathCompletionEngineFactory"><code class="xref py py-class docutils literal notranslate"><span class="pre">PathCompletionEngineFactory</span></code></a><a class="headerlink" href="#pathcompletionenginefactory" title="Permalink to this heading">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.attributes.completion_engine.PathCompletionEngineFactory" title="capsul.attributes.completion_engine.PathCompletionEngineFactory"><code class="xref py py-class docutils literal notranslate"><span class="pre">PathCompletionEngineFactory</span></code></a><a class="headerlink" href="#pathcompletionenginefactory" title="Link to this heading">¶</a></h4>
 </section>
 </section>
 <dl class="py class">
 <dt class="sig sig-object py" id="capsul.attributes.completion_engine.PathCompletionEngine">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.attributes.completion_engine.</span></span><span class="sig-name descname"><span class="pre">PathCompletionEngine</span></span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#PathCompletionEngine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.PathCompletionEngine" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.attributes.completion_engine.</span></span><span class="sig-name descname"><span class="pre">PathCompletionEngine</span></span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#PathCompletionEngine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.PathCompletionEngine" title="Link to this definition">¶</a></dt>
 <dd><p>Implements building of a single path from a set of attributes for a
 specific process / parameter</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="capsul.attributes.completion_engine.PathCompletionEngine.allowed_extensions">
-<span class="sig-name descname"><span class="pre">allowed_extensions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#PathCompletionEngine.allowed_extensions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.PathCompletionEngine.allowed_extensions" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">allowed_extensions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#PathCompletionEngine.allowed_extensions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.PathCompletionEngine.allowed_extensions" title="Link to this definition">¶</a></dt>
 <dd><p>List of possible file extensions associated with a parameter</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="capsul.attributes.completion_engine.PathCompletionEngine.allowed_formats">
-<span class="sig-name descname"><span class="pre">allowed_formats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#PathCompletionEngine.allowed_formats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.PathCompletionEngine.allowed_formats" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">allowed_formats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#PathCompletionEngine.allowed_formats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.PathCompletionEngine.allowed_formats" title="Link to this definition">¶</a></dt>
 <dd><p>List of possible formats names associated with a parameter</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="capsul.attributes.completion_engine.PathCompletionEngine.attributes_to_path">
-<span class="sig-name descname"><span class="pre">attributes_to_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attributes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#PathCompletionEngine.attributes_to_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.PathCompletionEngine.attributes_to_path" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">attributes_to_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attributes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#PathCompletionEngine.attributes_to_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.PathCompletionEngine.attributes_to_path" title="Link to this definition">¶</a></dt>
 <dd><p>Build a path from attributes for a given parameter in a process.</p>
 <p>This method has to be specialized. The default implementation returns
 None.</p>
@@ -424,13 +428,13 @@ None.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="capsul.attributes.completion_engine.PathCompletionEngineFactory">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.attributes.completion_engine.</span></span><span class="sig-name descname"><span class="pre">PathCompletionEngineFactory</span></span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#PathCompletionEngineFactory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.PathCompletionEngineFactory" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.attributes.completion_engine.</span></span><span class="sig-name descname"><span class="pre">PathCompletionEngineFactory</span></span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#PathCompletionEngineFactory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.PathCompletionEngineFactory" title="Link to this definition">¶</a></dt>
 <dd><p>Get a <a class="reference internal" href="#capsul.attributes.completion_engine.PathCompletionEngine" title="capsul.attributes.completion_engine.PathCompletionEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">PathCompletionEngine</span></code></a> instance</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="capsul.attributes.completion_engine.ProcessCompletionEngine">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.attributes.completion_engine.</span></span><span class="sig-name descname"><span class="pre">ProcessCompletionEngine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.ProcessCompletionEngine" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.attributes.completion_engine.</span></span><span class="sig-name descname"><span class="pre">ProcessCompletionEngine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.ProcessCompletionEngine" title="Link to this definition">¶</a></dt>
 <dd><p>Parameters completion from attributes for a process or pipeline node
 instance, in the context of a specific data organization.</p>
 <p>ProcessCompletionEngine can be used directly for a pipeline, which merely
@@ -464,47 +468,47 @@ the correct type of ProcessCompletionEngine for a given process / name:
 <p><a class="reference internal" href="#capsul.attributes.fom_completion_engine.FomProcessCompletionEngine" title="capsul.attributes.fom_completion_engine.FomProcessCompletionEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">capsul.attributes.fom_completion_engine.FomProcessCompletionEngine</span></code></a> is a specialization of <code class="docutils literal notranslate"><span class="pre">ProcessCompletionEngine</span></code> to manage File Organization Models (FOM).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="capsul.attributes.completion_engine.ProcessCompletionEngine.get_completion_engine">
-<span class="sig-name descname"><span class="pre">get_completion_engine</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngine.get_completion_engine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.ProcessCompletionEngine.get_completion_engine" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_completion_engine</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngine.get_completion_engine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.ProcessCompletionEngine.get_completion_engine" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="capsul.attributes.completion_engine.ProcessCompletionEngine.get_attribute_values">
-<span class="sig-name descname"><span class="pre">get_attribute_values</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngine.get_attribute_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.ProcessCompletionEngine.get_attribute_values" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_attribute_values</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngine.get_attribute_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.ProcessCompletionEngine.get_attribute_values" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="capsul.attributes.completion_engine.ProcessCompletionEngine.complete_parameters">
-<span class="sig-name descname"><span class="pre">complete_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngine.complete_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.ProcessCompletionEngine.complete_parameters" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">complete_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngine.complete_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.ProcessCompletionEngine.complete_parameters" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="capsul.attributes.completion_engine.ProcessCompletionEngine.set_parameters">
-<span class="sig-name descname"><span class="pre">set_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngine.set_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.ProcessCompletionEngine.set_parameters" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">set_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngine.set_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.ProcessCompletionEngine.set_parameters" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="capsul.attributes.completion_engine.ProcessCompletionEngine.attributes_to_path">
-<span class="sig-name descname"><span class="pre">attributes_to_path</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngine.attributes_to_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.ProcessCompletionEngine.attributes_to_path" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">attributes_to_path</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngine.attributes_to_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.ProcessCompletionEngine.attributes_to_path" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="capsul.attributes.completion_engine.ProcessCompletionEngine.get_path_completion_engine">
-<span class="sig-name descname"><span class="pre">get_path_completion_engine</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngine.get_path_completion_engine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.ProcessCompletionEngine.get_path_completion_engine" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_path_completion_engine</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngine.get_path_completion_engine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.ProcessCompletionEngine.get_path_completion_engine" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="capsul.attributes.completion_engine.ProcessCompletionEngine.install_auto_completion">
-<span class="sig-name descname"><span class="pre">install_auto_completion</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngine.install_auto_completion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.ProcessCompletionEngine.install_auto_completion" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">install_auto_completion</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngine.install_auto_completion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.ProcessCompletionEngine.install_auto_completion" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="capsul.attributes.completion_engine.ProcessCompletionEngine.remove_auto_completion">
-<span class="sig-name descname"><span class="pre">remove_auto_completion</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngine.remove_auto_completion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.ProcessCompletionEngine.remove_auto_completion" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">remove_auto_completion</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngine.remove_auto_completion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.ProcessCompletionEngine.remove_auto_completion" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="capsul.attributes.completion_engine.ProcessCompletionEngine.attributes_changed">
-<span class="sig-name descname"><span class="pre">attributes_changed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">old</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngine.attributes_changed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.ProcessCompletionEngine.attributes_changed" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">attributes_changed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">old</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngine.attributes_changed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.ProcessCompletionEngine.attributes_changed" title="Link to this definition">¶</a></dt>
 <dd><p>Traits changed callback which triggers parameters update.</p>
 <p>This method basically calls complete_parameters() (after some checks).</p>
 <p>Users do not normally have to use it directly, it is used internally
@@ -514,7 +518,7 @@ when install_auto_completion() has been called.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="id0">
-<span class="sig-name descname"><span class="pre">attributes_to_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attributes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngine.attributes_to_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">attributes_to_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attributes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngine.attributes_to_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id0" title="Link to this definition">¶</a></dt>
 <dd><p>Build a path from attributes for a given parameter in a process.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -528,7 +532,7 @@ when install_auto_completion() has been called.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="id5">
-<span class="sig-name descname"><span class="pre">complete_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process_inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">complete_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngine.complete_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id5" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">complete_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process_inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">complete_iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngine.complete_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id5" title="Link to this definition">¶</a></dt>
 <dd><p>Completes file parameters from given inputs parameters, which may
 include both “regular” process parameters (file names) and attributes.</p>
 <dl class="field-list simple">
@@ -551,7 +555,7 @@ workflow in
 
 <dl class="py method">
 <dt class="sig sig-object py" id="id6">
-<span class="sig-name descname"><span class="pre">get_attribute_values</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngine.get_attribute_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id6" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_attribute_values</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngine.get_attribute_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id6" title="Link to this definition">¶</a></dt>
 <dd><p>Get attributes Controller associated to a process or node</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -568,14 +572,14 @@ workflow in
 
 <dl class="py method">
 <dt class="sig sig-object py" id="id7">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_completion_engine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngine.get_completion_engine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id7" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_completion_engine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngine.get_completion_engine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id7" title="Link to this definition">¶</a></dt>
 <dd><p>Get a ProcessCompletionEngine instance for a given process/node
 within the framework of its StudyConfig factory function.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="id8">
-<span class="sig-name descname"><span class="pre">get_path_completion_engine</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngine.get_path_completion_engine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id8" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_path_completion_engine</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngine.get_path_completion_engine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id8" title="Link to this definition">¶</a></dt>
 <dd><p>Get a PathCompletionEngine object for the given process.
 The default implementation queries PathCompletionEngineFactory,
 but some specific ProcessCompletionEngine implementations may override
@@ -584,14 +588,14 @@ it for path completion at the process level (FOMs for instance).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="id9">
-<span class="sig-name descname"><span class="pre">install_auto_completion</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngine.install_auto_completion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id9" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">install_auto_completion</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngine.install_auto_completion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id9" title="Link to this definition">¶</a></dt>
 <dd><p>Monitor attributes changes and switches changes (which may
 influence attributes) and recompute parameters completion when needed.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="capsul.attributes.completion_engine.ProcessCompletionEngine.nodes_selection_changed">
-<span class="sig-name descname"><span class="pre">nodes_selection_changed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">old</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngine.nodes_selection_changed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.ProcessCompletionEngine.nodes_selection_changed" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">nodes_selection_changed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">old</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngine.nodes_selection_changed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.ProcessCompletionEngine.nodes_selection_changed" title="Link to this definition">¶</a></dt>
 <dd><p>Traits changed callback which triggers parameters update.</p>
 <p>This method basically calls complete_parameters() (after some checks).</p>
 <p>Users do not normally have to use it directly, it is used internally
@@ -601,28 +605,28 @@ when install_auto_completion() has been called.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="capsul.attributes.completion_engine.ProcessCompletionEngine.remove_attributes">
-<span class="sig-name descname"><span class="pre">remove_attributes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngine.remove_attributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.ProcessCompletionEngine.remove_attributes" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">remove_attributes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngine.remove_attributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.ProcessCompletionEngine.remove_attributes" title="Link to this definition">¶</a></dt>
 <dd><p>Clear attributes controller cache, to allow rebuilding it after
 a change. This is generally a callback attached to switches changes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="id10">
-<span class="sig-name descname"><span class="pre">remove_auto_completion</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngine.remove_auto_completion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id10" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">remove_auto_completion</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngine.remove_auto_completion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id10" title="Link to this definition">¶</a></dt>
 <dd><p>Remove attributes monitoring and auto-recomputing of parameters.</p>
 <p>Reverts install_auto_completion()</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="capsul.attributes.completion_engine.ProcessCompletionEngine.remove_switch_observers">
-<span class="sig-name descname"><span class="pre">remove_switch_observers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngine.remove_switch_observers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.ProcessCompletionEngine.remove_switch_observers" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">remove_switch_observers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngine.remove_switch_observers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.ProcessCompletionEngine.remove_switch_observers" title="Link to this definition">¶</a></dt>
 <dd><p>Remove notification callbacks previously set to listen switches
 state changes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="id11">
-<span class="sig-name descname"><span class="pre">set_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process_inputs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngine.set_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id11" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">set_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process_inputs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngine.set_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id11" title="Link to this definition">¶</a></dt>
 <dd><p>Set the given parameters dict to the given process.
 process_inputs may include regular parameters of the underlying
 process, and attributes (capsul_attributes: dict).</p>
@@ -632,11 +636,11 @@ process, and attributes (capsul_attributes: dict).</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="capsul.attributes.completion_engine.ProcessCompletionEngineFactory">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.attributes.completion_engine.</span></span><span class="sig-name descname"><span class="pre">ProcessCompletionEngineFactory</span></span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngineFactory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.ProcessCompletionEngineFactory" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.attributes.completion_engine.</span></span><span class="sig-name descname"><span class="pre">ProcessCompletionEngineFactory</span></span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngineFactory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.ProcessCompletionEngineFactory" title="Link to this definition">¶</a></dt>
 <dd><p>Get a <a class="reference internal" href="#capsul.attributes.completion_engine.ProcessCompletionEngine" title="capsul.attributes.completion_engine.ProcessCompletionEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessCompletionEngine</span></code></a> instance</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="capsul.attributes.completion_engine.ProcessCompletionEngineFactory.get_completion_engine">
-<span class="sig-name descname"><span class="pre">get_completion_engine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngineFactory.get_completion_engine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.ProcessCompletionEngineFactory.get_completion_engine" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_completion_engine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#ProcessCompletionEngineFactory.get_completion_engine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.ProcessCompletionEngineFactory.get_completion_engine" title="Link to this definition">¶</a></dt>
 <dd><p>Factory for ProcessCompletionEngine: get an ProcessCompletionEngine
 instance for a process in the context of a given StudyConfig.</p>
 <p>The study_config should specify which completion system(s) is (are)
@@ -652,14 +656,14 @@ instance, which is quite incomplete.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="capsul.attributes.completion_engine.SwitchCompletionEngine">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.attributes.completion_engine.</span></span><span class="sig-name descname"><span class="pre">SwitchCompletionEngine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#SwitchCompletionEngine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.SwitchCompletionEngine" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.attributes.completion_engine.</span></span><span class="sig-name descname"><span class="pre">SwitchCompletionEngine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#SwitchCompletionEngine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.SwitchCompletionEngine" title="Link to this definition">¶</a></dt>
 <dd><p>Completion engine specislization for a switch. The switch will
 propagate attributes from its selected inputs to corresponding outputs,
 if they can be retrieved from parameters links. Otherwise the countrary
 will be tried (propagated from outputs to inputs).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="capsul.attributes.completion_engine.SwitchCompletionEngine.get_attribute_values">
-<span class="sig-name descname"><span class="pre">get_attribute_values</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#SwitchCompletionEngine.get_attribute_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.SwitchCompletionEngine.get_attribute_values" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_attribute_values</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#SwitchCompletionEngine.get_attribute_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.SwitchCompletionEngine.get_attribute_values" title="Link to this definition">¶</a></dt>
 <dd><p>Get attributes Controller associated to a process or node</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -676,7 +680,7 @@ will be tried (propagated from outputs to inputs).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="capsul.attributes.completion_engine.SwitchCompletionEngine.install_switch_observer">
-<span class="sig-name descname"><span class="pre">install_switch_observer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#SwitchCompletionEngine.install_switch_observer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.SwitchCompletionEngine.install_switch_observer" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">install_switch_observer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#SwitchCompletionEngine.install_switch_observer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.SwitchCompletionEngine.install_switch_observer" title="Link to this definition">¶</a></dt>
 <dd><p>Setup a switch change observation, to remove parameters attributes
 when the switch state changes.</p>
 <dl class="field-list simple">
@@ -691,46 +695,46 @@ Notification will call the observer remove_attributes() method.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="capsul.attributes.completion_engine.SwitchCompletionEngine.remove_switch_observer">
-<span class="sig-name descname"><span class="pre">remove_switch_observer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#SwitchCompletionEngine.remove_switch_observer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.SwitchCompletionEngine.remove_switch_observer" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">remove_switch_observer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/completion_engine.html#SwitchCompletionEngine.remove_switch_observer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.completion_engine.SwitchCompletionEngine.remove_switch_observer" title="Link to this definition">¶</a></dt>
 <dd><p>Remove notification previously set by install_switch_observer()</p>
 </dd></dl>
 
 </dd></dl>
 
 </section>
-<section id="module-capsul.attributes.fom_completion_engine">
-<span id="capsul-attributes-fom-completion-engine-submodule"></span><h2>capsul.attributes.fom_completion_engine submodule<a class="headerlink" href="#module-capsul.attributes.fom_completion_engine" title="Permalink to this heading">¶</a></h2>
-<p>Completion engine for File Organization Models (FOM).</p>
+<section id="capsul-attributes-fom-completion-engine-submodule">
+<h2>capsul.attributes.fom_completion_engine submodule<a class="headerlink" href="#capsul-attributes-fom-completion-engine-submodule" title="Link to this heading">¶</a></h2>
+<p id="module-capsul.attributes.fom_completion_engine">Completion engine for File Organization Models (FOM).</p>
 <section id="id12">
-<h3>Classes<a class="headerlink" href="#id12" title="Permalink to this heading">¶</a></h3>
+<h3>Classes<a class="headerlink" href="#id12" title="Link to this heading">¶</a></h3>
 <section id="fomprocesscompletionengine">
-<h4><a class="reference internal" href="#capsul.attributes.fom_completion_engine.FomProcessCompletionEngine" title="capsul.attributes.fom_completion_engine.FomProcessCompletionEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">FomProcessCompletionEngine</span></code></a><a class="headerlink" href="#fomprocesscompletionengine" title="Permalink to this heading">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.attributes.fom_completion_engine.FomProcessCompletionEngine" title="capsul.attributes.fom_completion_engine.FomProcessCompletionEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">FomProcessCompletionEngine</span></code></a><a class="headerlink" href="#fomprocesscompletionengine" title="Link to this heading">¶</a></h4>
 </section>
 <section id="fompathcompletionengine">
-<h4><a class="reference internal" href="#capsul.attributes.fom_completion_engine.FomPathCompletionEngine" title="capsul.attributes.fom_completion_engine.FomPathCompletionEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">FomPathCompletionEngine</span></code></a><a class="headerlink" href="#fompathcompletionengine" title="Permalink to this heading">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.attributes.fom_completion_engine.FomPathCompletionEngine" title="capsul.attributes.fom_completion_engine.FomPathCompletionEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">FomPathCompletionEngine</span></code></a><a class="headerlink" href="#fompathcompletionengine" title="Link to this heading">¶</a></h4>
 </section>
 <section id="fomprocesscompletionengineiteration">
-<h4><a class="reference internal" href="#capsul.attributes.fom_completion_engine.FomProcessCompletionEngineIteration" title="capsul.attributes.fom_completion_engine.FomProcessCompletionEngineIteration"><code class="xref py py-class docutils literal notranslate"><span class="pre">FomProcessCompletionEngineIteration</span></code></a><a class="headerlink" href="#fomprocesscompletionengineiteration" title="Permalink to this heading">¶</a></h4>
+<h4><a class="reference internal" href="#capsul.attributes.fom_completion_engine.FomProcessCompletionEngineIteration" title="capsul.attributes.fom_completion_engine.FomProcessCompletionEngineIteration"><code class="xref py py-class docutils literal notranslate"><span class="pre">FomProcessCompletionEngineIteration</span></code></a><a class="headerlink" href="#fomprocesscompletionengineiteration" title="Link to this heading">¶</a></h4>
 </section>
 </section>
 <dl class="py class">
 <dt class="sig sig-object py" id="capsul.attributes.fom_completion_engine.FomPathCompletionEngine">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.attributes.fom_completion_engine.</span></span><span class="sig-name descname"><span class="pre">FomPathCompletionEngine</span></span><a class="reference internal" href="../_modules/capsul/attributes/fom_completion_engine.html#FomPathCompletionEngine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.fom_completion_engine.FomPathCompletionEngine" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.attributes.fom_completion_engine.</span></span><span class="sig-name descname"><span class="pre">FomPathCompletionEngine</span></span><a class="reference internal" href="../_modules/capsul/attributes/fom_completion_engine.html#FomPathCompletionEngine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.fom_completion_engine.FomPathCompletionEngine" title="Link to this definition">¶</a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="capsul.attributes.fom_completion_engine.FomPathCompletionEngine.allowed_extensions">
-<span class="sig-name descname"><span class="pre">allowed_extensions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/fom_completion_engine.html#FomPathCompletionEngine.allowed_extensions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.fom_completion_engine.FomPathCompletionEngine.allowed_extensions" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">allowed_extensions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/fom_completion_engine.html#FomPathCompletionEngine.allowed_extensions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.fom_completion_engine.FomPathCompletionEngine.allowed_extensions" title="Link to this definition">¶</a></dt>
 <dd><p>List of possible file extensions associated with a parameter</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="capsul.attributes.fom_completion_engine.FomPathCompletionEngine.allowed_formats">
-<span class="sig-name descname"><span class="pre">allowed_formats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/fom_completion_engine.html#FomPathCompletionEngine.allowed_formats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.fom_completion_engine.FomPathCompletionEngine.allowed_formats" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">allowed_formats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/fom_completion_engine.html#FomPathCompletionEngine.allowed_formats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.fom_completion_engine.FomPathCompletionEngine.allowed_formats" title="Link to this definition">¶</a></dt>
 <dd><p>List of possible formats names associated with a parameter</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="capsul.attributes.fom_completion_engine.FomPathCompletionEngine.attributes_to_path">
-<span class="sig-name descname"><span class="pre">attributes_to_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attributes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/fom_completion_engine.html#FomPathCompletionEngine.attributes_to_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.fom_completion_engine.FomPathCompletionEngine.attributes_to_path" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">attributes_to_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attributes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/fom_completion_engine.html#FomPathCompletionEngine.attributes_to_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.fom_completion_engine.FomPathCompletionEngine.attributes_to_path" title="Link to this definition">¶</a></dt>
 <dd><p>Build a path from attributes</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -745,7 +749,7 @@ Notification will call the observer remove_attributes() method.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="capsul.attributes.fom_completion_engine.FomPathCompletionEngine.open_values_attributes">
-<span class="sig-name descname"><span class="pre">open_values_attributes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/fom_completion_engine.html#FomPathCompletionEngine.open_values_attributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.fom_completion_engine.FomPathCompletionEngine.open_values_attributes" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">open_values_attributes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/fom_completion_engine.html#FomPathCompletionEngine.open_values_attributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.fom_completion_engine.FomPathCompletionEngine.open_values_attributes" title="Link to this definition">¶</a></dt>
 <dd><p>Attributes with “open” values, not restricted to a list of possible
 values</p>
 </dd></dl>
@@ -754,7 +758,7 @@ values</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="capsul.attributes.fom_completion_engine.FomProcessCompletionEngine">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.attributes.fom_completion_engine.</span></span><span class="sig-name descname"><span class="pre">FomProcessCompletionEngine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/fom_completion_engine.html#FomProcessCompletionEngine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.fom_completion_engine.FomProcessCompletionEngine" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.attributes.fom_completion_engine.</span></span><span class="sig-name descname"><span class="pre">FomProcessCompletionEngine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/fom_completion_engine.html#FomProcessCompletionEngine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.fom_completion_engine.FomProcessCompletionEngine" title="Link to this definition">¶</a></dt>
 <dd><p>FOM (File Organization Model) implementation of completion engine.</p>
 <ul class="simple">
 <li><p>A capsul.study_config.StudyConfig also needs to be configured with FOM
@@ -789,18 +793,18 @@ process.name variable will be used.</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="capsul.attributes.fom_completion_engine.FomProcessCompletionEngine.create_attributes_with_fom">
-<span class="sig-name descname"><span class="pre">create_attributes_with_fom</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/fom_completion_engine.html#FomProcessCompletionEngine.create_attributes_with_fom"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.fom_completion_engine.FomProcessCompletionEngine.create_attributes_with_fom" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">create_attributes_with_fom</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/fom_completion_engine.html#FomProcessCompletionEngine.create_attributes_with_fom"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.fom_completion_engine.FomProcessCompletionEngine.create_attributes_with_fom" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="id13">
-<span class="sig-name descname"><span class="pre">create_attributes_with_fom</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/fom_completion_engine.html#FomProcessCompletionEngine.create_attributes_with_fom"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id13" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">create_attributes_with_fom</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/fom_completion_engine.html#FomProcessCompletionEngine.create_attributes_with_fom"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id13" title="Link to this definition">¶</a></dt>
 <dd><p>To get useful attributes by the fom</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="capsul.attributes.fom_completion_engine.FomProcessCompletionEngine.get_attribute_values">
-<span class="sig-name descname"><span class="pre">get_attribute_values</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/fom_completion_engine.html#FomProcessCompletionEngine.get_attribute_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.fom_completion_engine.FomProcessCompletionEngine.get_attribute_values" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_attribute_values</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/fom_completion_engine.html#FomProcessCompletionEngine.get_attribute_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.fom_completion_engine.FomProcessCompletionEngine.get_attribute_values" title="Link to this definition">¶</a></dt>
 <dd><p>Get attributes Controller associated to a process</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -814,12 +818,12 @@ process.name variable will be used.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="capsul.attributes.fom_completion_engine.FomProcessCompletionEngine.get_path_completion_engine">
-<span class="sig-name descname"><span class="pre">get_path_completion_engine</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/fom_completion_engine.html#FomProcessCompletionEngine.get_path_completion_engine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.fom_completion_engine.FomProcessCompletionEngine.get_path_completion_engine" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_path_completion_engine</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/fom_completion_engine.html#FomProcessCompletionEngine.get_path_completion_engine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.fom_completion_engine.FomProcessCompletionEngine.get_path_completion_engine" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="capsul.attributes.fom_completion_engine.FomProcessCompletionEngine.path_attributes">
-<span class="sig-name descname"><span class="pre">path_attributes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/fom_completion_engine.html#FomProcessCompletionEngine.path_attributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.fom_completion_engine.FomProcessCompletionEngine.path_attributes" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">path_attributes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/fom_completion_engine.html#FomProcessCompletionEngine.path_attributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.fom_completion_engine.FomProcessCompletionEngine.path_attributes" title="Link to this definition">¶</a></dt>
 <dd><p>By the path, find value of attributes</p>
 </dd></dl>
 
@@ -827,10 +831,10 @@ process.name variable will be used.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="capsul.attributes.fom_completion_engine.FomProcessCompletionEngineIteration">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.attributes.fom_completion_engine.</span></span><span class="sig-name descname"><span class="pre">FomProcessCompletionEngineIteration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/fom_completion_engine.html#FomProcessCompletionEngineIteration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.fom_completion_engine.FomProcessCompletionEngineIteration" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.attributes.fom_completion_engine.</span></span><span class="sig-name descname"><span class="pre">FomProcessCompletionEngineIteration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/fom_completion_engine.html#FomProcessCompletionEngineIteration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.fom_completion_engine.FomProcessCompletionEngineIteration" title="Link to this definition">¶</a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="capsul.attributes.fom_completion_engine.FomProcessCompletionEngineIteration.get_iterated_attributes">
-<span class="sig-name descname"><span class="pre">get_iterated_attributes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/fom_completion_engine.html#FomProcessCompletionEngineIteration.get_iterated_attributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.fom_completion_engine.FomProcessCompletionEngineIteration.get_iterated_attributes" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_iterated_attributes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/fom_completion_engine.html#FomProcessCompletionEngineIteration.get_iterated_attributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.fom_completion_engine.FomProcessCompletionEngineIteration.get_iterated_attributes" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -849,7 +853,7 @@ process.name variable will be used.</p>
     <h3><a href="../index.html">Table of Contents</a></h3>
     <ul>
 <li><a class="reference internal" href="#">capsul.attributes module</a><ul>
-<li><a class="reference internal" href="#module-capsul.attributes.attributes_factory">capsul.attributes.attributes_factory submodule</a><ul>
+<li><a class="reference internal" href="#capsul-attributes-attributes-factory-submodule">capsul.attributes.attributes_factory submodule</a><ul>
 <li><a class="reference internal" href="#classes">Classes</a><ul>
 <li><a class="reference internal" href="#attributesfactory"><code class="xref py py-class docutils literal notranslate"><span class="pre">AttributesFactory</span></code></a></li>
 </ul>
@@ -857,7 +861,7 @@ process.name variable will be used.</p>
 <li><a class="reference internal" href="#capsul.attributes.attributes_factory.AttributesFactory"><code class="docutils literal notranslate"><span class="pre">AttributesFactory</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#module-capsul.attributes.attributes_schema">capsul.attributes.attributes_schema submodule</a><ul>
+<li><a class="reference internal" href="#capsul-attributes-attributes-schema-submodule">capsul.attributes.attributes_schema submodule</a><ul>
 <li><a class="reference internal" href="#id1">Classes</a><ul>
 <li><a class="reference internal" href="#attributesschema"><code class="xref py py-class docutils literal notranslate"><span class="pre">AttributesSchema</span></code></a></li>
 <li><a class="reference internal" href="#editableattributes"><code class="xref py py-class docutils literal notranslate"><span class="pre">EditableAttributes</span></code></a></li>
@@ -880,7 +884,7 @@ process.name variable will be used.</p>
 <li><a class="reference internal" href="#capsul.attributes.attributes_schema.set_attribute"><code class="docutils literal notranslate"><span class="pre">set_attribute()</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#module-capsul.attributes.completion_engine_factory">capsul.attributes.completion_engine_factory submodule</a><ul>
+<li><a class="reference internal" href="#capsul-attributes-completion-engine-factory-submodule">capsul.attributes.completion_engine_factory submodule</a><ul>
 <li><a class="reference internal" href="#id2">Classes</a><ul>
 <li><a class="reference internal" href="#builtinprocesscompletionenginefactory"><code class="xref py py-class docutils literal notranslate"><span class="pre">BuiltinProcessCompletionEngineFactory</span></code></a></li>
 </ul>
@@ -891,7 +895,7 @@ process.name variable will be used.</p>
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#module-capsul.attributes.completion_engine_iteration">capsul.attributes.completion_engine_iteration submodule</a><ul>
+<li><a class="reference internal" href="#capsul-attributes-completion-engine-iteration-submodule">capsul.attributes.completion_engine_iteration submodule</a><ul>
 <li><a class="reference internal" href="#id3">Classes</a><ul>
 <li><a class="reference internal" href="#processcompletionengineiteration"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessCompletionEngineIteration</span></code></a></li>
 </ul>
@@ -906,7 +910,7 @@ process.name variable will be used.</p>
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#module-capsul.attributes.completion_engine">capsul.attributes.completion_engine submodule</a><ul>
+<li><a class="reference internal" href="#capsul-attributes-completion-engine-submodule">capsul.attributes.completion_engine submodule</a><ul>
 <li><a class="reference internal" href="#id4">Classes</a><ul>
 <li><a class="reference internal" href="#processcompletionengine"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessCompletionEngine</span></code></a></li>
 <li><a class="reference internal" href="#switchcompletionengine"><code class="xref py py-class docutils literal notranslate"><span class="pre">SwitchCompletionEngine</span></code></a></li>
@@ -957,7 +961,7 @@ process.name variable will be used.</p>
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#module-capsul.attributes.fom_completion_engine">capsul.attributes.fom_completion_engine submodule</a><ul>
+<li><a class="reference internal" href="#capsul-attributes-fom-completion-engine-submodule">capsul.attributes.fom_completion_engine submodule</a><ul>
 <li><a class="reference internal" href="#id12">Classes</a><ul>
 <li><a class="reference internal" href="#fomprocesscompletionengine"><code class="xref py py-class docutils literal notranslate"><span class="pre">FomProcessCompletionEngine</span></code></a></li>
 <li><a class="reference internal" href="#fompathcompletionengine"><code class="xref py py-class docutils literal notranslate"><span class="pre">FomPathCompletionEngine</span></code></a></li>
@@ -1008,8 +1012,8 @@ process.name variable will be used.</p>
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.2.
     </div>
   </body>
 </html>

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,13 +12,13 @@
   <link rel="stylesheet" href="../../../_static/css/bootstrap-responsive.css"/>
   <link rel="icon" href="../../../_static/capsul_logo.svg"/>
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=f0b81668" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
     
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/documentation_options.js?v=4d935f96"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -131,7 +131,9 @@
 <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
     <span class="n">xrange</span> <span class="o">=</span> <span class="nb">range</span>
 
-<div class="viewcode-block" id="ProcessIteration"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.process_iteration.ProcessIteration">[docs]</a><span class="k">class</span> <span class="nc">ProcessIteration</span><span class="p">(</span><span class="n">Process</span><span class="p">):</span>
+<div class="viewcode-block" id="ProcessIteration">
+<a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.process_iteration.ProcessIteration">[docs]</a>
+<span class="k">class</span> <span class="nc">ProcessIteration</span><span class="p">(</span><span class="n">Process</span><span class="p">):</span>
 
     <span class="n">_doc_path</span> <span class="o">=</span> <span class="s1">&#39;api/pipeline.html#processiteration&#39;</span>
 
@@ -237,7 +239,9 @@
             <span class="k">if</span> <span class="n">mod</span><span class="p">:</span>
                 <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">new_value</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ProcessIteration.change_iterative_plug"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.process_iteration.ProcessIteration.change_iterative_plug">[docs]</a>    <span class="k">def</span> <span class="nf">change_iterative_plug</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameter</span><span class="p">,</span> <span class="n">iterative</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="ProcessIteration.change_iterative_plug">
+<a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.process_iteration.ProcessIteration.change_iterative_plug">[docs]</a>
+    <span class="k">def</span> <span class="nf">change_iterative_plug</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameter</span><span class="p">,</span> <span class="n">iterative</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Change a parameter to be iterative (or non-iterative)</span>
 
@@ -292,6 +296,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="n">parameter</span><span class="p">,</span> <span class="n">trait</span><span class="p">)</span>
             <span class="c1"># copy initial value of the underlying process to self</span>
             <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameter</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="n">parameter</span><span class="p">))</span></div>
+
 
     <span class="k">def</span> <span class="nf">_run_process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Check that all iterative parameter value have the same size</span>
@@ -371,9 +376,12 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">complete_iteration</span><span class="p">(</span><span class="n">iteration</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
 
-<div class="viewcode-block" id="ProcessIteration.set_study_config"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.process_iteration.ProcessIteration.set_study_config">[docs]</a>    <span class="k">def</span> <span class="nf">set_study_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">study_config</span><span class="p">):</span>
+<div class="viewcode-block" id="ProcessIteration.set_study_config">
+<a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.process_iteration.ProcessIteration.set_study_config">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_study_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">study_config</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">ProcessIteration</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">set_study_config</span><span class="p">(</span><span class="n">study_config</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">set_study_config</span><span class="p">(</span><span class="n">study_config</span><span class="p">)</span></div>
+
 
     <span class="k">def</span> <span class="nf">complete_iteration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iteration</span><span class="p">):</span>
         <span class="c1"># don&#39;t import this at module level to avoid cyclic imports</span>
@@ -384,6 +392,7 @@
         <span class="c1"># check if it is an iterative completion engine</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">completion_engine</span><span class="p">,</span> <span class="s1">&#39;complete_iteration_step&#39;</span><span class="p">):</span>
             <span class="n">completion_engine</span><span class="o">.</span><span class="n">complete_iteration_step</span><span class="p">(</span><span class="n">iteration</span><span class="p">)</span></div>
+
 </pre></div>
 
             <div class="clearer"></div>
@@ -411,8 +420,8 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.2.
     </div>
   </body>
 </html>

@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,13 +12,13 @@
   <link rel="stylesheet" href="../../../_static/css/bootstrap-responsive.css"/>
   <link rel="icon" href="../../../_static/capsul_logo.svg"/>
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=f0b81668" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
     
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/documentation_options.js?v=4d935f96"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -175,7 +175,9 @@
     <span class="k">return</span> <span class="n">_interface</span>
 
 
-<div class="viewcode-block" id="is_process"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.process_instance.is_process">[docs]</a><span class="k">def</span> <span class="nf">is_process</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+<div class="viewcode-block" id="is_process">
+<a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.process_instance.is_process">[docs]</a>
+<span class="k">def</span> <span class="nf">is_process</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Check if the input item is a process class or function with decorator</span>
 <span class="sd">    or XML docstring which makes it seen as a process</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -194,13 +196,19 @@
     <span class="k">return</span> <span class="kc">False</span></div>
 
 
-<div class="viewcode-block" id="is_pipeline_node"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.process_instance.is_pipeline_node">[docs]</a><span class="k">def</span> <span class="nf">is_pipeline_node</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+
+<div class="viewcode-block" id="is_pipeline_node">
+<a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.process_instance.is_pipeline_node">[docs]</a>
+<span class="k">def</span> <span class="nf">is_pipeline_node</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Check if the input is an instance of pipeline Node</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">item</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">Node</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">Node</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="get_process_instance"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.process_instance.get_process_instance">[docs]</a><span class="k">def</span> <span class="nf">get_process_instance</span><span class="p">(</span><span class="n">process_or_id</span><span class="p">,</span> <span class="n">study_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_process_instance">
+<a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.process_instance.get_process_instance">[docs]</a>
+<span class="k">def</span> <span class="nf">get_process_instance</span><span class="p">(</span><span class="n">process_or_id</span><span class="p">,</span> <span class="n">study_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Return a Process instance given an identifier.</span>
 
 <span class="sd">    Note that it is convenient to create a process from a StudyConfig instance:</span>
@@ -273,6 +281,7 @@
     <span class="k">finally</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">set_study_config</span><span class="p">:</span>
             <span class="n">study_cmod</span><span class="o">.</span><span class="n">_default_study_config</span> <span class="o">=</span> <span class="n">old_default_study_config</span></div>
+
 
 
 <span class="k">def</span> <span class="nf">_execfile</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
@@ -539,7 +548,9 @@
     <span class="k">return</span> <span class="n">result</span>
 
 
-<div class="viewcode-block" id="get_node_class"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.process_instance.get_node_class">[docs]</a><span class="k">def</span> <span class="nf">get_node_class</span><span class="p">(</span><span class="n">node_type</span><span class="p">):</span>
+<div class="viewcode-block" id="get_node_class">
+<a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.process_instance.get_node_class">[docs]</a>
+<span class="k">def</span> <span class="nf">get_node_class</span><span class="p">(</span><span class="n">node_type</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get a custom node class from module + class string.</span>
 <span class="sd">    The class name is optional if the module contains only one node class.</span>
@@ -571,7 +582,10 @@
     <span class="k">return</span> <span class="n">name</span><span class="p">,</span> <span class="bp">cls</span></div>
 
 
-<div class="viewcode-block" id="get_node_instance"><a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.process_instance.get_node_instance">[docs]</a><span class="k">def</span> <span class="nf">get_node_instance</span><span class="p">(</span><span class="n">node_type</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span> <span class="n">conf_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+
+<div class="viewcode-block" id="get_node_instance">
+<a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.process_instance.get_node_instance">[docs]</a>
+<span class="k">def</span> <span class="nf">get_node_instance</span><span class="p">(</span><span class="n">node_type</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span> <span class="n">conf_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                       <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get a custom node instance from a module + class name (see</span>
@@ -632,6 +646,7 @@
         <span class="nb">setattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">node</span></div>
+
 </pre></div>
 
             <div class="clearer"></div>
@@ -659,8 +674,8 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.2.
     </div>
   </body>
 </html>

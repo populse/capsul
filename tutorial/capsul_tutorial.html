@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -13,14 +13,14 @@
   <link rel="stylesheet" href="../_static/css/bootstrap-responsive.css"/>
   <link rel="icon" href="../_static/capsul_logo.svg"/>
 
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=f0b81668" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
     
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/documentation_options.js?v=4d935f96"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -107,7 +107,7 @@
           <div class="body" role="main">
             
   <section id="CAPSUL:-chain-algorithms-in-pipelines">
-<h1>CAPSUL: chain algorithms in pipelines<a class="headerlink" href="#CAPSUL:-chain-algorithms-in-pipelines" title="Permalink to this heading">¶</a></h1>
+<h1>CAPSUL: chain algorithms in pipelines<a class="headerlink" href="#CAPSUL:-chain-algorithms-in-pipelines" title="Link to this heading">¶</a></h1>
 <p><p>Capsul is a simple and efficient Python tool that aims to organize a set of processings. It is accessible to everybody, and is reusable in various contexts. The project is hosted on github: <a class="reference external" href="https://github.com/populse/capsul">https://github.com/populse/capsul</a>.</p>
 </p><p><p>Documentation: <a class="reference external" href="http://populse.github.io/capsul">http://populse.github.io/capsul</a></p>
 </p><p><p>The following examples are using CAPSUL, and PyQt (or PySide). To get the GUI running in a non-blocking way, the IPython notebook should be started with the option –gui=qt:</p>
@@ -345,7 +345,7 @@ Process result = 145.9
 </div>
 <p>It should display something like this: <img alt="capsul pipeline view" src="../_images/capsul_pipeline1.jpg" /></p>
 <section id="Entering-parameters">
-<h2>Entering parameters<a class="headerlink" href="#Entering-parameters" title="Permalink to this heading">¶</a></h2>
+<h2>Entering parameters<a class="headerlink" href="#Entering-parameters" title="Link to this heading">¶</a></h2>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
@@ -364,7 +364,7 @@ Process result = 145.9
 </div>
 <p><img alt="controller views" src="../_images/capsul_controller1.jpg" /></p>
 <section id="Links-and-exportations">
-<h3>Links and exportations<a class="headerlink" href="#Links-and-exportations" title="Permalink to this heading">¶</a></h3>
+<h3>Links and exportations<a class="headerlink" href="#Links-and-exportations" title="Link to this heading">¶</a></h3>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
@@ -542,12 +542,12 @@ out1: a string ([&#39;String&#39;] - mandatory)
 </div>
 <p><img alt="xml pipeline" src="../_images/capsul_pipeline_xml2.jpg" /> <img alt="xml pipeline controller" src="../_images/capsul_pipeline_xml2_controller.jpg" /></p>
 <section id="Switches">
-<h4>Switches<a class="headerlink" href="#Switches" title="Permalink to this heading">¶</a></h4>
+<h4>Switches<a class="headerlink" href="#Switches" title="Link to this heading">¶</a></h4>
 <p>In Capsul it is possible to define a building block which aims to select a sequence of processings. It is done with a Switch building block as follows:</p>
 </section>
 </section>
 <section id="Using-the-Python-API">
-<h3>Using the Python API<a class="headerlink" href="#Using-the-Python-API" title="Permalink to this heading">¶</a></h3>
+<h3>Using the Python API<a class="headerlink" href="#Using-the-Python-API" title="Link to this heading">¶</a></h3>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
@@ -810,7 +810,7 @@ output_100: a string or os.PathLike object ([&#39;File (filename:
 </div>
 <p><img alt="xml pipeline" src="../_images/capsul_pipeline_xml2.jpg" /> <img alt="xml pipeline controller" src="../_images/capsul_pipeline_xml2_controller.jpg" /></p>
 <section id="Iteration-over-a-process-or-pipeline">
-<h4>Iteration over a process or pipeline<a class="headerlink" href="#Iteration-over-a-process-or-pipeline" title="Permalink to this heading">¶</a></h4>
+<h4>Iteration over a process or pipeline<a class="headerlink" href="#Iteration-over-a-process-or-pipeline" title="Link to this heading">¶</a></h4>
 <p>A process can be used several times in parallel: some of its parameters will be changed for lists</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
@@ -1129,13 +1129,15 @@ fsl_prefix :   &lt;undefined&gt;
 use_fsl :   &lt;undefined&gt;
 matlab_exec :   &lt;undefined&gt;
 use_matlab :   False
+mrtrix_path :   &lt;undefined&gt;
+use_mrtrix :   &lt;undefined&gt;
 use_smart_caching :   False
 use_soma_workflow :   False
 somaworkflow_computing_resource :   &lt;undefined&gt;
 somaworkflow_config_file :   &lt;undefined&gt;
 somaworkflow_keep_failed_workflows :   True
 somaworkflow_keep_succeeded_workflows :   False
-somaworkflow_computing_resources_config :   &lt;soma.controller.controller.OpenKeyController object at 0x7f2218479270&gt;
+somaworkflow_computing_resources_config :   &lt;soma.controller.controller.OpenKeyController object at 0x7f2640ca0860&gt;
 spm_directory :   &lt;undefined&gt;
 spm_standalone :   &lt;undefined&gt;
 spm_version :   &lt;undefined&gt;
@@ -1294,8 +1296,8 @@ Process1 execution, f: 13.2 , ff: 0.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-jobs: [&lt;soma_workflow.client_types.Job object at 0x7f2218511a00&gt;, &lt;soma_workflow.client_types.Job object at 0x7f2218511100&gt;]
-dependencies: {(&lt;soma_workflow.client_types.Job object at 0x7f2218511100&gt;, &lt;soma_workflow.client_types.Job object at 0x7f2218511a00&gt;)}
+jobs: [&lt;soma_workflow.client_types.Job object at 0x7f2650064400&gt;, &lt;soma_workflow.client_types.Job object at 0x7f2650064640&gt;]
+dependencies: {(&lt;soma_workflow.client_types.Job object at 0x7f2650064640&gt;, &lt;soma_workflow.client_types.Job object at 0x7f2650064400&gt;)}
 </pre></div></div>
 </div>
 <p>The workwlow can be saved and reloaded in soma_workflow_gui, or used in a soma-workflow controller:</p>
@@ -1433,7 +1435,7 @@ Cell <span class="ansi-green-fg">In[48], line 14</span>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[&#39;AFNIConfig&#39;, &#39;ANTSConfig&#39;, &#39;FSLConfig&#39;, &#39;MatlabConfig&#39;, &#39;SmartCachingConfig&#39;, &#39;SomaWorkflowConfig&#39;, &#39;SPMConfig&#39;]
+[&#39;AFNIConfig&#39;, &#39;ANTSConfig&#39;, &#39;FSLConfig&#39;, &#39;MatlabConfig&#39;, &#39;MRTRIXConfig&#39;, &#39;SmartCachingConfig&#39;, &#39;SomaWorkflowConfig&#39;, &#39;SPMConfig&#39;]
 </pre></div></div>
 </div>
 <p>In order to change modules that are used, one must give a full module list to StudyConfig():</p>
@@ -1644,7 +1646,7 @@ NiPype is not present.
 <p><img alt="pipeline" src="../_images/capsul_pipeline7.jpg" /></p>
 </section>
 <section id="FOM-definition">
-<h4>FOM definition<a class="headerlink" href="#FOM-definition" title="Permalink to this heading">¶</a></h4>
+<h4>FOM definition<a class="headerlink" href="#FOM-definition" title="Link to this heading">¶</a></h4>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[56]:
 </pre></div>
@@ -1802,7 +1804,7 @@ output image_out5: /data/capsul_demo/subjects_irm2/out_image_irm2_4.nii.gz
 <p><img alt="changed pipeline" src="../_images/capsul_fom2.jpg" /> <img alt="changed completion controller" src="../_images/capsul_fom2_compl.jpg" /></p>
 </section>
 <section id="Now-Cleanup-the-files-we-have-created...">
-<h4>Now Cleanup the files we have created…<a class="headerlink" href="#Now-Cleanup-the-files-we-have-created..." title="Permalink to this heading">¶</a></h4>
+<h4>Now Cleanup the files we have created…<a class="headerlink" href="#Now-Cleanup-the-files-we-have-created..." title="Link to this heading">¶</a></h4>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[59]:
 </pre></div>
@@ -1864,8 +1866,8 @@ output image_out5: /data/capsul_demo/subjects_irm2/out_image_irm2_4.nii.gz
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.2.
     </div>
   </body>
 </html>

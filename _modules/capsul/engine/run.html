@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,13 +12,13 @@
   <link rel="stylesheet" href="../../../_static/css/bootstrap-responsive.css"/>
   <link rel="icon" href="../../../_static/capsul_logo.svg"/>
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=f0b81668" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
     
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/documentation_options.js?v=4d935f96"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -125,7 +125,9 @@
 <span class="kn">import</span> <span class="nn">io</span>
 
 
-<div class="viewcode-block" id="WorkflowExecutionError"><a class="viewcode-back" href="../../../api/engine.html#capsul.engine.run.WorkflowExecutionError">[docs]</a><span class="k">class</span> <span class="nc">WorkflowExecutionError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="WorkflowExecutionError">
+<a class="viewcode-back" href="../../../api/engine.html#capsul.engine.run.WorkflowExecutionError">[docs]</a>
+<span class="k">class</span> <span class="nc">WorkflowExecutionError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Exception class raised when a workflow execution fails.</span>
 <span class="sd">    It holds references to the</span>
@@ -220,7 +222,10 @@
             <span class="o">%</span> <span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">wk</span><span class="p">,</span> <span class="n">wc</span><span class="p">,</span> <span class="n">precisions</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="start"><a class="viewcode-back" href="../../../api/engine.html#capsul.engine.run.start">[docs]</a><span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">workflow</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">history</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">get_pipeline</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="start">
+<a class="viewcode-back" href="../../../api/engine.html#capsul.engine.run.start">[docs]</a>
+<span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">workflow</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">history</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">get_pipeline</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Asynchronously start the execution of a process or pipeline in the</span>
 <span class="sd">    connected computing environment. Returns an identifier of</span>
@@ -319,7 +324,10 @@
     <span class="k">return</span> <span class="n">wf_id</span></div>
 
 
-<div class="viewcode-block" id="wait"><a class="viewcode-back" href="../../../api/engine.html#capsul.engine.run.wait">[docs]</a><span class="k">def</span> <span class="nf">wait</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">execution_id</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">pipeline</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="wait">
+<a class="viewcode-back" href="../../../api/engine.html#capsul.engine.run.wait">[docs]</a>
+<span class="k">def</span> <span class="nf">wait</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">execution_id</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">pipeline</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Wait for the end of a process execution (either normal termination,</span>
 <span class="sd">    interruption or error).</span>
@@ -376,7 +384,10 @@
     <span class="k">return</span> <span class="n">status</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">execution_id</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="interrupt"><a class="viewcode-back" href="../../../api/engine.html#capsul.engine.run.interrupt">[docs]</a><span class="k">def</span> <span class="nf">interrupt</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">execution_id</span><span class="p">):</span>
+
+<div class="viewcode-block" id="interrupt">
+<a class="viewcode-back" href="../../../api/engine.html#capsul.engine.run.interrupt">[docs]</a>
+<span class="k">def</span> <span class="nf">interrupt</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">execution_id</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Try to stop the execution of a process. Does not wait for the process</span>
 <span class="sd">    to be terminated.</span>
@@ -387,7 +398,10 @@
     <span class="n">controller</span><span class="o">.</span><span class="n">stop_workflow</span><span class="p">(</span><span class="n">execution_id</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="status"><a class="viewcode-back" href="../../../api/engine.html#capsul.engine.run.status">[docs]</a><span class="k">def</span> <span class="nf">status</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">execution_id</span><span class="p">):</span>
+
+<div class="viewcode-block" id="status">
+<a class="viewcode-back" href="../../../api/engine.html#capsul.engine.run.status">[docs]</a>
+<span class="k">def</span> <span class="nf">status</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">execution_id</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Return a simple value with the status of an execution (queued,</span>
 <span class="sd">    running, terminated, error, etc.)</span>
@@ -413,7 +427,10 @@
     <span class="k">return</span> <span class="n">workflow_status</span></div>
 
 
-<div class="viewcode-block" id="detailed_information"><a class="viewcode-back" href="../../../api/engine.html#capsul.engine.run.detailed_information">[docs]</a><span class="k">def</span> <span class="nf">detailed_information</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">execution_id</span><span class="p">):</span>
+
+<div class="viewcode-block" id="detailed_information">
+<a class="viewcode-back" href="../../../api/engine.html#capsul.engine.run.detailed_information">[docs]</a>
+<span class="k">def</span> <span class="nf">detailed_information</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">execution_id</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Return complete (and possibly big) information about a process</span>
 <span class="sd">    execution.</span>
@@ -426,7 +443,10 @@
     <span class="k">return</span> <span class="n">elements_status</span></div>
 
 
-<div class="viewcode-block" id="dispose"><a class="viewcode-back" href="../../../api/engine.html#capsul.engine.run.dispose">[docs]</a><span class="k">def</span> <span class="nf">dispose</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">execution_id</span><span class="p">,</span> <span class="n">conditional</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<div class="viewcode-block" id="dispose">
+<a class="viewcode-back" href="../../../api/engine.html#capsul.engine.run.dispose">[docs]</a>
+<span class="k">def</span> <span class="nf">dispose</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">execution_id</span><span class="p">,</span> <span class="n">conditional</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Update the database with the current state of a process execution and</span>
 <span class="sd">    free the resources used in the computing resource (i.e. remove the</span>
@@ -451,6 +471,7 @@
         <span class="n">swm</span><span class="o">.</span><span class="n">connect_resource</span><span class="p">(</span><span class="n">engine</span><span class="o">.</span><span class="n">connected_to</span><span class="p">())</span>
         <span class="n">controller</span> <span class="o">=</span> <span class="n">swm</span><span class="o">.</span><span class="n">get_workflow_controller</span><span class="p">()</span>
         <span class="n">controller</span><span class="o">.</span><span class="n">delete_workflow</span><span class="p">(</span><span class="n">execution_id</span><span class="p">)</span></div>
+
         <span class="c1"># TODO: update engine DB</span>
 
 
@@ -472,7 +493,9 @@
         <span class="n">engine</span><span class="o">.</span><span class="n">dispose</span><span class="p">(</span><span class="n">eid</span><span class="p">,</span> <span class="n">conditional</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="raise_for_status"><a class="viewcode-back" href="../../../api/engine.html#capsul.engine.run.raise_for_status">[docs]</a><span class="k">def</span> <span class="nf">raise_for_status</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">execution_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="raise_for_status">
+<a class="viewcode-back" href="../../../api/engine.html#capsul.engine.run.raise_for_status">[docs]</a>
+<span class="k">def</span> <span class="nf">raise_for_status</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">execution_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Raise an exception if a process execution failed</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -485,6 +508,7 @@
         <span class="k">raise</span> <span class="n">WorkflowExecutionError</span><span class="p">(</span>
             <span class="n">controller</span><span class="p">,</span> <span class="n">execution_id</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span>
             <span class="n">engine</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">somaworkflow_keep_failed_workflows</span><span class="p">)</span></div>
+
 </pre></div>
 
             <div class="clearer"></div>
@@ -513,8 +537,8 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.2.
     </div>
   </body>
 </html>

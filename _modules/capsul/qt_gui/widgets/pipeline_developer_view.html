@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,13 +12,13 @@
   <link rel="stylesheet" href="../../../../_static/css/bootstrap-responsive.css"/>
   <link rel="icon" href="../../../../_static/capsul_logo.svg"/>
 
-    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=f0b81668" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=eafc0fe6" />
     
-    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
-    <script src="../../../../_static/doctools.js"></script>
-    <script src="../../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../../_static/documentation_options.js?v=4d935f96"></script>
+    <script src="../../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -238,7 +238,9 @@
         <span class="p">}[</span><span class="n">x</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="Plug"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.Plug">[docs]</a><span class="k">class</span> <span class="nc">Plug</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsPolygonItem</span><span class="p">):</span>
+<div class="viewcode-block" id="Plug">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.Plug">[docs]</a>
+<span class="k">class</span> <span class="nc">Plug</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsPolygonItem</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">activated</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                  <span class="n">optional</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -299,7 +301,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span><span class="o">.</span><span class="n">size</span><span class="p">()</span><span class="o">.</span><span class="n">height</span><span class="p">()</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapToParent</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Plug.mousePressEvent"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.Plug.mousePressEvent">[docs]</a>    <span class="k">def</span> <span class="nf">mousePressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<div class="viewcode-block" id="Plug.mousePressEvent">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.Plug.mousePressEvent">[docs]</a>
+    <span class="k">def</span> <span class="nf">mousePressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Plug</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">mousePressEvent</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">button</span><span class="p">()</span> <span class="o">==</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">LeftButton</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">()</span><span class="o">.</span><span class="n">plug_clicked</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
@@ -307,10 +311,14 @@
         <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">button</span><span class="p">()</span> <span class="o">==</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">RightButton</span><span class="p">:</span>
             <span class="c1"># print(&#39;plug: right click&#39;)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">()</span><span class="o">.</span><span class="n">plug_right_clicked</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-            <span class="n">event</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span></div></div>
+            <span class="n">event</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span></div>
+</div>
 
 
-<div class="viewcode-block" id="EmbeddedSubPipelineItem"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.EmbeddedSubPipelineItem">[docs]</a><span class="k">class</span> <span class="nc">EmbeddedSubPipelineItem</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsProxyWidget</span><span class="p">):</span>
+
+<div class="viewcode-block" id="EmbeddedSubPipelineItem">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.EmbeddedSubPipelineItem">[docs]</a>
+<span class="k">class</span> <span class="nc">EmbeddedSubPipelineItem</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsProxyWidget</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    QGraphicsItem containing a sub-pipeline view</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -328,30 +336,45 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">setWidget</span><span class="p">(</span><span class="n">sub_pipeline_wid</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="boxItem"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.boxItem">[docs]</a><span class="k">class</span> <span class="nc">boxItem</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsRectItem</span><span class="p">):</span>
+
+<div class="viewcode-block" id="boxItem">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.boxItem">[docs]</a>
+<span class="k">class</span> <span class="nc">boxItem</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsRectItem</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">boxItem</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
         <span class="c1">#         self.setFlags(self.ItemIsFocusable)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">penBox</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
-<div class="viewcode-block" id="boxItem.focusInEvent"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.boxItem.focusInEvent">[docs]</a>    <span class="k">def</span> <span class="nf">focusInEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<div class="viewcode-block" id="boxItem.focusInEvent">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.boxItem.focusInEvent">[docs]</a>
+    <span class="k">def</span> <span class="nf">focusInEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">setPen</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QPen</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QColor</span><span class="p">(</span><span class="mi">150</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">250</span><span class="p">),</span> <span class="mi">3</span><span class="p">,</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">DashDotLine</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsRectItem</span><span class="o">.</span><span class="n">focusInEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="boxItem.focusOutEvent"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.boxItem.focusOutEvent">[docs]</a>    <span class="k">def</span> <span class="nf">focusOutEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+
+<div class="viewcode-block" id="boxItem.focusOutEvent">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.boxItem.focusOutEvent">[docs]</a>
+    <span class="k">def</span> <span class="nf">focusOutEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">setPen</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">penBox</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsRectItem</span><span class="o">.</span><span class="n">focusOutEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="boxItem.keyPressEvent"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.boxItem.keyPressEvent">[docs]</a>    <span class="k">def</span> <span class="nf">keyPressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+
+<div class="viewcode-block" id="boxItem.keyPressEvent">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.boxItem.keyPressEvent">[docs]</a>
+    <span class="k">def</span> <span class="nf">keyPressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">key</span><span class="p">()</span> <span class="o">==</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">Key_Delete</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">()</span><span class="o">.</span><span class="n">_node_keydelete_clicked</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
             <span class="n">event</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="nb">super</span><span class="p">(</span><span class="n">boxItem</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">keyPressEvent</span><span class="p">(</span><span class="n">event</span><span class="p">)</span></div></div>
+            <span class="nb">super</span><span class="p">(</span><span class="n">boxItem</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">keyPressEvent</span><span class="p">(</span><span class="n">event</span><span class="p">)</span></div>
+</div>
 
 
-<div class="viewcode-block" id="NodeGWidget"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.NodeGWidget">[docs]</a><span class="k">class</span> <span class="nc">NodeGWidget</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsItem</span><span class="p">):</span>
+
+<div class="viewcode-block" id="NodeGWidget">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.NodeGWidget">[docs]</a>
+<span class="k">class</span> <span class="nc">NodeGWidget</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsItem</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span>
                  <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">process</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sub_pipeline</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">colored_parameters</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -503,7 +526,9 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">update_node</span><span class="p">()</span>
 
-<div class="viewcode-block" id="NodeGWidget.update_labels"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.NodeGWidget.update_labels">[docs]</a>    <span class="k">def</span> <span class="nf">update_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
+<div class="viewcode-block" id="NodeGWidget.update_labels">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.NodeGWidget.update_labels">[docs]</a>
+    <span class="k">def</span> <span class="nf">update_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39; Update colored labels</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">labels</span> <span class="o">=</span> <span class="p">[]</span>
@@ -513,6 +538,7 @@
         <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_get_label</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_create_label_marks</span><span class="p">()</span></div>
+
 
     <span class="k">def</span> <span class="nf">_get_label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">register</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="k">class</span> <span class="nc">Label</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -1263,7 +1289,9 @@
                     <span class="n">brect</span><span class="o">.</span><span class="n">setBottom</span><span class="p">(</span><span class="n">item_rect</span><span class="o">.</span><span class="n">bottom</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">brect</span>
 
-<div class="viewcode-block" id="NodeGWidget.boundingRect"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.NodeGWidget.boundingRect">[docs]</a>    <span class="k">def</span> <span class="nf">boundingRect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="NodeGWidget.boundingRect">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.NodeGWidget.boundingRect">[docs]</a>
+    <span class="k">def</span> <span class="nf">boundingRect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">margin</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">brect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">contentsRect</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedded_subpipeline</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedded_subpipeline</span><span class="o">.</span><span class="n">isVisible</span><span class="p">():</span>
@@ -1272,8 +1300,12 @@
         <span class="n">brect</span><span class="o">.</span><span class="n">setBottom</span><span class="p">(</span><span class="n">brect</span><span class="o">.</span><span class="n">bottom</span><span class="p">()</span> <span class="o">+</span> <span class="n">margin</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">brect</span></div>
 
-<div class="viewcode-block" id="NodeGWidget.paint"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.NodeGWidget.paint">[docs]</a>    <span class="k">def</span> <span class="nf">paint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">painter</span><span class="p">,</span> <span class="n">option</span><span class="p">,</span> <span class="n">widget</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="NodeGWidget.paint">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.NodeGWidget.paint">[docs]</a>
+    <span class="k">def</span> <span class="nf">paint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">painter</span><span class="p">,</span> <span class="n">option</span><span class="p">,</span> <span class="n">widget</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">pass</span></div>
+
 
     <span class="k">def</span> <span class="nf">postscript</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">):</span>
         <span class="n">printer</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QPrinter</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QPrinter</span><span class="o">.</span><span class="n">HighResolution</span><span class="p">)</span>
@@ -1372,7 +1404,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">setFiltersChildEvents</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
             <span class="n">pwid</span><span class="o">.</span><span class="n">geometryChanged</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">resize_subpipeline_on_show</span><span class="p">)</span>
 
-<div class="viewcode-block" id="NodeGWidget.mouseDoubleClickEvent"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.NodeGWidget.mouseDoubleClickEvent">[docs]</a>    <span class="k">def</span> <span class="nf">mouseDoubleClickEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<div class="viewcode-block" id="NodeGWidget.mouseDoubleClickEvent">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.NodeGWidget.mouseDoubleClickEvent">[docs]</a>
+    <span class="k">def</span> <span class="nf">mouseDoubleClickEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_pipeline</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sub_pipeline</span><span class="p">,</span> <span class="n">weakref</span><span class="o">.</span><span class="n">ProxyTypes</span><span class="p">):</span>
                 <span class="c1"># get the &quot;real&quot; object</span>
@@ -1385,7 +1419,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">event</span><span class="o">.</span><span class="n">ignore</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="NodeGWidget.mousePressEvent"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.NodeGWidget.mousePressEvent">[docs]</a>    <span class="k">def</span> <span class="nf">mousePressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+
+<div class="viewcode-block" id="NodeGWidget.mousePressEvent">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.NodeGWidget.mousePressEvent">[docs]</a>
+    <span class="k">def</span> <span class="nf">mousePressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
         <span class="n">item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">()</span><span class="o">.</span><span class="n">itemAt</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">scenePos</span><span class="p">(),</span> <span class="n">Qt</span><span class="o">.</span><span class="n">QTransform</span><span class="p">())</span>
         <span class="c1"># print(&#39;NodeGWidget click, item:&#39;, item)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">Plug</span><span class="p">):</span>
@@ -1413,7 +1450,10 @@
             <span class="k">return</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">mousePressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
             <span class="n">event</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="NodeGWidget.keyPressEvent"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.NodeGWidget.keyPressEvent">[docs]</a>    <span class="k">def</span> <span class="nf">keyPressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+
+<div class="viewcode-block" id="NodeGWidget.keyPressEvent">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.NodeGWidget.keyPressEvent">[docs]</a>
+    <span class="k">def</span> <span class="nf">keyPressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
 
         <span class="nb">super</span><span class="p">(</span><span class="n">NodeGWidget</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">keyPressEvent</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
 
@@ -1427,10 +1467,14 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">())</span>
 
         <span class="k">return</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">keyPressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
-        <span class="n">event</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span></div></div>
+        <span class="n">event</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span></div>
+</div>
 
 
-<div class="viewcode-block" id="HandleItem"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.HandleItem">[docs]</a><span class="k">class</span> <span class="nc">HandleItem</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsRectItem</span><span class="p">):</span>
+
+<div class="viewcode-block" id="HandleItem">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.HandleItem">[docs]</a>
+<span class="k">class</span> <span class="nc">HandleItem</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsRectItem</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; A handle that can be moved by the mouse &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -1449,7 +1493,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">effectiveOpacity</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">setOpacity</span><span class="p">(</span><span class="mf">0.01</span><span class="p">)</span>
 
-<div class="viewcode-block" id="HandleItem.itemChange"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.HandleItem.itemChange">[docs]</a>    <span class="k">def</span> <span class="nf">itemChange</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">change</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<div class="viewcode-block" id="HandleItem.itemChange">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.HandleItem.itemChange">[docs]</a>
+    <span class="k">def</span> <span class="nf">itemChange</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">change</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">change</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">ItemPositionChange</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span> <span class="n">value</span><span class="o">.</span><span class="n">y</span><span class="p">()</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">wmin</span><span class="p">:</span>
@@ -1476,13 +1522,20 @@
 
         <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">HandleItem</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">itemChange</span><span class="p">(</span><span class="n">change</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="HandleItem.mouseReleaseEvent"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.HandleItem.mouseReleaseEvent">[docs]</a>    <span class="k">def</span> <span class="nf">mouseReleaseEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mouseEvent</span><span class="p">):</span>
+
+<div class="viewcode-block" id="HandleItem.mouseReleaseEvent">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.HandleItem.mouseReleaseEvent">[docs]</a>
+    <span class="k">def</span> <span class="nf">mouseReleaseEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mouseEvent</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">setSelected</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsRectItem</span><span class="o">.</span><span class="n">mouseReleaseEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mouseEvent</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsRectItem</span><span class="o">.</span><span class="n">mouseReleaseEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mouseEvent</span><span class="p">)</span></div>
+</div>
 
 
-<div class="viewcode-block" id="Link"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.Link">[docs]</a><span class="k">class</span> <span class="nc">Link</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsPathItem</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Link">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.Link">[docs]</a>
+<span class="k">class</span> <span class="nc">Link</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsPathItem</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">origin</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">active</span><span class="p">,</span> <span class="n">weak</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Link</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
@@ -1518,7 +1571,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">pen</span><span class="o">.</span><span class="n">setJoinStyle</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">RoundJoin</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">setPen</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pen</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Link.update"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.Link.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">origin</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+<div class="viewcode-block" id="Link.update">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.Link.update">[docs]</a>
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">origin</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
         <span class="n">path</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QPainterPath</span><span class="p">()</span>
         <span class="n">path</span><span class="o">.</span><span class="n">moveTo</span><span class="p">(</span><span class="n">origin</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span> <span class="n">origin</span><span class="o">.</span><span class="n">y</span><span class="p">())</span>
         <span class="n">path</span><span class="o">.</span><span class="n">cubicTo</span><span class="p">(</span><span class="n">origin</span><span class="o">.</span><span class="n">x</span><span class="p">()</span> <span class="o">+</span> <span class="mi">90</span><span class="p">,</span> <span class="n">origin</span><span class="o">.</span><span class="n">y</span><span class="p">(),</span>
@@ -1526,6 +1581,7 @@
                      <span class="n">target</span><span class="o">.</span><span class="n">x</span><span class="p">()</span> <span class="o">-</span> <span class="mi">5</span><span class="p">,</span> <span class="n">target</span><span class="o">.</span><span class="n">y</span><span class="p">())</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">setPath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+
 
     <span class="k">def</span> <span class="nf">update_activation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">active</span><span class="p">,</span> <span class="n">weak</span><span class="p">,</span> <span class="n">color</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">color</span> <span class="o">==</span> <span class="s1">&#39;current&#39;</span><span class="p">:</span>
@@ -1544,7 +1600,9 @@
 
     <span class="c1">#         self._set_pen(self.active, self.weak, color)</span>
 
-<div class="viewcode-block" id="Link.mousePressEvent"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.Link.mousePressEvent">[docs]</a>    <span class="k">def</span> <span class="nf">mousePressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<div class="viewcode-block" id="Link.mousePressEvent">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.Link.mousePressEvent">[docs]</a>
+    <span class="k">def</span> <span class="nf">mousePressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
         <span class="n">item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">()</span><span class="o">.</span><span class="n">itemAt</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">scenePos</span><span class="p">(),</span> <span class="n">Qt</span><span class="o">.</span><span class="n">QTransform</span><span class="p">())</span>
         <span class="c1"># print(&#39;Link click, item:&#39;, item)</span>
         <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">button</span><span class="p">()</span> <span class="o">==</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">RightButton</span><span class="p">:</span>
@@ -1555,24 +1613,37 @@
             <span class="nb">super</span><span class="p">(</span><span class="n">Link</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">mousePressEvent</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
         <span class="n">event</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Link.focusInEvent"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.Link.focusInEvent">[docs]</a>    <span class="k">def</span> <span class="nf">focusInEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Link.focusInEvent">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.Link.focusInEvent">[docs]</a>
+    <span class="k">def</span> <span class="nf">focusInEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">setPen</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QPen</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QColor</span><span class="p">(</span><span class="mi">150</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">250</span><span class="p">),</span> <span class="mi">3</span><span class="p">,</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">DashDotDotLine</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsPathItem</span><span class="o">.</span><span class="n">focusInEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Link.focusOutEvent"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.Link.focusOutEvent">[docs]</a>    <span class="k">def</span> <span class="nf">focusOutEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Link.focusOutEvent">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.Link.focusOutEvent">[docs]</a>
+    <span class="k">def</span> <span class="nf">focusOutEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">setPen</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pen</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsPathItem</span><span class="o">.</span><span class="n">focusOutEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Link.keyPressEvent"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.Link.keyPressEvent">[docs]</a>    <span class="k">def</span> <span class="nf">keyPressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Link.keyPressEvent">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.Link.keyPressEvent">[docs]</a>
+    <span class="k">def</span> <span class="nf">keyPressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
 
         <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">key</span><span class="p">()</span> <span class="o">==</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">Key_Delete</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">()</span><span class="o">.</span><span class="n">_link_keydelete_clicked</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
             <span class="n">event</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="nb">super</span><span class="p">(</span><span class="n">Link</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">keyPressEvent</span><span class="p">(</span><span class="n">event</span><span class="p">)</span></div></div>
+            <span class="nb">super</span><span class="p">(</span><span class="n">Link</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">keyPressEvent</span><span class="p">(</span><span class="n">event</span><span class="p">)</span></div>
+</div>
 
 
-<div class="viewcode-block" id="PipelineScene"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineScene">[docs]</a><span class="k">class</span> <span class="nc">PipelineScene</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsScene</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineScene">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineScene">[docs]</a>
+<span class="k">class</span> <span class="nc">PipelineScene</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QGraphicsScene</span><span class="p">):</span>
     <span class="c1"># Signal emitted when a sub pipeline has to be open.</span>
     <span class="n">subpipeline_clicked</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Signal</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Process</span><span class="p">,</span>
                                         <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">KeyboardModifiers</span><span class="p">)</span>
@@ -2169,7 +2240,9 @@
     <span class="k">def</span> <span class="nf">edition_enabled</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enable_edition</span>
 
-<div class="viewcode-block" id="PipelineScene.keyPressEvent"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineScene.keyPressEvent">[docs]</a>    <span class="k">def</span> <span class="nf">keyPressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<div class="viewcode-block" id="PipelineScene.keyPressEvent">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineScene.keyPressEvent">[docs]</a>
+    <span class="k">def</span> <span class="nf">keyPressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">PipelineScene</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">keyPressEvent</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">isAccepted</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">key</span><span class="p">()</span> <span class="o">==</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">Key_P</span><span class="p">:</span>
@@ -2190,10 +2263,13 @@
                 <span class="n">pview</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span>
                 <span class="n">pview</span><span class="o">.</span><span class="n">auto_dot_node_positions</span><span class="p">()</span></div>
 
+
         <span class="c1">#             elif Qt.QKeySequence(event.key()+int(event.modifiers())) == Qt.QKeySequence(&quot;Ctrl+Z&quot;):</span>
         <span class="c1">#                 self.undoTyping_clicked.emit()</span>
 
-<div class="viewcode-block" id="PipelineScene.link_tooltip_text"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineScene.link_tooltip_text">[docs]</a>    <span class="k">def</span> <span class="nf">link_tooltip_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_dest</span><span class="p">):</span>
+<div class="viewcode-block" id="PipelineScene.link_tooltip_text">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineScene.link_tooltip_text">[docs]</a>
+    <span class="k">def</span> <span class="nf">link_tooltip_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_dest</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;Tooltip text for the fiven link</span>
 
 <span class="sd">        Parameters</span>
@@ -2274,6 +2350,7 @@
         <span class="n">msg</span> <span class="o">+=</span> <span class="s1">&#39;&lt;/table&gt;&#39;</span>
         <span class="k">return</span> <span class="n">msg</span></div>
 
+
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">get_instance_type_string</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -2298,7 +2375,9 @@
         <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&gt;&#39;</span><span class="p">,</span> <span class="s1">&#39;&amp;gt;&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">text</span>
 
-<div class="viewcode-block" id="PipelineScene.plug_tooltip_text"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineScene.plug_tooltip_text">[docs]</a>    <span class="k">def</span> <span class="nf">plug_tooltip_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+<div class="viewcode-block" id="PipelineScene.plug_tooltip_text">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineScene.plug_tooltip_text">[docs]</a>
+    <span class="k">def</span> <span class="nf">plug_tooltip_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;Tooltip text for a node plug</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;inputs&#39;</span><span class="p">,</span> <span class="s1">&#39;outputs&#39;</span><span class="p">):</span>
@@ -2381,6 +2460,7 @@
             <span class="n">msg</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">html_doc</span><span class="p">(</span><span class="n">desc</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">msg</span></div>
 
+
     <span class="k">def</span> <span class="nf">node_tooltip_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
         <span class="n">process</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">process</span>
         <span class="n">msg</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;__doc__&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
@@ -2399,7 +2479,9 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">nodes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-<div class="viewcode-block" id="PipelineScene.helpEvent"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineScene.helpEvent">[docs]</a>    <span class="k">def</span> <span class="nf">helpEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<div class="viewcode-block" id="PipelineScene.helpEvent">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineScene.helpEvent">[docs]</a>
+    <span class="k">def</span> <span class="nf">helpEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Display tooltips on plugs and links</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -2446,6 +2528,7 @@
             <span class="n">event</span><span class="o">.</span><span class="n">setAccepted</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
 
         <span class="nb">super</span><span class="p">(</span><span class="n">PipelineScene</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">helpEvent</span><span class="p">(</span><span class="n">event</span><span class="p">)</span></div>
+
 
     <span class="k">def</span> <span class="nf">remove_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_name</span><span class="p">):</span>
         <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gnodes</span><span class="p">)</span>
@@ -2508,7 +2591,10 @@
         <span class="k">return</span> <span class="n">trait_type_str</span></div>
 
 
-<div class="viewcode-block" id="PipelineDeveloperView"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView">[docs]</a><span class="k">class</span> <span class="nc">PipelineDeveloperView</span><span class="p">(</span><span class="n">QGraphicsView</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView">[docs]</a>
+<span class="k">class</span> <span class="nc">PipelineDeveloperView</span><span class="p">(</span><span class="n">QGraphicsView</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Pipeline representation as a graph, using boxes and arrows.</span>
 
@@ -2618,7 +2704,9 @@
 <span class="sd">    * dotted line link: weak link</span>
 <span class="sd">    &#39;&#39;&#39;</span>
 
-<div class="viewcode-block" id="PipelineDeveloperView.ProcessNameEdit"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.ProcessNameEdit">[docs]</a>    <span class="k">class</span> <span class="nc">ProcessNameEdit</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">QLineEdit</span><span class="p">):</span>
+<div class="viewcode-block" id="PipelineDeveloperView.ProcessNameEdit">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.ProcessNameEdit">[docs]</a>
+    <span class="k">class</span> <span class="nc">ProcessNameEdit</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">QLineEdit</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39; A specialized QLineEdit with completion for process name</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -2734,7 +2822,10 @@
             <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compl</span><span class="o">.</span><span class="n">model</span><span class="p">()</span>
             <span class="n">model</span><span class="o">.</span><span class="n">setStringList</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">compl</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="PipelineDeveloperView.__init__"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pipeline</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show_sub_pipelines</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView.__init__">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pipeline</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">show_sub_pipelines</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">allow_open_controller</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">logical_view</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">enable_edition</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">userlevel</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;PipelineDeveloperView</span>
@@ -2794,6 +2885,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">link_keydelete_clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_link_delete_clicked</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">node_keydelete_clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_node_delete_clicked</span><span class="p">)</span></div>
 
+
     <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># print(&#39;PipelineDeveloperView.__del__&#39;)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">release_pipeline</span><span class="p">(</span><span class="n">delete</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -2812,7 +2904,9 @@
             <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">widget</span><span class="p">,</span> <span class="s1">&#39;userlevel&#39;</span><span class="p">):</span>
                 <span class="n">widget</span><span class="o">.</span><span class="n">userlevel</span> <span class="o">=</span> <span class="n">value</span>
 
-<div class="viewcode-block" id="PipelineDeveloperView.ensure_pipeline"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.ensure_pipeline">[docs]</a>    <span class="k">def</span> <span class="nf">ensure_pipeline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">):</span>
+<div class="viewcode-block" id="PipelineDeveloperView.ensure_pipeline">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.ensure_pipeline">[docs]</a>
+    <span class="k">def</span> <span class="nf">ensure_pipeline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Check that we have a pipeline or a process</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -2836,6 +2930,7 @@
                 <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Expect a Pipeline or a Process, not a &quot;</span>
                                 <span class="s2">&quot;&#39;</span><span class="si">{0}</span><span class="s2">&#39;.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">pipeline</span><span class="p">)))</span>
         <span class="k">return</span> <span class="n">pipeline</span></div>
+
 
     <span class="k">def</span> <span class="nf">_set_pipeline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">):</span>
         <span class="n">pos</span> <span class="o">=</span> <span class="p">{}</span>
@@ -2879,7 +2974,9 @@
         <span class="c1">#############################################################################</span>
         
 
-<div class="viewcode-block" id="PipelineDeveloperView.set_pipeline"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.set_pipeline">[docs]</a>    <span class="k">def</span> <span class="nf">set_pipeline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">):</span>
+<div class="viewcode-block" id="PipelineDeveloperView.set_pipeline">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.set_pipeline">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_pipeline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Assigns a new pipeline to the view.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -2895,7 +2992,10 @@
                 <span class="n">pipeline</span><span class="o">.</span><span class="n">pipeline_steps</span><span class="o">.</span><span class="n">on_trait_change</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_reset_pipeline</span><span class="p">,</span> <span class="n">dispatch</span><span class="o">=</span><span class="s1">&#39;ui&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="PipelineDeveloperView.release_pipeline"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.release_pipeline">[docs]</a>    <span class="k">def</span> <span class="nf">release_pipeline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delete</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView.release_pipeline">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.release_pipeline">[docs]</a>
+    <span class="k">def</span> <span class="nf">release_pipeline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delete</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Releases the pipeline currently viewed (and remove the callbacks)</span>
 
@@ -2958,14 +3058,20 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s1">&#39;&lt;no pipeline&gt;&#39;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">setScene</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="PipelineDeveloperView.is_logical_view"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.is_logical_view">[docs]</a>    <span class="k">def</span> <span class="nf">is_logical_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView.is_logical_view">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.is_logical_view">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_logical_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        in logical view mode, plugs and links between plugs are hidden, only</span>
 <span class="sd">        links between nodes are displayed.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logical_view</span></div>
 
-<div class="viewcode-block" id="PipelineDeveloperView.set_logical_view"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.set_logical_view">[docs]</a>    <span class="k">def</span> <span class="nf">set_logical_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView.set_logical_view">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.set_logical_view">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_logical_view</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        in logical view mode, plugs and links between plugs are hidden, only</span>
 <span class="sd">        links between nodes are displayed.</span>
@@ -2978,12 +3084,15 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_logical_view</span> <span class="o">=</span> <span class="n">state</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_reset_pipeline</span><span class="p">()</span></div>
 
+
     <span class="k">def</span> <span class="nf">_reset_pipeline</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># self._set_pipeline(pipeline)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">logical_view</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logical_view</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">update_pipeline</span><span class="p">()</span>
 
-<div class="viewcode-block" id="PipelineDeveloperView.zoom_in"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.zoom_in">[docs]</a>    <span class="k">def</span> <span class="nf">zoom_in</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="PipelineDeveloperView.zoom_in">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.zoom_in">[docs]</a>
+    <span class="k">def</span> <span class="nf">zoom_in</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Zoom the view in, applying a 1.2 zoom factor</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -2997,7 +3106,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">verticalScrollBar</span><span class="p">()</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">verticalScrollBar</span><span class="p">()</span><span class="o">.</span><span class="n">value</span><span class="p">()</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">y</span><span class="p">()))</span></div>
 
-<div class="viewcode-block" id="PipelineDeveloperView.zoom_out"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.zoom_out">[docs]</a>    <span class="k">def</span> <span class="nf">zoom_out</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView.zoom_out">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.zoom_out">[docs]</a>
+    <span class="k">def</span> <span class="nf">zoom_out</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Zoom the view out, applying a 1/1.2 zool factor</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -3011,13 +3123,19 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">verticalScrollBar</span><span class="p">()</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">verticalScrollBar</span><span class="p">()</span><span class="o">.</span><span class="n">value</span><span class="p">()</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">y</span><span class="p">()))</span></div>
 
-<div class="viewcode-block" id="PipelineDeveloperView.edition_enabled"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.edition_enabled">[docs]</a>    <span class="k">def</span> <span class="nf">edition_enabled</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView.edition_enabled">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.edition_enabled">[docs]</a>
+    <span class="k">def</span> <span class="nf">edition_enabled</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Get the editable state</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_enable_edition</span></div>
 
-<div class="viewcode-block" id="PipelineDeveloperView.set_enable_edition"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.set_enable_edition">[docs]</a>    <span class="k">def</span> <span class="nf">set_enable_edition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView.set_enable_edition">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.set_enable_edition">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_enable_edition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Set the editable state. Edition allows to modify a pipeline: adding /</span>
 <span class="sd">        removing process boxes and switches, drawing links, etc.</span>
@@ -3025,7 +3143,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_enable_edition</span> <span class="o">=</span> <span class="n">state</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">set_enable_edition</span><span class="p">(</span><span class="n">state</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="PipelineDeveloperView.is_restricted_edition_mode"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.is_restricted_edition_mode">[docs]</a>    <span class="k">def</span> <span class="nf">is_restricted_edition_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView.is_restricted_edition_mode">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.is_restricted_edition_mode">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_restricted_edition_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Get the restricted mode status</span>
 
@@ -3035,7 +3156,10 @@
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_restricted_edition</span></div>
 
-<div class="viewcode-block" id="PipelineDeveloperView.set_restricted_edition_mode"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.set_restricted_edition_mode">[docs]</a>    <span class="k">def</span> <span class="nf">set_restricted_edition_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">enabled</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView.set_restricted_edition_mode">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.set_restricted_edition_mode">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_restricted_edition_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">enabled</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Set the restricted edition mode. In restricted mode, some background</span>
 <span class="sd">        menu actions (&quot;add process&quot;, &quot;open node controller&quot;...) are not</span>
@@ -3047,7 +3171,10 @@
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_restricted_edition</span> <span class="o">=</span> <span class="n">enabled</span></div>
 
-<div class="viewcode-block" id="PipelineDeveloperView.wheelEvent"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.wheelEvent">[docs]</a>    <span class="k">def</span> <span class="nf">wheelEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView.wheelEvent">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.wheelEvent">[docs]</a>
+    <span class="k">def</span> <span class="nf">wheelEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
         <span class="n">done</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">modifiers</span><span class="p">()</span> <span class="o">==</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">ControlModifier</span><span class="p">:</span>
             <span class="n">item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">itemAt</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">pos</span><span class="p">())</span>
@@ -3065,7 +3192,10 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">done</span><span class="p">:</span>
             <span class="nb">super</span><span class="p">(</span><span class="n">PipelineDeveloperView</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">wheelEvent</span><span class="p">(</span><span class="n">event</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="PipelineDeveloperView.mousePressEvent"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.mousePressEvent">[docs]</a>    <span class="k">def</span> <span class="nf">mousePressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView.mousePressEvent">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.mousePressEvent">[docs]</a>
+    <span class="k">def</span> <span class="nf">mousePressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">PipelineDeveloperView</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">mousePressEvent</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">isAccepted</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">button</span><span class="p">()</span> <span class="o">==</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">RightButton</span><span class="p">:</span>
@@ -3081,7 +3211,10 @@
             <span class="k">for</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">gnode</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">gnodes</span><span class="p">):</span>
                 <span class="n">gnode</span><span class="o">.</span><span class="n">fonced_viewer</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="PipelineDeveloperView.mouseReleaseEvent"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.mouseReleaseEvent">[docs]</a>    <span class="k">def</span> <span class="nf">mouseReleaseEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView.mouseReleaseEvent">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.mouseReleaseEvent">[docs]</a>
+    <span class="k">def</span> <span class="nf">mouseReleaseEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_grab</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grab_link</span><span class="p">:</span>
             <span class="n">event</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
@@ -3094,7 +3227,10 @@
         <span class="nb">super</span><span class="p">(</span><span class="n">PipelineDeveloperView</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">mouseReleaseEvent</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">update</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="PipelineDeveloperView.mouseMoveEvent"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.mouseMoveEvent">[docs]</a>    <span class="k">def</span> <span class="nf">mouseMoveEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView.mouseMoveEvent">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.mouseMoveEvent">[docs]</a>
+    <span class="k">def</span> <span class="nf">mouseMoveEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grab</span><span class="p">:</span>
             <span class="n">event</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
             <span class="n">translation</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">pos</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grabpos</span>
@@ -3109,7 +3245,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="nb">super</span><span class="p">(</span><span class="n">PipelineDeveloperView</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">mouseMoveEvent</span><span class="p">(</span><span class="n">event</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="PipelineDeveloperView.dragEnterEvent"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.dragEnterEvent">[docs]</a>    <span class="k">def</span> <span class="nf">dragEnterEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView.dragEnterEvent">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.dragEnterEvent">[docs]</a>
+    <span class="k">def</span> <span class="nf">dragEnterEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Event handler when the mouse enters the widget.</span>
 
 <span class="sd">        :param event: event</span>
@@ -3118,7 +3257,10 @@
         <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">mimeData</span><span class="p">()</span><span class="o">.</span><span class="n">hasFormat</span><span class="p">(</span><span class="s1">&#39;component/name&#39;</span><span class="p">):</span>
             <span class="n">event</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="PipelineDeveloperView.dragMoveEvent"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.dragMoveEvent">[docs]</a>    <span class="k">def</span> <span class="nf">dragMoveEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView.dragMoveEvent">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.dragMoveEvent">[docs]</a>
+    <span class="k">def</span> <span class="nf">dragMoveEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Event handler when the mouse moves in the widget.</span>
 
 <span class="sd">        :param event: event</span>
@@ -3127,7 +3269,10 @@
         <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">mimeData</span><span class="p">()</span><span class="o">.</span><span class="n">hasFormat</span><span class="p">(</span><span class="s1">&#39;component/name&#39;</span><span class="p">):</span>
             <span class="n">event</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="PipelineDeveloperView.dropEvent"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.dropEvent">[docs]</a>    <span class="k">def</span> <span class="nf">dropEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView.dropEvent">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.dropEvent">[docs]</a>
+    <span class="k">def</span> <span class="nf">dropEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Event handler when something is dropped in the widget.</span>
 
 <span class="sd">        :param event: event</span>
@@ -3139,7 +3284,10 @@
             <span class="n">path</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">mimeData</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="p">(</span><span class="s1">&#39;component/name&#39;</span><span class="p">))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">drop_process</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf8&#39;</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="PipelineDeveloperView.drop_process"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.drop_process">[docs]</a>    <span class="k">def</span> <span class="nf">drop_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView.drop_process">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.drop_process">[docs]</a>
+    <span class="k">def</span> <span class="nf">drop_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Find the dropped process in the system&#39;s paths.</span>
 
 <span class="sd">        :param path: class&#39;s path (e.g. &quot;nipype.interfaces.spm.Smooth&quot;) (str)</span>
@@ -3172,7 +3320,10 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">add_named_process</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
                     <span class="n">QtGui</span><span class="o">.</span><span class="n">QApplication</span><span class="o">.</span><span class="n">restoreOverrideCursor</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="PipelineDeveloperView.add_embedded_subpipeline"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.add_embedded_subpipeline">[docs]</a>    <span class="k">def</span> <span class="nf">add_embedded_subpipeline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subpipeline_name</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView.add_embedded_subpipeline">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.add_embedded_subpipeline">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_embedded_subpipeline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subpipeline_name</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Adds an embedded sub-pipeline inside its parent node.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -3183,7 +3334,10 @@
             <span class="n">gnode</span><span class="o">.</span><span class="n">add_subpipeline_view</span><span class="p">(</span>
                 <span class="n">sub_pipeline</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_allow_open_controller</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="PipelineDeveloperView.onLoadSubPipelineClicked"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.onLoadSubPipelineClicked">[docs]</a>    <span class="k">def</span> <span class="nf">onLoadSubPipelineClicked</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">sub_pipeline</span><span class="p">,</span> <span class="n">modifiers</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView.onLoadSubPipelineClicked">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.onLoadSubPipelineClicked">[docs]</a>
+    <span class="k">def</span> <span class="nf">onLoadSubPipelineClicked</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">sub_pipeline</span><span class="p">,</span> <span class="n">modifiers</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Event to load a open a sub-pipeline view.</span>
 <span class="sd">        If ctrl is pressed the new view will be embedded in its parent node</span>
 <span class="sd">        box.</span>
@@ -3211,7 +3365,10 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
             <span class="n">sub_view</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="PipelineDeveloperView.window"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.window">[docs]</a>    <span class="k">def</span> <span class="nf">window</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView.window">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.window">[docs]</a>
+    <span class="k">def</span> <span class="nf">window</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        window() is overloaded from QWidget.window() to handle embedded views</span>
 <span class="sd">        cases.</span>
@@ -3225,13 +3382,19 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">PipelineDeveloperView</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">window</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="PipelineDeveloperView.onOpenProcessController"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.onOpenProcessController">[docs]</a>    <span class="k">def</span> <span class="nf">onOpenProcessController</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">process</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView.onOpenProcessController">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.onOpenProcessController">[docs]</a>
+    <span class="k">def</span> <span class="nf">onOpenProcessController</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">process</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Event to open a sub-process/sub-pipeline controller</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_allow_open_controller</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">open_node_menu</span><span class="p">(</span><span class="n">node_name</span><span class="p">,</span> <span class="n">process</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="PipelineDeveloperView.openProcessController"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.openProcessController">[docs]</a>    <span class="k">def</span> <span class="nf">openProcessController</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView.openProcessController">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.openProcessController">[docs]</a>
+    <span class="k">def</span> <span class="nf">openProcessController</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">sub_view</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QScrollArea</span><span class="p">()</span>
         <span class="n">node_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_node_name</span>
         <span class="k">if</span> <span class="n">node_name</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;inputs&#39;</span><span class="p">,</span> <span class="s1">&#39;outputs&#39;</span><span class="p">):</span>
@@ -3263,7 +3426,10 @@
         <span class="c1"># prevent the sub_view to close/delete immediately</span>
         <span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="o">.</span><span class="n">setParent</span><span class="p">(</span><span class="n">sub_view</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">window</span><span class="p">())</span></div>
 
-<div class="viewcode-block" id="PipelineDeveloperView.open_node_menu"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.open_node_menu">[docs]</a>    <span class="k">def</span> <span class="nf">open_node_menu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">process</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView.open_node_menu">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.open_node_menu">[docs]</a>
+    <span class="k">def</span> <span class="nf">open_node_menu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">process</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; right-click popup menu for nodes</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">node_name</span> <span class="o">=</span> <span class="n">six</span><span class="o">.</span><span class="n">text_type</span><span class="p">(</span><span class="n">node_name</span><span class="p">)</span>  <span class="c1"># in case it is a QString</span>
@@ -3433,6 +3599,7 @@
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_node_name</span>
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_process</span></div>
 
+
     <span class="k">def</span> <span class="nf">emit_export_to_db_scans</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">export_to_db_scans</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_node_name</span><span class="p">)</span>
 
@@ -3447,7 +3614,9 @@
             <span class="n">sub_pipeline</span> <span class="o">=</span> <span class="n">sub_pipeline</span><span class="o">.</span><span class="fm">__init__</span><span class="o">.</span><span class="vm">__self__</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">edit_sub_pipeline</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">sub_pipeline</span><span class="p">)</span>
 
-<div class="viewcode-block" id="PipelineDeveloperView.show_optional_inputs"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.show_optional_inputs">[docs]</a>    <span class="k">def</span> <span class="nf">show_optional_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="PipelineDeveloperView.show_optional_inputs">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.show_optional_inputs">[docs]</a>
+    <span class="k">def</span> <span class="nf">show_optional_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Added to choose to visualize optional inputs.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -3493,7 +3662,10 @@
         <span class="n">gnode</span><span class="o">.</span><span class="n">change_input_view</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">update_pipeline</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="PipelineDeveloperView.show_optional_outputs"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.show_optional_outputs">[docs]</a>    <span class="k">def</span> <span class="nf">show_optional_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView.show_optional_outputs">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.show_optional_outputs">[docs]</a>
+    <span class="k">def</span> <span class="nf">show_optional_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Added to choose to visualize optional outputs.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -3531,7 +3703,10 @@
         <span class="n">gnode</span><span class="o">.</span><span class="n">change_output_view</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">update_pipeline</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="PipelineDeveloperView.open_background_menu"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.open_background_menu">[docs]</a>    <span class="k">def</span> <span class="nf">open_background_menu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView.open_background_menu">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.open_background_menu">[docs]</a>
+    <span class="k">def</span> <span class="nf">open_background_menu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Open the right-click menu when triggered from the pipeline background.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -3633,17 +3808,26 @@
         <span class="n">menu</span><span class="o">.</span><span class="n">exec_</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QCursor</span><span class="o">.</span><span class="n">pos</span><span class="p">())</span>
         <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">click_pos</span></div>
 
-<div class="viewcode-block" id="PipelineDeveloperView.enableNode"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.enableNode">[docs]</a>    <span class="k">def</span> <span class="nf">enableNode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">checked</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView.enableNode">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.enableNode">[docs]</a>
+    <span class="k">def</span> <span class="nf">enableNode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">checked</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_node_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;inputs&#39;</span><span class="p">,</span> <span class="s1">&#39;outputs&#39;</span><span class="p">]:</span>
             <span class="n">node_name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">node_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_node_name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node_name</span><span class="p">]</span><span class="o">.</span><span class="n">enabled</span> <span class="o">=</span> <span class="n">checked</span></div>
 
-<div class="viewcode-block" id="PipelineDeveloperView.enable_step"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.enable_step">[docs]</a>    <span class="k">def</span> <span class="nf">enable_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step_name</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView.enable_step">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.enable_step">[docs]</a>
+    <span class="k">def</span> <span class="nf">enable_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step_name</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
         <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">pipeline_steps</span><span class="p">,</span> <span class="n">step_name</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="PipelineDeveloperView.disable_preceding_steps"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.disable_preceding_steps">[docs]</a>    <span class="k">def</span> <span class="nf">disable_preceding_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step_name</span><span class="p">,</span> <span class="n">dummy</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView.disable_preceding_steps">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.disable_preceding_steps">[docs]</a>
+    <span class="k">def</span> <span class="nf">disable_preceding_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step_name</span><span class="p">,</span> <span class="n">dummy</span><span class="p">):</span>
         <span class="c1"># don&#39;t know why we get this additionall dummy parameter (False)</span>
         <span class="n">steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">pipeline_steps</span>
         <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">steps</span><span class="o">.</span><span class="n">user_traits</span><span class="p">():</span>
@@ -3651,7 +3835,10 @@
                 <span class="k">break</span>
             <span class="nb">setattr</span><span class="p">(</span><span class="n">steps</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="PipelineDeveloperView.disable_following_steps"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.disable_following_steps">[docs]</a>    <span class="k">def</span> <span class="nf">disable_following_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step_name</span><span class="p">,</span> <span class="n">dummy</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView.disable_following_steps">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.disable_following_steps">[docs]</a>
+    <span class="k">def</span> <span class="nf">disable_following_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step_name</span><span class="p">,</span> <span class="n">dummy</span><span class="p">):</span>
         <span class="n">steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">pipeline_steps</span>
         <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">steps</span><span class="o">.</span><span class="n">user_traits</span><span class="p">():</span>
@@ -3660,14 +3847,20 @@
             <span class="k">elif</span> <span class="n">step</span> <span class="o">==</span> <span class="n">step_name</span><span class="p">:</span>
                 <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span></div>
 
-<div class="viewcode-block" id="PipelineDeveloperView.enable_preceding_steps"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.enable_preceding_steps">[docs]</a>    <span class="k">def</span> <span class="nf">enable_preceding_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step_name</span><span class="p">,</span> <span class="n">dummy</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView.enable_preceding_steps">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.enable_preceding_steps">[docs]</a>
+    <span class="k">def</span> <span class="nf">enable_preceding_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step_name</span><span class="p">,</span> <span class="n">dummy</span><span class="p">):</span>
         <span class="n">steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">pipeline_steps</span>
         <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">steps</span><span class="o">.</span><span class="n">user_traits</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">step</span> <span class="o">==</span> <span class="n">step_name</span><span class="p">:</span>
                 <span class="k">break</span>
             <span class="nb">setattr</span><span class="p">(</span><span class="n">steps</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="PipelineDeveloperView.enable_following_steps"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.enable_following_steps">[docs]</a>    <span class="k">def</span> <span class="nf">enable_following_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step_name</span><span class="p">,</span> <span class="n">dummy</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView.enable_following_steps">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.enable_following_steps">[docs]</a>
+    <span class="k">def</span> <span class="nf">enable_following_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step_name</span><span class="p">,</span> <span class="n">dummy</span><span class="p">):</span>
         <span class="n">steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">pipeline_steps</span>
         <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">steps</span><span class="o">.</span><span class="n">user_traits</span><span class="p">():</span>
@@ -3676,17 +3869,29 @@
             <span class="k">elif</span> <span class="n">step</span> <span class="o">==</span> <span class="n">step_name</span><span class="p">:</span>
                 <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span></div>
 
-<div class="viewcode-block" id="PipelineDeveloperView.set_switch_value"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.set_switch_value">[docs]</a>    <span class="k">def</span> <span class="nf">set_switch_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">switch</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">dummy</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView.set_switch_value">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.set_switch_value">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_switch_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">switch</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">dummy</span><span class="p">):</span>
         <span class="n">switch</span><span class="o">.</span><span class="n">switch</span> <span class="o">=</span> <span class="n">value</span></div>
 
-<div class="viewcode-block" id="PipelineDeveloperView.disable_done_steps"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.disable_done_steps">[docs]</a>    <span class="k">def</span> <span class="nf">disable_done_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView.disable_done_steps">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.disable_done_steps">[docs]</a>
+    <span class="k">def</span> <span class="nf">disable_done_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">pipeline_tools</span><span class="o">.</span><span class="n">disable_runtime_steps_with_existing_outputs</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">pipeline</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="PipelineDeveloperView.enable_all_steps"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.enable_all_steps">[docs]</a>    <span class="k">def</span> <span class="nf">enable_all_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView.enable_all_steps">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.enable_all_steps">[docs]</a>
+    <span class="k">def</span> <span class="nf">enable_all_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">enable_all_pipeline_steps</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="PipelineDeveloperView.check_files"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.check_files">[docs]</a>    <span class="k">def</span> <span class="nf">check_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView.check_files">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.check_files">[docs]</a>
+    <span class="k">def</span> <span class="nf">check_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">overwritten_outputs</span> <span class="o">=</span> <span class="n">pipeline_tools</span><span class="o">.</span><span class="n">nodes_with_existing_outputs</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">pipeline</span><span class="p">)</span>
         <span class="n">missing_inputs</span> <span class="o">=</span> <span class="n">pipeline_tools</span><span class="o">.</span><span class="n">nodes_with_missing_inputs</span><span class="p">(</span>
@@ -3711,7 +3916,10 @@
             <span class="n">dialog</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_warn_files_widget</span> <span class="o">=</span> <span class="n">dialog</span></div>
 
-<div class="viewcode-block" id="PipelineDeveloperView.auto_dot_node_positions"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.auto_dot_node_positions">[docs]</a>    <span class="k">def</span> <span class="nf">auto_dot_node_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView.auto_dot_node_positions">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.auto_dot_node_positions">[docs]</a>
+    <span class="k">def</span> <span class="nf">auto_dot_node_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Calculate pipeline nodes positions using graphviz/dot, and place the</span>
 <span class="sd">        pipeline view nodes accordingly.</span>
@@ -3762,6 +3970,7 @@
             <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">tfile_name</span><span class="p">)</span>
             <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">toutfile_name</span><span class="p">)</span></div>
 
+
     <span class="k">def</span> <span class="nf">_read_dot_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Read the nodes positions from a file generated by graphviz/dot, in</span>
@@ -3795,7 +4004,9 @@
                 <span class="k">break</span>
         <span class="k">return</span> <span class="n">nodes_pos</span>
 
-<div class="viewcode-block" id="PipelineDeveloperView.save_dot_image_ui"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.save_dot_image_ui">[docs]</a>    <span class="k">def</span> <span class="nf">save_dot_image_ui</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="PipelineDeveloperView.save_dot_image_ui">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.save_dot_image_ui">[docs]</a>
+    <span class="k">def</span> <span class="nf">save_dot_image_ui</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Ask for a filename using the file dialog, and save a graphviz/dot</span>
 <span class="sd">        representation of the pipeline.</span>
@@ -3817,7 +4028,10 @@
         <span class="k">if</span> <span class="n">filename</span><span class="p">:</span>
             <span class="n">pipeline_tools</span><span class="o">.</span><span class="n">save_dot_image</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">filename</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
 
-<div class="viewcode-block" id="PipelineDeveloperView.reset_initial_nodes_positions"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.reset_initial_nodes_positions">[docs]</a>    <span class="k">def</span> <span class="nf">reset_initial_nodes_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView.reset_initial_nodes_positions">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.reset_initial_nodes_positions">[docs]</a>
+    <span class="k">def</span> <span class="nf">reset_initial_nodes_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Set each pipeline node to its &quot;saved&quot; position, ie the one which may</span>
 <span class="sd">        be found in the &quot;node_position&quot; variable of the pipeline.</span>
@@ -3850,6 +4064,7 @@
                     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QPointF</span><span class="p">):</span>
                         <span class="n">position</span> <span class="o">=</span> <span class="p">(</span><span class="n">position</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span> <span class="n">position</span><span class="o">.</span><span class="n">y</span><span class="p">())</span>
                     <span class="n">gnode</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="o">*</span><span class="n">position</span><span class="p">)</span></div>
+
 
 
 
@@ -4095,7 +4310,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">update_pipeline</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="PipelineDeveloperView.ProcessModuleInput"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.ProcessModuleInput">[docs]</a>    <span class="k">class</span> <span class="nc">ProcessModuleInput</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QDialog</span><span class="p">):</span>
+<div class="viewcode-block" id="PipelineDeveloperView.ProcessModuleInput">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.ProcessModuleInput">[docs]</a>
+    <span class="k">class</span> <span class="nc">ProcessModuleInput</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QDialog</span><span class="p">):</span>
         <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">display_str</span><span class="o">=</span><span class="s1">&#39;process module/name&#39;</span><span class="p">,</span>
                      <span class="n">class_type_check</span><span class="o">=</span><span class="n">process_instance</span><span class="o">.</span><span class="n">is_process</span><span class="p">):</span>
             <span class="nb">super</span><span class="p">(</span><span class="n">PipelineDeveloperView</span><span class="o">.</span><span class="n">ProcessModuleInput</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -4117,7 +4334,10 @@
             <span class="n">ok</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">accept</span><span class="p">)</span>
             <span class="n">cancel</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reject</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="PipelineDeveloperView.add_process"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.add_process">[docs]</a>    <span class="k">def</span> <span class="nf">add_process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView.add_process">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.add_process">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Insert a process node in the pipeline. Asks for the process</span>
 <span class="sd">        module/name, and the node name before inserting.</span>
@@ -4131,6 +4351,7 @@
             <span class="n">proc_module</span> <span class="o">=</span> <span class="n">six</span><span class="o">.</span><span class="n">text_type</span><span class="p">(</span><span class="n">proc_name_gui</span><span class="o">.</span><span class="n">proc_line</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
             <span class="n">node_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">proc_name_gui</span><span class="o">.</span><span class="n">name_line</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_named_process</span><span class="p">(</span><span class="n">proc_module</span><span class="p">,</span> <span class="n">node_name</span><span class="p">)</span></div>
+
 
     <span class="k">def</span> <span class="nf">add_named_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">proc_module</span><span class="p">,</span> <span class="n">node_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">pipeline</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">pipeline</span>
@@ -4161,7 +4382,9 @@
 
         <span class="k">return</span> <span class="n">process</span>
 
-<div class="viewcode-block" id="PipelineDeveloperView.add_node"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.add_node">[docs]</a>    <span class="k">def</span> <span class="nf">add_node</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="PipelineDeveloperView.add_node">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.add_node">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_node</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Insert a custom node in the pipeline. Asks for the node</span>
 <span class="sd">        module/name, and the node name before inserting.</span>
@@ -4179,6 +4402,7 @@
             <span class="n">node_module</span> <span class="o">=</span> <span class="n">six</span><span class="o">.</span><span class="n">text_type</span><span class="p">(</span><span class="n">node_name_gui</span><span class="o">.</span><span class="n">proc_line</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
             <span class="n">node_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">node_name_gui</span><span class="o">.</span><span class="n">name_line</span><span class="o">.</span><span class="n">text</span><span class="p">())</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_named_node</span><span class="p">(</span><span class="n">node_name</span><span class="p">,</span> <span class="n">node_module</span><span class="p">)</span></div>
+
 
     <span class="k">def</span> <span class="nf">add_named_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">node_module</span><span class="p">):</span>
         <span class="k">def</span> <span class="nf">configure_node</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
@@ -4246,7 +4470,9 @@
         <span class="n">gnode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">node_name</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span>
         <span class="n">gnode</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mapToScene</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mapFromGlobal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">click_pos</span><span class="p">)))</span>
 
-<div class="viewcode-block" id="PipelineDeveloperView.IterativeProcessInput"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.IterativeProcessInput">[docs]</a>    <span class="k">class</span> <span class="nc">IterativeProcessInput</span><span class="p">(</span><span class="n">ProcessModuleInput</span><span class="p">):</span>
+<div class="viewcode-block" id="PipelineDeveloperView.IterativeProcessInput">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.IterativeProcessInput">[docs]</a>
+    <span class="k">class</span> <span class="nc">IterativeProcessInput</span><span class="p">(</span><span class="n">ProcessModuleInput</span><span class="p">):</span>
         <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="p">):</span>
             <span class="nb">super</span><span class="p">(</span><span class="n">PipelineDeveloperView</span><span class="o">.</span><span class="n">IterativeProcessInput</span><span class="p">,</span>
                   <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -4282,7 +4508,10 @@
         <span class="k">def</span> <span class="nf">iterative_plugs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
             <span class="k">return</span> <span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">text</span><span class="p">()</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">plugs</span><span class="o">.</span><span class="n">selectedItems</span><span class="p">()]</span></div>
 
-<div class="viewcode-block" id="PipelineDeveloperView.add_iterative_process"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.add_iterative_process">[docs]</a>    <span class="k">def</span> <span class="nf">add_iterative_process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView.add_iterative_process">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.add_iterative_process">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_iterative_process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Insert an iterative process node in the pipeline. Asks for the process</span>
 <span class="sd">        module/name, the node name, and iterative plugs before inserting.</span>
@@ -4311,7 +4540,10 @@
             <span class="n">gnode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">node_name</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span>
             <span class="n">gnode</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mapToScene</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mapFromGlobal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">click_pos</span><span class="p">)))</span></div>
 
-<div class="viewcode-block" id="PipelineDeveloperView.add_switch"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.add_switch">[docs]</a>    <span class="k">def</span> <span class="nf">add_switch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView.add_switch">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.add_switch">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_switch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Insert a switch node in the pipeline. Asks for the switch</span>
 <span class="sd">        inputs/outputs, and the node name before inserting.</span>
@@ -4352,7 +4584,10 @@
             <span class="n">gnode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">gnodes</span><span class="p">[</span><span class="n">node_name</span><span class="p">]</span>
             <span class="n">gnode</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mapToScene</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mapFromGlobal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">click_pos</span><span class="p">)))</span></div>
 
-<div class="viewcode-block" id="PipelineDeveloperView.add_optional_output_switch"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.add_optional_output_switch">[docs]</a>    <span class="k">def</span> <span class="nf">add_optional_output_switch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView.add_optional_output_switch">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.add_optional_output_switch">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_optional_output_switch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Insert an optional output switch node in the pipeline. Asks for the</span>
 <span class="sd">        switch inputs/outputs, and the node name before inserting.</span>
@@ -4397,6 +4632,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_reset_pipeline</span><span class="p">()</span>
             <span class="n">gnode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">gnodes</span><span class="p">[</span><span class="n">node_name</span><span class="p">]</span>
             <span class="n">gnode</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mapToScene</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mapFromGlobal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">click_pos</span><span class="p">)))</span></div>
+
 
     <span class="k">def</span> <span class="nf">_plug_clicked</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_logical_view</span><span class="p">()</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">edition_enabled</span><span class="p">():</span>
@@ -5031,7 +5267,9 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">_pipeline_filename</span> <span class="o">=</span> <span class="n">filename</span>
                     <span class="k">return</span> <span class="n">filename</span>
 
-<div class="viewcode-block" id="PipelineDeveloperView.save_pipeline"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.save_pipeline">[docs]</a>    <span class="k">def</span> <span class="nf">save_pipeline</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="PipelineDeveloperView.save_pipeline">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.save_pipeline">[docs]</a>
+    <span class="k">def</span> <span class="nf">save_pipeline</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Ask for a filename using the file dialog, and save the pipeline as a</span>
 <span class="sd">        XML, JSON or python file.</span>
@@ -5065,6 +5303,7 @@
             <span class="n">pipeline</span><span class="o">.</span><span class="n">node_position</span> <span class="o">=</span> <span class="n">old_pos</span>
             <span class="n">pipeline</span><span class="o">.</span><span class="n">node_dimension</span> <span class="o">=</span> <span class="n">old_dim</span></div>
 
+
     <span class="c1">#def load_pipeline_parameters(self):</span>
         <span class="c1">#&quot;&quot;&quot;</span>
         <span class="c1">#Loading and setting pipeline parameters (inputs and outputs) from a Json file.</span>
@@ -5087,7 +5326,9 @@
 
         <span class="c1">#pipeline_tools.save_pipeline_parameters(filename, pipeline)</span>
 
-<div class="viewcode-block" id="PipelineDeveloperView.load_pipeline_parameters"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.load_pipeline_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">load_pipeline_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_path</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="PipelineDeveloperView.load_pipeline_parameters">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.load_pipeline_parameters">[docs]</a>
+    <span class="k">def</span> <span class="nf">load_pipeline_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root_path</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Loading and setting pipeline parameters (inputs and outputs) from a Json file.</span>
 <span class="sd">        :return:</span>
@@ -5127,7 +5368,10 @@
 
             <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">update_nodes_and_plugs_activation</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="PipelineDeveloperView.save_pipeline_parameters"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.save_pipeline_parameters">[docs]</a>    <span class="k">def</span> <span class="nf">save_pipeline_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="PipelineDeveloperView.save_pipeline_parameters">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.save_pipeline_parameters">[docs]</a>
+    <span class="k">def</span> <span class="nf">save_pipeline_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Saving pipeline parameters (inputs and outputs) to a Json file.</span>
 <span class="sd">        :return:</span>
@@ -5221,7 +5465,9 @@
                     <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">jsonstring</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
-                    <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">jsonstring</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span></div></div>
+                    <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">jsonstring</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span></div>
+</div>
+
 </pre></div>
 
             <div class="clearer"></div>
@@ -5249,8 +5495,8 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.2.
     </div>
   </body>
 </html>

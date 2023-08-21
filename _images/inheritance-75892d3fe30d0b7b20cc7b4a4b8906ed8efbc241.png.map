@@ -1,0 +1,24 @@
+<map id="inheritancee6f05bd717" name="inheritancee6f05bd717">
+<area shape="rect" id="node1" href="https://docs.enthought.com/traits/traits_api_reference/ctraits.html#traits.ctraits.CHasTraits" target="_top" title="Base class for HasTraits." alt="" coords="35,351,125,376"/>
+<area shape="rect" id="node5" href="https://docs.enthought.com/traits/traits_api_reference/has_traits.html#traits.has_traits.HasTraits" target="_top" title="Enables any Python class derived from it to have trait attributes." alt="" coords="203,351,285,376"/>
+<area shape="rect" id="node2" href="#capsul.pipeline.pipeline_construction.ConstructedPipeline" target="_top" title="Base class of all pipelines created with PipelineConstructor. It redefines" alt="" coords="826,351,978,376"/>
+<area shape="rect" id="node3" href="#capsul.pipeline.pipeline.Pipeline" target="_top" title="Pipeline containing Process nodes, and links between node parameters." alt="" coords="643,351,717,376"/>
+<area shape="rect" id="node4" href="https://populse.github.io/soma-base/api.html#soma.controller.controller.Controller" target="_top" title="A Controller contains some traits: attributes typing and observer" alt="" coords="333,351,420,376"/>
+<area shape="rect" id="node7" href="#capsul.pipeline.pipeline_nodes.Node" target="_top" title="Basic Node structure of the pipeline that need to be tuned." alt="" coords="468,179,540,204"/>
+<area shape="rect" id="node14" href="process.html#capsul.process.process.Process" target="_top" title="A process is an atomic component that contains a processing." alt="" coords="468,351,540,376"/>
+<area shape="rect" id="node18" href="#capsul.pipeline.pipeline_nodes.Plug" target="_top" title="Overload of the traits in order to keep the pipeline memory." alt="" coords="468,400,540,425"/>
+<area shape="rect" id="node6" href="#capsul.pipeline.custom_nodes.cv_node.CrossValidationFoldNode" target="_top" title="This &quot;inert&quot; node filters a list to separate it into (typically) learn and" alt="" coords="588,5,772,31"/>
+<area shape="rect" id="node10" href="#capsul.pipeline.custom_nodes.loo_node.LeaveOneOutNode" target="_top" title="This &quot;inert&quot; node excludes one input from the list of inputs, to allow" alt="" coords="608,55,752,80"/>
+<area shape="rect" id="node11" href="#capsul.pipeline.custom_nodes.map_node.MapNode" target="_top" title="This node converts lists into series of single items. Typically an" alt="" coords="638,104,722,129"/>
+<area shape="rect" id="node13" href="#capsul.pipeline.pipeline_nodes.Switch" target="_top" title="Switch node to select a specific Process." alt="" coords="644,153,716,179"/>
+<area shape="rect" id="node17" href="#capsul.pipeline.pipeline_nodes.ProcessNode" target="_top" title="Process node." alt="" coords="627,203,733,228"/>
+<area shape="rect" id="node20" href="#capsul.pipeline.custom_nodes.reduce_node.ReduceNode" target="_top" title="Reduce node: converts series of inputs into lists. Typically a series of" alt="" coords="628,252,732,277"/>
+<area shape="rect" id="node21" href="#capsul.pipeline.custom_nodes.strcat_node.StrCatNode" target="_top" title="This &quot;inert&quot; node concatenates its inputs (as strings) and generates the" alt="" coords="632,301,728,327"/>
+<area shape="rect" id="node8" href="#capsul.pipeline.topological_sort.Graph" target="_top" title="Simple Graph Structure on which we want to perform a" alt="" coords="44,301,116,327"/>
+<area shape="rect" id="node9" href="#capsul.pipeline.topological_sort.GraphNode" target="_top" title="Simple Graph Node Structure" alt="" coords="33,252,127,277"/>
+<area shape="rect" id="node12" href="#capsul.pipeline.pipeline_nodes.OptionalOutputSwitch" target="_top" title="A switch which activates or disables its input/output link according" alt="" coords="820,153,984,179"/>
+<area shape="rect" id="node19" href="#capsul.pipeline.process_iteration.ProcessIteration" target="_top" title=".. note::" alt="" coords="617,400,743,425"/>
+<area shape="rect" id="node15" href="#capsul.pipeline.pipeline_construction.PipelineConstructor" target="_top" title="A PipelineConstructor is used to build a new Pipeline class and dynamically" alt="" coords="5,203,155,228"/>
+<area shape="rect" id="node16" href="#capsul.pipeline.pipeline_nodes.PipelineNode" target="_top" title="A special node to store the pipeline user&#45;parameters" alt="" coords="848,203,956,228"/>
+<area shape="rect" id="node22" href="#capsul.pipeline.pipeline_workflow.TempFile" target="_top" title="TempFile" alt="" coords="40,153,120,179"/>
+</map>

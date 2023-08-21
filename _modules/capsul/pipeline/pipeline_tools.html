@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,13 +12,13 @@
   <link rel="stylesheet" href="../../../_static/css/bootstrap-responsive.css"/>
   <link rel="icon" href="../../../_static/capsul_logo.svg"/>
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=f0b81668" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
     
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/documentation_options.js?v=4d935f96"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -178,7 +178,9 @@
 <span class="kn">from</span> <span class="nn">soma.controller</span> <span class="kn">import</span> <span class="n">Controller</span>
 
 
-<div class="viewcode-block" id="pipeline_node_colors"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.pipeline_node_colors">[docs]</a><span class="k">def</span> <span class="nf">pipeline_node_colors</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+<div class="viewcode-block" id="pipeline_node_colors">
+<a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.pipeline_node_colors">[docs]</a>
+<span class="k">def</span> <span class="nf">pipeline_node_colors</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Node color to display boxes in GUI and graphviz graphs. Depending on the</span>
 <span class="sd">    node type (process, pipeline, switch) and its activation, colors will</span>
@@ -331,7 +333,10 @@
     <span class="k">return</span> <span class="n">color_1</span><span class="p">,</span> <span class="n">color_2</span><span class="p">,</span> <span class="n">color_3</span><span class="p">,</span> <span class="n">style</span></div>
 
 
-<div class="viewcode-block" id="pipeline_link_color"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.pipeline_link_color">[docs]</a><span class="k">def</span> <span class="nf">pipeline_link_color</span><span class="p">(</span><span class="n">plug</span><span class="p">,</span> <span class="n">link</span><span class="p">):</span>
+
+<div class="viewcode-block" id="pipeline_link_color">
+<a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.pipeline_link_color">[docs]</a>
+<span class="k">def</span> <span class="nf">pipeline_link_color</span><span class="p">(</span><span class="n">plug</span><span class="p">,</span> <span class="n">link</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Link color and style for graphical display and graphviz graphs.</span>
 
@@ -365,7 +370,10 @@
     <span class="k">return</span> <span class="n">color</span><span class="p">,</span> <span class="n">style</span><span class="p">,</span> <span class="n">active</span><span class="p">,</span> <span class="n">weak</span></div>
 
 
-<div class="viewcode-block" id="dot_graph_from_pipeline"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.dot_graph_from_pipeline">[docs]</a><span class="k">def</span> <span class="nf">dot_graph_from_pipeline</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">nodes_sizes</span><span class="o">=</span><span class="p">{},</span> <span class="n">use_nodes_pos</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+
+<div class="viewcode-block" id="dot_graph_from_pipeline">
+<a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.dot_graph_from_pipeline">[docs]</a>
+<span class="k">def</span> <span class="nf">dot_graph_from_pipeline</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">nodes_sizes</span><span class="o">=</span><span class="p">{},</span> <span class="n">use_nodes_pos</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                             <span class="n">include_io</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">enlarge_boxes</span><span class="o">=</span><span class="mf">0.</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Build a graphviz/dot-compatible representation of the pipeline.</span>
@@ -500,7 +508,10 @@
     <span class="k">return</span> <span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">edges</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="dot_graph_from_workflow"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.dot_graph_from_workflow">[docs]</a><span class="k">def</span> <span class="nf">dot_graph_from_workflow</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">nodes_sizes</span><span class="o">=</span><span class="p">{},</span> <span class="n">use_nodes_pos</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+
+<div class="viewcode-block" id="dot_graph_from_workflow">
+<a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.dot_graph_from_workflow">[docs]</a>
+<span class="k">def</span> <span class="nf">dot_graph_from_workflow</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">nodes_sizes</span><span class="o">=</span><span class="p">{},</span> <span class="n">use_nodes_pos</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                             <span class="n">enlarge_boxes</span><span class="o">=</span><span class="mf">0.</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Build a graphviz/dot-compatible representation of the pipeline workflow.</span>
@@ -570,7 +581,10 @@
     <span class="k">return</span> <span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">edges</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="save_dot_graph"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.save_dot_graph">[docs]</a><span class="k">def</span> <span class="nf">save_dot_graph</span><span class="p">(</span><span class="n">dot_graph</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="save_dot_graph">
+<a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.save_dot_graph">[docs]</a>
+<span class="k">def</span> <span class="nf">save_dot_graph</span><span class="p">(</span><span class="n">dot_graph</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Write a graphviz/dot input file, which can be used to generate an</span>
 <span class="sd">    image representation of the graph, or to make dot automatically</span>
@@ -621,7 +635,10 @@
     <span class="n">fileobj</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="save_dot_image"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.save_dot_image">[docs]</a><span class="k">def</span> <span class="nf">save_dot_image</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">nodes_sizes</span><span class="o">=</span><span class="p">{},</span> <span class="n">use_nodes_pos</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+
+<div class="viewcode-block" id="save_dot_image">
+<a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.save_dot_image">[docs]</a>
+<span class="k">def</span> <span class="nf">save_dot_image</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">nodes_sizes</span><span class="o">=</span><span class="p">{},</span> <span class="n">use_nodes_pos</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                    <span class="n">include_io</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">enlarge_boxes</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">workflow</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                    <span class="nb">format</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
@@ -686,7 +703,10 @@
     <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">dot_filename</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="disable_runtime_steps_with_existing_outputs"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.disable_runtime_steps_with_existing_outputs">[docs]</a><span class="k">def</span> <span class="nf">disable_runtime_steps_with_existing_outputs</span><span class="p">(</span><span class="n">pipeline</span><span class="p">):</span>
+
+<div class="viewcode-block" id="disable_runtime_steps_with_existing_outputs">
+<a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.disable_runtime_steps_with_existing_outputs">[docs]</a>
+<span class="k">def</span> <span class="nf">disable_runtime_steps_with_existing_outputs</span><span class="p">(</span><span class="n">pipeline</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Disable steps in a pipeline which outputs contain existing files. This</span>
 <span class="sd">    disabling is the &quot;runtime steps disabling&quot; one (see</span>
@@ -737,7 +757,10 @@
                             <span class="k">break</span></div>
 
 
-<div class="viewcode-block" id="nodes_with_existing_outputs"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.nodes_with_existing_outputs">[docs]</a><span class="k">def</span> <span class="nf">nodes_with_existing_outputs</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">exclude_inactive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+
+<div class="viewcode-block" id="nodes_with_existing_outputs">
+<a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.nodes_with_existing_outputs">[docs]</a>
+<span class="k">def</span> <span class="nf">nodes_with_existing_outputs</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">exclude_inactive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                                 <span class="n">recursive</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">exclude_inputs</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Checks nodes in a pipeline which outputs contain existing files on the</span>
@@ -821,7 +844,10 @@
     <span class="k">return</span> <span class="n">selected_nodes</span></div>
 
 
-<div class="viewcode-block" id="nodes_with_missing_inputs"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.nodes_with_missing_inputs">[docs]</a><span class="k">def</span> <span class="nf">nodes_with_missing_inputs</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+<div class="viewcode-block" id="nodes_with_missing_inputs">
+<a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.nodes_with_missing_inputs">[docs]</a>
+<span class="k">def</span> <span class="nf">nodes_with_missing_inputs</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Checks nodes in a pipeline which inputs contain invalid inputs.</span>
 <span class="sd">    Inputs which are files non-existing on the filesystem (so, which cannot</span>
@@ -904,7 +930,10 @@
     <span class="k">return</span> <span class="n">selected_nodes</span></div>
 
 
-<div class="viewcode-block" id="where_is_plug_value_from"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.where_is_plug_value_from">[docs]</a><span class="k">def</span> <span class="nf">where_is_plug_value_from</span><span class="p">(</span><span class="n">plug</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+<div class="viewcode-block" id="where_is_plug_value_from">
+<a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.where_is_plug_value_from">[docs]</a>
+<span class="k">def</span> <span class="nf">where_is_plug_value_from</span><span class="p">(</span><span class="n">plug</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Find where the given (input) plug takes its value from.</span>
 <span class="sd">    It has to be the output of an uphill process, or be unconnected.</span>
@@ -960,7 +989,10 @@
     <span class="c1"># not found</span>
     <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="find_plug_connection_sources"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.find_plug_connection_sources">[docs]</a><span class="k">def</span> <span class="nf">find_plug_connection_sources</span><span class="p">(</span><span class="n">plug</span><span class="p">,</span> <span class="n">pipeline</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="find_plug_connection_sources">
+<a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.find_plug_connection_sources">[docs]</a>
+<span class="k">def</span> <span class="nf">find_plug_connection_sources</span><span class="p">(</span><span class="n">plug</span><span class="p">,</span> <span class="n">pipeline</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    A bit like :func:`where_is_plug_value_from` but looks for all incoming</span>
 <span class="sd">    connection sources</span>
@@ -1017,7 +1049,10 @@
 
     <span class="k">return</span> <span class="n">sources</span></div>
 
-<div class="viewcode-block" id="find_plug_connection_destinations"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.find_plug_connection_destinations">[docs]</a><span class="k">def</span> <span class="nf">find_plug_connection_destinations</span><span class="p">(</span><span class="n">plug</span><span class="p">,</span> <span class="n">pipeline</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="find_plug_connection_destinations">
+<a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.find_plug_connection_destinations">[docs]</a>
+<span class="k">def</span> <span class="nf">find_plug_connection_destinations</span><span class="p">(</span><span class="n">plug</span><span class="p">,</span> <span class="n">pipeline</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    A bit like :func:`find_plug_connection_sources` but the other way</span>
 
@@ -1074,7 +1109,10 @@
 
     <span class="k">return</span> <span class="n">dest</span></div>
 
-<div class="viewcode-block" id="dump_pipeline_state_as_dict"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.dump_pipeline_state_as_dict">[docs]</a><span class="k">def</span> <span class="nf">dump_pipeline_state_as_dict</span><span class="p">(</span><span class="n">pipeline</span><span class="p">):</span>
+
+<div class="viewcode-block" id="dump_pipeline_state_as_dict">
+<a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.dump_pipeline_state_as_dict">[docs]</a>
+<span class="k">def</span> <span class="nf">dump_pipeline_state_as_dict</span><span class="p">(</span><span class="n">pipeline</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Get a pipeline state (parameters values, nodes activation, selected</span>
 <span class="sd">    steps... in a dictionary.</span>
@@ -1214,7 +1252,10 @@
     <span class="k">return</span> <span class="n">state_dict</span></div>
 
 
-<div class="viewcode-block" id="set_pipeline_state_from_dict"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.set_pipeline_state_from_dict">[docs]</a><span class="k">def</span> <span class="nf">set_pipeline_state_from_dict</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">state_dict</span><span class="p">):</span>
+
+<div class="viewcode-block" id="set_pipeline_state_from_dict">
+<a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.set_pipeline_state_from_dict">[docs]</a>
+<span class="k">def</span> <span class="nf">set_pipeline_state_from_dict</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">state_dict</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Set a pipeline (or process) state from a dict description.</span>
 
@@ -1242,7 +1283,10 @@
                       <span class="k">for</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">sub_dict</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">sub_nodes</span><span class="p">)]</span></div>
 
 
-<div class="viewcode-block" id="get_output_directories"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.get_output_directories">[docs]</a><span class="k">def</span> <span class="nf">get_output_directories</span><span class="p">(</span><span class="n">process</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_output_directories">
+<a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.get_output_directories">[docs]</a>
+<span class="k">def</span> <span class="nf">get_output_directories</span><span class="p">(</span><span class="n">process</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Get output directories for a process, pipeline, or node</span>
 
@@ -1300,7 +1344,10 @@
     <span class="k">return</span> <span class="n">root_dirs</span><span class="p">,</span> <span class="n">all_dirs</span></div>
 
 
-<div class="viewcode-block" id="create_output_directories"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.create_output_directories">[docs]</a><span class="k">def</span> <span class="nf">create_output_directories</span><span class="p">(</span><span class="n">process</span><span class="p">):</span>
+
+<div class="viewcode-block" id="create_output_directories">
+<a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.create_output_directories">[docs]</a>
+<span class="k">def</span> <span class="nf">create_output_directories</span><span class="p">(</span><span class="n">process</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Create output directories for a process, pipeline or node.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -1309,7 +1356,10 @@
             <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="save_pipeline"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.save_pipeline">[docs]</a><span class="k">def</span> <span class="nf">save_pipeline</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="save_pipeline">
+<a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.save_pipeline">[docs]</a>
+<span class="k">def</span> <span class="nf">save_pipeline</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Save the pipeline either in XML, JSON, or .py source file</span>
 
@@ -1356,7 +1406,10 @@
     <span class="n">writer</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="load_pipeline_parameters"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.load_pipeline_parameters">[docs]</a><span class="k">def</span> <span class="nf">load_pipeline_parameters</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">):</span>
+
+<div class="viewcode-block" id="load_pipeline_parameters">
+<a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.load_pipeline_parameters">[docs]</a>
+<span class="k">def</span> <span class="nf">load_pipeline_parameters</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Loading and setting pipeline parameters (inputs and outputs) from a Json file.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1383,7 +1436,10 @@
         <span class="n">pipeline</span><span class="o">.</span><span class="n">update_nodes_and_plugs_activation</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="save_pipeline_parameters"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.save_pipeline_parameters">[docs]</a><span class="k">def</span> <span class="nf">save_pipeline_parameters</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">):</span>
+
+<div class="viewcode-block" id="save_pipeline_parameters">
+<a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.save_pipeline_parameters">[docs]</a>
+<span class="k">def</span> <span class="nf">save_pipeline_parameters</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Saving pipeline parameters (inputs and outputs) to a Json file.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1429,7 +1485,10 @@
                 <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">dic</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="find_node"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.find_node">[docs]</a><span class="k">def</span> <span class="nf">find_node</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+
+<div class="viewcode-block" id="find_node">
+<a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.find_node">[docs]</a>
+<span class="k">def</span> <span class="nf">find_node</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39; Find the given node in the pipeline or a sub-pipeline</span>
 
 <span class="sd">    Returns</span>
@@ -1451,7 +1510,10 @@
     <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s1">&#39;Node </span><span class="si">%s</span><span class="s1"> not found in the pipeline </span><span class="si">%s</span><span class="s1">&#39;</span>
                    <span class="o">%</span> <span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">name</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="is_node_enabled"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.is_node_enabled">[docs]</a><span class="k">def</span> <span class="nf">is_node_enabled</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">node_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="is_node_enabled">
+<a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.is_node_enabled">[docs]</a>
+<span class="k">def</span> <span class="nf">is_node_enabled</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">node_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39; Checks if the given node is enabled in the pipeline.</span>
 <span class="sd">    It may be disabled if it has its ``enabled`` or ``activated`` properties set to False, or if it is part of a disabled step.</span>
 <span class="sd">    The node may be given as a Node instance, or its name in the pipeline.</span>
@@ -1485,6 +1547,7 @@
     <span class="k">return</span> <span class="kc">True</span></div>
 
 
+
 <span class="k">def</span> <span class="nf">trait_str</span><span class="p">(</span><span class="n">trait</span><span class="p">,</span> <span class="n">with_att</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="nf">str_from_trait_id</span><span class="p">(</span><span class="n">tid</span><span class="p">,</span> <span class="n">with_att</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
@@ -1514,7 +1577,9 @@
     <span class="k">return</span> <span class="n">str_from_trait_id</span><span class="p">(</span><span class="n">tid</span><span class="p">,</span> <span class="n">with_att</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="write_fake_process"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.write_fake_process">[docs]</a><span class="k">def</span> <span class="nf">write_fake_process</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">sleep_time</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<div class="viewcode-block" id="write_fake_process">
+<a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.write_fake_process">[docs]</a>
+<span class="k">def</span> <span class="nf">write_fake_process</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">sleep_time</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39; Write a &quot;fake process&quot; with same class name and parameters as the input</span>
 <span class="sd">    process, but with a fake execution function meant for tests.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -1580,7 +1645,10 @@
 <span class="s1">&#39;&#39;&#39;</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="write_fake_pipeline"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.write_fake_pipeline">[docs]</a><span class="k">def</span> <span class="nf">write_fake_pipeline</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">module_name</span><span class="p">,</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">sleep_time</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+
+<div class="viewcode-block" id="write_fake_pipeline">
+<a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.write_fake_pipeline">[docs]</a>
+<span class="k">def</span> <span class="nf">write_fake_pipeline</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">module_name</span><span class="p">,</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">sleep_time</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39; Write a &quot;fake pipeline&quot; with same class name, structure, and parameters</span>
 <span class="sd">    as the input pipeline, but replacing its processes with &quot;fake&quot; processes</span>
 <span class="sd">    which do not actually do a real job while executing.</span>
@@ -1662,6 +1730,7 @@
         <span class="n">save_pipeline</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
 
     <span class="k">del</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
 </pre></div>
 
             <div class="clearer"></div>
@@ -1689,8 +1758,8 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.2.
     </div>
   </body>
 </html>

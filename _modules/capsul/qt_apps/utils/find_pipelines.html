@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,13 +12,13 @@
   <link rel="stylesheet" href="../../../../_static/css/bootstrap-responsive.css"/>
   <link rel="icon" href="../../../../_static/capsul_logo.svg"/>
 
-    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=f0b81668" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=eafc0fe6" />
     
-    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
-    <script src="../../../../_static/doctools.js"></script>
-    <script src="../../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../../_static/documentation_options.js?v=4d935f96"></script>
+    <script src="../../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -134,7 +134,9 @@
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="find_pipelines_from_description"><a class="viewcode-back" href="../../../../api/qt_apps.html#capsul.qt_apps.utils.find_pipelines.find_pipelines_from_description">[docs]</a><span class="k">def</span> <span class="nf">find_pipelines_from_description</span><span class="p">(</span><span class="n">module_name</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="find_pipelines_from_description">
+<a class="viewcode-back" href="../../../../api/qt_apps.html#capsul.qt_apps.utils.find_pipelines.find_pipelines_from_description">[docs]</a>
+<span class="k">def</span> <span class="nf">find_pipelines_from_description</span><span class="p">(</span><span class="n">module_name</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Function that list all the pipeline of a module.</span>
 
 <span class="sd">    Parameters</span>
@@ -184,7 +186,10 @@
         <span class="k">return</span> <span class="p">{},</span> <span class="p">[]</span></div>
 
 
-<div class="viewcode-block" id="find_pipeline_and_process"><a class="viewcode-back" href="../../../../api/qt_apps.html#capsul.qt_apps.utils.find_pipelines.find_pipeline_and_process">[docs]</a><span class="k">def</span> <span class="nf">find_pipeline_and_process</span><span class="p">(</span><span class="n">module_name</span><span class="p">):</span>
+
+<div class="viewcode-block" id="find_pipeline_and_process">
+<a class="viewcode-back" href="../../../../api/qt_apps.html#capsul.qt_apps.utils.find_pipelines.find_pipeline_and_process">[docs]</a>
+<span class="k">def</span> <span class="nf">find_pipeline_and_process</span><span class="p">(</span><span class="n">module_name</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Function that return all the Pipeline and Process classes of a module.</span>
 
 <span class="sd">    All the mdoule path are scanned recuresively. Any pipeline or process will</span>
@@ -274,7 +279,10 @@
     <span class="k">return</span> <span class="n">output</span></div>
 
 
-<div class="viewcode-block" id="lists2dict"><a class="viewcode-back" href="../../../../api/qt_apps.html#capsul.qt_apps.utils.find_pipelines.lists2dict">[docs]</a><span class="k">def</span> <span class="nf">lists2dict</span><span class="p">(</span><span class="n">list_of_pipeline_description</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+
+<div class="viewcode-block" id="lists2dict">
+<a class="viewcode-back" href="../../../../api/qt_apps.html#capsul.qt_apps.utils.find_pipelines.lists2dict">[docs]</a>
+<span class="k">def</span> <span class="nf">lists2dict</span><span class="p">(</span><span class="n">list_of_pipeline_description</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Convert a list of split module names to a hierachic dictionary with</span>
 <span class="sd">    list leafs that contain the url to the module docuementation.</span>
 
@@ -306,6 +314,7 @@
                 <span class="n">d</span><span class="p">[</span><span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">lists2dict</span><span class="p">([</span><span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">:]],</span> <span class="n">url</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]]))</span>
 
     <span class="k">return</span> <span class="n">d</span></div>
+
 </pre></div>
 
             <div class="clearer"></div>
@@ -333,8 +342,8 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.2.
     </div>
   </body>
 </html>

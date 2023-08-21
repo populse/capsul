@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,13 +12,13 @@
   <link rel="stylesheet" href="../../../_static/css/bootstrap-responsive.css"/>
   <link rel="icon" href="../../../_static/capsul_logo.svg"/>
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=f0b81668" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
     
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/documentation_options.js?v=4d935f96"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -144,7 +144,9 @@
 <span class="n">fsl_runtime_env</span> <span class="o">=</span> <span class="kc">None</span>
 
 
-<div class="viewcode-block" id="fsl_command_with_environment"><a class="viewcode-back" href="../../../api/in_context.html#capsul.in_context.fsl.fsl_command_with_environment">[docs]</a><span class="k">def</span> <span class="nf">fsl_command_with_environment</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">use_prefix</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<div class="viewcode-block" id="fsl_command_with_environment">
+<a class="viewcode-back" href="../../../api/in_context.html#capsul.in_context.fsl.fsl_command_with_environment">[docs]</a>
+<span class="k">def</span> <span class="nf">fsl_command_with_environment</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">use_prefix</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                                  <span class="n">use_runtime_env</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Given an FSL command where first element is a command name without</span>
@@ -194,7 +196,10 @@
     <span class="k">return</span> <span class="n">cmd</span></div>
 
 
-<div class="viewcode-block" id="fsl_env"><a class="viewcode-back" href="../../../api/in_context.html#capsul.in_context.fsl.fsl_env">[docs]</a><span class="k">def</span> <span class="nf">fsl_env</span><span class="p">():</span>
+
+<div class="viewcode-block" id="fsl_env">
+<a class="viewcode-back" href="../../../api/in_context.html#capsul.in_context.fsl.fsl_env">[docs]</a>
+<span class="k">def</span> <span class="nf">fsl_env</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    get FSL env variables by running the setup script in a separate bash</span>
 <span class="sd">    process</span>
@@ -235,7 +240,10 @@
     <span class="k">return</span> <span class="n">env</span></div>
 
 
-<div class="viewcode-block" id="FslPopen"><a class="viewcode-back" href="../../../api/in_context.html#capsul.in_context.fsl.FslPopen">[docs]</a><span class="k">class</span> <span class="nc">FslPopen</span><span class="p">(</span><span class="n">soma</span><span class="o">.</span><span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">):</span>
+
+<div class="viewcode-block" id="FslPopen">
+<a class="viewcode-back" href="../../../api/in_context.html#capsul.in_context.fsl.FslPopen">[docs]</a>
+<span class="k">class</span> <span class="nc">FslPopen</span><span class="p">(</span><span class="n">soma</span><span class="o">.</span><span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Equivalent to Python subprocess.Popen for FSL commands</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -249,7 +257,10 @@
             <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;env&#39;</span><span class="p">]</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">FslPopen</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="fsl_call"><a class="viewcode-back" href="../../../api/in_context.html#capsul.in_context.fsl.fsl_call">[docs]</a><span class="k">def</span> <span class="nf">fsl_call</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="fsl_call">
+<a class="viewcode-back" href="../../../api/in_context.html#capsul.in_context.fsl.fsl_call">[docs]</a>
+<span class="k">def</span> <span class="nf">fsl_call</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Equivalent to Python subprocess.call for FSL commands</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -262,7 +273,10 @@
         <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;env&#39;</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">soma</span><span class="o">.</span><span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="fsl_check_call"><a class="viewcode-back" href="../../../api/in_context.html#capsul.in_context.fsl.fsl_check_call">[docs]</a><span class="k">def</span> <span class="nf">fsl_check_call</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="fsl_check_call">
+<a class="viewcode-back" href="../../../api/in_context.html#capsul.in_context.fsl.fsl_check_call">[docs]</a>
+<span class="k">def</span> <span class="nf">fsl_check_call</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Equivalent to Python subprocess.check_call for FSL commands</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -276,7 +290,10 @@
     <span class="k">return</span> <span class="n">soma</span><span class="o">.</span><span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="fsl_check_output"><a class="viewcode-back" href="../../../api/in_context.html#capsul.in_context.fsl.fsl_check_output">[docs]</a><span class="k">def</span> <span class="nf">fsl_check_output</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="fsl_check_output">
+<a class="viewcode-back" href="../../../api/in_context.html#capsul.in_context.fsl.fsl_check_output">[docs]</a>
+<span class="k">def</span> <span class="nf">fsl_check_output</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Equivalent to Python subprocess.check_output for FSL commands</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -288,6 +305,7 @@
         <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;env&#39;</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">soma</span><span class="o">.</span><span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
 </pre></div>
 
             <div class="clearer"></div>
@@ -315,8 +333,8 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.2.
     </div>
   </body>
 </html>

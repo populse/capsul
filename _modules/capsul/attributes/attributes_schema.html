@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,13 +12,13 @@
   <link rel="stylesheet" href="../../../_static/css/bootstrap-responsive.css"/>
   <link rel="icon" href="../../../_static/capsul_logo.svg"/>
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=f0b81668" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
     
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/documentation_options.js?v=4d935f96"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -135,7 +135,9 @@
 <span class="kn">from</span> <span class="nn">capsul.pipeline.pipeline_nodes</span> <span class="kn">import</span> <span class="n">ProcessNode</span>
 
 
-<div class="viewcode-block" id="AttributesSchema"><a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.attributes_schema.AttributesSchema">[docs]</a><span class="k">class</span> <span class="nc">AttributesSchema</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="AttributesSchema">
+<a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.attributes_schema.AttributesSchema">[docs]</a>
+<span class="k">class</span> <span class="nc">AttributesSchema</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    An AttributesSchema has a name, which is used as an identifier to specify completion.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -152,7 +154,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">attribute_sets</span> <span class="o">=</span> <span class="n">sets</span></div>
 
 
-<div class="viewcode-block" id="EditableAttributes"><a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.attributes_schema.EditableAttributes">[docs]</a><span class="k">class</span> <span class="nc">EditableAttributes</span><span class="p">(</span><span class="n">Controller</span><span class="p">):</span>
+
+<div class="viewcode-block" id="EditableAttributes">
+<a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.attributes_schema.EditableAttributes">[docs]</a>
+<span class="k">class</span> <span class="nc">EditableAttributes</span><span class="p">(</span><span class="n">Controller</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39; A set of attributes (group) used to define process parameters</span>
 <span class="sd">    attributes. Attributes are traits in the EditableAttributes Controller.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -161,13 +166,19 @@
 
 
 
-<div class="viewcode-block" id="set_attribute"><a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.attributes_schema.set_attribute">[docs]</a><span class="k">def</span> <span class="nf">set_attribute</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+
+<div class="viewcode-block" id="set_attribute">
+<a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.attributes_schema.set_attribute">[docs]</a>
+<span class="k">def</span> <span class="nf">set_attribute</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    </span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="nb">setattr</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ProcessAttributes"><a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.attributes_schema.ProcessAttributes">[docs]</a><span class="k">class</span> <span class="nc">ProcessAttributes</span><span class="p">(</span><span class="n">Controller</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ProcessAttributes">
+<a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.attributes_schema.ProcessAttributes">[docs]</a>
+<span class="k">class</span> <span class="nc">ProcessAttributes</span><span class="p">(</span><span class="n">Controller</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    This is the base class for managing attributes for a process.</span>
 
@@ -198,7 +209,9 @@
         <span class="c1"># needed for self.copy()</span>
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schema_dict</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ProcessAttributes.set_parameter_attributes"><a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.attributes_schema.ProcessAttributes.set_parameter_attributes">[docs]</a>    <span class="k">def</span> <span class="nf">set_parameter_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameter</span><span class="p">,</span> <span class="n">schema</span><span class="p">,</span> <span class="n">editable_attributes</span><span class="p">,</span>
+<div class="viewcode-block" id="ProcessAttributes.set_parameter_attributes">
+<a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.attributes_schema.ProcessAttributes.set_parameter_attributes">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_parameter_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameter</span><span class="p">,</span> <span class="n">schema</span><span class="p">,</span> <span class="n">editable_attributes</span><span class="p">,</span>
                                  <span class="n">fixed_attibute_values</span><span class="p">,</span> <span class="n">allow_list</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Set attributes associated with a single process parameter.</span>
@@ -285,7 +298,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">parameter_attributes</span><span class="p">[</span><span class="n">parameter</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">parameter_editable_attributes</span><span class="p">,</span>
                                                 <span class="n">fixed_attibute_values</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ProcessAttributes.get_parameters_attributes"><a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.attributes_schema.ProcessAttributes.get_parameters_attributes">[docs]</a>    <span class="k">def</span> <span class="nf">get_parameters_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ProcessAttributes.get_parameters_attributes">
+<a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.attributes_schema.ProcessAttributes.get_parameters_attributes">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_parameters_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39; Get attributes for each process parameter</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">pa</span> <span class="o">=</span> <span class="p">{}</span>
@@ -314,7 +330,10 @@
                 <span class="n">pa</span><span class="p">[</span><span class="n">parameter</span><span class="p">]</span> <span class="o">=</span> <span class="n">attributes</span>
         <span class="k">return</span> <span class="n">pa</span></div>
 
-<div class="viewcode-block" id="ProcessAttributes.copy"><a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.attributes_schema.ProcessAttributes.copy">[docs]</a>    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">with_values</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ProcessAttributes.copy">
+<a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.attributes_schema.ProcessAttributes.copy">[docs]</a>
+    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">with_values</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39; overloads :meth:`soma.Controller.copy`</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">other</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_process</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_schema_dict</span><span class="p">)</span>
@@ -344,7 +363,10 @@
 
         <span class="k">return</span> <span class="n">other</span></div>
 
-<div class="viewcode-block" id="ProcessAttributes.copy_to_single"><a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.attributes_schema.ProcessAttributes.copy_to_single">[docs]</a>    <span class="k">def</span> <span class="nf">copy_to_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">with_values</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ProcessAttributes.copy_to_single">
+<a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.attributes_schema.ProcessAttributes.copy_to_single">[docs]</a>
+    <span class="k">def</span> <span class="nf">copy_to_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">with_values</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39; Similar to :meth:`copy`, excepts that it converts list attributes</span>
 <span class="sd">        into single values. This is useful within the completion system</span>
 <span class="sd">        infrastructure, to get from an attributes set containing lists</span>
@@ -384,7 +406,9 @@
                         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">inner_traits</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">default</span>
                 <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="nb">setattr</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">other</span></div></div>
+        <span class="k">return</span> <span class="n">other</span></div>
+</div>
+
 </pre></div>
 
             <div class="clearer"></div>
@@ -412,8 +436,8 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.2.
     </div>
   </body>
 </html>

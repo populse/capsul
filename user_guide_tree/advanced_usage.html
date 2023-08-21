@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -13,13 +13,13 @@
   <link rel="stylesheet" href="../_static/css/bootstrap-responsive.css"/>
   <link rel="icon" href="../_static/capsul_logo.svg"/>
 
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=f0b81668" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
     
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/documentation_options.js?v=4d935f96"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../genindex.html" />
@@ -104,11 +104,11 @@
           <div class="body" role="main">
             
   <section id="parameters-completion">
-<span id="completion"></span><h1>Parameters completion<a class="headerlink" href="#parameters-completion" title="Permalink to this heading">¶</a></h1>
+<span id="completion"></span><h1>Parameters completion<a class="headerlink" href="#parameters-completion" title="Link to this heading">¶</a></h1>
 <section id="completion-model">
-<h2>Completion model<a class="headerlink" href="#completion-model" title="Permalink to this heading">¶</a></h2>
+<h2>Completion model<a class="headerlink" href="#completion-model" title="Link to this heading">¶</a></h2>
 <section id="using-completion">
-<h3>Using completion<a class="headerlink" href="#using-completion" title="Permalink to this heading">¶</a></h3>
+<h3>Using completion<a class="headerlink" href="#using-completion" title="Link to this heading">¶</a></h3>
 <p>Process parameters completion for filenames is working using attributes assigned to a process or to its parameters. For instance a given data organization may organize data by study, center, subject, … These study, center, subject elements can be seen as attributes.</p>
 <p>Using an existing completion model is a matter of configuration in StudyConfig. One must use the AttributesModule of StudyConfig, then specify which organization schemas to use.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">capsul.api</span> <span class="kn">import</span> <span class="n">StudyConfig</span>
@@ -153,7 +153,7 @@
 <p>Note that completion will also take place inside iterations in an iterative process, when generating a workflow.</p>
 </section>
 <section id="graphical-interface">
-<h3>Graphical interface<a class="headerlink" href="#graphical-interface" title="Permalink to this heading">¶</a></h3>
+<h3>Graphical interface<a class="headerlink" href="#graphical-interface" title="Link to this heading">¶</a></h3>
 <p>Once PyQt4 or PySide QApplication is created:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">capsul.qt_gui.widgets.attributed_process_widget</span> \
     <span class="kn">import</span> <span class="nn">AttributedProcessWidget</span>
@@ -165,10 +165,10 @@
 </div>
 </section>
 <section id="defining-a-custom-completion-system">
-<h3>Defining a custom completion system<a class="headerlink" href="#defining-a-custom-completion-system" title="Permalink to this heading">¶</a></h3>
+<h3>Defining a custom completion system<a class="headerlink" href="#defining-a-custom-completion-system" title="Link to this heading">¶</a></h3>
 <p>It may require to define a few classes to handle the different aspects.</p>
 <section id="path-building-from-attributes">
-<h4>Path building from attributes<a class="headerlink" href="#path-building-from-attributes" title="Permalink to this heading">¶</a></h4>
+<h4>Path building from attributes<a class="headerlink" href="#path-building-from-attributes" title="Link to this heading">¶</a></h4>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyPathCompletion</span><span class="p">(</span><span class="n">PathCompletionEngineFactory</span><span class="p">,</span> <span class="n">PathCompletionEngine</span><span class="p">):</span>
     <span class="n">factory_id</span> <span class="o">=</span> <span class="s1">&#39;custom_ex&#39;</span>
 
@@ -197,7 +197,7 @@
 <p>Note the <code class="docutils literal notranslate"><span class="pre">factory_id</span></code> class variable: it is used to register the classes in a factory managed in the study config AttributesConfig module. Its value may be named in the <code class="docutils literal notranslate"><span class="pre">study_config.attributes_schemas</span></code> dictionary, as a value for a given directory organization.</p>
 </section>
 <section id="declaring-attributes-sets">
-<h4>Declaring attributes sets<a class="headerlink" href="#declaring-attributes-sets" title="Permalink to this heading">¶</a></h4>
+<h4>Declaring attributes sets<a class="headerlink" href="#declaring-attributes-sets" title="Link to this heading">¶</a></h4>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">CustomAttributesSchema</span><span class="p">(</span><span class="n">AttributesSchema</span><span class="p">):</span>
     <span class="n">factory_id</span> <span class="o">=</span> <span class="s1">&#39;custom_ex&#39;</span>
 
@@ -215,7 +215,7 @@
 <p>The classes Acquisition, Group and Processing will be available for association to process attributes.</p>
 </section>
 <section id="declaring-process-and-parameters-attributes">
-<h4>Declaring process and parameters attributes<a class="headerlink" href="#declaring-process-and-parameters-attributes" title="Permalink to this heading">¶</a></h4>
+<h4>Declaring process and parameters attributes<a class="headerlink" href="#declaring-process-and-parameters-attributes" title="Link to this heading">¶</a></h4>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">DummyProcessAttributes</span><span class="p">(</span><span class="n">ProcessAttributes</span><span class="p">):</span>
     <span class="n">factory_id</span> <span class="o">=</span> <span class="s1">&#39;DummyProcess&#39;</span>
 
@@ -230,16 +230,16 @@
 <p>In this example, the parameters <code class="docutils literal notranslate"><span class="pre">truc</span></code> and <code class="docutils literal notranslate"><span class="pre">bidule</span></code> will inherit the attributes declared for <code class="docutils literal notranslate"><span class="pre">Acquisition</span></code>: namely, <code class="docutils literal notranslate"><span class="pre">center</span></code> and <code class="docutils literal notranslate"><span class="pre">subject</span></code>.</p>
 </section>
 <section id="putting-things-together">
-<h4>Putting things together<a class="headerlink" href="#putting-things-together" title="Permalink to this heading">¶</a></h4>
+<h4>Putting things together<a class="headerlink" href="#putting-things-together" title="Link to this heading">¶</a></h4>
 <p>The modules containing these definitions must be registered in <code class="docutils literal notranslate"><span class="pre">study_config.attributes_schema_paths</span></code>, and their names have to be used in <code class="docutils literal notranslate"><span class="pre">study_config.attributes_schemas</span></code> and <code class="docutils literal notranslate"><span class="pre">study_config.path_completion</span></code></p>
 </section>
 </section>
 </section>
 <section id="file-organization-model-fom">
-<span id="fom"></span><h2>File Organization Model (FOM)<a class="headerlink" href="#file-organization-model-fom" title="Permalink to this heading">¶</a></h2>
+<span id="fom"></span><h2>File Organization Model (FOM)<a class="headerlink" href="#file-organization-model-fom" title="Link to this heading">¶</a></h2>
 <p>FOMs are defined in the <a class="reference external" href="https://populse.github.io/soma-base/api.html#module-soma.fom" title="(in Soma-base v5.1)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Soma-base</span> <span class="pre">library</span></code></a> as an independent system, and used in Capsul as a files completion implementation.</p>
 <section id="using-foms">
-<h3>Using FOMs<a class="headerlink" href="#using-foms" title="Permalink to this heading">¶</a></h3>
+<h3>Using FOMs<a class="headerlink" href="#using-foms" title="Link to this heading">¶</a></h3>
 <p>FOMs are integrated in the completion system. It is activated using the FomConfig module of StudyConfig:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">capsul.api</span> <span class="kn">import</span> <span class="n">StudyConfig</span>
 
@@ -258,7 +258,7 @@
 <p>The rest works just as the above completion system.</p>
 </section>
 <section id="defining-foms">
-<h3>Defining FOMs<a class="headerlink" href="#defining-foms" title="Permalink to this heading">¶</a></h3>
+<h3>Defining FOMs<a class="headerlink" href="#defining-foms" title="Link to this heading">¶</a></h3>
 <p>FOMs are JSON files placed in a FOM path defined somewhere in the application - generally <code class="docutils literal notranslate"><span class="pre">&lt;brainvisa_dir&gt;/share/fom</span></code>. They define how a set of attributes are used to build paths for processes parameters.</p>
 <p>In Capsul a StudyConfig option, <cite>StudyConfig.fom_path</cite> is defined in the <a class="reference internal" href="../api/study_config.html#capsul.study_config.config_modules.fom_config.FomConfig" title="capsul.study_config.config_modules.fom_config.FomConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">FomConfig</span></code></a> module to handle the FOM search path.</p>
 <p>Ex:</p>
@@ -320,7 +320,7 @@
 </section>
 </section>
 <section id="iterating-processing-over-multiple-data">
-<h1>Iterating processing over multiple data<a class="headerlink" href="#iterating-processing-over-multiple-data" title="Permalink to this heading">¶</a></h1>
+<h1>Iterating processing over multiple data<a class="headerlink" href="#iterating-processing-over-multiple-data" title="Link to this heading">¶</a></h1>
 <p>Iterating is done by creating a small pipeline containing an iterative node. This can be done using the utility method <a class="reference internal" href="../api/study_config.html#capsul.study_config.study_config.StudyConfig.get_iteration_pipeline" title="capsul.study_config.study_config.StudyConfig.get_iteration_pipeline"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_iteration_pipeline()</span></code></a> of <a class="reference internal" href="../api/study_config.html#capsul.study_config.study_config.StudyConfig" title="capsul.study_config.study_config.StudyConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">StudyConfig</span></code></a>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">capsul.api</span> <span class="kn">import</span> <span class="n">Pipeline</span><span class="p">,</span> <span class="n">StudyConfig</span>
 <span class="kn">from</span> <span class="nn">capsul.attributes.completion_engine</span> <span class="kn">import</span> <span class="n">ProcessCompletionEngine</span>
@@ -401,8 +401,8 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.2.
     </div>
   </body>
 </html>

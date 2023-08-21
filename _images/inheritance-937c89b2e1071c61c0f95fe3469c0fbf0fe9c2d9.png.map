@@ -1,0 +1,20 @@
+<map id="inheritancee5a96be6ce" name="inheritancee5a96be6ce">
+<area shape="rect" id="node1" href="#capsul.attributes.attributes_factory.AttributesFactory" target="_top" title="AttributesFactory holds an attributes schema" alt="" coords="318,219,434,241"/>
+<area shape="rect" id="node2" href="https://populse.github.io/soma-base/api.html#soma.factory.ClassFactory" target="_top" title="*ClassFactory* is the base class for creating factories that can look" alt="" coords="63,219,154,241"/>
+<area shape="rect" id="node3" href="#capsul.attributes.attributes_schema.AttributesSchema" target="_top" title="An AttributesSchema has a name, which is used as an identifier to specify completion." alt="" coords="48,176,169,199"/>
+<area shape="rect" id="node4" href="#capsul.attributes.completion_engine_factory.BuiltinProcessCompletionEngineFactory" target="_top" title="BuiltinProcessCompletionEngineFactory" alt="" coords="254,134,498,156"/>
+<area shape="rect" id="node5" href="#capsul.attributes.completion_engine.ProcessCompletionEngineFactory" target="_top" title="Get a :class:`ProcessCompletionEngine` instance" alt="" coords="5,134,212,156"/>
+<area shape="rect" id="node6" href="https://docs.enthought.com/traits/traits_api_reference/ctraits.html#traits.ctraits.CHasTraits" target="_top" title="Base class for HasTraits." alt="" coords="69,91,148,113"/>
+<area shape="rect" id="node8" href="https://docs.enthought.com/traits/traits_api_reference/has_traits.html#traits.has_traits.HasTraits" target="_top" title="Enables any Python class derived from it to have trait attributes." alt="" coords="340,91,412,113"/>
+<area shape="rect" id="node7" href="https://populse.github.io/soma-base/api.html#soma.controller.controller.Controller" target="_top" title="A Controller contains some traits: attributes typing and observer" alt="" coords="585,59,661,81"/>
+<area shape="rect" id="node9" href="#capsul.attributes.attributes_schema.EditableAttributes" target="_top" title="A set of attributes (group) used to define process parameters" alt="" coords="795,16,915,38"/>
+<area shape="rect" id="node17" href="#capsul.attributes.attributes_schema.ProcessAttributes" target="_top" title="This is the base class for managing attributes for a process." alt="" coords="796,59,914,81"/>
+<area shape="rect" id="node13" href="#capsul.attributes.completion_engine.ProcessCompletionEngine" target="_top" title="Parameters completion from attributes for a process or pipeline node" alt="" coords="540,123,706,145"/>
+<area shape="rect" id="node10" href="#capsul.attributes.fom_completion_engine.FomPathCompletionEngine" target="_top" title="FomPathCompletionEngine" alt="" coords="290,48,462,70"/>
+<area shape="rect" id="node11" href="#capsul.attributes.completion_engine.PathCompletionEngine" target="_top" title="Implements building of a single path from a set of attributes for a" alt="" coords="35,48,182,70"/>
+<area shape="rect" id="node12" href="#capsul.attributes.fom_completion_engine.FomProcessCompletionEngine" target="_top" title="FOM (File Organization Model) implementation of completion engine." alt="" coords="760,102,950,124"/>
+<area shape="rect" id="node15" href="#capsul.attributes.completion_engine_iteration.ProcessCompletionEngineIteration" target="_top" title=":class:`~capsul.attributes.completion_engine.ProcessCompletionEngine`" alt="" coords="748,145,962,167"/>
+<area shape="rect" id="node18" href="#capsul.attributes.completion_engine.SwitchCompletionEngine" target="_top" title="Completion engine specislization for a switch. The switch will" alt="" coords="775,188,935,210"/>
+<area shape="rect" id="node14" href="#capsul.attributes.fom_completion_engine.FomProcessCompletionEngineIteration" target="_top" title="FomProcessCompletionEngineIteration" alt="" coords="1004,145,1243,167"/>
+<area shape="rect" id="node16" href="#capsul.attributes.completion_engine.PathCompletionEngineFactory" target="_top" title="Get a :class:`PathCompletionEngine` instance" alt="" coords="15,5,203,27"/>
+</map>

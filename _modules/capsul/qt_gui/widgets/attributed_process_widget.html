@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,13 +12,13 @@
   <link rel="stylesheet" href="../../../../_static/css/bootstrap-responsive.css"/>
   <link rel="icon" href="../../../../_static/capsul_logo.svg"/>
 
-    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=f0b81668" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=eafc0fe6" />
     
-    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
-    <script src="../../../../_static/doctools.js"></script>
-    <script src="../../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../../_static/documentation_options.js?v=4d935f96"></script>
+    <script src="../../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -127,7 +127,9 @@
 <span class="kn">from</span> <span class="nn">traits.api</span> <span class="kn">import</span> <span class="n">File</span><span class="p">,</span> <span class="n">HasTraits</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Directory</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">,</span> <span class="n">List</span>
 
 
-<div class="viewcode-block" id="AttributedProcessWidget"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.attributed_process_widget.AttributedProcessWidget">[docs]</a><span class="k">class</span> <span class="nc">AttributedProcessWidget</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QWidget</span><span class="p">):</span>
+<div class="viewcode-block" id="AttributedProcessWidget">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.attributed_process_widget.AttributedProcessWidget">[docs]</a>
+<span class="k">class</span> <span class="nc">AttributedProcessWidget</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QWidget</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Process interface with attributes completion handling&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attributed_process</span><span class="p">,</span> <span class="n">enable_attr_from_filename</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">enable_load_buttons</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">override_control_types</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -360,7 +362,9 @@
         <span class="c1"># re-hide file params if needed</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">show_completion</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_show_completion</span><span class="p">)</span>
 
-<div class="viewcode-block" id="AttributedProcessWidget.on_input_filename_changed"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.attributed_process_widget.AttributedProcessWidget.on_input_filename_changed">[docs]</a>    <span class="k">def</span> <span class="nf">on_input_filename_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+<div class="viewcode-block" id="AttributedProcessWidget.on_input_filename_changed">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.attributed_process_widget.AttributedProcessWidget.on_input_filename_changed">[docs]</a>
+    <span class="k">def</span> <span class="nf">on_input_filename_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Input file path to guess completion attributes changed: update</span>
 <span class="sd">        attributes</span>
@@ -377,7 +381,10 @@
                 <span class="n">traceback</span><span class="o">.</span><span class="n">print_stack</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="AttributedProcessWidget.on_btn_load_json"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.attributed_process_widget.AttributedProcessWidget.on_btn_load_json">[docs]</a>    <span class="k">def</span> <span class="nf">on_btn_load_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="AttributedProcessWidget.on_btn_load_json">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.attributed_process_widget.AttributedProcessWidget.on_btn_load_json">[docs]</a>
+    <span class="k">def</span> <span class="nf">on_btn_load_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Load attributes from a json file&quot;&quot;&quot;</span>
         <span class="n">completion_engine</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attributed_process</span><span class="p">,</span>
                                    <span class="s1">&#39;completion_engine&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -395,7 +402,10 @@
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;loaded:&quot;</span><span class="p">,</span> <span class="n">attributes</span><span class="p">)</span>
         <span class="n">completion_engine</span><span class="o">.</span><span class="n">get_attribute_values</span><span class="p">()</span><span class="o">.</span><span class="n">import_from_dict</span><span class="p">(</span><span class="n">attributes</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="AttributedProcessWidget.on_btn_save_json"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.attributed_process_widget.AttributedProcessWidget.on_btn_save_json">[docs]</a>    <span class="k">def</span> <span class="nf">on_btn_save_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="AttributedProcessWidget.on_btn_save_json">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.attributed_process_widget.AttributedProcessWidget.on_btn_save_json">[docs]</a>
+    <span class="k">def</span> <span class="nf">on_btn_save_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Save attributes in a json file&quot;&quot;&quot;</span>
         <span class="n">completion_engine</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attributed_process</span><span class="p">,</span>
                                    <span class="s1">&#39;completion_engine&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -411,7 +421,10 @@
         <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">completion_engine</span><span class="o">.</span><span class="n">get_attribute_values</span><span class="p">()</span><span class="o">.</span><span class="n">export_to_dict</span><span class="p">(),</span>
                   <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="AttributedProcessWidget.set_use_fom"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.attributed_process_widget.AttributedProcessWidget.set_use_fom">[docs]</a>    <span class="k">def</span> <span class="nf">set_use_fom</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="AttributedProcessWidget.set_use_fom">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.attributed_process_widget.AttributedProcessWidget.set_use_fom">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_use_fom</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Setup the FOM doing its job</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -457,10 +470,13 @@
             <span class="n">QtCore</span><span class="o">.</span><span class="n">QTimer</span><span class="o">.</span><span class="n">singleShot</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reset_fom_checkbox</span><span class="p">)</span></div>
 
 
+
     <span class="k">def</span> <span class="nf">_reset_fom_checkbox</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">checkbox_fom</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
 
-<div class="viewcode-block" id="AttributedProcessWidget.on_use_fom_change"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.attributed_process_widget.AttributedProcessWidget.on_use_fom_change">[docs]</a>    <span class="k">def</span> <span class="nf">on_use_fom_change</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+<div class="viewcode-block" id="AttributedProcessWidget.on_use_fom_change">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.attributed_process_widget.AttributedProcessWidget.on_use_fom_change">[docs]</a>
+    <span class="k">def</span> <span class="nf">on_use_fom_change</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Use completion checkbox callback</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -476,7 +492,10 @@
                     <span class="n">remove</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">btn_show_completion</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="AttributedProcessWidget.show_completion"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.attributed_process_widget.AttributedProcessWidget.show_completion">[docs]</a>    <span class="k">def</span> <span class="nf">show_completion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">visible</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="AttributedProcessWidget.show_completion">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.attributed_process_widget.AttributedProcessWidget.show_completion">[docs]</a>
+    <span class="k">def</span> <span class="nf">show_completion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">visible</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Show or hide completion (File, Directory, or Any parameters)</span>
 
@@ -529,11 +548,15 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">group_widget</span><span class="o">.</span><span class="n">hide</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="AttributedProcessWidget.on_show_completion"><a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.attributed_process_widget.AttributedProcessWidget.on_show_completion">[docs]</a>    <span class="k">def</span> <span class="nf">on_show_completion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">visible</span><span class="p">):</span>
+
+<div class="viewcode-block" id="AttributedProcessWidget.on_show_completion">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.attributed_process_widget.AttributedProcessWidget.on_show_completion">[docs]</a>
+    <span class="k">def</span> <span class="nf">on_show_completion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">visible</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Toggle the visibility of paths parameters</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">show_completion</span><span class="p">(</span><span class="n">visible</span><span class="p">)</span></div>
+
 
     <span class="k">def</span> <span class="nf">_completion_progress_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">old</span><span class="p">,</span> <span class="n">new</span><span class="p">):</span>
         <span class="n">completion_engine</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attributed_process</span><span class="p">,</span>
@@ -556,6 +579,7 @@
                 <span class="n">QtGui</span><span class="o">.</span><span class="n">qApp</span><span class="o">.</span><span class="n">processEvents</span><span class="p">()</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">progressdialog</span><span class="o">.</span><span class="n">hide</span><span class="p">()</span></div>
+
 </pre></div>
 
             <div class="clearer"></div>
@@ -583,8 +607,8 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.2.
     </div>
   </body>
 </html>

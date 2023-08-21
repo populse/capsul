@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,13 +12,13 @@
   <link rel="stylesheet" href="../../../_static/css/bootstrap-responsive.css"/>
   <link rel="icon" href="../../../_static/capsul_logo.svg"/>
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=f0b81668" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
     
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/documentation_options.js?v=4d935f96"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -124,7 +124,9 @@
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="GraphNode"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.topological_sort.GraphNode">[docs]</a><span class="k">class</span> <span class="nc">GraphNode</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="GraphNode">
+<a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.topological_sort.GraphNode">[docs]</a>
+<span class="k">class</span> <span class="nc">GraphNode</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Simple Graph Node Structure</span>
 
 <span class="sd">    Attributes</span>
@@ -170,7 +172,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">links_to_degree</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">links_from_degree</span> <span class="o">=</span> <span class="mi">0</span>
 
-<div class="viewcode-block" id="GraphNode.add_link_to"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.topological_sort.GraphNode.add_link_to">[docs]</a>    <span class="k">def</span> <span class="nf">add_link_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+<div class="viewcode-block" id="GraphNode.add_link_to">
+<a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.topological_sort.GraphNode.add_link_to">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_link_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to add a Successor</span>
 
 <span class="sd">        Parameters</span>
@@ -182,7 +186,10 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">links_to</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">links_to_degree</span> <span class="o">+=</span> <span class="mi">1</span></div>
 
-<div class="viewcode-block" id="GraphNode.remove_link_to"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.topological_sort.GraphNode.remove_link_to">[docs]</a>    <span class="k">def</span> <span class="nf">remove_link_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+
+<div class="viewcode-block" id="GraphNode.remove_link_to">
+<a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.topological_sort.GraphNode.remove_link_to">[docs]</a>
+    <span class="k">def</span> <span class="nf">remove_link_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to remove a Successor</span>
 
 <span class="sd">        Parameters</span>
@@ -194,7 +201,10 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">links_to</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">links_to_degree</span> <span class="o">-=</span> <span class="mi">1</span></div>
 
-<div class="viewcode-block" id="GraphNode.add_link_from"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.topological_sort.GraphNode.add_link_from">[docs]</a>    <span class="k">def</span> <span class="nf">add_link_from</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+
+<div class="viewcode-block" id="GraphNode.add_link_from">
+<a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.topological_sort.GraphNode.add_link_from">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_link_from</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to add a Predecessor</span>
 
 <span class="sd">        Parameters</span>
@@ -206,7 +216,10 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">links_from</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">links_from_degree</span> <span class="o">+=</span> <span class="mi">1</span></div>
 
-<div class="viewcode-block" id="GraphNode.remove_link_from"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.topological_sort.GraphNode.remove_link_from">[docs]</a>    <span class="k">def</span> <span class="nf">remove_link_from</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+
+<div class="viewcode-block" id="GraphNode.remove_link_from">
+<a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.topological_sort.GraphNode.remove_link_from">[docs]</a>
+    <span class="k">def</span> <span class="nf">remove_link_from</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to remove a Predecessor</span>
 
 <span class="sd">        Parameters</span>
@@ -216,10 +229,14 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">links_from</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">links_from</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">links_from_degree</span> <span class="o">-=</span> <span class="mi">1</span></div></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">links_from_degree</span> <span class="o">-=</span> <span class="mi">1</span></div>
+</div>
 
 
-<div class="viewcode-block" id="Graph"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.topological_sort.Graph">[docs]</a><span class="k">class</span> <span class="nc">Graph</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Graph">
+<a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.topological_sort.Graph">[docs]</a>
+<span class="k">class</span> <span class="nc">Graph</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Simple Graph Structure on which we want to perform a</span>
 <span class="sd">    topological tree (no cycle).</span>
 
@@ -247,7 +264,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_links</span> <span class="o">=</span> <span class="p">[]</span>
 
-<div class="viewcode-block" id="Graph.add_node"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.topological_sort.Graph.add_node">[docs]</a>    <span class="k">def</span> <span class="nf">add_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+<div class="viewcode-block" id="Graph.add_node">
+<a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.topological_sort.Graph.add_node">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to add a GraphNode in the Graph</span>
 
 <span class="sd">        Parameters</span>
@@ -263,7 +282,10 @@
                             <span class="s2">&quot;got </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">node</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span><span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">node</span></div>
 
-<div class="viewcode-block" id="Graph.find_node"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.topological_sort.Graph.find_node">[docs]</a>    <span class="k">def</span> <span class="nf">find_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_name</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Graph.find_node">
+<a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.topological_sort.Graph.find_node">[docs]</a>
+    <span class="k">def</span> <span class="nf">find_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_name</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to find a GraphNode in the Graph</span>
 
 <span class="sd">        Parameters</span>
@@ -275,7 +297,10 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span><span class="p">[</span><span class="n">node_name</span><span class="p">]</span>
         <span class="k">return</span> <span class="kc">None</span></div>
 
-<div class="viewcode-block" id="Graph.add_link"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.topological_sort.Graph.add_link">[docs]</a>    <span class="k">def</span> <span class="nf">add_link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_node</span><span class="p">,</span> <span class="n">to_node</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Graph.add_link">
+<a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.topological_sort.Graph.add_link">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_node</span><span class="p">,</span> <span class="n">to_node</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to add an edge between two GraphNodes of the Graph</span>
 
 <span class="sd">        Parameters</span>
@@ -297,7 +322,10 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span><span class="p">[</span><span class="n">from_node</span><span class="p">]</span><span class="o">.</span><span class="n">add_link_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span><span class="p">[</span><span class="n">to_node</span><span class="p">])</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_links</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">from_node</span><span class="p">,</span> <span class="n">to_node</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="Graph.topological_sort"><a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.topological_sort.Graph.topological_sort">[docs]</a>    <span class="k">def</span> <span class="nf">topological_sort</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Graph.topological_sort">
+<a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.topological_sort.Graph.topological_sort">[docs]</a>
+    <span class="k">def</span> <span class="nf">topological_sort</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Perform the topological sort: find an order in which all the</span>
 <span class="sd">        nodes can be taken.</span>
 <span class="sd">        Step 1: Identify nodes that have no incoming link (nnil).</span>
@@ -340,7 +368,9 @@
             <span class="k">return</span> <span class="p">[(</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">meta</span><span class="p">)</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">ordered_nodes</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;There is loop in the Graph.&quot;</span>
-                            <span class="s2">&quot;Please inverstigate&quot;</span><span class="p">)</span></div></div>
+                            <span class="s2">&quot;Please inverstigate&quot;</span><span class="p">)</span></div>
+</div>
+
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
@@ -402,8 +432,8 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.2.
     </div>
   </body>
 </html>

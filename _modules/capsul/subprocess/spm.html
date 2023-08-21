@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" data-content_root="../../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,13 +12,13 @@
   <link rel="stylesheet" href="../../../_static/css/bootstrap-responsive.css"/>
   <link rel="icon" href="../../../_static/capsul_logo.svg"/>
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=f0b81668" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
     
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/documentation_options.js?v=4d935f96"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -139,7 +139,9 @@
 <span class="kn">from</span> <span class="nn">traits.api</span> <span class="kn">import</span> <span class="n">Undefined</span>
 
 
-<div class="viewcode-block" id="find_spm"><a class="viewcode-back" href="../../../api/subprocess.html#capsul.subprocess.spm.find_spm">[docs]</a><span class="k">def</span> <span class="nf">find_spm</span><span class="p">(</span><span class="n">spm_version</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">matlab_exec</span><span class="o">=</span><span class="s1">&#39;matlab&#39;</span><span class="p">,</span> <span class="n">matlab_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="find_spm">
+<a class="viewcode-back" href="../../../api/subprocess.html#capsul.subprocess.spm.find_spm">[docs]</a>
+<span class="k">def</span> <span class="nf">find_spm</span><span class="p">(</span><span class="n">spm_version</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">matlab_exec</span><span class="o">=</span><span class="s1">&#39;matlab&#39;</span><span class="p">,</span> <span class="n">matlab_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Function to return the root directory of SPM.</span>
 
 <span class="sd">    Parameters</span>
@@ -187,7 +189,10 @@
     <span class="k">return</span> <span class="n">last_line</span></div>
 
 
-<div class="viewcode-block" id="check_spm_configuration"><a class="viewcode-back" href="../../../api/subprocess.html#capsul.subprocess.spm.check_spm_configuration">[docs]</a><span class="k">def</span> <span class="nf">check_spm_configuration</span><span class="p">(</span><span class="n">study_config</span><span class="p">):</span>
+
+<div class="viewcode-block" id="check_spm_configuration">
+<a class="viewcode-back" href="../../../api/subprocess.html#capsul.subprocess.spm.check_spm_configuration">[docs]</a>
+<span class="k">def</span> <span class="nf">check_spm_configuration</span><span class="p">(</span><span class="n">study_config</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Obsolete.</span>
 
@@ -215,7 +220,10 @@
     <span class="n">study_config</span><span class="o">.</span><span class="n">_spm_config_checked</span> <span class="o">=</span> <span class="kc">True</span></div>
 
 
-<div class="viewcode-block" id="check_configuration_values"><a class="viewcode-back" href="../../../api/subprocess.html#capsul.subprocess.spm.check_configuration_values">[docs]</a><span class="k">def</span> <span class="nf">check_configuration_values</span><span class="p">(</span><span class="n">study_config</span><span class="p">):</span>
+
+<div class="viewcode-block" id="check_configuration_values">
+<a class="viewcode-back" href="../../../api/subprocess.html#capsul.subprocess.spm.check_configuration_values">[docs]</a>
+<span class="k">def</span> <span class="nf">check_configuration_values</span><span class="p">(</span><span class="n">study_config</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Obsolete.</span>
 
@@ -240,7 +248,10 @@
             <span class="k">return</span> <span class="s1">&#39;Matlab is disabled. Cannot use SPM via Matlab&#39;</span></div>
 
 
-<div class="viewcode-block" id="auto_configuration"><a class="viewcode-back" href="../../../api/subprocess.html#capsul.subprocess.spm.auto_configuration">[docs]</a><span class="k">def</span> <span class="nf">auto_configuration</span><span class="p">(</span><span class="n">study_config</span><span class="p">):</span>
+
+<div class="viewcode-block" id="auto_configuration">
+<a class="viewcode-back" href="../../../api/subprocess.html#capsul.subprocess.spm.auto_configuration">[docs]</a>
+<span class="k">def</span> <span class="nf">auto_configuration</span><span class="p">(</span><span class="n">study_config</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Obsolete.</span>
 
@@ -293,6 +304,7 @@
                    <span class="n">spm_version</span><span class="p">))</span></div>
 
 
+
 <span class="k">def</span> <span class="nf">spm_command</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="n">batch_file</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">study_config</span><span class="o">.</span><span class="n">spm_standalone</span><span class="p">:</span>
         <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="n">study_config</span><span class="o">.</span><span class="n">spm_exec</span><span class="p">,</span>
@@ -305,7 +317,9 @@
                                   <span class="s1">&#39;implemented yet&#39;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="Popen"><a class="viewcode-back" href="../../../api/subprocess.html#capsul.subprocess.spm.Popen">[docs]</a><span class="k">class</span> <span class="nc">Popen</span><span class="p">(</span><span class="n">soma</span><span class="o">.</span><span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">):</span>
+<div class="viewcode-block" id="Popen">
+<a class="viewcode-back" href="../../../api/subprocess.html#capsul.subprocess.spm.Popen">[docs]</a>
+<span class="k">class</span> <span class="nc">Popen</span><span class="p">(</span><span class="n">soma</span><span class="o">.</span><span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Equivalent to Python soma.subprocess.Popen for SPM batch</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -316,7 +330,10 @@
         <span class="nb">super</span><span class="p">(</span><span class="n">Popen</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="call"><a class="viewcode-back" href="../../../api/subprocess.html#capsul.subprocess.spm.call">[docs]</a><span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="n">batch_file</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="call">
+<a class="viewcode-back" href="../../../api/subprocess.html#capsul.subprocess.spm.call">[docs]</a>
+<span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="n">batch_file</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Equivalent to Python soma.subprocess.call for SPM batch</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -325,7 +342,10 @@
     <span class="k">return</span> <span class="n">soma</span><span class="o">.</span><span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="check_call"><a class="viewcode-back" href="../../../api/subprocess.html#capsul.subprocess.spm.check_call">[docs]</a><span class="k">def</span> <span class="nf">check_call</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="n">batch_file</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="check_call">
+<a class="viewcode-back" href="../../../api/subprocess.html#capsul.subprocess.spm.check_call">[docs]</a>
+<span class="k">def</span> <span class="nf">check_call</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="n">batch_file</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Equivalent to Python soma.subprocess.check_call for SPM batch</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -334,13 +354,17 @@
     <span class="k">return</span> <span class="n">soma</span><span class="o">.</span><span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="check_output"><a class="viewcode-back" href="../../../api/subprocess.html#capsul.subprocess.spm.check_output">[docs]</a><span class="k">def</span> <span class="nf">check_output</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="n">batch_file</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="check_output">
+<a class="viewcode-back" href="../../../api/subprocess.html#capsul.subprocess.spm.check_output">[docs]</a>
+<span class="k">def</span> <span class="nf">check_output</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="n">batch_file</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Equivalent to Python soma.subprocess.check_output for SPM batch</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">check_spm_configuration</span><span class="p">(</span><span class="n">study_config</span><span class="p">)</span>
     <span class="n">cmd</span> <span class="o">=</span> <span class="n">spm_command</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="n">batch_file</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">soma</span><span class="o">.</span><span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
@@ -380,8 +404,8 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.2.
     </div>
   </body>
 </html>
