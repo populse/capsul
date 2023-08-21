@@ -5,19 +5,21 @@ from __future__ import print_function
 import os
 import os.path as osp
 
+
 def configure_all():
     '''
     Configure nipye for all known software interfaces their configuration
     is present in os.environ. This environment must have been set by the
     CapsulEngine mechanism.
     '''
-    #print('!!!')
+
     configure_matlab()
     configure_spm()
     configure_fsl()
     configure_freesurfer()
     configure_afni()
     configure_ants()
+    configure_mrtrix()
 
 
 def configure_spm():
@@ -110,6 +112,7 @@ def configure_afni():
         for var, value in env.items():
             os.environ[var] = value
 
+
 def configure_ants():
     '''
     Configure ANTS for nipype
@@ -119,5 +122,18 @@ def configure_ants():
     if conf:
         from capsul.in_context import ants as antsrun
         env = antsrun.ants_env()
+        for var, value in env.items():
+            os.environ[var] = value
+
+
+def configure_mrtrix():
+    '''
+    Configure mrtrix for nipype
+    '''
+    from capsul import engine
+    conf = engine.configurations.get('capsul.engine.module.mrtrix')
+    if conf:
+        from capsul.in_context import mrtrix as mrtrixrun
+        env = mrtrixrun.mrtrix_env()
         for var, value in env.items():
             os.environ[var] = value

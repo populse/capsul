@@ -59,7 +59,7 @@ class StudyConfig(Controller):
 
     StudyConfig has modules (see BrainVISAConfig, AFNIConfig, FSLConfig,
     MatlabConfig, ANTSConfig, SmartCachingConfig, SomaWorkflowConfig,
-    SPMConfig, FOMConfig).
+    SPMConfig, FOMConfig, MRTRIXConfig).
     Modules are initialized in the constructor, so their list has to be setup
     before instantiating StudyConfig. A default modules list is used when no
     modules are specified: StudyConfig.default_modules
@@ -108,7 +108,8 @@ class StudyConfig(Controller):
     set_study_configuration
     """
 
-    default_modules = ['AFNIConfig', 'ANTSConfig', 'FSLConfig', 'MatlabConfig', 'SmartCachingConfig',
+    default_modules = ['AFNIConfig', 'ANTSConfig', 'FSLConfig', 'MatlabConfig',
+                       'MRTRIXConfig', 'SmartCachingConfig',
                        'SomaWorkflowConfig', 'SPMConfig']
     _user_config_directory = os.path.join("~", ".config", "capsul")
 
@@ -179,7 +180,7 @@ class StudyConfig(Controller):
         """
 
         super(StudyConfig, self).__init__()
-        
+
         if study_name:
             self.study_name = study_name
 
@@ -323,7 +324,6 @@ class StudyConfig(Controller):
             configuration dictionary
         """
 
-
         # Use soma workflow to execute the pipeline or process in parallel
         # on the local machine. This has now moved to CapsulEngine.
         if self.get_trait_value("use_soma_workflow"):
@@ -351,16 +351,15 @@ class StudyConfig(Controller):
                              % (ptype, process_or_pipeline.name,
                                 ', '.join(missing)))
 
-
         # Use the local machine to execute the pipeline or process
         if output_directory is None or output_directory is Undefined \
                 or output_directory == '':
             if 'output_directory' in process_or_pipeline.traits():
                 output_directory = getattr(process_or_pipeline,
-                                            'output_directory')
+                                           'output_directory')
             if output_directory in (None, Undefined, ''):
                 output_directory = self.output_directory
-         # Not all processes need an output_directory defined on
+        # Not all processes need an output_directory defined on
         # StudyConfig
         if output_directory not in (None, Undefined, ''):
             # Check the output directory is valid

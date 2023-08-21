@@ -18,7 +18,7 @@ def ensure_config_exists(engine):
 
 def init_settings(capsul_engine):
     with capsul_engine.settings as settings:
-        settings.ensure_module_fields('nipype',[])
+        settings.ensure_module_fields('nipype', [])
     pass
 
     ensure_config_exists(capsul_engine)
@@ -40,7 +40,7 @@ def activate_configurations():
     from capsul.in_context import nipype
 
     # activate optional dependencies first
-    for module in ('spm', 'fsl', 'freesurfer', 'afni', 'ants'):
+    for module in ('spm', 'fsl', 'freesurfer', 'afni', 'ants', 'mrtrix'):
         module_name = Settings.module_name(module)
         mod_conf = engine.configurations.get(module_name)
         if mod_conf:

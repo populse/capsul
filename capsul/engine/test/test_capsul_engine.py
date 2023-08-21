@@ -184,6 +184,15 @@ class TestCapsulEngine(unittest.TestCase):
             settings.new_config('ants', 'global', {'directory': '/there',
                                                    cif: '235'})
 
+            # Create a global mrtrix configuration
+            # FIXME : mrtrix cif ?
+            config = settings.config('mrtrix', 'global')
+            if config:
+                settings.remove_config('mrtrix', 'global',
+                                       getattr(config, cif))
+            settings.new_config('mrtrix', 'global', {'directory': '/there',
+                                                     cif: '235'})
+
             # Create two global SPM configurations
             settings.new_config('spm', 'global', {'version': '8',
                                                   'standalone': True,
@@ -202,7 +211,8 @@ class TestCapsulEngine(unittest.TestCase):
                                         'capsul.engine.module.matlab': 'ALL',
                                         'capsul.engine.module.spm': 'ALL',
                                         'capsul.engine.module.afni': 'ALL',
-                                        'capsul.engine.module.ants': 'ALL'}},
+                                        'capsul.engine.module.ants': 'ALL',
+                                        'capsul.engine.module.mrtrix': 'ALL'}},
              'capsul.engine.module.fsl': {'config_environment': 'global',
                                           'directory': '/there',
                                           cif: '5'},
@@ -212,6 +222,9 @@ class TestCapsulEngine(unittest.TestCase):
              'capsul.engine.module.ants': {
                  'config_environment': 'global', 'directory': '/there',
                  cif: '235'},
+             'capsul.engine.module.mrtrix': {
+                 'config_environment': 'global', 'directory': '/there',
+                 cif: '235'},  # FIXME : mrtrix cif ?
              'capsul.engine.module.spm': {'config_environment': 'my_machine',
                                           'version': '20',
                                           'standalone': True,
@@ -245,6 +258,16 @@ class TestCapsulEngine(unittest.TestCase):
                  cif: '235'},
              'capsul_engine':
                  {'uses': {'capsul.engine.module.ants': 'any'}}})
+
+        # FIXME : mrtrix cif ?
+        self.assertEqual(
+            self.ce.settings.select_configurations('global',
+                                                   uses={'mrtrix': 'any'}),
+            {'capsul.engine.module.mrtrix':
+                {'config_environment': 'global', 'directory': '/there',
+                 cif: '235'},
+             'capsul_engine':
+                 {'uses': {'capsul.engine.module.mrtrix': 'any'}}})
 
         self.assertEqual(
             self.ce.settings.select_configurations('global',
