@@ -32,11 +32,7 @@ def check_notably_invalid_config(conf):
     invalid: list
         list of invalid config keys
     '''
-    invalid = []
-    for k in ('directory', ):
-        if getattr(conf, k, None) is None:
-            invalid.append(k)
-    return invalid
+    return getattr(conf, 'directory', None)
 
 
 def activate_configurations():
