@@ -111,9 +111,9 @@
 <area shape="rect" id="node2" href="https://docs.python.org/3.9/library/subprocess.html#subprocess.Popen" target="_top" title="Execute a child program in a new process." alt="" coords="5,31,144,56"/>
 <area shape="rect" id="node3" href="#capsul.subprocess.spm.Popen" target="_top" title="Equivalent to Python soma.subprocess.Popen for SPM batch" alt="" coords="192,55,287,80"/>
 </map><p id="module-capsul.subprocess">The <a class="reference internal" href="#module-capsul.subprocess" title="capsul.subprocess"><code class="xref py py-mod docutils literal notranslate"><span class="pre">capsul.subprocess</span></code></a> module provides interfaces similar to those of the standard <a class="reference external" href="https://docs.python.org/3.9/library/subprocess.html#module-subprocess" title="(in Python v3.9)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">subprocess</span></code></a> module, specialized to call specific neuroimaging software such as FSL, SPM or FreeSurfer. It provides <a class="reference external" href="https://docs.python.org/3.9/library/subprocess.html#subprocess.Popen" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Popen</span></code></a>, <a class="reference external" href="https://docs.python.org/3.9/library/subprocess.html#subprocess.call" title="(in Python v3.9)"><code class="xref py py-func docutils literal notranslate"><span class="pre">call()</span></code></a>, <a class="reference external" href="https://docs.python.org/3.9/library/subprocess.html#subprocess.check_call" title="(in Python v3.9)"><code class="xref py py-func docutils literal notranslate"><span class="pre">check_call()</span></code></a> and <code class="xref py py-func docutils literal notranslate"><span class="pre">check_outputs()</span></code> replacement functions which work in the selected specific environment.</p>
-<section id="capsul-subprocess-fsl-submodule">
-<h2>capsul.subprocess.fsl submodule<a class="headerlink" href="#capsul-subprocess-fsl-submodule" title="Link to this heading">¶</a></h2>
-<p id="module-capsul.subprocess.fsl">Specific subprocess-like functions to call FSL taking into account a
+<section id="module-capsul.subprocess.fsl">
+<span id="capsul-subprocess-fsl-submodule"></span><h2>capsul.subprocess.fsl submodule<a class="headerlink" href="#module-capsul.subprocess.fsl" title="Link to this heading">¶</a></h2>
+<p>Specific subprocess-like functions to call FSL taking into account a
 potential configuration done in StudyConfig. If a StudyConfig is not
 configured to use FSL, it may be automatically configured. Automatic
 configuration had been tested in the two following cases:</p>
@@ -213,10 +213,10 @@ call taking into account the study_config FSL configuration.</p>
 </dd></dl>
 
 </section>
-<section id="capsul-subprocess-spm-submodule">
-<h2>capsul.subprocess.spm submodule<a class="headerlink" href="#capsul-subprocess-spm-submodule" title="Link to this heading">¶</a></h2>
 <section id="module-capsul.subprocess.spm">
-<span id="id1"></span><h3>Classes<a class="headerlink" href="#module-capsul.subprocess.spm" title="Link to this heading">¶</a></h3>
+<span id="capsul-subprocess-spm-submodule"></span><h2>capsul.subprocess.spm submodule<a class="headerlink" href="#module-capsul.subprocess.spm" title="Link to this heading">¶</a></h2>
+<section id="id1">
+<h3>Classes<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
 <section id="id2">
 <h4><a class="reference internal" href="#capsul.subprocess.spm.Popen" title="capsul.subprocess.spm.Popen"><code class="xref py py-class docutils literal notranslate"><span class="pre">Popen</span></code></a><a class="headerlink" href="#id2" title="Link to this heading">¶</a></h4>
 </section>
@@ -332,7 +332,7 @@ EnvironmentError if configuration is still wrong.</p>
     <h3><a href="../index.html">Table of Contents</a></h3>
     <ul>
 <li><a class="reference internal" href="#">capsul.subprocess module</a><ul>
-<li><a class="reference internal" href="#capsul-subprocess-fsl-submodule">capsul.subprocess.fsl submodule</a><ul>
+<li><a class="reference internal" href="#module-capsul.subprocess.fsl">capsul.subprocess.fsl submodule</a><ul>
 <li><a class="reference internal" href="#classes">Classes</a><ul>
 <li><a class="reference internal" href="#popen"><code class="xref py py-class docutils literal notranslate"><span class="pre">Popen</span></code></a></li>
 </ul>
@@ -357,8 +357,8 @@ EnvironmentError if configuration is still wrong.</p>
 <li><a class="reference internal" href="#capsul.subprocess.fsl.fsl_command_with_environment"><code class="docutils literal notranslate"><span class="pre">fsl_command_with_environment()</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#capsul-subprocess-spm-submodule">capsul.subprocess.spm submodule</a><ul>
-<li><a class="reference internal" href="#module-capsul.subprocess.spm">Classes</a><ul>
+<li><a class="reference internal" href="#module-capsul.subprocess.spm">capsul.subprocess.spm submodule</a><ul>
+<li><a class="reference internal" href="#id1">Classes</a><ul>
 <li><a class="reference internal" href="#id2"><code class="xref py py-class docutils literal notranslate"><span class="pre">Popen</span></code></a></li>
 </ul>
 </li>
@@ -407,7 +407,7 @@ EnvironmentError if configuration is still wrong.</p>
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2023, Populse team &lt;support@brainvisa.info&gt;.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.4.
     </div>
   </body>
 </html>
