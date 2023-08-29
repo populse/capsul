@@ -4,4 +4,5 @@ default_modules = ['afni',
                    'ants',
                    'fsl',
                    'matlab',
+                   'mrtrix',
                    'spm']
