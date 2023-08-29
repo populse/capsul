@@ -185,13 +185,12 @@ class TestCapsulEngine(unittest.TestCase):
                                                    cif: '235'})
 
             # Create a global mrtrix configuration
-            # FIXME : mrtrix cif ?
             config = settings.config('mrtrix', 'global')
             if config:
                 settings.remove_config('mrtrix', 'global',
                                        getattr(config, cif))
             settings.new_config('mrtrix', 'global', {'directory': '/there',
-                                                     cif: '235'})
+                                                     cif: '400'})
 
             # Create two global SPM configurations
             settings.new_config('spm', 'global', {'version': '8',
@@ -224,7 +223,7 @@ class TestCapsulEngine(unittest.TestCase):
                  cif: '235'},
              'capsul.engine.module.mrtrix': {
                  'config_environment': 'global', 'directory': '/there',
-                 cif: '235'},  # FIXME : mrtrix cif ?
+                 cif: '400'},
              'capsul.engine.module.spm': {'config_environment': 'my_machine',
                                           'version': '20',
                                           'standalone': True,
@@ -259,13 +258,12 @@ class TestCapsulEngine(unittest.TestCase):
              'capsul_engine':
                  {'uses': {'capsul.engine.module.ants': 'any'}}})
 
-        # FIXME : mrtrix cif ?
         self.assertEqual(
             self.ce.settings.select_configurations('global',
                                                    uses={'mrtrix': 'any'}),
             {'capsul.engine.module.mrtrix':
                 {'config_environment': 'global', 'directory': '/there',
-                 cif: '235'},
+                 cif: '400'},
              'capsul_engine':
                  {'uses': {'capsul.engine.module.mrtrix': 'any'}}})
 

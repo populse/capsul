@@ -54,11 +54,6 @@ class MRTRIXConfig(StudyConfigModule):
             self.sync_from_engine()
         else:
             self.sync_to_engine()
-        # TODO : do we need to add this tets for mrtrix as for afni/ants/fsl ?
-        # # this test aims to raise an exception in case of incorrect setting,
-        # # complying to capsul 2.x behavior.
-        # if self.study_config.use_mrtrix is True:
-        #     check_mrtrix_configuration(self.study_config)
 
     def initialize_callbacks(self):
         self.study_config.on_trait_change(
