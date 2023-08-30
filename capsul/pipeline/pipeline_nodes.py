@@ -585,7 +585,7 @@ class Node(Controller):
             module_name = settings.module_name(module)
             if module_name not in config:
                 if message_list is not None:
-                    message_list.append('requirement: %s is not met in %s'
+                    message_list.append('requirement 2: %s is not met in %s'
                                         % (req, self.name))
                 else:
                     # if no message is expected, then we can return immediately
