@@ -736,9 +736,10 @@ class ProcessMetadata(Controller):
         inner_field_name = None
         if isinstance(process, Pipeline):
             # inner_item = next(process.get_linked_items(
-            #                     process, field.name, direction=('links_from' if field.is_output() else 'links_to')), None)
+            #     process, field.name, direction=('links_from' if field.is_output() else 'links_to')), None)
             inner_item = next(process.get_linked_items(
-                                process, field.name, in_outer_pipelines=False), None)
+                process, field.name, in_outer_pipelines=False),
+                None)
         else:
             inner_item = None
         if inner_item is not None:
