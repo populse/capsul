@@ -17,15 +17,18 @@ from soma.qt_gui.controller import ControllerWidget
 
 class AttributedProcessWidget(QtGui.QWidget):
     """Process interface with attributes completion handling"""
-    def __init__(self, attributed_process, enable_attr_from_filename=False,
+
+    def __init__(self, process, exec_meta=None,
+                 enable_attr_from_filename=False,
                  enable_load_buttons=False,
-                 separate_outputs=True, user_data=None, user_level=0,
-                 scroll=True):
+                 separate_outputs=True, user_data=None, user_level=0):
         """
         Parameters
         ----------
-        attributed_process: Process instance
-            process with attributes to be displayed
+        process: Process instance
+            if None, use exec_meta.executable instead
+        exec_meta: executable metadata (ProcessMetadata) instance
+            metadata with attributes to be displayed
         enable_attr_from_filename: bool (optional)
             if enabled, it will be possible to specify an input filename to
             build attributes from
@@ -36,47 +39,42 @@ class AttributedProcessWidget(QtGui.QWidget):
             optional user data that can be accessed by individual control
             editors
         user_level: int
-            the current user level: some fields may be marked with a non-zero userlevel, and will only be visible if the ControllerWidget userlevel is more than (or equal) the field level.
-        scroll: bool
-            if True, the widget includes scrollbars in the parameters and
-            attributes sections when needed, otherwise it will be a fixed size
-            widget.
+            the current user level: some fields may be marked with a non-zero
+            userlevel, and will only be visible if the ControllerWidget
+            userlevel is more than (or equal) the field level.
         """
         super(AttributedProcessWidget, self).__init__()
         self.setLayout(QtGui.QVBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
-        self.attributed_process = attributed_process
+        self.exec_meta = exec_meta
         self._show_completion = False
         self.user_data = user_data
         self.separate_outputs = separate_outputs
         self._user_level = user_level
 
-        process = attributed_process
-        completion_engine = getattr(process, 'completion_engine', None)
+        if process is None:
+            process = exec_meta.executable
+        self.process = process
 
-        if completion_engine is not None:
-            splitter = QtGui.QSplitter(QtCore.Qt.Vertical)
-            self.layout().addWidget(splitter)
+        splitter = QtGui.QSplitter(QtCore.Qt.Vertical)
+        self.layout().addWidget(splitter)
+        if exec_meta is not None:
             spl_up = QtGui.QWidget()
             spl_up.setLayout(QtGui.QVBoxLayout())
             splitter.addWidget(spl_up)
-            spl_down = QtGui.QWidget()
-            spl_down.setLayout(QtGui.QVBoxLayout())
-            splitter.addWidget(spl_down)
         else:
             spl_up = self
-            spl_down = self
 
         filename_widget = None
-        if enable_attr_from_filename and completion_engine is not None:
+        if enable_attr_from_filename and exec_meta is not None:
             c = Controller()
             c.add_field('attributes_from_input_filename', File,
                         optional=True)
             filename_widget = ControllerWidget(c)  # , user_data=user_data)
             spl_up.layout().addWidget(filename_widget)
             self.input_filename_controller = c
-            c.on_attribute_change(self.on_input_filename_changed,
-                                  'attributes_from_input_filename')
+            c.on_attribute_change.add(self.on_input_filename_changed,
+                                      'attributes_from_input_filename')
             filename_widget.setSizePolicy(QtGui.QSizePolicy.Expanding,
                                           QtGui.QSizePolicy.Fixed)
 
@@ -93,10 +91,11 @@ class AttributedProcessWidget(QtGui.QWidget):
         hlay = QtGui.QHBoxLayout()
         spl_up.layout().addLayout(hlay)
         # CheckBox to completion rules or not
-        self.checkbox_fom = QtGui.QCheckBox('Follow completion rules')
-        self.checkbox_fom.setChecked(True)
-        self.checkbox_fom.stateChanged.connect(self.on_use_fom_change)
-        hlay.addWidget(self.checkbox_fom)
+        self.checkbox_completion = QtGui.QCheckBox('Follow completion rules')
+        self.checkbox_completion.setChecked(True)
+        self.checkbox_completion.stateChanged.connect(
+            self.on_use_completion_change)
+        hlay.addWidget(self.checkbox_completion)
 
         # Button Show/Hide completion
         self.btn_show_completion = QtGui.QCheckBox('Show completion')
@@ -105,22 +104,7 @@ class AttributedProcessWidget(QtGui.QWidget):
         hlay.addWidget(self.btn_show_completion)
         self.btn_show_completion.stateChanged.connect(self.on_show_completion)
 
-        params = QtGui.QWidget()
-        playout = QtGui.QVBoxLayout()
-        params.setLayout(playout)
-        if scroll:
-            scroll_a = QtGui.QScrollArea()
-            scroll_a.setWidgetResizable(True)
-            scroll_a.setWidget(params)
-            spl_up.layout().addWidget(scroll_a)
-            scroll_a.setSizePolicy(QtGui.QSizePolicy.Preferred,
-                                   QtGui.QSizePolicy.Preferred)
-            params.setSizePolicy(QtGui.QSizePolicy.Expanding,
-                                 QtGui.QSizePolicy.Preferred)
-            CWidgetClass = ControllerWidget
-        else:
-            spl_up.layout().addWidget(params)
-            CWidgetClass = ControllerWidget
+        CWidgetClass = ControllerWidget
 
         # groupbox area to show completion
         if separate_outputs:
@@ -129,7 +113,7 @@ class AttributedProcessWidget(QtGui.QWidget):
             param_widget = QtGui.QGroupBox('Parameters:')
         param_widget.setFlat(True)
         param_widget.setAlignment(QtCore.Qt.AlignLeft)
-        playout.addWidget(param_widget)
+        splitter.addWidget(param_widget)
         param_widget.setLayout(QtGui.QVBoxLayout())
         param_widget.setSizePolicy(QtGui.QSizePolicy.Expanding,
                                    QtGui.QSizePolicy.Expanding)
@@ -137,7 +121,7 @@ class AttributedProcessWidget(QtGui.QWidget):
             out_widget = QtGui.QGroupBox('Outputs:')
             out_widget.setFlat(True)
             out_widget.setAlignment(QtCore.Qt.AlignLeft)
-            playout.addWidget(out_widget)
+            splitter.addWidget(out_widget)
             out_widget.setLayout(QtGui.QVBoxLayout())
             out_widget.setSizePolicy(QtGui.QSizePolicy.Expanding,
                                      QtGui.QSizePolicy.Expanding)
@@ -146,33 +130,37 @@ class AttributedProcessWidget(QtGui.QWidget):
         sel = None
         if separate_outputs:
             sel = False
-        self.controller_widget = ControllerWidget(process,
+        self.controller_widget = ControllerWidget(
+            process,
             parent=param_widget,
             # user_data=user_data,
             user_level=user_level,
             output=sel,
         )
         if separate_outputs:
-            self.outputs_cwidget = ControllerWidget(process,
+            self.outputs_cwidget = ControllerWidget(
+                process,
                 parent=out_widget,
                 # user_data=user_data,
                 user_level=user_level,
                 output=True,
             )
 
-        show_ce = (completion_engine is not None
-                   and len(
-                      completion_engine.get_attribute_values().fields())
-                          != 0)
+        show_meta = (exec_meta is not None
+                     and len(
+                        sum([[f for f in getattr(exec_meta,
+                                                 field.name).fields()]
+                             for field in exec_meta.fields()], [])) != 0)
 
-        if completion_engine is not None:
+        if show_meta:
             self.controller_widget2 = CWidgetClass(
-                completion_engine.get_attribute_values(),
+                exec_meta,
                 parent=attrib_widget,
                 # user_data=user_data,
                 user_level=user_level)
-            completion_engine.get_attribute_values().on_attribute_change.add(
-                completion_engine.attributes_changed)
+            for field in exec_meta.fields():
+                getattr(exec_meta, field.name).on_attribute_change.add(
+                    self.on_attributes_changed)
         else:
             self.controller_widget2 = CWidgetClass(
                 Controller(),
@@ -186,7 +174,7 @@ class AttributedProcessWidget(QtGui.QWidget):
             out_widget.layout().addWidget(self.outputs_cwidget)
         attrib_widget.layout().addWidget(self.controller_widget2)
 
-        if enable_load_buttons and completion_engine is not None:
+        if enable_load_buttons and show_meta:
             io_lay = QtGui.QHBoxLayout()
             self.layout().addLayout(io_lay)
             self.btn_load_json = QtGui.QPushButton('Load attributes')
@@ -196,31 +184,31 @@ class AttributedProcessWidget(QtGui.QWidget):
             io_lay.addWidget(self.btn_save_json)
             self.btn_save_json.clicked.connect(self.on_btn_save_json)
 
-        if not show_ce:
+        if not show_meta:
             if filename_widget:
                 filename_widget.hide()
             attrib_widget.hide()
-            self.checkbox_fom.hide()
+            self.checkbox_completion.hide()
             self.btn_show_completion.hide()
             if hasattr(self, 'btn_load_json'):
                 self.btn_load_json.hide()
                 self.btn_save_json.hide()
-            self.show_completion(True) # hide file parts
+            self.show_completion(True)  # hide file parts
         else:
-            self.show_completion(False) # hide file parts
+            self.show_completion(False)  # hide file parts
 
-        if completion_engine is not None:
-            completion_engine.on_attribute_change.add(
-                self._completion_progress_changed, 'completion_progress')
+        #if show_meta:
+            #exec_meta.on_attribute_change.add(
+                #self._completion_progress_changed, 'completion_progress')
 
     def __del__(self):
-        completion_engine = getattr(self.attributed_process,
-                                   'completion_engine', None)
-        if completion_engine is not None:
-            completion_engine.get_attribute_values().on_attribute_change. \
-                remove(completion_engine.attributes_changed)
-            completion_engine.on_attribute_change.remove(
-                self._completion_progress_changed, 'completion_progress')
+        exec_meta = self.exec_meta
+        if exec_meta is not None:
+            for field in exec_meta.fields():
+                getattr(exec_meta, field.name).on_attribute_change.remove(
+                    self.on_attributes_changed)
+            #exec_meta.on_attribute_change.remove(
+                #self._completion_progress_changed, 'completion_progress')
 
     @property
     def user_level(self):
@@ -241,29 +229,41 @@ class AttributedProcessWidget(QtGui.QWidget):
         # re-hide file params if needed
         self.show_completion(self._show_completion)
 
+    def on_attributes_changed(self):
+        if self.exec_meta is not None:
+            self.exec_meta.generate_paths(self.process)
+
     def on_input_filename_changed(self, text):
         '''
         Input file path to guess completion attributes changed: update
         attributes
         '''
-        completion_engine = getattr(self.attributed_process,
-                                   'completion_engine', None)
-        if completion_engine is not None:
+        exec_meta = self.exec_meta
+        if exec_meta is not None:
             print('set attributes from path:', text)
+            in_params = [p for p, ds in exec_meta.dataset_per_parameter.items()
+                         if ds == 'input']
+            if len(in_params) != 0:
+                in_param = in_params[0]
+                schema = getattr(exec_meta,
+                                 exec_meta.schema_per_parameter[in_param])
+            c_schema = exec_meta.execution_context.dataset['input'].schema
             try:
-                completion_engine.path_attributes(str(text))
+                metadata = c_schema.metadata(str(text))
+                schema.import_dict(metadata)
+                exec_meta.generate_paths(self.process)
             except ValueError as e:
                 print(e)
                 import traceback
                 traceback.print_stack()
-
+            except NotImplementedError:
+                return
 
     def on_btn_load_json(self):
         """Load attributes from a json file"""
-        completion_engine = getattr(self.attributed_process,
-                                   'completion_engine', None)
-        if completion_engine is None:
-            print('No completion engine with attributes in this process.')
+        exec_meta = self.exec_meta
+        if exec_meta is None:
+            print('No metadata for this process.')
             return
         # ask for a file name
         filename = qt_backend.getOpenFileName(
@@ -274,14 +274,13 @@ class AttributedProcessWidget(QtGui.QWidget):
         print('load', filename)
         attributes = json.load(open(filename))
         print("loaded:", attributes)
-        completion_engine.get_attribute_values().import_from_dict(attributes)
+        exec_meta.import_dict(attributes)
 
     def on_btn_save_json(self):
         """Save attributes in a json file"""
-        completion_engine = getattr(self.attributed_process,
-                                   'completion_engine', None)
-        if completion_engine is None:
-            print('No attributes in this process.')
+        exec_meta = self.exec_meta
+        if exec_meta is None:
+            print('No metadata for this process.')
             return
         # ask for a file name
         filename = qt_backend.getSaveFileName(
@@ -289,41 +288,40 @@ class AttributedProcessWidget(QtGui.QWidget):
             'JSON files (*.json)')
         if filename is None:
             return
-        json.dump(completion_engine.get_attribute_values().export_to_dict(),
-                  open(filename, 'w'))
+        with open(filename, 'w') as f:
+            json.dump(exec_meta.asdict(), f)
 
-    def set_use_fom(self):
+    def set_use_completion(self):
         '''
-        Setup the FOM doing its job
+        Setup the completion doing its job
         '''
-        ret = QtGui.QMessageBox.critical(self, "Critical",
+        ret = QtGui.QMessageBox.critical(
+            self, "Critical",
             'Going back to completion rules will reset all path files. '
             'Are you sure?',
             QtGui.QMessageBox.Ok, QtGui.QMessageBox.Cancel)
 
         if ret == QtGui.QMessageBox.Ok:
-            #reset attributes and fields of process
-            process = self.attributed_process
-            completion_engine = getattr(self.attributed_process,
-                                       'completion_engine', None)
-            if completion_engine is None:
+            # reset attributes and fields of process
+            process = self.process
+            exec_meta = self.exec_meta
+            if exec_meta is None:
                 return
-            completion_engine.get_attribute_values().on_attribute_change.add(
-                completion_engine.attributes_changed)
+            for field in exec_meta.fields():
+                getattr(exec_meta, field.name).on_attribute_change.add(
+                    self.on_attributes_changed)
             try:
-                # WARNING: is it necessary to reset all this ?
-                # create_completion() will do the job anyway ?
-                #for name, field in process.fields():
-                    #if field.is_path():
-                        #setattr(process, name, undefined)
-                completion_engine.complete_parameters()
+                exec_meta.generate_paths(process)
 
                 if hasattr(self, 'input_filename_controller') \
                         and self.input_filename_controller. \
                             attributes_from_input_filename \
                         != '':
-                    completion_engine.path_attributes(
-                        self.input_filename_controller.attributes_from_input_filename)
+                    self.on_input_filename_changed(
+                        self.input_filename_controller.
+                        attributes_from_input_filename)
+                    #exec_meta.path_attributes(
+                        #self.input_filename_controller.attributes_from_input_filename)
             except Exception as e:
                 print(e)
                 import traceback
@@ -333,26 +331,25 @@ class AttributedProcessWidget(QtGui.QWidget):
         else:
             # reset it in a timer callback, otherwise the checkbox state is not
             # correctly recorded, and next time its state change will not
-            # trigger the on_use_fom_change slot.
-            QtCore.QTimer.singleShot(0, self._reset_fom_checkbox)
+            # trigger the on_use_completion_change slot.
+            QtCore.QTimer.singleShot(0, self._reset_completion_checkbox)
 
+    def _reset_completion_checkbox(self):
+        self.checkbox_completion.setChecked(False)
 
-    def _reset_fom_checkbox(self):
-        self.checkbox_fom.setChecked(False)
-
-    def on_use_fom_change(self, state):
+    def on_use_completion_change(self, state):
         '''
         Use completion checkbox callback
         '''
         if state == QtCore.Qt.Checked:
-            self.set_use_fom()
+            self.set_use_completion()
         else:
             self.attrib_widget.hide()
-            completion_engine = getattr(self.attributed_process,
-                                        'completion_engine', None)
-            if completion_engine is not None:
-                completion_engine.get_attribute_values().on_attribute_change \
-                    .remove(completion_engine.attributes_changed)
+            exec_meta = self.exec_meta
+            if exec_meta is not None:
+                for field in exec_meta.fields():
+                    getattr(exec_meta, field.name).on_attribute_change.remove(
+                        self.on_attributes_changed)
                 self.btn_show_completion.setChecked(True)
 
     def show_completion(self, visible=None):
