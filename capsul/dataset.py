@@ -15,6 +15,7 @@ from pathlib import Path
 import re
 import sys
 import importlib
+import weakref
 
 from capsul.pipeline.pipeline import Process, Pipeline
 from capsul.pipeline.process_iteration import ProcessIteration
@@ -658,7 +659,7 @@ class ProcessMetadata(Controller):
     def __init__(self, executable, execution_context, datasets=None,
                  debug=False):
         super().__init__()
-        self.executable = executable
+        self.executable = weakref.ref(executable)
         self.execution_context = execution_context
         self.datasets = datasets
         self._current_iteration = None
@@ -668,6 +669,8 @@ class ProcessMetadata(Controller):
         self.schema_per_parameter = {}
         self.dataset_per_parameter = {}
         self.iterative_schemas = set()
+        self.executable().metadata = self
+
         if isinstance(executable, ProcessIteration):
             process = executable.process
             iterative_parameters = executable.iterative_parameters
@@ -703,7 +706,7 @@ class ProcessMetadata(Controller):
                 setattr(self, schema_name, schema_cls())
 
         if self.debug:
-            self.dprint('Create ProcessMetadata for', self.executable.label)
+            self.dprint('Create ProcessMetadata for', self.executable().label)
             for field in process.user_fields():
                 if field.path_type:
                     dataset = self.dataset_per_parameter.get(field.name)
@@ -908,7 +911,7 @@ class ProcessMetadata(Controller):
 
         # now look in pipeline schema _nodes definitions
         full_node_name = node.full_name
-        executable = self.executable
+        executable = self.executable()
         if isinstance(executable, ProcessIteration):
             executable = executable.process
         pipeline_schema = getattr(executable, 'metadata_schemas',
@@ -947,8 +950,11 @@ class ProcessMetadata(Controller):
                 schema = None
         return schema
 
-    def generate_paths(self, executable):
+    def generate_paths(self, executable=None):
         # self.debug = True
+        if executable is None:
+            executable = self.executable()
+
         if self.debug:
             if self._current_iteration is not None:
                 iteration = f'[{self._current_iteration}]'

@@ -2743,11 +2743,13 @@ class PipelineDeveloperView(QGraphicsView):
         self._set_pipeline(pipeline)
         if pipeline is not None:
             # Setup callback to update view when pipeline state is modified
-            pipeline.selection_changed.add(self._reset_pipeline)
-            pipeline.on_fields_change.add(self._reset_pipeline)
+            pipeline.selection_changed.add(proxy_method(self,
+                                                        '_reset_pipeline'))
+            pipeline.on_fields_change.add(proxy_method(self,
+                                                       '_reset_pipeline'))
             if hasattr(pipeline, 'pipeline_steps'):
                 pipeline.pipeline_steps.on_attribute_change.add(
-                    self._reset_pipeline)
+                    proxy_method(self, '_reset_pipeline'))
 
     def release_pipeline(self, delete=False):
         '''
@@ -2763,9 +2765,11 @@ class PipelineDeveloperView(QGraphicsView):
         if pipeline is not None:
             if hasattr(pipeline, 'pipeline_steps'):
                 pipeline.pipeline_steps.on_attribute_change.remove(
-                    self._reset_pipeline)
-            pipeline.selection_changed.remove(self._reset_pipeline)
-            pipeline.on_fields_change.remove(self._reset_pipeline)
+                    proxy_method(self, '_reset_pipeline'))
+            pipeline.selection_changed.remove(proxy_method(self,
+                                                           '_reset_pipeline'))
+            pipeline.on_fields_change.remove(proxy_method(self,
+                                                          '_reset_pipeline'))
         self.setScene(None)
         if self.scene:
             # force destruction of scene internals now that the Qt object
@@ -3085,13 +3089,6 @@ class PipelineDeveloperView(QGraphicsView):
         if node_name in ('inputs', 'outputs'):
             node_name = ''
         process = self.scene.pipeline.nodes[node_name]
-        # force instantiating a completion engine (since
-        # AttributedProcessWidget does not force it)
-        if hasattr(process, 'get_capsul_engine'):  # exclude custom nodes
-            engine = process.get_capsul_engine()
-            from capsul.attributes.completion_engine \
-                import ProcessCompletionEngine
-            ce = ProcessCompletionEngine.get_completion_engine(process)
 
         cwidget = AttributedProcessWidget(
             process, enable_attr_from_filename=True, enable_load_buttons=True,

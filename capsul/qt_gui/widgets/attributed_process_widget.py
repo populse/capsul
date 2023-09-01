@@ -13,6 +13,7 @@ from soma.qt_gui import qt_backend
 from soma.qt_gui.qt_backend import QtGui, QtCore
 from soma.controller import (Controller, File, Any)
 from soma.qt_gui.controller import ControllerWidget
+from soma.utils.weak_proxy import proxy_method
 
 
 class AttributedProcessWidget(QtGui.QWidget):
@@ -28,7 +29,8 @@ class AttributedProcessWidget(QtGui.QWidget):
         process: Process instance
             if None, use exec_meta.executable instead
         exec_meta: executable metadata (ProcessMetadata) instance
-            metadata with attributes to be displayed
+            metadata with attributes to be displayed. If None, process.metadata
+            is used instead - one of those two parameters should be defined.
         enable_attr_from_filename: bool (optional)
             if enabled, it will be possible to specify an input filename to
             build attributes from
@@ -46,6 +48,8 @@ class AttributedProcessWidget(QtGui.QWidget):
         super(AttributedProcessWidget, self).__init__()
         self.setLayout(QtGui.QVBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
+        if exec_meta is None:
+            exec_meta = getattr(process, 'metadata', None)
         self.exec_meta = exec_meta
         self._show_completion = False
         self.user_data = user_data
@@ -73,8 +77,9 @@ class AttributedProcessWidget(QtGui.QWidget):
             filename_widget = ControllerWidget(c)  # , user_data=user_data)
             spl_up.layout().addWidget(filename_widget)
             self.input_filename_controller = c
-            c.on_attribute_change.add(self.on_input_filename_changed,
-                                      'attributes_from_input_filename')
+            c.on_attribute_change.add(
+                proxy_method(self, 'on_input_filename_changed'),
+                'attributes_from_input_filename')
             filename_widget.setSizePolicy(QtGui.QSizePolicy.Expanding,
                                           QtGui.QSizePolicy.Fixed)
 
@@ -166,7 +171,7 @@ class AttributedProcessWidget(QtGui.QWidget):
                 user_level=user_level)
             for field in exec_meta.fields():
                 getattr(exec_meta, field.name).on_attribute_change.add(
-                    self.on_attributes_changed)
+                    proxy_method(self, 'on_attributes_changed'))
         else:
             self.controller_widget2 = CWidgetClass(
                 Controller(),
@@ -212,7 +217,7 @@ class AttributedProcessWidget(QtGui.QWidget):
         if exec_meta is not None:
             for field in exec_meta.fields():
                 getattr(exec_meta, field.name).on_attribute_change.remove(
-                    self.on_attributes_changed)
+                    proxy_method(self, 'on_attributes_changed'))
             #exec_meta.on_attribute_change.remove(
                 #self._completion_progress_changed, 'completion_progress')
 
@@ -315,7 +320,7 @@ class AttributedProcessWidget(QtGui.QWidget):
                 return
             for field in exec_meta.fields():
                 getattr(exec_meta, field.name).on_attribute_change.add(
-                    self.on_attributes_changed)
+                    proxy_method(self, 'on_attributes_changed'))
             try:
                 exec_meta.generate_paths(process)
 
@@ -353,7 +358,7 @@ class AttributedProcessWidget(QtGui.QWidget):
             if exec_meta is not None:
                 for field in exec_meta.fields():
                     getattr(exec_meta, field.name).on_attribute_change.remove(
-                        self.on_attributes_changed)
+                        proxy_method(self, 'on_attributes_changed'))
                 self.btn_show_completion.setChecked(True)
 
     def show_completion(self, visible=None):
