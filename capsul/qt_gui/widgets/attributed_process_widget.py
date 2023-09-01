@@ -40,8 +40,8 @@ class AttributedProcessWidget(QtGui.QWidget):
             editors
         user_level: int
             the current user level: some fields may be marked with a non-zero
-            userlevel, and will only be visible if the ControllerWidget
-            userlevel is more than (or equal) the field level.
+            user_level, and will only be visible if the ControllerWidget
+            userl_evel is more than (or equal) the field level.
         """
         super(AttributedProcessWidget, self).__init__()
         self.setLayout(QtGui.QVBoxLayout())
@@ -107,21 +107,27 @@ class AttributedProcessWidget(QtGui.QWidget):
         CWidgetClass = ControllerWidget
 
         # groupbox area to show completion
+        pwid = QtGui.QWidget()  # this one is just to add a bit of space
+        pwid.setLayout(QtGui.QVBoxLayout())
+        splitter.addWidget(pwid)
         if separate_outputs:
             param_widget = QtGui.QGroupBox('Inputs:')
         else:
             param_widget = QtGui.QGroupBox('Parameters:')
         param_widget.setFlat(True)
         param_widget.setAlignment(QtCore.Qt.AlignLeft)
-        splitter.addWidget(param_widget)
+        pwid.layout().addWidget(param_widget)
         param_widget.setLayout(QtGui.QVBoxLayout())
         param_widget.setSizePolicy(QtGui.QSizePolicy.Expanding,
                                    QtGui.QSizePolicy.Expanding)
         if separate_outputs:
+            owid = QtGui.QWidget()  # this one is just to add a bit of space
+            owid.setLayout(QtGui.QVBoxLayout())
+            splitter.addWidget(owid)
             out_widget = QtGui.QGroupBox('Outputs:')
             out_widget.setFlat(True)
             out_widget.setAlignment(QtCore.Qt.AlignLeft)
-            splitter.addWidget(out_widget)
+            owid.layout().addWidget(out_widget)
             out_widget.setLayout(QtGui.QVBoxLayout())
             out_widget.setSizePolicy(QtGui.QSizePolicy.Expanding,
                                      QtGui.QSizePolicy.Expanding)
@@ -320,8 +326,6 @@ class AttributedProcessWidget(QtGui.QWidget):
                     self.on_input_filename_changed(
                         self.input_filename_controller.
                         attributes_from_input_filename)
-                    #exec_meta.path_attributes(
-                        #self.input_filename_controller.attributes_from_input_filename)
             except Exception as e:
                 print(e)
                 import traceback
@@ -366,42 +370,38 @@ class AttributedProcessWidget(QtGui.QWidget):
             visible = not self._show_completion
         self._show_completion = visible
 
-        # FIXME TODO
-        return
-
         cwidgets = [self.controller_widget]
         if self.separate_outputs:
             cwidgets.append(self.outputs_cwidget)
+
+        visibility = {True: [], False: []}
         for controller_widget in cwidgets:
-            for control_name, control_groups in \
-                    controller_widget._controls.items():
-                for group, control in control_groups.items():
-                    field, control_class, control_instance, control_label \
-                        = control
-                    if not field.has_path() and field.type is not Any:
-                        continue
-                    if field.metadata.get('forbid_completion', False):
-                        # when completion is disable, parameters are always
-                        # visible
-                        is_visible = True
-                    else:
-                        hidden = field.metadata.get('hidden', False) \
-                              or (field.metadata.get('userlevel') is not None
-                                  and field.metadata.get('userlevel')
-                                      > self.user_level)
-                        is_visible = visible and not hidden
-                    control_instance.setVisible(is_visible)
-                    if isinstance(control_label, tuple):
-                        for cl in control_label:
-                            cl.setVisible(is_visible)
-                    else:
-                        control_label.setVisible(is_visible)
-            for group, group_widget in controller_widget._groups.items():
-                if [x for x in group_widget.hideable_widget.children()
-                    if isinstance(x, QtGui.QWidget) and not x.isHidden()]:
-                    group_widget.show()
+            for field in controller_widget.controller.fields():
+                if not field.is_path() and field.type is not Any:
+                    continue
+                # group = field.metadata('group', None)
+                # cwidget = controller_widget.groups[group]
+                if field.metadata('forbid_completion', False):
+                    # when completion is disabled, parameters are always
+                    # visible
+                    is_visible = True
                 else:
-                    group_widget.hide()
+                    hidden = field.metadata('hidden', False) \
+                            or (field.metadata('user_level') is not None
+                                and field.metadata('user_level')
+                                    > self.user_level)
+                    is_visible = visible and not hidden
+                visibility[is_visible].append(field.name)
+
+            controller_widget.set_visible(visibility[False], False)
+            controller_widget.set_visible(visibility[True], True)
+
+            #for group, group_widget in controller_widget._groups.items():
+                #if [x for x in group_widget.hideable_widget.children()
+                    #if isinstance(x, QtGui.QWidget) and not x.isHidden()]:
+                    #group_widget.show()
+                #else:
+                    #group_widget.hide()
 
     def on_show_completion(self, visible):
         '''
