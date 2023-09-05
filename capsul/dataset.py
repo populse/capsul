@@ -20,7 +20,7 @@ import weakref
 from capsul.pipeline.pipeline import Process, Pipeline
 from capsul.pipeline.process_iteration import ProcessIteration
 
-from soma.controller import Controller, Literal, Directory
+from soma.controller import Controller, Literal, Directory, NotifyingList
 from soma.undefined import undefined
 
 global_debug = False
@@ -699,8 +699,10 @@ class ProcessMetadata(Controller):
             if schema_cls is None:
                 raise ValueError(f'Cannot find metadata schema named "{schema_name}"')
             if schema_name in self.iterative_schemas:
-                self.add_field(schema_name, type_=list[schema_cls])
+                self.add_field(schema_name, type_=NotifyingList[schema_cls])
                 setattr(self, schema_name, [])
+                #self.add_field(schema_name, type_=list[schema_cls])
+                #setattr(self, schema_name, [])
             else:
                 self.add_field(schema_name, type_=schema_cls)
                 setattr(self, schema_name, schema_cls())
