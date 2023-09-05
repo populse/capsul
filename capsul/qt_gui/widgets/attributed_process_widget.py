@@ -11,7 +11,7 @@ Classes
 import json
 from soma.qt_gui import qt_backend
 from soma.qt_gui.qt_backend import QtGui, QtCore
-from soma.controller import (Controller, File, Any)
+from soma.controller import (Controller, File, Any, Path)
 from soma.qt_gui.controller import ControllerWidget
 from soma.utils.weak_proxy import proxy_method
 
@@ -102,6 +102,13 @@ class AttributedProcessWidget(QtGui.QWidget):
             self.on_use_completion_change)
         hlay.addWidget(self.checkbox_completion)
 
+        # update button
+        self.btn_update_compl = QtGui.QPushButton('Update Completion')
+        self.btn_update_compl.setSizePolicy(QtGui.QSizePolicy.Fixed,
+                                            QtGui.QSizePolicy.Fixed)
+        self.btn_update_compl.clicked.connect(self.on_update_completion)
+        hlay.addWidget(self.btn_update_compl)
+
         # Button Show/Hide completion
         self.btn_show_completion = QtGui.QCheckBox('Show completion')
         self.btn_show_completion.setSizePolicy(QtGui.QSizePolicy.Fixed,
@@ -157,11 +164,17 @@ class AttributedProcessWidget(QtGui.QWidget):
                 output=True,
             )
 
-        show_meta = (exec_meta is not None
-                     and len(
-                        sum([[f for f in getattr(exec_meta,
-                                                 field.name).fields()]
-                             for field in exec_meta.fields()], [])) != 0)
+        show_meta = False
+        if exec_meta is not None:
+            for field in exec_meta.fields():
+                if field.is_list():
+                    # iteration: assume fields exist
+                    show_meta = True
+                    break
+                if len([f for f in getattr(exec_meta, field.name).fields()]) \
+                        != 0:
+                    show_meta = True
+                    break
 
         if show_meta:
             self.controller_widget2 = CWidgetClass(
@@ -169,9 +182,13 @@ class AttributedProcessWidget(QtGui.QWidget):
                 parent=attrib_widget,
                 # user_data=user_data,
                 user_level=user_level)
-            for field in exec_meta.fields():
-                getattr(exec_meta, field.name).on_attribute_change.add(
-                    proxy_method(self, 'on_attributes_changed'))
+            #exec_meta.on_attribute_change.add(
+                #proxy_method(self, 'on_attributes_changed'))
+            #exec_meta.on_inner_value_change.add(
+                #proxy_method(self, 'on_inner_value_changed'))
+            ##for field in exec_meta.fields():
+                ##getattr(exec_meta, field.name).on_attribute_change.add(
+                    ##proxy_method(self, 'on_attributes_changed'))
         else:
             self.controller_widget2 = CWidgetClass(
                 Controller(),
@@ -214,12 +231,16 @@ class AttributedProcessWidget(QtGui.QWidget):
 
     def __del__(self):
         exec_meta = self.exec_meta
-        if exec_meta is not None:
-            for field in exec_meta.fields():
-                getattr(exec_meta, field.name).on_attribute_change.remove(
-                    proxy_method(self, 'on_attributes_changed'))
+        #if exec_meta is not None:
             #exec_meta.on_attribute_change.remove(
-                #self._completion_progress_changed, 'completion_progress')
+                #proxy_method(self, 'on_attributes_changed'))
+            #exec_meta.on_inner_value_change.remove(
+                #proxy_method(self, 'on_inner_value_changed'))
+            ##for field in exec_meta.fields():
+                ##getattr(exec_meta, field.name).on_attribute_change.remove(
+                    ##proxy_method(self, 'on_attributes_changed'))
+            ##exec_meta.on_attribute_change.remove(
+                ##self._completion_progress_changed, 'completion_progress')
 
     @property
     def user_level(self):
@@ -243,6 +264,10 @@ class AttributedProcessWidget(QtGui.QWidget):
     def on_attributes_changed(self):
         if self.exec_meta is not None:
             self.exec_meta.generate_paths(self.process)
+
+    #def on_inner_value_changed(self, indices):
+        #if self.exec_meta is not None:
+            #self.exec_meta.generate_paths(self.process)
 
     def on_input_filename_changed(self, text):
         '''
@@ -318,9 +343,9 @@ class AttributedProcessWidget(QtGui.QWidget):
             exec_meta = self.exec_meta
             if exec_meta is None:
                 return
-            for field in exec_meta.fields():
-                getattr(exec_meta, field.name).on_attribute_change.add(
-                    proxy_method(self, 'on_attributes_changed'))
+            #for field in exec_meta.fields():
+                #getattr(exec_meta, field.name).on_attribute_change.add(
+                    #proxy_method(self, 'on_attributes_changed'))
             try:
                 exec_meta.generate_paths(process)
 
@@ -334,7 +359,7 @@ class AttributedProcessWidget(QtGui.QWidget):
             except Exception as e:
                 print(e)
                 import traceback
-                traceback.print_stack()
+                traceback.print_exc()
             self.attrib_widget.show()
 
         else:
@@ -346,19 +371,30 @@ class AttributedProcessWidget(QtGui.QWidget):
     def _reset_completion_checkbox(self):
         self.checkbox_completion.setChecked(False)
 
+    def on_update_completion(self):
+        process = self.process
+        exec_meta = self.exec_meta
+        if exec_meta is None:
+            return
+        exec_meta.generate_paths(process)
+        self.controller_widget.update_fields()
+        self.outputs_cwidget.update_fields()
+
     def on_use_completion_change(self, state):
         '''
         Use completion checkbox callback
         '''
         if state == QtCore.Qt.Checked:
             self.set_use_completion()
+            self.btn_update_compl.show()
         else:
             self.attrib_widget.hide()
+            self.btn_update_compl.hide()
             exec_meta = self.exec_meta
             if exec_meta is not None:
-                for field in exec_meta.fields():
-                    getattr(exec_meta, field.name).on_attribute_change.remove(
-                        proxy_method(self, 'on_attributes_changed'))
+                #for field in exec_meta.fields():
+                    #getattr(exec_meta, field.name).on_attribute_change.remove(
+                        #proxy_method(self, 'on_attributes_changed'))
                 self.btn_show_completion.setChecked(True)
 
     def show_completion(self, visible=None):
@@ -382,7 +418,11 @@ class AttributedProcessWidget(QtGui.QWidget):
         visibility = {True: [], False: []}
         for controller_widget in cwidgets:
             for field in controller_widget.controller.fields():
-                if not field.is_path() and field.type is not Any:
+                if not field.is_path() and field.type is not Any and (
+                        not field.is_list()
+                        or len(field.subtypes()) == 0
+                        or not isinstance(field.subtypes()[0], type)
+                        or not issubclass(field.subtypes()[0], Path)):
                     continue
                 # group = field.metadata('group', None)
                 # cwidget = controller_widget.groups[group]
