@@ -1135,9 +1135,14 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
             elif not trait.optional:
                 xors = [i for i in trait.xor if not self.traits()[i].optional]
                 # Mutually exclusive means xors must have only one element?
-                value_xor = self.get_parameter(xors[0])
-                value = self.get_parameter(name)
-                if not check_trait(self.traits()[xors[0]], value_xor) and not check_trait(trait, value):
+                # value_xor = self.get_parameter(xors[0])
+                # value = self.get_parameter(name)
+                # if not check_trait(self.traits()[xors[0]], value_xor) and not check_trait(trait, value):
+                #     missing.append(name)
+                result_check = [check_trait(self.traits()[i],
+                                            self.get_parameter(i)) for i in xors]
+                result_check.append(check_trait(trait, self.get_parameter(name)))
+                if not any(result_check):
                     missing.append(name)
         return missing
 
