@@ -2283,7 +2283,7 @@ class Pipeline(Process):
         The result is a generator of pairs (node, plug_name).
 
         direction may be a sting, 'links_from', 'links_to', or a tuple
-        ('linnks_from', 'links_to').
+        ('links_from', 'links_to').
         '''
         if plug_name is None:
             stack = [(node, plug) for plug in node.plugs]
