@@ -375,12 +375,14 @@ class CapsulWorkflow(Controller):
             parameters['_iterations'] = []
             iteration_index = 0
             if isinstance(process.process, Pipeline):
-                all_iterated_processes = [p for p in process.process.all_nodes() if isinstance(p, Process)]
+                all_iterated_processes = [
+                    p for p in process.process.all_nodes()
+                    if isinstance(p, Process)]
             else:
                 all_iterated_processes = [process.process]
             for inner_process in process.iterate_over_process_parmeters():
                 if isinstance(inner_process, Pipeline):
-                    find_temporary_to_generate(executable)
+                    find_temporary_to_generate(inner_process)
                 parameters['_iterations'].append({})
                 for p in all_iterated_processes:
                     process_iterations.setdefault(p.uuid, []).append(str(iteration_index))
@@ -540,8 +542,10 @@ def find_temporary_to_generate(executable):
     # print('!temporaries! ->', executable.label)
     if isinstance(executable, Pipeline):
         nodes = executable.all_nodes(in_iterations=True)
-    elif isinstance(executable, ProcessIteration) and isinstance(executable.process, Pipeline):
+    elif isinstance(executable, ProcessIteration) \
+            and isinstance(executable.process, Pipeline):
         nodes = executable.process.all_nodes(in_iterations=True)
+        executable = executable.process
     else:
         nodes = [executable]
     for node in nodes:
