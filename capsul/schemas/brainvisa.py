@@ -562,14 +562,16 @@ def declare_morpho_schemas(morpho_module):
         _ = {
             '*': {'seg_directory': 'segmentation/mesh'},
         }
-        white_mesh = {'prefix': None, 'suffix': 'white', 'extension': 'gii'}
+        white_mesh = {'side': None, 'prefix': None, 'suffix': 'white',
+                      'extension': 'gii'}
 
     class PialMeshBrainVISA(ProcessSchema, schema='brainvisa',
                             process=PialMesh):
         _ = {
             '*': {'seg_directory': 'segmentation/mesh'},
         }
-        pial_mesh = {'prefix': None, 'suffix': 'hemi', 'extension': 'gii'}
+        pial_mesh = {'side': None, 'prefix': None, 'suffix': 'hemi',
+                     'extension': 'gii'}
 
     class SulciSkeletonBrainVISA(ProcessSchema, schema='brainvisa',
                                  process=SulciSkeleton):
