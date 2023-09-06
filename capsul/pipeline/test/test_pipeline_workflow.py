@@ -161,9 +161,9 @@ class TestPipelineWorkflow(unittest.TestCase):
         self.pipeline.set_study_config(study_config)
         self.tmpdir = tempfile.mkdtemp()
         self.pipeline.input = osp.join(self.tmpdir, 'file_in.nii')
-        self.pipeline.output1 = osp.join(self.tmpdir, '/tmp/file_out1.nii')
-        self.pipeline.output2 = osp.join(self.tmpdir, '/tmp/file_out2.nii')
-        self.pipeline.output3 = osp.join(self.tmpdir, '/tmp/file_out3.nii')
+        self.pipeline.output1 = osp.join(self.tmpdir, 'file_out1.nii')
+        self.pipeline.output2 = osp.join(self.tmpdir, 'file_out2.nii')
+        self.pipeline.output3 = osp.join(self.tmpdir, 'file_out3.nii')
         study_config.input_directory = self.tmpdir
         study_config.somaworkflow_computing_resource = 'localhost'
         study_config.somaworkflow_computing_resources_config.localhost = {
