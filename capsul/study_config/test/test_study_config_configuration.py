@@ -38,7 +38,7 @@ tests_no_files = [
         'process_output_directory': False,
         'user_level': 0,
     },
-    ['AFNIConfig', 'ANTSConfig', 'FSLConfig', 'MatlabConfig', 'MRTRIXConfig',
+    ['AFNIConfig', 'ANTSConfig', 'FSLConfig', 'MRTRIXConfig', 'MatlabConfig',
         'SPMConfig', 'SmartCachingConfig', 'SomaWorkflowConfig'],
     None,
     None]],
@@ -57,7 +57,7 @@ tests_no_files = [
         'process_output_directory': False,
         'user_level': 0,
     },
-    ['AFNIConfig', 'ANTSConfig', 'FSLConfig', 'MatlabConfig', 'MRTRIXConfig',
+    ['AFNIConfig', 'ANTSConfig', 'FSLConfig', 'MRTRIXConfig', 'MatlabConfig',
         'SPMConfig', 'SmartCachingConfig', 'SomaWorkflowConfig'],
     None,
     None]],
@@ -76,7 +76,7 @@ tests_no_files = [
         'process_output_directory': False,
         'user_level': 0,
     },
-    ['AFNIConfig', 'ANTSConfig', 'FSLConfig', 'MatlabConfig', 'MRTRIXConfig',
+    ['AFNIConfig', 'ANTSConfig', 'FSLConfig', 'MRTRIXConfig', 'MatlabConfig',
         'SPMConfig', 'SmartCachingConfig', 'SomaWorkflowConfig'],
     None,
     None]],
@@ -120,7 +120,7 @@ tests_no_files = [
         'user_level': 0,
     },
     ['AFNIConfig', 'ANTSConfig', 'BrainVISAConfig', 'FSLConfig',
-     'FreeSurferConfig', 'MatlabConfig', 'MRTRIXConfig', 'SPMConfig',
+     'FreeSurferConfig', 'MRTRIXConfig', 'MatlabConfig', 'SPMConfig',
      'SmartCachingConfig', 'SomaWorkflowConfig'],
     None,
     None]],
@@ -147,7 +147,7 @@ tests_standard_files = [
         'process_output_directory': False,
         'user_level': 0,
     },
-    ['AFNIConfig', 'ANTSConfig', 'FSLConfig', 'MatlabConfig', 'MRTRIXConfig',
+    ['AFNIConfig', 'ANTSConfig', 'FSLConfig', 'MRTRIXConfig', 'MatlabConfig',
         'SPMConfig', 'SmartCachingConfig', 'SomaWorkflowConfig'],
     'config.json',
      None]],
@@ -193,7 +193,7 @@ tests_standard_files = [
         'process_output_directory': False,
         'user_level': 0,
     },
-    ['AFNIConfig', 'ANTSConfig', 'FSLConfig', 'MatlabConfig', 'MRTRIXConfig', 
+    ['AFNIConfig', 'ANTSConfig', 'FSLConfig', 'MRTRIXConfig', 'MatlabConfig',
         'SPMConfig', 'SmartCachingConfig', 'SomaWorkflowConfig'],
     'config.json',
     None]],
@@ -245,7 +245,7 @@ tests_custom_files = [
         'process_output_directory': False,
         'user_level': 0,
     },
-    ['AFNIConfig', 'ANTSConfig', 'FSLConfig', 'MatlabConfig', 'MRTRIXConfig',
+    ['AFNIConfig', 'ANTSConfig', 'FSLConfig', 'MRTRIXConfig', 'MatlabConfig',
         'SPMConfig', 'SmartCachingConfig', 'SomaWorkflowConfig'],
     os.path.join('somewhere', 'config.json'),
      None]],
@@ -291,7 +291,7 @@ tests_custom_files = [
         'process_output_directory': False,
         'user_level': 0,
     },
-    ['AFNIConfig', 'ANTSConfig', 'FSLConfig', 'MatlabConfig', 'MRTRIXConfig',
+    ['AFNIConfig', 'ANTSConfig', 'FSLConfig', 'MRTRIXConfig', 'MatlabConfig',
         'SPMConfig', 'SmartCachingConfig', 'SomaWorkflowConfig'],
     os.path.join('somewhere', 'config.json'),
     os.path.join('somewhere', 'other_study.json')]],
@@ -341,7 +341,6 @@ other_config = {
 other_study_config = {}
 
 
-
 class TestStudyConfigConfiguration(unittest.TestCase):
 
     def setUp(self):
@@ -388,7 +387,7 @@ class TestStudyConfigConfiguration(unittest.TestCase):
                             repr(sc.study_config_file)))
             except Exception as e:
                 raise EnvironmentError('When testing StudyConfig(*{0}, **{1}), got the following error: {2}'.format(args, kwargs, e))
-    
+
     def test_study_config_configuration(self):
         user_config_directory = mkdtemp()
         try:
@@ -396,7 +395,7 @@ class TestStudyConfigConfiguration(unittest.TestCase):
             StudyConfig._user_config_directory = user_config_directory
             self.run_study_config_instanciation(tests_no_files, 
                 'without configuration files', user_config_directory)
-                
+
             # Check wrong value in CAPSUL_CONFIG environment variable
             os.environ['CAPSUL_CONFIG'] = \
                 os.path.join(user_config_directory,'i_do_not_exists.json')
@@ -412,12 +411,12 @@ class TestStudyConfigConfiguration(unittest.TestCase):
             #    self.fail('Wrong value in CAPSUL_CONFIG is supposed to '
             #              'raise an IOError with errno==2')
             del os.environ['CAPSUL_CONFIG']
-            
+
             # Check configuration files usage
             user_config_file = os.path.join(user_config_directory, 'config.json')
             with open(user_config_file,'w') as f:
                 json.dump(user_config, f)
-            
+
             my_study_config_file = os.path.join(user_config_directory, 'my_study', 'config.json')
             os.mkdir(os.path.join(user_config_directory, 'my_study'))
             with open(my_study_config_file,'w') as f:
@@ -428,7 +427,7 @@ class TestStudyConfigConfiguration(unittest.TestCase):
             other_config_file = os.path.join(other_config_dir, 'config.json')
             with open(other_config_file,'w') as f:
                 json.dump(other_config, f)
-            
+
             other_study_config_file = os.path.join(other_config_dir, 'other_study.json')
             with open(other_study_config_file,'w') as f:
                 json.dump(other_study_config, f)
@@ -436,7 +435,7 @@ class TestStudyConfigConfiguration(unittest.TestCase):
             self.run_study_config_instanciation(tests_standard_files, 
                 'with standard configuration files',
                 user_config_directory)
-                
+
             os.environ['CAPSUL_CONFIG'] = other_config_file
             self.run_study_config_instanciation(tests_custom_files, 
                 'with CAPSUL_CONFIG configuration files',

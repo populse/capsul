@@ -170,8 +170,8 @@ class TestDateTime(Process):
     def __init__(self):
         super(TestDateTime, self).__init__()
 
-        self.add_trait("in_1", Date(output=False))
-        self.add_trait("in_2", Time(output=False))
+        self.add_trait("in_1", Date(output=False, allow_None=True))
+        self.add_trait("in_2", Time(output=False, allow_None=True))
         self.add_trait("out", List(output=True))
 
     def _run_process(self):
