@@ -122,7 +122,8 @@ class CapsulWorkflow(Controller):
             parent_executables=[],
             parameters_location=[],
             process_iterations={},
-            disabled=False)
+            disabled=False,
+            debug=debug)
         top_parameters.content.update(job_parameters.content)
         self.parameters_values = top_parameters.proxy_values
         self.parameters_dict = top_parameters.content
@@ -264,7 +265,8 @@ class CapsulWorkflow(Controller):
                      parent_executables,
                      parameters_location,
                      process_iterations,
-                     disabled):
+                     disabled,
+                     debug=None):
         parameters = top_parameters
         for index in parameters_location:
             if index.isnumeric():
@@ -293,7 +295,8 @@ class CapsulWorkflow(Controller):
                     parameters_location=parameters_location + ['nodes',
                                                                node_name],
                     process_iterations=process_iterations,
-                    disabled=disabled or node in disabled_nodes)
+                    disabled=disabled or node in disabled_nodes,
+                    debug=debug)
                 nodes.append(node)
             for field in process.user_fields():  # noqa: F402
                 links = list(executable.get_linked_items(
@@ -393,10 +396,12 @@ class CapsulWorkflow(Controller):
                     processes_proxies=processes_proxies,
                     process_chronology=process_chronology,
                     process=inner_process,
-                    parent_executables=parent_executables + [process], 
-                    parameters_location=parameters_location + ['_iterations', str(iteration_index)],
+                    parent_executables=parent_executables + [process],
+                    parameters_location=parameters_location + [
+                        '_iterations', str(iteration_index)],
                     process_iterations=process_iterations,
-                    disabled=disabled)
+                    disabled=disabled,
+                    debug=debug)
                 for k, v in job_parameters.content.items():
                     if k in process.iterative_parameters:
                         parameters.content.setdefault(k, []).append(v)
