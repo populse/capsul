@@ -225,6 +225,7 @@
         <span class="c1"># Set the new nypipe interface value</span>
         <span class="n">trait_map</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">process_instance</span><span class="p">,</span> <span class="s1">&#39;_nipype_trait_mapping&#39;</span><span class="p">,</span> <span class="p">{})</span>
         <span class="n">inames</span> <span class="o">=</span> <span class="p">[</span><span class="n">iname</span> <span class="k">for</span> <span class="n">iname</span><span class="p">,</span> <span class="n">pname</span> <span class="ow">in</span> <span class="n">trait_map</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">pname</span> <span class="o">==</span> <span class="n">name</span><span class="p">]</span>
+        <span class="n">capsul_name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="k">if</span> <span class="n">inames</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">inames</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
@@ -234,9 +235,14 @@
                     <span class="n">value</span><span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="nb">setattr</span><span class="p">(</span><span class="n">process_instance</span><span class="o">.</span><span class="n">_nipype_interface</span><span class="o">.</span><span class="n">inputs</span><span class="p">,</span>
-                    <span class="n">name</span><span class="p">,</span>
-                    <span class="n">value</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">process_instance</span><span class="o">.</span><span class="n">_nipype_interface</span><span class="o">.</span><span class="n">inputs</span><span class="p">,</span>
+                        <span class="n">name</span><span class="p">,</span>
+                        <span class="n">value</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="c1"># reset old value as the assignation has failed</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">process_instance</span><span class="p">,</span> <span class="n">capsul_name</span><span class="p">,</span> <span class="n">old</span><span class="p">)</span>
+                <span class="k">raise</span>
 
     <span class="k">def</span> <span class="nf">_replace_dir</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">directory</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Replace directory in filename(s) in value.</span>
