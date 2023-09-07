@@ -117,6 +117,7 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
         # Set the new nypipe interface value
         trait_map = getattr(process_instance, '_nipype_trait_mapping', {})
         inames = [iname for iname, pname in trait_map.items() if pname == name]
+        capsul_name = name
         if inames:
             name = inames[0]
 
@@ -126,9 +127,14 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
                     value)
 
         else:
-            setattr(process_instance._nipype_interface.inputs,
-                    name,
-                    value)
+            try:
+                setattr(process_instance._nipype_interface.inputs,
+                        name,
+                        value)
+            except Exception:
+                # reset old value as the assignation has failed
+                setattr(process_instance, capsul_name, old)
+                raise
 
     def _replace_dir(value, directory):
         """ Replace directory in filename(s) in value.
