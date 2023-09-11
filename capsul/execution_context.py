@@ -108,10 +108,8 @@ class CapsulWorkflow(Controller):
         jobs_per_process = {}
         process_chronology = {}
         processes_proxies = {}
-        if isinstance(executable, Pipeline):
-            nodes = pipeline_tools.topological_sort_nodes(
-                executable.all_nodes())
-            pipeline_tools.propagate_meta(executable, nodes)
+        if isinstance(executable, (Pipeline, ProcessIteration)):
+            pipeline_tools.propagate_meta(executable)
         job_parameters = self._create_jobs(
             top_parameters=top_parameters,
             executable=executable,
@@ -267,6 +265,7 @@ class CapsulWorkflow(Controller):
                      process_iterations,
                      disabled,
                      debug=None):
+        # debug_plugs = ('output_transformation', 'normalization_transformation', 'transformation')
         parameters = top_parameters
         for index in parameters_location:
             if index.isnumeric():
@@ -284,6 +283,7 @@ class CapsulWorkflow(Controller):
                         or node in disabled_nodes):
                     continue
                 nodes_dict[node_name] = {}
+                # print('create job for:', node.name)
                 job_parameters = self._create_jobs(
                     top_parameters=top_parameters,
                     executable=executable,
@@ -299,6 +299,8 @@ class CapsulWorkflow(Controller):
                     debug=debug)
                 nodes.append(node)
             for field in process.user_fields():  # noqa: F402
+                # debug = (field.name in debug_plugs)
+                # if debug: print('field:', process.name, '.', field.name)
                 links = list(executable.get_linked_items(
                     process,
                     field.name,
@@ -309,16 +311,21 @@ class CapsulWorkflow(Controller):
                         field.name,
                         in_sub_pipelines=False,
                         direction='links_to'))
+                # if debug: print('proc links:', links)
                 for dest_node, plug_name in links:
                     if dest_node in disabled_nodes:
                         continue
+                    # debug = (debug and plug_name in debug_plugs)
+                    # if debug: print('set', process.name, '.', field.name, '<->', dest_node.name, '.', plug_name, ', field write:', field.metadata('write', False), ', in content:', field.name in parameters.content)
                     if field.metadata('write', False) \
                             and field.name in parameters.content:
-                        nodes_dict.get(dest_node.name, {})[plug_name] \
+                        nodes_dict.setdefault(dest_node.name, {})[plug_name] \
                             = parameters.content[field.name]
+                        # if debug: print('-> add write in nodes_dict')
                     else:
                         parameters.content[field.name] \
                             = nodes_dict.get(dest_node.name, {}).get(plug_name)
+                        # if debug: print('<- add non_write in params')
                     # break
                 if field.is_output():
                     for dest_node, dest_plug_name \
@@ -339,15 +346,25 @@ class CapsulWorkflow(Controller):
                                     process.uuid + ','.join(process_iterations.get(process.uuid, [])))
             for node in nodes:
                 for plug_name in node.plugs:
+                    # debug = (plug_name in debug_plugs)
+                    # if debug: print('plug:', node.name, '.', plug_name)
                     first = nodes_dict[node.name].get(plug_name)
+                    # if debug:
+                        # print('links:', list(process.get_linked_items(
+                            # node, plug_name,
+                            # in_sub_pipelines=False,
+                            # direction=('links_from', 'links_to'))))
                     for dest_node, dest_plug_name in process.get_linked_items(
                             node, plug_name,
                             in_sub_pipelines=False,
                             direction=('links_from', 'links_to')):
 
                         second = nodes_dict.get(dest_node.name, {}).get(dest_plug_name)
+                        # if debug: print('dest:', dest_node.name, dest_plug_name, dest_node.pipeline.name, node.pipeline.name)
                         if dest_node.pipeline is not node.pipeline:
                             continue
+                        # if debug: print(first, second)
+                        # if debug: print('proxies:', parameters.is_proxy(first), parameters.is_proxy(second))
                         if not parameters.is_proxy(first):
                             if parameters.is_proxy(second):
                                 if first is not None:
@@ -358,6 +375,7 @@ class CapsulWorkflow(Controller):
                         else:
                             first_index = first[1]
                             second_index = second[1]
+                            # if debug: print('index:', first_index, second_index)
                             if first_index == second_index:
                                 continue
                             elif first_index > second_index:
@@ -388,7 +406,8 @@ class CapsulWorkflow(Controller):
                     find_temporary_to_generate(inner_process)
                 parameters['_iterations'].append({})
                 for p in all_iterated_processes:
-                    process_iterations.setdefault(p.uuid, []).append(str(iteration_index))
+                    process_iterations.setdefault(
+                        p.uuid, []).append(str(iteration_index))
                 job_parameters = self._create_jobs(
                     top_parameters=top_parameters,
                     executable=executable,
@@ -427,6 +446,7 @@ class CapsulWorkflow(Controller):
                                     process.uuid + ','.join(process_iterations.get(process.uuid, []))
                                 )
         elif isinstance(process, Process):
+            # print('create process job for:', process.name)
             job_uuid = str(uuid4())
             if disabled:
                 job = {
@@ -488,8 +508,10 @@ class CapsulWorkflow(Controller):
                 if value is undefined:
                     value = process.getattr(field.name, None)
                 # print('  ', field.name, '<-', repr(value), getattr(field, 'generate_temporary', False))
+                # debug = (field.name in debug_plugs)
                 proxy = parameters.proxy(executable.json_value(value))
                 parameters[field.name] = proxy
+                # if debug: print('create proxy for', field.name, ':', proxy)
                 if field.is_output() and isinstance(
                         executable, (Pipeline, ProcessIteration)):
                     for dest_node, plug_name \
