@@ -167,9 +167,8 @@ morphologist_datasets = {
     'SulciRecognition_recognition2000_model': 'shared',
     'SulciRecognition_1_recognition2000_model': 'shared',
     'sulcal_morphometry_sulci_file': 'shared',
-    'GlobalMorphometry_subject': 'output',
+    'subject': 'output',
     'Report_normative_brain_stats': None,
-    'Report_subject': 'output',
 }
 ''' standard, shared datasets associated with shared input data for
 Morphologist
@@ -392,8 +391,7 @@ def declare_morpho_schemas(morpho_module):
         right_labelled_graph = {
             'side': 'R'
         }
-        Report_subject = {'modality': None}
-        GlobalMorphometry_subject = {'modality': None}
+        subject = {'modality': None}
 
     class SPM12NormalizationBIDS(ProcessSchema, schema='bids',
                                  process=normalization_t1_spm12_reinit):
