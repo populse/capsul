@@ -988,9 +988,9 @@ class ProcessMetadata(Controller):
                 executable.select_iteration_index(iteration)
                 self.generate_paths(executable.process)
                 for i in executable.iterative_parameters:
-                    if executable.field(i).path_type:
-                        value = getattr(executable.process, i, undefined)
-                        iteration_values.setdefault(i, []).append(value)
+                    # if executable.field(i).path_type:
+                    value = getattr(executable.process, i, undefined)
+                    iteration_values.setdefault(i, []).append(value)
             for k, v in iteration_values.items():
                 setattr(executable, k, v)
         else:
