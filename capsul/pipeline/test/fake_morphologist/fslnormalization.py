@@ -14,9 +14,9 @@ class FSLNormalization(Pipeline):
         self.add_process("converter", "capsul.pipeline.test.fake_morphologist.aimsconverter.AimsConverter")
 
         # links
-        self.export_parameter("converter", "read", "t1mri", is_optional=False)
-        self.add_link("t1mri->ReorientAnatomy.t1mri")
+        self.export_parameter("ReorientAnatomy", "t1mri", is_optional=False)
         self.add_link("t1mri->ConvertFSLnormalizationToAIMS.source_volume")
+        self.add_link("t1mri->converter.read")
         self.export_parameter("ConvertFSLnormalizationToAIMS", "registered_volume", "template", is_optional=False)
         self.add_link("template->NormalizeFSL.anatomical_template")
         self.export_parameter("NormalizeFSL", "Alignment", "alignment", is_optional=False)
