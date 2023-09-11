@@ -1531,7 +1531,8 @@ def propagate_meta(executable, nodes=None):
     calling :func:`topological_sort_nodes` several times.
     '''
     if isinstance(executable, ProcessIteration):
-        propagate_meta(executable.process)
+        if isinstance(executable.process, Pipeline):
+            propagate_meta(executable.process)
         for pname in executable.iterative_parameters:
             f = executable.process.field(pname)
             fo = executable.field(pname)
