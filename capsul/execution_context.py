@@ -101,7 +101,8 @@ class CapsulWorkflow(Controller):
     # parameters: DictWithProxy
     jobs: dict
 
-    def __init__(self, executable, create_output_dirs=True, debug=False):
+    def __init__(self, executable, create_output_dirs=True, priority=None,
+                 debug=False):
         super().__init__()
         top_parameters = DictWithProxy(all_proxies=True)
         self.jobs = {}
@@ -121,6 +122,7 @@ class CapsulWorkflow(Controller):
             parameters_location=[],
             process_iterations={},
             disabled=False,
+            priority=priority,
             debug=debug)
         top_parameters.content.update(job_parameters.content)
         self.parameters_values = top_parameters.proxy_values
@@ -264,6 +266,7 @@ class CapsulWorkflow(Controller):
                      parameters_location,
                      process_iterations,
                      disabled,
+                     priority=None,
                      debug=None):
         # debug_plugs = ('output_transformation', 'normalization_transformation', 'transformation')
         parameters = top_parameters
@@ -296,6 +299,7 @@ class CapsulWorkflow(Controller):
                                                                node_name],
                     process_iterations=process_iterations,
                     disabled=disabled or node in disabled_nodes,
+                    priority=priority,
                     debug=debug)
                 nodes.append(node)
             for field in process.user_fields():  # noqa: F402
@@ -408,6 +412,9 @@ class CapsulWorkflow(Controller):
                 for p in all_iterated_processes:
                     process_iterations.setdefault(
                         p.uuid, []).append(str(iteration_index))
+                new_priority = iteration_index
+                if priority is not None:
+                    new_priority += priority
                 job_parameters = self._create_jobs(
                     top_parameters=top_parameters,
                     executable=executable,
@@ -420,6 +427,7 @@ class CapsulWorkflow(Controller):
                         '_iterations', str(iteration_index)],
                     process_iterations=process_iterations,
                     disabled=disabled,
+                    priority=new_priority,
                     debug=debug)
                 for k, v in job_parameters.content.items():
                     if k in process.iterative_parameters:
@@ -463,6 +471,8 @@ class CapsulWorkflow(Controller):
                     'process': process.json(include_parameters=False),
                     'parameters_location': parameters_location
                 }
+            if priority is not None:
+                job['priority'] = priority
             self.jobs[job_uuid] = job
             for parent_executable in parent_executables:
                 jobs_per_process.setdefault(
