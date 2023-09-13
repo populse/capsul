@@ -151,6 +151,8 @@ class TestPipelineWorkflow(unittest.TestCase):
         self.capsul = Capsul()
         self.pipeline = self.capsul.executable(DummyPipeline)
         self.tmpdir = tempfile.mkdtemp()
+        self.capsul.config.databases['builtin']['path'] \
+            = osp.join(self.tmpdir, 'capsul_engine_database.rdb')
         self.pipeline.input = osp.join(self.tmpdir, 'file_in.nii')
         self.pipeline.output1 = osp.join(self.tmpdir, '/tmp/file_out1.nii')
         self.pipeline.output2 = osp.join(self.tmpdir, '/tmp/file_out2.nii')
@@ -182,26 +184,29 @@ class TestPipelineWorkflow(unittest.TestCase):
         self.pipeline.pipeline_steps.step3 = False
         wf = CapsulWorkflow(self.pipeline, create_output_dirs=False)
         self.assertEqual(len(wf.jobs), 3)
-        self.assertEqual(sum(len(job['wait_for']) for job in wf.jobs.values()), 2)
+        self.assertEqual(sum(len(job['wait_for'])
+                             for job in wf.jobs.values()), 2)
 
     def test_partial_wf2(self):
         self.pipeline.enable_all_pipeline_steps()
         self.pipeline.pipeline_steps.step2 = False
         wf = CapsulWorkflow(self.pipeline, create_output_dirs=False)
         self.assertEqual(len(wf.jobs), 3)
-        self.assertEqual(sum(len(job['wait_for']) for job in wf.jobs.values()), 0)
+        self.assertEqual(sum(len(job['wait_for'])
+                             for job in wf.jobs.values()), 0)
 
     def test_partial_wf3_fail(self):
         self.pipeline.enable_all_pipeline_steps()
         self.pipeline.pipeline_steps.step1 = False
         wf = CapsulWorkflow(self.pipeline, create_output_dirs=False)
         self.assertEqual(len(wf.jobs), 3)
-        self.assertEqual(sum(len(job['wait_for']) for job in wf.jobs.values()), 2)
+        self.assertEqual(sum(len(job['wait_for'])
+                             for job in wf.jobs.values()), 2)
 
     def test_wf_run(self):
         pipeline = self.pipeline
         pipeline.enable_all_pipeline_steps()
-        
+
         with open(pipeline.input, 'w') as f:
             print('MAIN INPUT', file=f)
         with self.capsul.engine() as engine:

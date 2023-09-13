@@ -5,6 +5,7 @@ import tempfile
 import os
 import os.path as osp
 import sys
+import shutil
 
 from soma.controller import File
 
@@ -18,6 +19,7 @@ from capsul.execution_context import CapsulWorkflow
 class DummyProcess(Process):
     """ Dummy Test Process
     """
+
     def __init__(self, definition=None):
         if definition is None:
             definition = 'capsul.pipeline.test.test_pipeline.DummyProcess'
@@ -42,19 +44,23 @@ class DummyProcess(Process):
 class MyPipeline(Pipeline):
     """ Simple Pipeline to test the Switch Node
     """
+
     def pipeline_definition(self):
 
         if self.definition is None:
             self.definition = 'capsul.pipeline.test.test_pipeline.MyPipeline'
 
         # Create processes
-        self.add_process("constant",
+        self.add_process(
+            "constant",
             "capsul.pipeline.test.test_pipeline.DummyProcess",
             do_not_export=['input_image', 'other_input', 'other_output'],
             make_optional=['input_image', 'other_input'],)
-        self.add_process("node1",
+        self.add_process(
+            "node1",
             "capsul.pipeline.test.test_pipeline.DummyProcess")
-        self.add_process("node2",
+        self.add_process(
+            "node2",
             "capsul.pipeline.test.test_pipeline.DummyProcess")
 
         # Links
@@ -85,7 +91,10 @@ class TestPipeline(unittest.TestCase):
         if hasattr(self, 'temp_files'):
             for filename in self.temp_files:
                 try:
-                    os.unlink(filename)
+                    if osp.isdir(filename):
+                        shutil.rmtree(filename)
+                    else:
+                        os.unlink(filename)
                 except OSError:
                     pass
             self.temp_files = []
@@ -136,11 +145,15 @@ class TestPipeline(unittest.TestCase):
         os.close(tmp[0])
         # os.unlink(tmp[1])
         capsul = Capsul()
+        tmp = tempfile.mkdtemp(prefix='capsul_test_')
+        self.temp_files.append(tmp)
+        capsul.config.databases['builtin']['path'] \
+            = osp.join(tmp, 'capsul_engine_database.rdb')
         try:
             with capsul.engine() as engine:
                 engine.run(self.pipeline, timeout=5,
-                    input_image=ofile,
-                    output=ofile)
+                           input_image=ofile,
+                           output=ofile)
         finally:
             if os.path.exists(tmp[1]):
                 os.unlink(tmp[1])

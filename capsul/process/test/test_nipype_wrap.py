@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 # System import
-from __future__ import absolute_import
 
 import os
 import os.path as osp
@@ -22,14 +21,35 @@ except ImportError:
     nipype = None
 
 
+class DeletingList(list):
+    def __del__(self):
+        try:
+            import os.path as osp
+            for filename in self:
+                try:
+                    if osp.isdir(filename):
+                        shutil.rmtree(filename)
+                    else:
+                        os.unlink(filename)
+                except OSError:
+                    pass
+        except ImportError:
+            pass
+
+
 capsul_app = None
+temp_files = DeletingList()
 
 
 def get_capsul_app():
-    global capsul_app
+    global capsul_app, temp_files
 
     if capsul_app is None:
         capsul_app = Capsul()
+        tmp = tempfile.mkdtemp(prefix='capsul_test_')
+        temp_files.append(tmp)
+        capsul_app.config.databases['builtin']['path'] \
+            = osp.join(tmp, 'capsul_engine_database.rdb')
 
     return capsul_app
 
@@ -66,7 +86,7 @@ def init_spm_config():
         return False
 
     if capsul_app is None:
-        capsul_app = Capsul()
+        capsul_app = get_capsul_app()
 
     config = ApplicationConfiguration('capsul_test_nipype_spm')
     user_conf_dict = {
@@ -90,10 +110,21 @@ def init_spm_config():
     config.user = user_conf_dict
     config.merge_configs()
 
+    db_config = capsul_app.config.databases['builtin']
     capsul_app.config = config.merged_config
-    # print('local config:', c.config.asdict())
+    capsul_app.config.databases['builtin'] = db_config
+    with open('/tmp/log.txt', 'a') as f:
+        print('local config:', capsul_app.config.asdict(), file=f)
 
     return True
+
+
+def tearDownModule():
+    global capsul_app
+    global temp_files
+
+    temp_files = DeletingList()
+    capsul_app = None
 
 
 class TestNipypeWrap(unittest.TestCase):
@@ -187,8 +218,3 @@ class TestNipypeWrap(unittest.TestCase):
 
         finally:
             shutil.rmtree(tmp_dir)
-
-
-def tearDownModule():
-    global capsul_app
-    capsul_app = None

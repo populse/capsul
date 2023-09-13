@@ -2,6 +2,7 @@
 
 import unittest
 import os
+import os.path as osp
 import sys
 import tempfile
 from soma.controller import File, field
@@ -27,9 +28,10 @@ class DummyProcess1(Process):
             self.output = [''] * self.nb_outputs
             if self.pipeline:
                 self.pipeline.dispatch_value(self, 'output', self.output)
-    
+
     def execute(self, context=None):
         pass
+
 
 class DummyProcess2(Process):
     """ Dummy Test Process
@@ -53,6 +55,7 @@ class DummyProcess2(Process):
             with open(out_filename, 'w') as f:
                 f.write(in_filename + '\n')
 
+
 class DummyProcess3(Process):
     """ Dummy Test Process
     """
@@ -67,6 +70,7 @@ class DummyProcess3(Process):
             for in_filename in self.input:
                 with open(in_filename) as g:
                     f.write(g.read())
+
 
 class DummyPipeline(Pipeline):
 
@@ -102,7 +106,8 @@ class DummyPipeline(Pipeline):
                               #pipeline_parameter="input3",
                               #is_optional=True)
 
-        self.node_position = {'inputs': (54.0, 298.0),
+        self.node_position = {
+            'inputs': (54.0, 298.0),
             'node1': (173.0, 168.0),
             'node2': (259.0, 320.0),
             'node3': (405.0, 142.0),
@@ -116,7 +121,7 @@ def setUpModule():
     # the user's environment
     old_home = os.environ.get('HOME')
     try:
-        temp_home_dir = tempfile.mkdtemp('', prefix='cpasul_tmp_')
+        temp_home_dir = tempfile.mkdtemp('', prefix='capsul_tmp_')
         os.environ['HOME'] = temp_home_dir
     except BaseException:  # clean up in case of interruption
         if old_home is None:
@@ -151,6 +156,8 @@ class TestTemporary(unittest.TestCase):
 
         # Create Capsul instance
         self.capsul = Capsul()
+        self.capsul.config.databases['builtin']['path'] \
+            = osp.join(os.environ['HOME'], 'capsul_engine_database.rdb')
         # study_config = StudyConfig(modules=['SomaWorkflowConfig'])
         # study_config.input_directory = '/tmp'
         # study_config.somaworkflow_computing_resource = 'localhost'
@@ -162,7 +169,7 @@ class TestTemporary(unittest.TestCase):
     def tearDown(self):
         if '--keep-tmp' not in sys.argv[1:]:
             if os.path.exists(self.output):
-              os.unlink(self.output)
+                os.unlink(self.output)
 
     def test_direct_run_temporary(self):
         self.pipeline.nb_outputs = 3
@@ -185,7 +192,7 @@ if __name__ == "__main__":
     pipeline.output = '/tmp/file_out3.nii'
     pipeline.nb_outputs = 3
     view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True,
-                                    allow_open_controller=True)
+                                  allow_open_controller=True)
     view1.show()
     app.exec_()
     del view1

@@ -5,6 +5,7 @@ from pathlib import Path
 import shutil
 import tempfile
 import unittest
+import os.path as osp
 
 from soma.controller import field, File
 from soma.controller import Directory, undefined
@@ -310,6 +311,11 @@ class TestTinyMorphologist(unittest.TestCase):
 
         # Configuration base dictionary
         config = {
+            'databases': {
+                'builtin': {
+                    'path': osp.join(tmp, 'capsul_engine_database.rdb'),
+                },
+            },
             'builtin': {
                 'config_modules': [
                     'capsul.test.test_tiny_morphologist',
@@ -339,8 +345,8 @@ class TestTinyMorphologist(unittest.TestCase):
                 'directory': str(fakespm),
                 'version': version,
             }
-            config['builtin'].setdefault('fakespm', {})[f'fakespm_{version}'] = fakespm_config
-            
+            config['builtin'].setdefault('fakespm', {})[f'fakespm_{version}'] \
+                = fakespm_config
 
         # Create a configuration file
         self.config_file = tmp / 'capsul_config.json'
@@ -361,7 +367,7 @@ class TestTinyMorphologist(unittest.TestCase):
         expected_config = {
             'databases': {
                 'builtin': {
-                    'path': '/tmp/capsul_engine_database.rdb',
+                    'path': osp.join(self.tmp, 'capsul_engine_database.rdb'),
                     'type': 'redis+socket'
                 }
             },
@@ -418,8 +424,8 @@ class TestTinyMorphologist(unittest.TestCase):
         tiny_morphologist.normalization = 'fakespm12'
         context = engine.execution_context(tiny_morphologist)
         fakespm12_conf = {
-            'directory': str( self.tmp / 'software' / 'fakespm-12'),
-             'version': '12'
+            'directory': str(self.tmp / 'software' / 'fakespm-12'),
+            'version': '12'
         }
         expected_context['fakespm'] = fakespm12_conf
         dict_context = context.asdict()
@@ -435,7 +441,8 @@ class TestTinyMorphologist(unittest.TestCase):
         context = engine.execution_context(tiny_morphologist_iteration)
         dict_context = context.asdict()
         self.assertEqual(dict_context, expected_context)
-        tiny_morphologist_iteration.normalization = ['none', 'aims', 'fakespm12']
+        tiny_morphologist_iteration.normalization = ['none', 'aims',
+                                                     'fakespm12']
         expected_context['fakespm'] = fakespm12_conf
         context = engine.execution_context(tiny_morphologist_iteration)
         dict_context = context.asdict()
@@ -746,21 +753,24 @@ class TestTinyMorphologist(unittest.TestCase):
         #     }
 
         engine = self.capsul.engine()
-        execution_context = engine.execution_context(tiny_morphologist_iteration)
+        execution_context = engine.execution_context(
+            tiny_morphologist_iteration)
 
         # Parse the dataset with BIDS-specific query (here "suffix" is part
         #  of BIDS specification). The object returned contains info for main
         # BIDS fields (sub, ses, acq, etc.)
         inputs = []
         normalizations = []
-        for path in sorted(self.capsul.config.builtin.dataset.input.find(suffix='T1w', extension='nii')):
-            input_metadata = execution_context.dataset['input'].schema.metadata(path)
+        for path in sorted(self.capsul.config.builtin.dataset.input.find(
+                suffix='T1w', extension='nii')):
+            input_metadata \
+                = execution_context.dataset['input'].schema.metadata(path)
             inputs.extend([input_metadata]*3)
             normalizations += ['none', 'aims', 'fakespm8']
         tiny_morphologist_iteration.normalization = normalizations
 
-        
-        metadata = ProcessMetadata(tiny_morphologist_iteration, execution_context)
+        metadata = ProcessMetadata(tiny_morphologist_iteration,
+                                   execution_context)
         metadata.bids = inputs
         metadata.brainvisa = [{'center': 'whatever'}] * len(inputs)
         metadata.generate_paths(tiny_morphologist_iteration)

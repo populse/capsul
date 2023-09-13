@@ -2,6 +2,7 @@
 
 import unittest
 import os
+import os.path as osp
 import sys
 import tempfile
 
@@ -11,6 +12,7 @@ from capsul.api import Capsul
 from capsul.api import Process
 from capsul.api import Pipeline
 import shutil
+
 
 class DummyProcess1(Process):
     def __init__(self, definition):
@@ -30,6 +32,7 @@ class DummyProcess1(Process):
                 f.write(g.read())
             f.write('This is an output file\n')
 
+
 class DummyProcess2(Process):
     def __init__(self, definition):
         super().__init__(definition)
@@ -42,11 +45,12 @@ class DummyProcess2(Process):
 
     def execute(self, context):
         base, ext = os.path.splitext(self.input)
-        new_output = f'{base}_bis{ext}' 
+        new_output = f'{base}_bis{ext}'
         self.outputs = [self.input, new_output]
         with open(new_output, 'w') as f:
             with open(self.input) as g:
                 f.write(g.read() + 'And a second output file\n')
+
 
 class DummyProcess2alt(Process):
     def __init__(self, definition):
@@ -66,6 +70,7 @@ class DummyProcess2alt(Process):
             with open(self.input) as g:
                 f.write(g.read() + 'And another output file\n')
 
+
 class DummyProcess3(Process):
     def __init__(self, definition):
         super().__init__(definition)
@@ -81,6 +86,7 @@ class DummyProcess3(Process):
             for in_filename in self.input:
                 with open(in_filename) as g:
                     f.write(g.read())
+
 
 class DummyProcess3alt(Process):
     def __init__(self, definition):
@@ -100,6 +106,7 @@ class DummyProcess3alt(Process):
                 for in_filename in self.input:
                     with open(in_filename) as g:
                         f.write(g.read())
+
 
 class DummyPipeline(Pipeline):
 
@@ -139,6 +146,7 @@ class DummyPipeline(Pipeline):
             'node3': (709.7284896743562, 124.69369999999998),
             'outputs': (868.9687193487123, 128.69369999999998)}
 
+
 class DummyPipeline2(Pipeline):
 
     def pipeline_definition(self):
@@ -163,6 +171,7 @@ class DummyPipeline2(Pipeline):
             'node3': (709.7284896743562, 124.69369999999998),
             'outputs': (868.9687193487123, 128.69369999999998)}
 
+
 class PipelineWithSubpipeline(Pipeline):
 
     def pipeline_definition(self):
@@ -177,6 +186,7 @@ class PipelineWithSubpipeline(Pipeline):
             'capsul.pipeline.test.test_proc_with_outputs.DummyProcess1')
         self.add_link("node1.output->pipeline1.input")
         self.add_link("pipeline1.output->node2.input")
+
 
 class PipelineWithIteration(Pipeline):
 
@@ -238,6 +248,8 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
             print('Initial file content.', file=f)
         self.pipeline.output = tmpout
         self.capsul = Capsul()
+        self.capsul.config.databases['builtin']['path'] \
+            = osp.join(tmpdir, 'capsul_engine_database.rdb')
 
     def tearDown(self):
         if '--keep-tmp' not in sys.argv[1:]:
@@ -302,7 +314,6 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
     def test_full_wf_switch(self):
         # change switch and re-run
         self.pipeline.node2_switch = 'node2alt'
-
 
         with self.capsul.engine() as ce:
             ce.run(self.pipeline, timeout=5)
@@ -438,26 +449,26 @@ if __name__ == "__main__":
         pipeline.output = '/tmp/file_out3.nii'
         pipeline.node2_switch = 'node2alt'
         view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True,
-                                       allow_open_controller=True)
+                                      allow_open_controller=True)
         view1.show()
 
         pipeline2 = PipelineWithSubpipeline()
         pipeline2.input = '/tmp/file_in.nii'
         view2 = PipelineDeveloperView(pipeline2, show_sub_pipelines=True,
-                                       allow_open_controller=True)
+                                      allow_open_controller=True)
         view2.show()
 
         pipeline3 = PipelineWithIteration()
         pipeline3.input = '/tmp/file_in.nii'
         pipeline3.output = '/tmp/file_out4.nii'
         view3 = PipelineDeveloperView(pipeline3, show_sub_pipelines=True,
-                                       allow_open_controller=True)
+                                      allow_open_controller=True)
         view3.show()
 
         app.processEvents()
 
-    if do_test:
-        print("RETURNCODE: ", test())
+    #if do_test:
+        #print("RETURNCODE: ", test())
 
     if verbose:
         app.exec_()

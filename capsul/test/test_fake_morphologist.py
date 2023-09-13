@@ -6,6 +6,7 @@ import shutil
 import tempfile
 import unittest
 import time
+import os.path as osp
 
 from soma.controller import undefined
 
@@ -183,6 +184,9 @@ class TestFakeMorphologist(unittest.TestCase):
 
         self.capsul = Capsul('test_fake_morphologist',
                              site_file=self.config_file, user_file=None)
+        # isolate database environment
+        self.capsul.config.databases['builtin']['path'] = osp.join(
+            self.tmp, 'capsul_engine_database.rdb')
         return super().setUp()
 
     def tearDown(self):
@@ -197,7 +201,7 @@ class TestFakeMorphologist(unittest.TestCase):
         expected_config = {
             'databases': {
                 'builtin': {
-                    'path': '/tmp/capsul_engine_database.rdb',
+                    'path': osp.join(self.tmp, 'capsul_engine_database.rdb'),
                     'type': 'redis+socket'
                 }
             },

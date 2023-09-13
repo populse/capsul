@@ -47,7 +47,7 @@ class CustomMetadataSchema(MetadataSchema):
     subject: str
     analysis: str
     group: str
-     
+
     def _path_list(self):
         items = []
         for field in self.fields():  # noqa: F402
@@ -76,13 +76,14 @@ class TestCompletion(unittest.TestCase):
     def setUp(self):
         global old_home
         global temp_home_dir
-        # Run tests with a temporary HOME directory so that they are isolated from
-        # the user's environment
+        # Run tests with a temporary HOME directory so that they are isolated
+        # from the user's environment
         temp_home_dir = None
         old_home = os.environ.get('HOME')
         try:
             app_name = 'test_metadata_schema'
-            temp_home_dir = Path(tempfile.mkdtemp(prefix=f'capsul_{app_name}_'))
+            temp_home_dir = Path(
+                tempfile.mkdtemp(prefix=f'capsul_{app_name}_'))
             os.environ['HOME'] = str(temp_home_dir)
             config = temp_home_dir / '.config'
             config.mkdir()
@@ -93,6 +94,12 @@ class TestCompletion(unittest.TestCase):
             site_file = config / f'{app_name}.json'
             with site_file.open('w') as f:
                 json.dump({
+                    'databases': {
+                        'builtin': {
+                            'path': str(temp_home_dir /
+                                        'capsul_engine_database.rdb'),
+                        },
+                    },
                     'builtin': {
                         'python_modules': [
                             'capsul.process.test.test_metadata_schema'
@@ -120,7 +127,6 @@ class TestCompletion(unittest.TestCase):
                 shutil.rmtree(temp_home_dir)
             raise
 
-
     def tearDown(self):
         if old_home is None:
             del os.environ['HOME']
@@ -131,7 +137,7 @@ class TestCompletion(unittest.TestCase):
 
     def test_completion(self):
         global temp_home_dir
-    
+
         process = executable(
             'capsul.process.test.test_metadata_schema.DummyProcess')
         execution_context = self.capsul.engine().execution_context(process)

@@ -2,7 +2,9 @@
 import unittest
 import tempfile
 import os
+import os.path as osp
 import sys
+import shutil
 
 from soma.controller import File
 
@@ -12,6 +14,7 @@ from capsul.api import Capsul, Process, Pipeline
 class DummyProcess(Process):
     """ Dummy Test Process
     """
+
     def __init__(self, definition):
         super().__init__(definition)
 
@@ -31,12 +34,15 @@ class DummyProcess(Process):
 class MyPipeline(Pipeline):
     """ Simple Pipeline
     """
+
     def pipeline_definition(self):
 
         # Create processes
-        self.add_process("node1",
+        self.add_process(
+            "node1",
             "capsul.pipeline.test.test_pipeline_with_temp.DummyProcess")
-        self.add_process("node2",
+        self.add_process(
+            "node2",
             "capsul.pipeline.test.test_pipeline_with_temp.DummyProcess")
 
         # Links
@@ -67,13 +73,16 @@ class CatFiles(Process):
 class MyIterativePipeline(Pipeline):
     """ Simple Pipeline with iteration and temporary output
     """
+
     def pipeline_definition(self):
 
         # Create processes
-        self.add_iterative_process("node1",
+        self.add_iterative_process(
+            "node1",
             "capsul.pipeline.test.test_pipeline_with_temp.DummyProcess",
             iterative_plugs=['input_image', 'output_image'])
-        self.add_process("node2",
+        self.add_process(
+            "node2",
             "capsul.pipeline.test.test_pipeline_with_temp.CatFiles")
 
         # Links
@@ -91,7 +100,15 @@ class TestPipelineWithTemp(unittest.TestCase):
         self.iter_pipeline = Capsul.executable(MyIterativePipeline)
 
     def tearDown(self):
-        pass
+        if hasattr(self, 'temp_files'):
+            for filename in self.temp_files:
+                try:
+                    if osp.isdir(filename):
+                        shutil.rmtree(filename)
+                    else:
+                        os.unlink(filename)
+                except OSError:
+                    pass
 
     def test_pipeline_with_temp(self):
         input_f = tempfile.mkstemp(suffix='capsul_input.txt')
@@ -108,6 +125,10 @@ class TestPipelineWithTemp(unittest.TestCase):
             self.pipeline.output_image = output_name
 
             capsul = Capsul()
+            tmp = tempfile.mkdtemp(prefix='capsul_test_')
+            self.temp_files = [tmp]
+            capsul.config.databases['builtin']['path'] \
+                = osp.join(tmp, 'capsul_engine_database.rdb')
             # run sequentially
             with capsul.engine() as ce:
                 ce.run(self.pipeline, timeout=5)
@@ -144,6 +165,10 @@ class TestPipelineWithTemp(unittest.TestCase):
             self.iter_pipeline.output = output_name
 
             capsul = Capsul()
+            tmp = tempfile.mkdtemp(prefix='capsul_test_')
+            self.temp_files = [tmp]
+            capsul.config.databases['builtin']['path'] \
+                = osp.join(tmp, 'capsul_engine_database.rdb')
             with capsul.engine() as ce:
                 ce.run(self.iter_pipeline, timeout=5)
 
@@ -157,15 +182,19 @@ class TestPipelineWithTemp(unittest.TestCase):
             o = self.iter_pipeline.nodes['node1'].output_image
             self.assertEqual(len(o), 3)
             for f in o:
-                self.assertTrue(f.startswith('!{dataset.tmp.path}/node1.DummyProcess.output_image_'))
+                self.assertTrue(f.startswith(
+                    '!{dataset.tmp.path}/node1.DummyProcess.output_image_'))
 
         finally:
             try:
                 os.unlink(input_name)
-            except OSError: pass
+            except OSError:
+                pass
             try:
                 os.unlink(output_name)
-            except OSError: pass
+            except OSError:
+                pass
+
 
 if __name__ == "__main__":
     from soma.qt_gui.qt_backend import QtGui

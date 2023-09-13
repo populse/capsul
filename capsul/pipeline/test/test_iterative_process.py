@@ -7,7 +7,7 @@ from pathlib import Path
 import tempfile
 import shutil
 
-from soma.controller import undefined, File, field
+from soma.controller import File, field
 
 # Capsul import
 from capsul.api import Process, Pipeline, Capsul
@@ -158,12 +158,15 @@ class MyBigPipeline(Pipeline):
 class TestPipeline(unittest.TestCase):
     """ Class to test a pipeline with an iterative node
     """
+
     def setUp(self):
         """ In the setup construct the pipeline and set some input parameters.
         """
         self.directory = tempfile.mkdtemp(prefix="capsul_test")
 
         self.capsul = Capsul('test_iterative_process')
+        self.capsul.config.databases['builtin']['path'] \
+            = os.path.join(self.directory, 'capsul_engine_database.rdb')
 
         # Construct the pipeline
         self.pipeline = self.capsul.executable(MyPipeline)
@@ -193,7 +196,7 @@ class TestPipeline(unittest.TestCase):
         else:
             shutil.rmtree(self.directory)
         self.capsul = None
-        
+
     def test_iterative_pipeline_connection(self):
         """ Test if an iterative process works correctly
         """
@@ -207,12 +210,12 @@ class TestPipeline(unittest.TestCase):
             engine.run(self.pipeline, timeout=5)
 
         self.assertIn("toto-5.0-3.0",
-                        [os.path.basename(f)
-                        for f in self.pipeline.output_image])
+                      [os.path.basename(f)
+                       for f in self.pipeline.output_image])
         self.assertIn("tutu-5.0-1.0",
-                        [os.path.basename(f)
-                        for f in self.pipeline.output_image])
-        self.assertEqual(self.pipeline.other_output, 
+                      [os.path.basename(f)
+                       for f in self.pipeline.output_image])
+        self.assertEqual(self.pipeline.other_output,
                          [self.pipeline.other_input,
                           self.pipeline.other_input])
 
@@ -227,11 +230,12 @@ class TestPipeline(unittest.TestCase):
         # expect 4 dependencies:
         # init -> iterative jobs (2)
         # iterative jobs -> end (2)
-        self.assertEqual(sum(len(job['wait_for']) for job in workflow.jobs.values()), 4)
+        self.assertEqual(sum(len(job['wait_for'])
+                             for job in workflow.jobs.values()), 4)
 
     def test_iterative_big_pipeline_workflow(self):
-        self.big_pipeline.files_to_create = [["toto", "tutu"],
-                                         ["tata", "titi", "tete"]]
+        self.big_pipeline.files_to_create = [
+            ["toto", "tutu"], ["tata", "titi", "tete"]]
         self.big_pipeline.dynamic_parameter = [[1, 2], [3, 4, 5]]
         self.big_pipeline.other_input = 5
         self.big_pipeline.output_image = [
@@ -263,7 +267,7 @@ class TestPipeline(unittest.TestCase):
             subject = workflow.parameters_values[proxy[1]]
             subjects.add(subject)
             self.assertIn(subject,
-                            ["toto", "tutu", "tata", "titi", "tete"])
+                          ["toto", "tutu", "tata", "titi", "tete"])
         self.assertEqual(subjects,
                          set(["toto", "tutu", "tata", "titi", "tete"]))
 
@@ -277,7 +281,7 @@ class TestPipeline(unittest.TestCase):
         with self.capsul.engine() as c:
             c.run(self.small_pipeline, timeout=5)
         for ifname, fname in zip(self.small_pipeline.files_to_create,
-                                  self.small_pipeline.output_image):
+                                 self.small_pipeline.output_image):
             with open(fname) as f:
                 content = f.read()
             self.assertEqual(content, "file: %s\n" % ifname)
@@ -300,7 +304,7 @@ if __name__ == "__main__":
     pipeline2.scene_scale_factor = 0.5
 
     view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True,
-                                    allow_open_controller=True)
+                                  allow_open_controller=True)
     view1.add_embedded_subpipeline('iterative')
     view1.auto_dot_node_positions()
     view1.show()
