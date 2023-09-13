@@ -82,26 +82,29 @@ ISRELEASE = ""
 VERSION = __version__
 PROVIDES = ["capsul"]
 REQUIRES = [
-    "redis<4.5.0",
-    "pydantic>={0}".format(PYDANTIC_MIN_VERSION),
-    "soma-base>={0}".format(SOMA_MIN_VERSION),
-    "soma-workflow>={0}".format(SOMA_WORKFLOW_MIN_VERSION),
-    "populse-db>={0}".format(POPULSE_DB_MIN_VERSION),
+    "redis <4.5.0",
+    "pydantic >={0}".format(PYDANTIC_MIN_VERSION),
+    "soma-base >={0}".format(SOMA_MIN_VERSION),
+    "soma-workflow >={0}".format(SOMA_WORKFLOW_MIN_VERSION),
+    "populse-db >={0}".format(POPULSE_DB_MIN_VERSION),
     "PyYAML",
 ]
 EXTRA_REQUIRES = {
-    "doc": [
-        "sphinx>=1.0",
-        "numpy>={0}".format(NUMPY_MIN_VERSION),
+    "test": [
+        "pytest",
+        "jupyter"
     ],
-    "database": ["populse_db"],
+    "doc": [
+        "sphinx >=1.0",
+        "numpy >={0}".format(NUMPY_MIN_VERSION),
+    ],
     "nipype": [
-        "traits>={}".format(TRAITS_MIN_VERSION),
-        "numpy>={0}".format(NUMPY_MIN_VERSION),
-        "scipy>={0}".format(SCIPY_MIN_VERSION),
-        "nibabel>={0}".format(NIBABEL_MIN_VERSION),
-        "networkx>={0}".format(NETWORKX_MIN_VERSION),
-        "nipype=={0}".format(NIPYPE_VERSION),
+        "traits >={}".format(TRAITS_MIN_VERSION),
+        "numpy >={0}".format(NUMPY_MIN_VERSION),
+        "scipy >={0}".format(SCIPY_MIN_VERSION),
+        "nibabel >={0}".format(NIBABEL_MIN_VERSION),
+        "networkx >={0}".format(NETWORKX_MIN_VERSION),
+        "nipype =={0}".format(NIPYPE_VERSION),
     ],
 }
 
