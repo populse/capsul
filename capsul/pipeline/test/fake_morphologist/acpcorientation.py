@@ -3,7 +3,10 @@
 from capsul.api import Process
 import os
 from soma.controller import File, Directory, undefined, Literal
-import pydantic
+try:
+    import pydantic.v1 as pydantic
+except ImportError:
+    import pydantic
 
 
 class AcpcOrientation(Process):
