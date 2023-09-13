@@ -21,11 +21,14 @@ from .topological_sort import Graph
 from .process_iteration import ProcessIteration
 from .pipeline_nodes import Switch
 
-from soma.controller import (Controller, 
+from soma.controller import (Controller,
                              Event,
                              Literal)
 from soma.sorted_dictionary import SortedDictionary
-from pydantic import ValidationError
+try:
+    from pydantic.v1 import ValidationError
+except ImportError:
+    from pydantic import ValidationError
 
 
 class Pipeline(Process):

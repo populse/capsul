@@ -1270,7 +1270,14 @@ from soma.controller import File, Directory, undefined, Literal
                 imp_str = t_str.rsplit('.', 1)[0]
                 if imp_str not in imports:
                     imports.add(imp_str)
-                    f.write('import %s\n' % imp_str)
+                    # hack for pydantic v2: use v1
+                    if imp_str == 'pydantic':
+                        f.write('try:\n'
+                                '    import pydantic.v1 as pydantic\n'
+                                'except ImportError:\n'
+                                '    import pydantic\n')
+                    else:
+                        f.write('import %s\n' % imp_str)
 
         f.write('''
 

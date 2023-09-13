@@ -16,7 +16,10 @@ import logging
 
 from .process import NipypeProcess
 import soma.controller as sc
-import pydantic
+try:
+    from pydantic import v1 as pydantic
+except ImportError:
+    import pydantic
 from functools import partial
 try:
     import traits.api as traits
