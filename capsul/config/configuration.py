@@ -235,8 +235,7 @@ class ConfigurationLayer(OpenKeyDictController[EngineConfiguration]):
 
     def add_builtin_fields(self):
         self.add_field('databases', dict[str, dict],
-                       default_factory=lambda: {'builtin':
-                                                default_builtin_database})
+                       default_factory=lambda: {'builtin': {}})
         self.add_field(
             'builtin', EngineConfiguration,
             default_factory=EngineConfiguration,
@@ -250,12 +249,14 @@ class ConfigurationLayer(OpenKeyDictController[EngineConfiguration]):
             self.add_builtin_fields()
         builtin = self.databases['builtin']
         super().import_dict(d, clear=False)
-        self.databases.setdefault('builtin', builtin)
+        # self.databases.setdefault('builtin', builtin)
+        # merge builtins rather than reset the former value
+        builtin.update(self.databases.get('builtin', {}))
+        self.databases['builtin'] = builtin
 
     def load(self, filename):
         ''' Load configuration from a JSON or YAML file
         '''
-
         if filename.endswith('.py'):
             context = {}
             with open(filename) as f:
@@ -404,11 +405,11 @@ class ApplicationConfiguration(Controller):
         doc='Personal user config: overrides or completes the site config. '
         'Elements represent computing resources configs.')
     app_name: str = field(default='capsul', doc='Application name')
-    
+
     # read-only modified by merge
     merged_config: ConfigurationLayer = field(
         default_factory=ConfigurationLayer, user_level=2)
-    
+
     def __init__(self, app_name, user_file=undefined, site_file=None, user=None):
         '''
         Parameters
@@ -430,6 +431,7 @@ class ApplicationConfiguration(Controller):
         super().__init__()
 
         self.app_name = app_name
+        self.site.databases = {'builtin': default_builtin_database}
 
         if site_file is not None:
             self.site_file = site_file
@@ -458,7 +460,6 @@ class ApplicationConfiguration(Controller):
             self.user_file = user_file
             self.user.load(user_file)
         self.merge_configs()
-    
 
     def merge_configs(self):
         ''' Merge site and user configs into the ``merged_config``
