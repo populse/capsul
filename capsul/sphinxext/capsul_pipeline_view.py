@@ -6,10 +6,9 @@
 from __future__ import absolute_import
 import os
 from optparse import OptionParser
-import sys
 import logging
-import tempfile
-import soma.subprocess
+
+from capsul.api import Capsul
 
 # Get the module name passed in argument
 default_output_dir = os.path.join("source", "generated")
@@ -57,7 +56,6 @@ short_names = dict([x.split("=") for x in options.short_names])
 
 # Capsul import
 from capsul.qt_apps.utils.find_pipelines import find_pipeline_and_process
-from capsul.api import StudyConfig
 from capsul.pipeline import pipeline_tools
 from capsul.sphinxext.pipelinedocgen import PipelineHelpWriter
 
@@ -78,8 +76,6 @@ for pipeline in pipelines:
     module_name = pipeline.split(".")[1]
     sorted_pipelines[module_name].append(pipeline)
 
-study_config = StudyConfig(modules=StudyConfig.default_modules + ['FomConfig'])
-
 # Generate a png representation of each pipeline.
 for module_name, module_pipelines in sorted_pipelines.items():
 
@@ -97,7 +93,7 @@ for module_name, module_pipelines in sorted_pipelines.items():
     for module_pipeline in module_pipelines:
 
         # Get pipeline instance
-        pipeline_instance = study_config.get_process_instance(module_pipeline)
+        pipeline_instance = Capsul.executable(module_pipeline)
 
         # Get output files
         short_pipeline = docwriter.get_short_name(module_pipeline)
