@@ -202,7 +202,7 @@ class EngineConfiguration(Controller):
         if python_modules:
             for module_name in python_modules:
                 __import__(module_name)
-        
+
         # Load config modules
         config_modules = conf_dict.get('config_modules')
         if config_modules:
@@ -235,12 +235,14 @@ class ConfigurationLayer(OpenKeyDictController[EngineConfiguration]):
 
     def add_builtin_fields(self):
         self.add_field('databases', dict[str, dict],
-            default_factory=lambda: {'builtin': default_builtin_database})
+                       default_factory=lambda: {'builtin':
+                                                default_builtin_database})
         self.add_field(
-            'builtin', EngineConfiguration, default_factory=EngineConfiguration,
-            doc='Default builtin computing resource config. Elements are config '
-            'modules which should be registered in the application (spm, fsl, '
-            '...)')
+            'builtin', EngineConfiguration,
+            default_factory=EngineConfiguration,
+            doc='Default builtin computing resource config. Elements are '
+                'config modules which should be registered in the application '
+                '(spm, fsl, ...)')
 
     def import_dict(self, d, clear=False):
         if clear:

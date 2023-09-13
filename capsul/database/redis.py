@@ -73,7 +73,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
                         time.sleep(0.1)
                     self.redis  = redis.Redis(unix_socket_path=self.redis_socket,
                                                 decode_responses=True)
-                    self.redis.delete('capsul:shutting_down') 
+                    self.redis.delete('capsul:shutting_down')
                     self.redis.set('capsul:redis_tmp', tmp)
                     self.redis.set('capsul:redis_pid_file', pid_file)
                 except Exception:

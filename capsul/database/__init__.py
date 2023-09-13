@@ -101,16 +101,15 @@ class ExecutionDatabase:
             self._enter()
         self.nested_context += 1
         return self
-            
+
     def __exit__(self, exception_type, exception_value, exception_traceback):
         self.nested_context -= 1
         if self.nested_context == 0:
             self._exit()
-    
 
     def workers_command(self, engine_id):
         db_config = self.worker_database_config(self.engine_id)
-        db_config = json.dumps(db_config, separators=(',',':'))
+        db_config = json.dumps(db_config, separators=(',', ':'))
         workers_command = []
         config = self.engine_config(engine_id)
         config = config.get('start_workers')
@@ -120,24 +119,28 @@ class ExecutionDatabase:
         if ssh:
             host = ssh.get('host')
             if not host:
-                raise ValueError('Host is mandatory in configuration for a ssh connection')
+                raise ValueError(
+                    'Host is mandatory in configuration for a ssh connection')
             login = ssh.get('login')
             if login:
                 host = f'{login}@{host}'
-            workers_command += ['ssh', '-o', 'StrictHostKeyChecking=no', '-f', host]
-            db_config = db_config.replace('"',r'\"').replace(',', r'\,')
-        
+            workers_command += ['ssh', '-o', 'StrictHostKeyChecking=no',
+                                '-f', host]
+            db_config = db_config.replace('"', r'\"').replace(',', r'\,')
+
         if config.get('type') == 'torque':
             qsub = config.get('qsub', 'qsub')
-            workers_command += [qsub, '-l', 'ncpus=1', '-e', '/dev/null', '-o', '/dev/null', '--']
-        
+            workers_command += [qsub, '-l', 'ncpus=1', '-e', '/dev/null',
+                                '-o', '/dev/null', '--']
+
         casa_dir = config.get('casa_dir')
         if casa_dir:
             workers_command.append(f'{casa_dir}/bin/bv')
 
-        workers_command += ['python', '-m', 'capsul.engine.builtin', engine_id, db_config]
+        workers_command += ['python', '-m', 'capsul.engine.builtin', engine_id,
+                            db_config]
         return workers_command
-    
+
     def new_execution(self, executable, engine_id, execution_context, workflow, start_time):
         executable_json = json_encode(executable.json(include_parameters=False))
         execution_context_json = execution_context.json()
