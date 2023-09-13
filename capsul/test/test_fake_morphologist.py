@@ -469,9 +469,8 @@ class TestFakeMorphologist(unittest.TestCase):
                 'GlobalMorphometry_brain_volumes_file',
                 'GlobalMorphometry_left_csf',
                 'GlobalMorphometry_right_csf',
-                'GlobalMorphometry_subject',
+                'subject',
                 'Report_report',
-                'Report_subject',
             ],
             'bids': ['t1mri', ],
             'brainvisa_shared': [

@@ -428,6 +428,20 @@ class BrainVISASchema(MetadataSchema):
         return path_list
 
 
+class MorphologistBIDSSchema(BrainVISASchema):
+
+    schema_name = 'morphologist_bids'
+
+    folder: Literal['sourcedata', 'rawdata', 'derivative']
+
+    def _path_list(self):
+        path_list = super()._path_list()
+        pre_path = [f'sub-{self.subject}', f'ses-{self.acquisition}', 'anat']
+        if self.folder not in (undefined, None, ''):
+            pre_path.insert(0, self.folder)
+        return pre_path + path_list[2:]
+
+
 class SchemaMapping:
     def __init_subclass__(cls) -> None:
         Dataset.schema_mappings[(cls.source_schema, cls.dest_schema)] = cls
@@ -447,6 +461,15 @@ class BidsToBrainVISA(SchemaMapping):
         process = getattr(source, 'process', None)
         if process:
             dest.process = process
+
+
+class BidsToMorphoBids(SchemaMapping):
+    source_schema = 'bids'
+    dest_schema = 'morphologist_bids'
+
+    @staticmethod
+    def map_schemas(source, dest):
+        BidsToBrainVISA.map_schemas(source, dest)
 
 
 class ProcessSchema:
@@ -988,9 +1011,9 @@ class ProcessMetadata(Controller):
                 executable.select_iteration_index(iteration)
                 self.generate_paths(executable.process)
                 for i in executable.iterative_parameters:
-                    if executable.field(i).path_type:
-                        value = getattr(executable.process, i, undefined)
-                        iteration_values.setdefault(i, []).append(value)
+                    # if executable.field(i).path_type:
+                    value = getattr(executable.process, i, undefined)
+                    iteration_values.setdefault(i, []).append(value)
             for k, v in iteration_values.items():
                 setattr(executable, k, v)
         else:

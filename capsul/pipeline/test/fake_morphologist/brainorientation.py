@@ -138,14 +138,12 @@ class BrainOrientation(Pipeline):
         self.Normalization_NormalizeFSL_NormalizeFSL_cost_function = 'corratio'
         self.Normalization_NormalizeFSL_NormalizeFSL_search_cost_function = 'corratio'
         self.Normalization_NormalizeFSL_ConvertFSLnormalizationToAIMS_standard_template = 0
-        self.Normalization_NormalizeSPM_template = '/volatile/local/spm12-standalone/spm12_mcr/spm12/spm12/toolbox/OldNorm/T1.nii'
         self.Normalization_NormalizeSPM_allow_retry_initialization = True
         self.Normalization_NormalizeSPM_voxel_size = '[1 1 1]'
         self.Normalization_NormalizeSPM_cutoff_option = 25
         self.Normalization_NormalizeSPM_nbiteration = 16
         self.Normalization_NormalizeSPM_ConvertSPMnormalizationToAIMS_target = 'MNI template'
         self.Normalization_NormalizeSPM_ConvertSPMnormalizationToAIMS_removeSource = False
-        self.Normalization_NormalizeBaladin_template = '/casa/host/build/share/brainvisa-share-5.2/anatomical_templates/MNI152_T1_1mm.nii.gz'
         self.Normalization_NormalizeBaladin_set_transformation_in_source_volume = True
         self.Normalization_Normalization_AimsMIRegister_anatomical_template = '/casa/host/build/share/brainvisa-share-5.2/anatomical_templates/MNI152_T1_2mm.nii.gz'
         self.Normalization_Normalization_AimsMIRegister_mni_to_acpc = '/casa/host/build/share/brainvisa-share-5.2/transformation/talairach_TO_spm_template_novoxels.trm'

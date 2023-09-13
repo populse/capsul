@@ -10,9 +10,9 @@ class TalairachTransformation(Process):
         super(TalairachTransformation, self).__init__(**kwargs)
         self.name = 'TalairachTransformation'
 
-        self.add_field("split_mask", File, read=True, allowed_extensions=['.nii.gz', '.svs', '.bmp', '.dcm', '', '.i', '.v', '.fdf', '.mgh', '.mgz', '.gif', '.ima', '.dim', '.ndpi', '.vms', '.vmu', '.jpg', '.scn', '.mnc', '.nii', '.pbm', '.pgm', '.png', '.ppm', '.img', '.hdr', '.svslide', '.tiff', '.tif', '.vimg', '.vinfo', '.vhdr', '.bif', '.xbm', '.xpm', '.czi', '.mnc.gz'], write=False)
-        self.add_field("commissure_coordinates", File, read=True, allowed_extensions=['.APC'], write=False)
-        self.add_field("Talairach_transform", File, write=True, allowed_extensions=['.trm'], read=True)
+        self.add_field("split_mask", File, read=True, extensions=['.nii.gz', '.svs', '.bmp', '.dcm', '', '.i', '.v', '.fdf', '.mgh', '.mgz', '.gif', '.ima', '.dim', '.ndpi', '.vms', '.vmu', '.jpg', '.scn', '.mnc', '.nii', '.pbm', '.pgm', '.png', '.ppm', '.img', '.hdr', '.svslide', '.tiff', '.tif', '.vimg', '.vinfo', '.vhdr', '.bif', '.xbm', '.xpm', '.czi', '.mnc.gz'], write=False)
+        self.add_field("commissure_coordinates", File, read=True, extensions=['.APC'], write=False)
+        self.add_field("Talairach_transform", File, write=True, extensions=['.trm'], read=True)
 
     def execute(self, context):
         outputs = []

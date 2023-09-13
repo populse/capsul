@@ -167,9 +167,8 @@ morphologist_datasets = {
     'SulciRecognition_recognition2000_model': 'shared',
     'SulciRecognition_1_recognition2000_model': 'shared',
     'sulcal_morphometry_sulci_file': 'shared',
-    'GlobalMorphometry_subject': 'output',
+    'subject': 'output',
     'Report_normative_brain_stats': None,
-    'Report_subject': 'output',
 }
 ''' standard, shared datasets associated with shared input data for
 Morphologist
@@ -277,11 +276,6 @@ def declare_morpho_schemas(morpho_module):
     sulcigraphmorphometrybysubject \
         = sulcigraphmorphometrybysubject.sulcigraphmorphometrybysubject
 
-    class MorphologistBIDS(ProcessSchema, schema='bids', process=Morphologist):
-        _ = {
-            '*': {'process': 'morphologist'},
-        }
-        left_labelled_graph = {'part': 'left_hemi'}
 
     class MorphologistBrainVISA(ProcessSchema, schema='brainvisa',
                                 process=Morphologist):
@@ -392,13 +386,19 @@ def declare_morpho_schemas(morpho_module):
         right_labelled_graph = {
             'side': 'R'
         }
-        Report_subject = {'modality': None}
-        GlobalMorphometry_subject = {'modality': None}
+        subject = {'modality': None}
 
-    class SPM12NormalizationBIDS(ProcessSchema, schema='bids',
-                                 process=normalization_t1_spm12_reinit):
-        output = {'part': 'normalized_spm12'}
-        normalized_anatomy_data = {'extension': 'nii'}
+    class MorphologistBIDS(MorphologistBrainVISA, schema='morphologist_bids',
+                           process=Morphologist):
+        _ = {
+            '*': {'process': None, 'modality': 't1mri',
+                  'folder': 'derivative'},
+            '*_pass1': Append('suffix', 'pass1'),
+        }
+
+        t1mri = {
+            'folder': 'rawdata',
+        }
 
     class SPM12NormalizationBrainVISA(ProcessSchema, schema='brainvisa',
                                       process=normalization_t1_spm12_reinit):
@@ -409,14 +409,14 @@ def declare_morpho_schemas(morpho_module):
                                    'prefix': 'normalized_SPM',
                                    'extension': 'nii'}
 
+    class SPM12NormalizationBIDS(SPM12NormalizationBrainVISA,
+                                 schema='morphologist_bids',
+                                 process=normalization_t1_spm12_reinit):
+        pass
+
     class SPM12NormalizationShared(ProcessSchema, schema='brainvisa_shared',
                                    process=normalization_t1_spm12_reinit):
         anatomical_template = {'data_id': 'normalization_template'}
-
-    class SPM8NormalizationBIDS(ProcessSchema, schema='bids',
-                                process=normalization_t1_spm8_reinit):
-        output = {'part': 'normalized_spm8'}
-        normalized_anatomy_data = {'extension': 'nii'}
 
     class SPM8NormalizationBrainVISA(ProcessSchema, schema='brainvisa',
                                      process=normalization_t1_spm8_reinit):
@@ -427,16 +427,14 @@ def declare_morpho_schemas(morpho_module):
                                    'prefix': 'normalized_SPM',
                                    'extension': 'nii'}
 
+    class SPM8NormalizationBIDS(SPM8NormalizationBrainVISA,
+                                schema='morphologist_bids',
+                                process=normalization_t1_spm8_reinit):
+        pass
+
     class SPM8NormalizationShared(ProcessSchema, schema='brainvisa_shared',
                                   process=normalization_t1_spm8_reinit):
         anatomical_template = {'data_id': 'normalization_template'}
-
-    class AimsNormalizationBIDS(ProcessSchema, schema='bids',
-                                process=normalization_aimsmiregister):
-        transformation_to_ACPC = {
-            'part': 'normalized_aims',
-            'extension': 'trm'
-        }
 
     class AimsNormalizationBrainVISA(ProcessSchema, schema='brainvisa',
                                      process=normalization_aimsmiregister):
@@ -444,6 +442,11 @@ def declare_morpho_schemas(morpho_module):
             'prefix': 'normalized_aims',
             'extension': 'trm'
         }
+
+    class AimsNormalizationBIDS(AimsNormalizationBrainVISA,
+                                schema='morphologist_bids',
+                                process=normalization_aimsmiregister):
+        pass
 
     class AimsNormalizationShared(ProcessSchema, schema='brainvisa_shared',
                                   process=normalization_aimsmiregister):
@@ -464,9 +467,10 @@ def declare_morpho_schemas(morpho_module):
             'suffix': None,
         }
 
-    class T1BiasCorrectionBIDS(ProcessSchema, schema='bids',
-                               process=T1BiasCorrection):
-        t1mri_nobias = {'part': 'nobias'}
+    class FSLNormalizationBIDS(FSLNormalizationBrainVISA,
+                               schema='morphologist_bids',
+                               process=Normalization_FSL_reinit):
+        pass
 
     class T1BiasCorrectionBrainVISA(ProcessSchema, schema='brainvisa',
                                     process=T1BiasCorrection):
@@ -485,10 +489,19 @@ def declare_morpho_schemas(morpho_module):
         edges = {'prefix': 'edges'}
         meancurvature = {'prefix': 'meancurvature'}
 
+    class T1BiasCorrectionBIDS(T1BiasCorrectionBrainVISA,
+                               schema='morphologist_bids',
+                               process=T1BiasCorrection):
+        pass
+
     class HistoAnalysisBrainVISA(ProcessSchema, schema='brainvisa',
                                  process=HistoAnalysis):
         histo = {'prefix': 'nobias', 'extension': 'his'}
         histo_analysis = {'prefix': 'nobias', 'extension': 'han'}
+
+    class HistoAnalysisBIDS(HistoAnalysisBrainVISA, schema='morphologist_bids',
+                            process=HistoAnalysis):
+        pass
 
     class BrainSegmentationBrainVISA(ProcessSchema, schema='brainvisa',
                                      process=BrainSegmentation):
@@ -502,12 +515,22 @@ def declare_morpho_schemas(morpho_module):
             }
         }
 
+    class BrainSegmentationBIDS(BrainSegmentationBrainVISA,
+                                schema='morphologist_bids',
+                                process=BrainSegmentation):
+        pass
+
     class skullstrippingBrainVISA(ProcessSchema, schema='brainvisa',
                                   process=skullstripping):
         _ = {
             '*': {'seg_directory': 'segmentation'},
         }
         skull_stripped = {'prefix': 'skull_stripped'}
+
+    class skullstrippingBIDS(skullstrippingBrainVISA,
+                             schema='morphologist_bids',
+                             process=skullstripping):
+        pass
 
     class ScalpMeshBrainVISA(ProcessSchema, schema='brainvisa',
                              process=ScalpMesh):
@@ -521,8 +544,9 @@ def declare_morpho_schemas(morpho_module):
             'histo_analysis': {'*': []}
         }
 
-    class SplitBrainBIDS(ProcessSchema, schema='bids', process=SplitBrain):
-        split_brain = {'part': 'split'}
+    class ScalpMeshBBIDS(ScalpMeshBrainVISA, schema='morphologist_bids',
+                             process=ScalpMesh):
+        pass
 
     class SplitBrainBrainVISA(ProcessSchema, schema='brainvisa',
                               process=SplitBrain):
@@ -536,6 +560,10 @@ def declare_morpho_schemas(morpho_module):
             'histo_analysis': {'*': []}
         }
 
+    class SplitBrainBIDS(SplitBrainBrainVISA, schema='morphologist_bids',
+                         process=SplitBrain):
+        pass
+
     class GreyWhiteClassificationHemiBrainVISA(
             ProcessSchema, schema='brainvisa',
             process=GreyWhiteClassificationHemi):
@@ -547,6 +575,11 @@ def declare_morpho_schemas(morpho_module):
             'histo_analysis': {'*': []}
         }
 
+    class GreyWhiteClassificationHemiBIDS(
+            GreyWhiteClassificationHemiBrainVISA, schema='morphologist_bids',
+            process=GreyWhiteClassificationHemi):
+        pass
+
     class GreyWhiteTopologyBrainVISA(ProcessSchema, schema='brainvisa',
                                      process=GreyWhiteTopology):
         _ = {
@@ -557,6 +590,11 @@ def declare_morpho_schemas(morpho_module):
             'histo_analysis': {'*': []}
         }
 
+    class GreyWhiteTopologyBIDS(GreyWhiteTopologyBrainVISA,
+                                schema='morphologist_bids',
+                                process=GreyWhiteTopology):
+        pass
+
     class GreyWhiteMeshBrainVISA(ProcessSchema, schema='brainvisa',
                                  process=GreyWhiteMesh):
         _ = {
@@ -564,6 +602,10 @@ def declare_morpho_schemas(morpho_module):
         }
         white_mesh = {'side': None, 'prefix': None, 'suffix': 'white',
                       'extension': 'gii'}
+
+    class GreyWhiteMeshBIDS(GreyWhiteMeshBrainVISA, schema='morphologist_bids',
+                            process=GreyWhiteMesh):
+        pass
 
     class PialMeshBrainVISA(ProcessSchema, schema='brainvisa',
                             process=PialMesh):
@@ -573,6 +615,10 @@ def declare_morpho_schemas(morpho_module):
         pial_mesh = {'side': None, 'prefix': None, 'suffix': 'hemi',
                      'extension': 'gii'}
 
+    class PialMeshBIDS(PialMeshBrainVISA, schema='morphologist_bids',
+                       process=PialMesh):
+        pass
+
     class SulciSkeletonBrainVISA(ProcessSchema, schema='brainvisa',
                                  process=SulciSkeleton):
         _ = {
@@ -580,6 +626,10 @@ def declare_morpho_schemas(morpho_module):
         }
         skeleton = {'prefix': 'skeleton'}
         roots = {'prefix': 'roots'}
+
+    class SulciSkeletonBIDS(SulciSkeletonBrainVISA, schema='morphologist_bids',
+                            process=SulciSkeleton):
+        pass
 
     class SulciGraphBrainVISA(ProcessSchema, schema='brainvisa',
                               process=SulciGraph):
@@ -600,6 +650,10 @@ def declare_morpho_schemas(morpho_module):
             '*_mesh': {'*': []},
         }
 
+    class SulciGraphBIDS(SulciGraphBrainVISA, schema='morphologist_bids',
+                         process=SulciGraph):
+        pass
+
     class SulciLabellingANNBrainVISA(ProcessSchema, schema='brainvisa',
                                      process=SulciLabellingANN):
         _ = {
@@ -611,6 +665,11 @@ def declare_morpho_schemas(morpho_module):
         energy_plot_file = {'suffix': lambda **kwargs:
                                 f'{kwargs["metadata"].sulci_recognition_session}',
                             'extension': 'nrj'}
+
+    class SulciLabellingANNBIDS(SulciLabellingANNBrainVISA,
+                                schema='morphologist_bids',
+                                process=SulciLabellingANN):
+        pass
 
     class SulciLabellingSPAMGlobalBrainVISA(ProcessSchema, schema='brainvisa',
                                             process=SulciLabellingSPAMGlobal):
@@ -633,6 +692,11 @@ def declare_morpho_schemas(morpho_module):
                 f'{kwargs["metadata"].sulci_recognition_session}_T1_TO_SPAM',
             'extension': 'trm'}
 
+    class SulciLabellingSPAMGlobalBIDS(SulciLabellingSPAMGlobalBrainVISA,
+                                       schema='morphologist_bids',
+                                       process=SulciLabellingSPAMGlobal):
+        pass
+
     class SulciLabellingSPAMLocalBrainVISA(ProcessSchema, schema='brainvisa',
                                            process=SulciLabellingSPAMLocal):
         _ = {
@@ -650,6 +714,11 @@ def declare_morpho_schemas(morpho_module):
                 f'{kwargs["metadata"].sulci_recognition_session}_global_TO_local',
             'extension': None}
 
+    class SulciLabellingSPAMLocalBIDS(SulciLabellingSPAMLocalBrainVISA,
+                                      schema='morphologist_bids',
+                                      process=SulciLabellingSPAMLocal):
+        pass
+
     class SulciLabellingSPAMMarkovBrainVISA(ProcessSchema, schema='brainvisa',
                                             process=SulciLabellingSPAMMarkov):
         _ = {
@@ -663,6 +732,11 @@ def declare_morpho_schemas(morpho_module):
                 f'{kwargs["metadata"].sulci_recognition_session}_proba',
             'extension': 'csv'}
 
+    class SulciLabellingSPAMMarkovBIDS(SulciLabellingSPAMMarkovBrainVISA,
+                                       schema='morphologist_bids',
+                                       process=SulciLabellingSPAMMarkov):
+        pass
+
     class SulciDeepLabelingBrainVISA(ProcessSchema, schema='brainvisa',
                                      process=SulciDeepLabeling):
         _ = {
@@ -673,7 +747,12 @@ def declare_morpho_schemas(morpho_module):
                                 f'{kwargs["metadata"].sulci_recognition_session}',
                          'extension': 'arg'}
 
-    class sulcigraphmorphometrybysubject(
+    class SulciDeepLabelingBIDS(SulciDeepLabelingBrainVISA,
+                                schema='morphologist_bids',
+                                process=SulciDeepLabeling):
+        pass
+
+    class sulcigraphmorphometrybysubjectBrainVISA(
             ProcessSchema, schema='brainvisa',
             process=sulcigraphmorphometrybysubject):
         sulcal_morpho_measures = {
@@ -682,8 +761,10 @@ def declare_morpho_schemas(morpho_module):
             '_': Append('suffix', 'sulcal_morphometry'),
         }
 
-    class BrainVolumesBIDS(ProcessSchema, schema='bids',
-                           process=brainvolumes):
+    class sulcigraphmorphometrybysubjectBIDS(
+            sulcigraphmorphometrybysubjectBrainVISA,
+            schema='morphologist_bids',
+            process=sulcigraphmorphometrybysubject):
         pass
 
     class BrainVolumesBrainVISA(ProcessSchema, schema='brainvisa',
@@ -736,8 +817,8 @@ def declare_morpho_schemas(morpho_module):
             'right_grey_white': {'right_csf': ['extension']},  # no effect ..?
         }
 
-    class MorphoReportBIDS(ProcessSchema, schema='bids',
-                           process=morpho_report):
+    class BrainVolumesBIDS(BrainVolumesBrainVISA, schema='morphologist_bids',
+                           process=brainvolumes):
         pass
 
     class MorphoReportBrainVISA(ProcessSchema, schema='brainvisa',
@@ -764,6 +845,10 @@ def declare_morpho_schemas(morpho_module):
             'subject_in_filename': False,
             'extension': None
         }
+
+    class MorphoReportBIDS(MorphoReportBrainVISA, schema='morphologist_bids',
+                           process=morpho_report):
+        pass
 
     class MorphologistShared(ProcessSchema, schema='brainvisa_shared',
                              process=Morphologist):

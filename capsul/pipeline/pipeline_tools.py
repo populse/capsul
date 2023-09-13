@@ -1530,6 +1530,17 @@ def propagate_meta(executable, nodes=None):
     topological order. It may be passed if reused in order to avoid
     calling :func:`topological_sort_nodes` several times.
     '''
+    if isinstance(executable, ProcessIteration):
+        if isinstance(executable.process, Pipeline):
+            propagate_meta(executable.process)
+        for pname in executable.iterative_parameters:
+            f = executable.process.field(pname)
+            fo = executable.field(pname)
+            # copy field metadata
+            for k, v in f.metadata().items():
+                setattr(fo, k, v)
+        return
+
     if nodes is None:
         nodes = topological_sort_nodes(
             executable.all_nodes())
@@ -1541,6 +1552,8 @@ def propagate_meta(executable, nodes=None):
                 # pipeline inputs
                 continue
             node = node[0]
+        if isinstance(node, ProcessIteration):
+            propagate_meta(node)
         for pname, plug in node.plugs.items():
             if plug.output:
                 f = node.field(pname)

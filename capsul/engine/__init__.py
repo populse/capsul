@@ -91,6 +91,12 @@ class Engine:
         self.nested_context = 0
         self.update_database = update_database
 
+    def __del__(self):
+        if self.nested_context != 0:
+            # force exit the engine
+            self.nested_context = 1
+            self.__exit__(None, None, None)
+
     def __enter__(self):
         if self.nested_context == 0:
             # Connect to the database
@@ -141,16 +147,20 @@ class Engine:
                 except Exception as e:
                     quote = lambda x: f"'{x}'"
                     raise RuntimeError(f'Command failed: {" ".join(quote(i) for i in workers_command)}') from e
-        
-       
+
     def __exit__(self, exception_type, exception_value, exception_traceback):
+        # exiting the engine disposes it from the database: executions will
+        # be deleted from it, and later inspection will not be possible.
+        # should we allow leaving the execution workflow in the database under
+        # certain settings ?
         self.nested_context -= 1
         if self.nested_context == 0:
             if 'CAPSUL_DEBUG' not in os.environ:
                 self.database.dispose_engine(self.engine_id)
-            self.database.__exit__(exception_type, exception_value, exception_traceback)
+            self.database.__exit__(exception_type, exception_value,
+                                   exception_traceback)
             del self.engine_id
-    
+
     def execution_context(self, executable):
         return execution_context(self.label, self.config, executable)
 

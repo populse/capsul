@@ -10,10 +10,10 @@ class FSLnormalizationToAims(Process):
         super(FSLnormalizationToAims, self).__init__(**kwargs)
         self.name = 'ConvertFSLnormalizationToAIMS'
 
-        self.add_field("read", File, read=True, allowed_extensions=['.mat'], write=False)
-        self.add_field("source_volume", File, read=True, allowed_extensions=['.nii.gz', '.svs', '.bmp', '.dcm', '', '.i', '.v', '.fdf', '.mgh', '.mgz', '.gif', '.ima', '.dim', '.ndpi', '.vms', '.vmu', '.jpg', '.scn', '.mnc', '.nii', '.pbm', '.pgm', '.png', '.ppm', '.img', '.hdr', '.svslide', '.tiff', '.tif', '.vimg', '.vinfo', '.vhdr', '.bif', '.xbm', '.xpm', '.czi', '.mnc.gz'], write=False)
-        self.add_field("write", File, write=True, allowed_extensions=['.trm'], read=True)
-        self.add_field("registered_volume", File, read=True, allowed_extensions=['.nii', '.nii.gz'], write=False)
+        self.add_field("read", File, read=True, extensions=['.mat'], write=False)
+        self.add_field("source_volume", File, read=True, extensions=['.nii.gz', '.svs', '.bmp', '.dcm', '', '.i', '.v', '.fdf', '.mgh', '.mgz', '.gif', '.ima', '.dim', '.ndpi', '.vms', '.vmu', '.jpg', '.scn', '.mnc', '.nii', '.pbm', '.pgm', '.png', '.ppm', '.img', '.hdr', '.svslide', '.tiff', '.tif', '.vimg', '.vinfo', '.vhdr', '.bif', '.xbm', '.xpm', '.czi', '.mnc.gz'], write=False)
+        self.add_field("write", File, write=True, extensions=['.trm'], read=True)
+        self.add_field("registered_volume", File, read=True, extensions=['.nii', '.nii.gz'], write=False)
         self.add_field("standard_template", Literal[0,1,2])
         self.standard_template = 0
         self.add_field("set_transformation_in_source_volume", bool)

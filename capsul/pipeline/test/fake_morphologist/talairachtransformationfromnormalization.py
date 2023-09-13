@@ -10,10 +10,10 @@ class TalairachTransformationFromNormalization(Process):
         super(TalairachTransformationFromNormalization, self).__init__(**kwargs)
         self.name = 'TalairachFromNormalization'
 
-        self.add_field("normalization_transformation", File, read=True, allowed_extensions=['.trm'], write=False)
-        self.add_field("Talairach_transform", File, write=True, allowed_extensions=['.trm'], read=True, optional=True)
-        self.add_field("commissure_coordinates", File, write=True, allowed_extensions=['.APC'], optional=False, read=True)
-        self.add_field("t1mri", File, read=True, allowed_extensions=['.nii.gz', '.svs', '.bmp', '.dcm', '', '.i', '.v', '.fdf', '.mgh', '.mgz', '.gif', '.ima', '.dim', '.ndpi', '.vms', '.vmu', '.jpg', '.scn', '.mnc', '.nii', '.pbm', '.pgm', '.png', '.ppm', '.img', '.hdr', '.svslide', '.tiff', '.tif', '.vimg', '.vinfo', '.vhdr', '.bif', '.xbm', '.xpm', '.czi', '.mnc.gz'], optional=True, write=False)
+        self.add_field("normalization_transformation", File, read=True, extensions=['.trm'], write=False)
+        self.add_field("Talairach_transform", File, write=True, extensions=['.trm'], read=True, optional=True)
+        self.add_field("commissure_coordinates", File, write=True, extensions=['.APC'], optional=False, read=True)
+        self.add_field("t1mri", File, read=True, extensions=['.nii.gz', '.svs', '.bmp', '.dcm', '', '.i', '.v', '.fdf', '.mgh', '.mgz', '.gif', '.ima', '.dim', '.ndpi', '.vms', '.vmu', '.jpg', '.scn', '.mnc', '.nii', '.pbm', '.pgm', '.png', '.ppm', '.img', '.hdr', '.svslide', '.tiff', '.tif', '.vimg', '.vinfo', '.vhdr', '.bif', '.xbm', '.xpm', '.czi', '.mnc.gz'], optional=True, write=False)
         self.add_field("source_referential", File, read=True, write=False)
         self.add_field("normalized_referential", File, read=True, write=False)
         self.add_field("acpc_referential", File, read=True, optional=True, write=False)
