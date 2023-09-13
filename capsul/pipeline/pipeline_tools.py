@@ -49,11 +49,9 @@ from populse_db import json_encode, json_decode
 
 # Capsul import
 from capsul.application import executable
-from capsul.pipeline.pipeline import Pipeline, Process, Switch, \
-     CustomPipeline
+from capsul.pipeline.pipeline import Pipeline, Process, Switch
 from capsul.pipeline.process_iteration import ProcessIteration
 from soma.controller import Controller, undefined, Any
-from pydantic import ValidationError
 import dataclasses
 
 
