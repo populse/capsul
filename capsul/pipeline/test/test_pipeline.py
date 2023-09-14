@@ -141,6 +141,7 @@ class TestPipeline(unittest.TestCase):
     def test_run_pipeline(self):
         setattr(self.pipeline.nodes_activation, "node2", True)
         tmp = tempfile.mkstemp('', prefix='capsul_test_pipeline')
+        self.temp_files.append(tmp[1])
         ofile = tmp[1]
         os.close(tmp[0])
         # os.unlink(tmp[1])
@@ -149,14 +150,10 @@ class TestPipeline(unittest.TestCase):
         self.temp_files.append(tmp)
         capsul.config.databases['builtin']['path'] \
             = osp.join(tmp, 'capsul_engine_database.rdb')
-        try:
-            with capsul.engine() as engine:
-                engine.run(self.pipeline, timeout=5,
-                           input_image=ofile,
-                           output=ofile)
-        finally:
-            if os.path.exists(tmp[1]):
-                os.unlink(tmp[1])
+        with capsul.engine() as engine:
+            engine.run(self.pipeline, timeout=5,
+                       input_image=ofile,
+                       output=ofile)
 
     def run_pipeline_io(self, filename):
         pipeline = executable(MyPipeline)
