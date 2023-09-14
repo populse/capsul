@@ -23,7 +23,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
                 r = self._connect(socket_connect_timeout=0.2)
                 r.ping()
                 return True
-            except (redis.ConnectionError, redis.TimeoutError) as e:
+            except (redis.ConnectionError, redis.TimeoutError):
                 return False
 
     def _connect(self, **kwargs):
@@ -37,10 +37,8 @@ class RedisExecutionDatabase(ExecutionDatabase):
     def is_connected(self):
         return hasattr(self, 'redis')
 
-
     def engine_id(self, label):
         return self.redis.hget('capsul:engine', label)
-
 
     def _enter(self):
         self.uuid = str(uuid4())
@@ -59,7 +57,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
                     cmd = [
                         'redis-server',
                         '--unixsocket', self.redis_socket,
-                        '--port', '0', # port 0 means no TCP connection
+                        '--port', '0',  # port 0 means no TCP connection
                         '--daemonize', 'yes',
                         '--pidfile', pid_file,
                         '--dir', dir,
@@ -71,8 +69,9 @@ class RedisExecutionDatabase(ExecutionDatabase):
                         if os.path.exists(self.redis_socket):
                             break
                         time.sleep(0.1)
-                    self.redis  = redis.Redis(unix_socket_path=self.redis_socket,
-                                                decode_responses=True)
+                    self.redis = redis.Redis(
+                        unix_socket_path=self.redis_socket,
+                        decode_responses=True)
                     self.redis.delete('capsul:shutting_down')
                     self.redis.set('capsul:redis_tmp', tmp)
                     self.redis.set('capsul:redis_pid_file', pid_file)
@@ -80,15 +79,18 @@ class RedisExecutionDatabase(ExecutionDatabase):
                     shutil.rmtree(tmp)
                     raise
             else:
-                self.redis  = redis.Redis(unix_socket_path=self.redis_socket,
-                                          decode_responses=True)
+                self.redis = redis.Redis(unix_socket_path=self.redis_socket,
+                                         decode_responses=True)
         elif self.config['type'] == 'redis':
             self.redis = self._connect(decode_responses=True)
         else:
-            raise NotImplementedError(f'Invalid Redis connection type: {self.config["type"]}')
+            raise NotImplementedError(
+                f'Invalid Redis connection type: {self.config["type"]}')
         if self.redis.get('capsul:shutting_down'):
-            raise RuntimeError('Cannot connect to database because it is shutting down')
-        self.redis.hset('capsul:connections', self.uuid, datetime.now().isoformat())
+            raise RuntimeError(
+                'Cannot connect to database because it is shutting down')
+        self.redis.hset('capsul:connections', self.uuid,
+                        datetime.now().isoformat())
 
         # Some functions are implemented as a Lua script in redis
         # in order to be atomic. In redis these scripts must always
