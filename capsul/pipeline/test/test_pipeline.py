@@ -117,19 +117,17 @@ class TestPipeline(unittest.TestCase):
             # print('added py tmpfile:', pyfname, pycfname)
 
     def test_constant(self):
-        graph = self.pipeline.workflow_graph()
         self.assertTrue(
             self.pipeline.nodes['constant'].field('input_image').metadata(
                 'optional'))
-        ordered_list = graph.topological_sort()
         workflow_repr = self.pipeline.workflow_ordered_nodes()
         workflow_repr = '->'.join(x.name.rsplit('.', 1)[-1]
                                   for x in workflow_repr)
         self.assertTrue(
             workflow_repr in
-                ("constant->node1->node2", "node1->constant->node2"),
+            ("constant->node1->node2", "node1->constant->node2"),
             '%s not in ("constant->node1->node2", "node1->constant->node2")'
-                % workflow_repr)
+            % workflow_repr)
 
     def test_enabled(self):
         self.pipeline.nodes_activation.node2 = False
@@ -179,12 +177,19 @@ class TestPipeline(unittest.TestCase):
             view2.show()
             app.exec_()
 
-        constant_uuid, constant_job = next((uuid, job) for uuid, job in wf.jobs.items() if job['parameters_location'] == ['nodes', 'constant'])
-        node1_uuid, node1_job = next((uuid, job) for uuid, job in wf.jobs.items() if job['parameters_location'] == ['nodes', 'node1'])
-        node2_uuid, node2_job = next((uuid, job) for uuid, job in wf.jobs.items() if job['parameters_location'] == ['nodes', 'node2'])
+        constant_uuid, constant_job = next(
+            (uuid, job) for uuid, job in wf.jobs.items()
+            if job['parameters_location'] == ['nodes', 'constant'])
+        node1_uuid, node1_job = next(
+            (uuid, job) for uuid, job in wf.jobs.items()
+            if job['parameters_location'] == ['nodes', 'node1'])
+        node2_uuid, node2_job = next(
+            (uuid, job) for uuid, job in wf.jobs.items()
+            if job['parameters_location'] == ['nodes', 'node2'])
         self.assertEqual(constant_job['wait_for'], [])
         self.assertEqual(node1_job['wait_for'], [])
-        self.assertEqual(sorted(node2_job['wait_for']), sorted([constant_uuid, node1_uuid]))
+        self.assertEqual(sorted(node2_job['wait_for']),
+                         sorted([constant_uuid, node1_uuid]))
         d1 = pipeline_tools.dump_pipeline_state_as_dict(pipeline)
         d2 = pipeline_tools.dump_pipeline_state_as_dict(pipeline2)
         self.assertEqual(d1, d2)
