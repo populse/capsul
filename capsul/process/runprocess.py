@@ -93,9 +93,14 @@ def set_process_param_from_str(process, k, arg):
         evaluate = process.trait(k).trait_type.evaluate
     except AttributeError:
         evaluate = None
+    print('set_process_param_from_str:', process, k, repr(arg))
     if evaluate:
         arg = evaluate(arg)
     setattr(process, k, arg)
+    process.trait(k).forbid_completion = True
+    if isinstance(process, Pipeline):
+        process.propagate_metadata(process.pipeline_node, k,
+                                   {'forbid_completion': True})
 
 
 def get_process_with_params(process_name, study_config, iterated_params=[],
@@ -142,12 +147,10 @@ def get_process_with_params(process_name, study_config, iterated_params=[],
             if not isinstance(value, list) and not isinstance(value, tuple):
                 attributes[param] = list([value])
 
-    else:
-        # not iterated
-        for i, arg in enumerate(args):
-            set_process_param_from_str(process, params[i], arg)
-        for k, arg in six.iteritems(kwargs):
-            set_process_param_from_str(process, k, arg)
+    for i, arg in enumerate(args):
+        set_process_param_from_str(process, params[i], arg)
+    for k, arg in six.iteritems(kwargs):
+        set_process_param_from_str(process, k, arg)
 
     completion_engine = ProcessCompletionEngine.get_completion_engine(process)
     completion_engine.get_attribute_values().import_from_dict(attributes)
