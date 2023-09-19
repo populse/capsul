@@ -247,11 +247,18 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
                 value = getattr(process.process, parameter)
                 iterative_parameters[parameter].append(value)
             self.completion_progress = it_step + 1
-        for parameter, values in six.iteritems(iterative_parameters):
+        for parameter, values in iterative_parameters.items():
             try:
                 setattr(process, parameter, values)
             except Exception as e:
                 print('assign iteration parameter', parameter, ':\n', e,
+                      file=sys.stderr)
+        for parameter in parameters:
+            try:
+                value = getattr(process.process, parameter)
+                setattr(process, parameter, value)
+            except Exception as e:
+                print('assign parameter', parameter, ':\n', e,
                       file=sys.stderr)
 
 

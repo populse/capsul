@@ -425,11 +425,11 @@ def main():
         study_config.input_directory = options.input_directory
     if options.output_directory:
         study_config.output_directory = options.output_directory
-    if study_config.output_directory in (None, Undefined) \
-            and study_config.input_directory not in (None, Undefined):
+    if study_config.output_directory in (None, Undefined, '') \
+            and study_config.input_directory not in (None, Undefined, ''):
         study_config.output_directory = study_config.input_directory
-    if study_config.input_directory in (None, Undefined) \
-            and study_config.output_directory not in (None, Undefined):
+    if study_config.input_directory in (None, Undefined, '') \
+            and study_config.output_directory not in (None, Undefined, ''):
         study_config.input_directory = study_config.output_directory
     study_config.somaworkflow_keep_succeeded_workflows \
         = options.keep_succeded_workflow
