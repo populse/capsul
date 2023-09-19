@@ -52,7 +52,7 @@ def _is_nipype_interface_subclass(obj):
     return issubclass(obj, NipypeInterface)
 
 
-class Capsul(object):
+class Capsul:
     '''User entry point to Capsul features.
     This objects reads Capsul configuration in site and user environments.
     It allows configuration customization and instanciation of a
