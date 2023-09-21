@@ -90,7 +90,7 @@ class Engine:
         self.database = engine_database(self.database_config)
         self.nested_context = 0
         self.update_database = update_database
-
+    
     def __del__(self):
         if self.nested_context != 0:
             # force exit the engine
@@ -105,6 +105,7 @@ class Engine:
             # the database if it does not exist.
             self.engine_id = self.database.get_or_create_engine(self,
                 update_database=self.update_database)
+            self.config.persistent = self.database.persistent(self.engine_id)
         self.nested_context += 1
         return self
 
@@ -129,6 +130,7 @@ class Engine:
                 if engine_id:
                     result['workers_count'] = database.workers_count(engine_id)
                     result['connections'] = database.engine_connections(engine_id)
+                    result['persistent']: database.persistent(engine_id)
         return result
 
 

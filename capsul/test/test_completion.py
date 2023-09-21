@@ -139,7 +139,7 @@ class TestCompletion(unittest.TestCase):
             }
         }
 
-        self.capsul = Capsul('test_fake_morphologist')
+        self.capsul = Capsul('test_fake_morphologist', database_path='')
         self.capsul.config.import_dict(config)
 
 

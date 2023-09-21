@@ -12,6 +12,9 @@ from capsul.config import ApplicationConfiguration
 from capsul.config.configuration import (default_engine_start_workers,
                                          default_builtin_database)
 
+expected_default_builtin_database = default_builtin_database.copy()
+expected_default_builtin_database['path'] = osp.expandvars(expected_default_builtin_database['path']).format(app_name='single_conf')
+
 class TestConfiguration(unittest.TestCase):
 
     def setUp(self):
@@ -29,6 +32,7 @@ class TestConfiguration(unittest.TestCase):
         conf_dict = {
             'builtin': {
                 'database': 'builtin',
+                'persistent': True,
                 'start_workers': default_engine_start_workers,
                 'matlab': {},
                 'spm': {
@@ -55,10 +59,11 @@ class TestConfiguration(unittest.TestCase):
                 'site': {
                     'builtin': {
                         'database': 'builtin',
+                        'persistent': True,
                         'start_workers': default_engine_start_workers,
                     },
                     'databases': {
-                        'builtin': default_builtin_database,
+                        'builtin': expected_default_builtin_database,
                     }
                 },
                 'user': conf_dict,
@@ -72,6 +77,7 @@ class TestConfiguration(unittest.TestCase):
         conf_dict = {
             'builtin': {
                 'database': 'builtin',
+                'persistent': True,
                 'start_workers': default_engine_start_workers,
                 'matlab': {},
                 'spm': {
@@ -88,19 +94,20 @@ class TestConfiguration(unittest.TestCase):
             
             }}
 
-        app_config = ApplicationConfiguration('single_conf2',
+        app_config = ApplicationConfiguration('single_conf',
                                               user=conf_dict)
         self.maxDiff = None
         self.assertEqual(
             app_config.asdict(), {
-                'app_name': 'single_conf2',
+                'app_name': 'single_conf',
                 'site': {
                     'builtin': {
+                        'persistent': True,
                         'database': 'builtin',
                         'start_workers': default_engine_start_workers,
                     },
                     'databases': {
-                        'builtin': default_builtin_database,
+                        'builtin': expected_default_builtin_database,
                     }
                 },
                 'user': conf_dict,
@@ -136,6 +143,7 @@ class TestConfiguration(unittest.TestCase):
         merged_conf_dict = {
             'builtin': {
                 'database': 'builtin',
+                'persistent': True,
                 'start_workers': default_engine_start_workers,
                 'matlab': {},
                 'spm': {
@@ -155,14 +163,14 @@ class TestConfiguration(unittest.TestCase):
                     }}
             },
             'databases': {
-                'builtin': default_builtin_database,
+                'builtin': expected_default_builtin_database,
             },
         }
 
         site_file = osp.join(self.tmp_dir, 'site_conf.json')
         with open(site_file, 'w') as f:
             json.dump(site_conf_dict, f)
-        app_config = ApplicationConfiguration('single_conf3',
+        app_config = ApplicationConfiguration('single_conf',
                                               site_file=site_file,
                                               user=user_conf_dict)
         app_config.site = site_conf_dict

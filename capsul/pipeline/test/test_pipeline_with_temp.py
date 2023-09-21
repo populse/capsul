@@ -124,7 +124,7 @@ class TestPipelineWithTemp(unittest.TestCase):
             self.pipeline.input_image = input_name
             self.pipeline.output_image = output_name
 
-            capsul = Capsul()
+            capsul = Capsul(database_path='')
             tmp = tempfile.mkdtemp(prefix='capsul_test_')
             self.temp_files = [tmp]
             capsul.config.databases['builtin']['path'] \
@@ -164,7 +164,7 @@ class TestPipelineWithTemp(unittest.TestCase):
                                                input_name]
             self.iter_pipeline.output = output_name
 
-            capsul = Capsul()
+            capsul = Capsul(database_path='')
             tmp = tempfile.mkdtemp(prefix='capsul_test_')
             self.temp_files = [tmp]
             capsul.config.databases['builtin']['path'] \

@@ -16,7 +16,7 @@ from ..dataset import Dataset
 
 default_builtin_database = {
     'type': 'redis+socket',
-    'path': f'{tempfile.gettempdir()}{os.sep}capsul_engine_database.rdb',
+    'path': '$HOME/.config/{app_name}/database.rdb',
 }
 
 default_engine_start_workers = {
@@ -156,6 +156,7 @@ class EngineConfiguration(Controller):
     python_modules: list[str]
 
     database: str = 'builtin'
+    persistent: bool = True
     
     start_workers: field(type_=dict, default_factory = lambda: default_engine_start_workers)
 
@@ -431,7 +432,12 @@ class ApplicationConfiguration(Controller):
         super().__init__()
 
         self.app_name = app_name
-        self.site.databases = {'builtin': default_builtin_database}
+        builtin_db = default_builtin_database.copy()
+        builtin_db['path'] = os.path.expandvars(builtin_db['path']).format(app_name=app_name)
+        d = os.path.dirname(builtin_db['path'])
+        if not os.path.exists(d):
+            os.makedirs(d)
+        self.site.databases = {'builtin': builtin_db}
 
         if site_file is not None:
             self.site_file = site_file

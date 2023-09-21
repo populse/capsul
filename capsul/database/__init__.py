@@ -472,6 +472,20 @@ class ExecutionDatabase:
         raise NotImplementedError
 
 
+    def persistent(self, engine_id):
+        '''
+        Return wether an engine is persistent or not.
+        '''
+        raise NotImplementedError
+
+
+    def set_persistent(self, engine_id, persistent):
+        '''
+        Sets the persitency status of an engine.
+        '''
+        raise NotImplementedError
+
+
     def dispose_engine(self, engine_id):
         '''
         Tell Capsul that this engine will not be used anymore by any client.

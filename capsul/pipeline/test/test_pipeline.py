@@ -143,7 +143,7 @@ class TestPipeline(unittest.TestCase):
         ofile = tmp[1]
         os.close(tmp[0])
         # os.unlink(tmp[1])
-        capsul = Capsul()
+        capsul = Capsul(database_path='')
         tmp = tempfile.mkdtemp(prefix='capsul_test_')
         self.temp_files.append(tmp)
         capsul.config.databases['builtin']['path'] \

@@ -119,7 +119,7 @@ class TestPipeline(unittest.TestCase):
         process are correctly connected.
         """
 
-        capsul = Capsul()
+        capsul = Capsul(database_path='')
         tmp = tempfile.mkdtemp(prefix='capsul_test_')
         self.temp_files = [tmp]
         capsul.config.databases['builtin']['path'] \

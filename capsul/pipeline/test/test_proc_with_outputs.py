@@ -247,7 +247,7 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
         with open(self.pipeline.input, 'w') as f:
             print('Initial file content.', file=f)
         self.pipeline.output = tmpout
-        self.capsul = Capsul()
+        self.capsul = Capsul(database_path='')
         self.capsul.config.databases['builtin']['path'] \
             = osp.join(tmpdir, 'capsul_engine_database.rdb')
 

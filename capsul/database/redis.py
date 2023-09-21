@@ -44,13 +44,16 @@ class RedisExecutionDatabase(ExecutionDatabase):
         self.uuid = str(uuid4())
 
         if self.config['type'] == 'redis+socket':
-            if not self.path:
+            if self.path is None:
                 raise ValueError('Database path is missing in configuration')
             self.redis_socket = f'{self.path}.socket'
-            if not os.path.exists(self.redis_socket):
+            if self.path == '' or not os.path.exists(self.redis_socket):
                 # Start the redis server
                 tmp = tempfile.mkdtemp(prefix='capsul_redis_')
                 try:
+                    if self.path == '':
+                        self._path = os.path.join(tmp, 'database.rdb')
+                        self.redis_socket = f'{self.path}.socket'
                     dir, dbfilename = os.path.split(self.path)
                     pid_file = f'{tmp}/redis.pid'
                     log_file = f'{tmp}/redis.log'
@@ -63,6 +66,9 @@ class RedisExecutionDatabase(ExecutionDatabase):
                         '--dir', dir,
                         '--logfile', log_file,
                         '--dbfilename', dbfilename,
+                        # Snapshot every 60 seconds if at least one change
+                        # had been done to the database
+                        '--save', '60', '1',
                     ]
                     subprocess.run(cmd, cwd=tmp)
                     for i in range(20):
@@ -312,7 +318,8 @@ class RedisExecutionDatabase(ExecutionDatabase):
             local execution_id = ARGV[1]
 
             redis.call('hset', execution_key, 'dispose', 1)
-            if redis.call('hget', execution_key, 'status') == 'ended' then
+            if (redis.call('hget', execution_key, 'status') == 'ended') and
+               (redis.call('hget', engine_key, 'persistent') == '0') then
                 redis.call('del', execution_key)
                 local executions = cjson.decode(redis.call('hget', engine_key, 'executions'))
                 table.remove(executions, table_find(executions, execution_id))
@@ -445,9 +452,12 @@ class RedisExecutionDatabase(ExecutionDatabase):
             # Create association between label and engine_id
             self.redis.hset(f'capsul:{engine_id}', 'label', engine.label)
             self.redis.hset('capsul:engine', engine.label, engine_id)
+            # Store engine persistency
+            self.set_persistent(engine_id, engine.config.persistent)
         elif update_database:
             # Update configuration stored in database
             self.redis.hset(f'capsul:{engine_id}', 'config', json.dumps(engine.config.json()))
+            self.set_persistent(engine_id, engine.config.persistent)
         self.redis.hincrby(f'capsul:{engine_id}', 'connections', 1)
         return engine_id
     
@@ -494,11 +504,21 @@ class RedisExecutionDatabase(ExecutionDatabase):
         self._worker_ended(keys=keys, args=args)
 
 
+    def persistent(self, engine_id):
+        p = self.redis.hget(f'capsul:{engine_id}', 'persistent')
+        r = bool(int(p))
+        return r
+
+
+    def set_persistent(self, engine_id, persistent):
+        self.redis.hset(f'capsul:{engine_id}', 'persistent', (1 if persistent else 0))
+
+
     def dispose_engine(self, engine_id):
         label = self.redis.hget(f'capsul:{engine_id}', 'label')
         if label:
             connections = self.redis.hincrby(f'capsul:{engine_id}', 'connections', -1)
-            if connections == 0:
+            if connections == 0 and not self.persistent(engine_id):
                 # Removes association between label and engine_id
                 self.redis.hdel('capsul:engine', label)
                 self.redis.hdel(f'capsul:{engine_id}', 'label')
@@ -582,7 +602,9 @@ class RedisExecutionDatabase(ExecutionDatabase):
             # return None to say to workers that they can die
             return None, None
         else:
+            all_disposed = True
             for execution_id in json.loads(executions):
+                all_disposed = all_disposed and self.redis.hget(f'capsul:{engine_id}:{execution_id}', 'dispose') 
                 keys = [
                     f'capsul:{engine_id}:{execution_id}'
                 ]
@@ -590,8 +612,12 @@ class RedisExecutionDatabase(ExecutionDatabase):
                 job_uuid = self._pop_job(keys=keys, args=args)
                 if job_uuid:
                     return execution_id, job_uuid
-            # Empty string means "no job ready yet"
-            return '', ''
+            if all_disposed:
+                # No more active execution, worker can die.
+                return None, None
+            else:
+                # Empty string means "no job ready yet"
+                return '', ''
 
     def job_finished_json(self, engine_id, execution_id, job_uuid, 
                           end_time, return_code, stdout, stderr):
@@ -710,7 +736,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
                 self.redis.delete('capsul:redis_pid_file')
 
                 keys = self.redis.keys('capsul:*')
-                if keys == ['capsul:shutting_down']:
+                if not keys or keys == ['capsul:shutting_down']:
                     # Nothing in the database, do not save it
                     save= False
                 else:

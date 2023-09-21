@@ -374,6 +374,7 @@ class TestTinyMorphologist(unittest.TestCase):
 
             'builtin': {
                 'database': 'builtin',
+                'persistent': True,
                 'start_workers': default_engine_start_workers,
                 'dataset': {
                     'input': {

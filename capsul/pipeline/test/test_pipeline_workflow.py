@@ -148,7 +148,7 @@ class DummyPipelineIterSimple(Pipeline):
 class TestPipelineWorkflow(unittest.TestCase):
 
     def setUp(self):
-        self.capsul = Capsul()
+        self.capsul = Capsul(database_path='')
         self.pipeline = self.capsul.executable(DummyPipeline)
         self.tmpdir = tempfile.mkdtemp()
         self.capsul.config.databases['builtin']['path'] \

@@ -27,7 +27,7 @@ def setUpModule():
         app_name = 'test_iterative_process'
         temp_home_dir = Path(tempfile.mkdtemp(prefix=f'capsul_{app_name}_'))
         os.environ['HOME'] = str(temp_home_dir)
-        Capsul(app_name)
+        Capsul(app_name, database_path='')
     except BaseException:  # clean up in case of interruption
         if old_home is None:
             del os.environ['HOME']
@@ -164,7 +164,7 @@ class TestPipeline(unittest.TestCase):
         """
         self.directory = tempfile.mkdtemp(prefix="capsul_test")
 
-        self.capsul = Capsul('test_iterative_process')
+        self.capsul = Capsul('test_iterative_process', database_path='')
         self.capsul.config.databases['builtin']['path'] \
             = os.path.join(self.directory, 'capsul_engine_database.rdb')
 

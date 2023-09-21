@@ -112,7 +112,7 @@ class TestLoadFromDescription(unittest.TestCase):
     def test_process_warpping(self):
         """ Method to test the function to process on the fly warpping.
         """
-        capsul = Capsul()
+        capsul = Capsul(database_path='')
         tmp = tempfile.mkdtemp(prefix='capsul_test_')
         self.temp_files = [tmp]
         capsul.config.databases['builtin']['path'] \
@@ -141,7 +141,7 @@ class TestLoadFromDescription(unittest.TestCase):
         """
         pipeline_file = os.path.join(os.path.dirname(__file__),
                                      'pipeline.json')
-        capsul = Capsul()
+        capsul = Capsul(database_path='')
         pipeline = capsul.executable(pipeline_file)
         self.assertTrue(isinstance(pipeline, Pipeline))
         for node_name in ["", "p1", "p2"]:
@@ -189,7 +189,7 @@ class TestLoadFromDescription(unittest.TestCase):
 #         shutil.rmtree(tmpdir)
 
     def test_return_string(self):
-        capsul = Capsul()
+        capsul = Capsul(database_path='')
         tmp = tempfile.mkdtemp(prefix='capsul_test_')
         self.temp_files = [tmp]
         capsul.config.databases['builtin']['path'] \
@@ -209,7 +209,7 @@ class TestLoadFromDescription(unittest.TestCase):
             self.assertEqual(process.result, 'v')
 
     def test_return_list(self):
-        capsul = Capsul()
+        capsul = Capsul(database_path='')
         tmp = tempfile.mkdtemp(prefix='capsul_test_')
         self.temp_files = [tmp]
         capsul.config.databases['builtin']['path'] \
@@ -259,7 +259,7 @@ class TestProcessWrap(unittest.TestCase):
         """ Method to test if the process has been wrapped properly.
         """
         # Execute the process
-        capsul = Capsul()
+        capsul = Capsul(database_path='')
         tmp = tempfile.mkdtemp(prefix='capsul_test_')
         self.temp_files = [tmp]
         capsul.config.databases['builtin']['path'] \

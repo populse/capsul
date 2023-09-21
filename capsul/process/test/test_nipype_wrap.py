@@ -45,7 +45,7 @@ def get_capsul_app():
     global capsul_app, temp_files
 
     if capsul_app is None:
-        capsul_app = Capsul()
+        capsul_app = Capsul(database_path='')
         tmp = tempfile.mkdtemp(prefix='capsul_test_')
         temp_files.append(tmp)
         capsul_app.config.databases['builtin']['path'] \

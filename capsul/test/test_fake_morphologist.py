@@ -183,10 +183,8 @@ class TestFakeMorphologist(unittest.TestCase):
             json.dump(config, f)
 
         self.capsul = Capsul('test_fake_morphologist',
-                             site_file=self.config_file, user_file=None)
-        # isolate database environment
-        self.capsul.config.databases['builtin']['path'] = osp.join(
-            self.tmp, 'capsul_engine_database.rdb')
+                             site_file=self.config_file, user_file=None,
+                             database_path=osp.join(self.tmp, 'capsul_engine_database.rdb'))
         return super().setUp()
 
     def tearDown(self):
@@ -208,6 +206,7 @@ class TestFakeMorphologist(unittest.TestCase):
 
             'builtin': {
                 'database': 'builtin',
+                'persistent': True,
                 'start_workers': default_engine_start_workers,
                 'dataset': {
                     'input': {

@@ -58,6 +58,10 @@ class Capsul:
     It allows configuration customization and instanciation of a
     CapsulEngine instance to reach an execution environment.
 
+    If database_path is given, it replaces 
+    self.config['databases']['builtin'].path after all site and user 
+    configuration is read.
+
     Example:
 
         from capsul.api import Capsul
@@ -69,7 +73,8 @@ class Capsul:
     '''
 
     def __init__(self, app_name='capsul', user_file=undefined,
-                 site_file=undefined):
+                 site_file=undefined,
+                 database_path=None):
         if user_file is undefined:
             user_file = os.environ.get('CAPSUL_USER_CONFIG')
             if user_file is None:
@@ -102,6 +107,8 @@ class Capsul:
         self.label = app_name
         c = ApplicationConfiguration(app_name=app_name, user_file=user_file, site_file=site_file)
         self.config = c.merged_config
+        if database_path is not None:
+            self.config.databases['builtin']['path'] = database_path
 
     @staticmethod
     def is_executable(item):
@@ -143,7 +150,8 @@ class Capsul:
         return Engine(name, engine_config, databases_config=self.config.databases,
                       update_database=update_database)
     
-    def dataset(self, path):
+    @staticmethod
+    def dataset(path):
         ''' Get a :class:`~.dataset.DataSet` instance associated with the given path
 
         Parameters

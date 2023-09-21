@@ -38,7 +38,6 @@ run_parser.add_argument('executable')
 help_parser = subparsers.add_parser('help', help='Get help about a command or a process')
 help_parser.add_argument('command_or_executable')
 
-print('???')
 options, args = parser.parse_known_args()
 
 capsul = Capsul()

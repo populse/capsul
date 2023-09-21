@@ -76,7 +76,7 @@ As the used shema is specified in the :class:`~capsul.dataset.ProcessSchema` sub
     with open(config_file, 'w') as f:
         json.dump(config, f)
 
-    capsul = Capsul('test_fake_morphologist', site_file=config_file,
+    capsul = Capsul(site_file=config_file,
                     user_file=None)
 
 * Assign datasets and metadata schemas to a given process parameters
