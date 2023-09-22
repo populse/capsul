@@ -157,9 +157,9 @@ class EngineConfiguration(Controller):
 
     database: str = 'builtin'
     persistent: bool = True
-    
-    start_workers: field(type_=dict, default_factory = lambda: default_engine_start_workers)
 
+    start_workers: field(type_=dict,
+                         default_factory=lambda: default_engine_start_workers)
 
     def add_module(self, module_name, allow_existing=False):
         ''' Loads a modle and adds it in the engine configuration.
