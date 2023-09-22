@@ -105,7 +105,8 @@ class MetadataSchema(Controller):
 
     def __init__(self, base_path='', **kwargs):
         super().__init__(**kwargs)
-        if not isinstance(base_path, Path):
+        if base_path is not undefined and base_path is not None \
+                and not isinstance(base_path, Path):
             self.base_path = Path(base_path)
         else:
             self.base_path = base_path
