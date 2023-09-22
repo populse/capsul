@@ -1,26 +1,6 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{{title or 'Capsul'}}</title>
+{% extends 'soma_layout.html' %}
+{%- block head%}
   <link rel="icon" href="{{base_url}}/static/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="{{base_url}}/static/capsul.css">
-  <script>const backend_ready = new CustomEvent('backend_ready');</script>
-{%- if server_type=='qt' %}
-  <script type="text/javascript" src="qrc:///qtwebchannel/qwebchannel.js"></script>
-  <script type="text/javascript" src="{{base_url}}/qt_backend.js"></script>
-{%- else %}
-  <script type="text/javascript" src="{{base_url}}/html_backend.js"></script>
-{%- endif %}
-{% block head -%}
 {%- endblock %}
-</head>
-
-<body>
-{% block body -%}
-{%- endblock %}
-{% block script -%}
-{%- endblock %}
-</body>
-</html>
+  

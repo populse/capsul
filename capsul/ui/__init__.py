@@ -17,7 +17,7 @@ class CapsulRoutes(WebRoutes):
 
 
     def engine(self, engine_label):
-        engine = self.handler.capsul.engine(engine_label)
+        engine = self.handler.jinja_kwargs['capsul'].engine(engine_label)
         if engine:
             return self._result('engine.html', engine=engine)
 
