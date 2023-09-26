@@ -322,7 +322,7 @@ class AttributedProcessWidget(QtGui.QWidget):
         filename = qt_backend.getSaveFileName(
             self, 'Select a .json attributes file', '',
             'JSON files (*.json)')
-        if filename is None:
+        if filename is None or filename == '':
             return
         with open(filename, 'w') as f:
             json.dump(exec_meta.asdict(), f)
