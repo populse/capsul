@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from capsul.dataset import ProcessSchema, MetadataSchema, Append
+from capsul.dataset import ProcessSchema, MetadataSchema, Append, SchemaMapping
 from soma.controller import undefined
 import importlib
 
@@ -14,7 +14,7 @@ class BrainVISASharedSchema(MetadataSchema):
     graph_version: str = None
     model_version: str = None
 
-    def _path_list(self):
+    def _path_list(self, unused_meta=None):
         '''
         The path has the following pattern:
         <something>
@@ -118,61 +118,23 @@ class BrainVISASharedSchema(MetadataSchema):
         return path_list
 
 
-morphologist_datasets = {
-    't1mri': 'input',
-    'PrepareSubject_Normalization_Normalization_AimsMIRegister_anatomical_template': 'shared',
-    'PrepareSubject_TalairachFromNormalization_normalized_referential': 'shared',
-    'PrepareSubject_TalairachFromNormalization_transform_chain_ACPC_to_Normalized': 'shared',
-    'PrepareSubject_TalairachFromNormalization_acpc_referential': 'shared',
-    'PrepareSubject_StandardACPC_older_MNI_normalization': None,
-    'PrepareSubject_Normalization_commissures_coordinates': None,
-    'PrepareSubject_Normalization_NormalizeFSL_template': 'shared',
-    'PrepareSubject_Normalization_NormalizeSPM_template': 'shared',
-    'PrepareSubject_Normalization_NormalizeSPM_ConvertSPMnormalizationToAIMS_normalized_volume': None,
-    'PrepareSubject_Normalization_NormalizeBaladin_template': 'shared',
-    'PrepareSubject_Normalization_Normalization_AimsMIRegister_mni_to_acpc': 'shared',
-    'BrainSegmentation_lesion_mask': None,
-    'Renorm_template': 'shared',
-    'Renorm_Normalization_NormalizeSPM_ConvertSPMnormalizationToAIMS_normalized_volume': None,
-    'Renorm_Normalization_Normalization_AimsMIRegister_mni_to_acpc': 'shared',
-    'HeadMesh_remove_mask': None,
-    'SplitBrain_split_template': 'shared',
-    'GreyWhiteClassification_lesion_mask': None,
-    'SulciRecognition_SPAM_recognition09_global_recognition_labels_priors': 'shared',
-    'SulciRecognition_SPAM_recognition09_global_recognition_initial_transformation': None,
-    'SulciRecognition_SPAM_recognition09_global_recognition_model': 'shared',
-    'SulciRecognition_SPAM_recognition09_local_recognition_model': 'shared',
-    'SulciRecognition_SPAM_recognition09_local_recognition_local_referentials': 'shared',
-    'SulciRecognition_SPAM_recognition09_local_recognition_direction_priors': 'shared',
-    'SulciRecognition_SPAM_recognition09_local_recognition_angle_priors': 'shared',
-    'SulciRecognition_SPAM_recognition09_local_recognition_translation_priors': 'shared',
-    'SulciRecognition_SPAM_recognition09_markovian_recognition_model': 'shared',
-    'SulciRecognition_SPAM_recognition09_markovian_recognition_segments_relations_model': 'shared',
-    'SulciRecognition_CNN_recognition19_model_file': 'shared',
-    'SulciRecognition_CNN_recognition19_param_file': 'shared',
-    'GreyWhiteClassification_1_lesion_mask': None,
-    'SulciRecognition_1_SPAM_recognition09_global_recognition_labels_priors': 'shared',
-    'SulciRecognition_1_SPAM_recognition09_global_recognition_initial_transformation': None,
-    'SulciRecognition_1_SPAM_recognition09_global_recognition_model': 'shared',
-    'SulciRecognition_1_SPAM_recognition09_local_recognition_model': 'shared',
-    'SulciRecognition_1_SPAM_recognition09_local_recognition_local_referentials': 'shared',
-    'SulciRecognition_1_SPAM_recognition09_local_recognition_direction_priors': 'shared',
-    'SulciRecognition_1_SPAM_recognition09_local_recognition_angle_priors': 'shared',
-    'SulciRecognition_1_SPAM_recognition09_local_recognition_translation_priors': 'shared',
-    'SulciRecognition_1_SPAM_recognition09_markovian_recognition_model': 'shared',
-    'SulciRecognition_1_SPAM_recognition09_markovian_recognition_segments_relations_model': 'shared',
-    'SulciRecognition_1_CNN_recognition19_model_file': 'shared',
-    'SulciRecognition_1_CNN_recognition19_param_file': 'shared',
-    'SPAM_recognition_labels_translation_map': 'shared',
-    'SulciRecognition_recognition2000_model': 'shared',
-    'SulciRecognition_1_recognition2000_model': 'shared',
-    'sulcal_morphometry_sulci_file': 'shared',
-    'subject': 'output',
-    'Report_normative_brain_stats': None,
-}
-''' standard, shared datasets associated with shared input data for
-Morphologist
-'''
+class BrainVISAToShared(SchemaMapping):
+    source_schema = 'brainvisa'
+    dest_schema = 'brainvisa_shared'
+
+    @staticmethod
+    def map_schemas(source, dest):
+        dest.side = source.side
+        dest.graph_version = source.sulci_graph_version
+
+
+class MorphoBIDSToShared(SchemaMapping):
+    source_schema = 'morphologist_bids'
+    dest_schema = 'brainvisa_shared'
+
+    @staticmethod
+    def map_schemas(source, dest):
+        BrainVISAToShared.map_schemas(source, dest)
 
 
 def declare_morpho_schemas(morpho_module):
@@ -282,6 +244,13 @@ def declare_morpho_schemas(morpho_module):
         _ = {
             '*': {'process': None, 'modality': 't1mri'},
             '*_pass1': Append('suffix', 'pass1'),
+            '*_labelled_graph': {
+                'suffix': lambda **kwargs:
+                    f'{kwargs["metadata"].sulci_recognition_session}'
+                    f'_{kwargs["metadata"].sulci_recognition_type}',
+            },
+            'left_*': {'side': 'L'},
+            'right_*': {'side': 'R'},
         }
 
         _nodes = {
@@ -299,7 +268,6 @@ def declare_morpho_schemas(morpho_module):
                 'sulci_graph_version':
                     lambda **kwargs:
                         f'{kwargs["process"].CorticalFoldsGraph_graph_version}',
-                'sulci_recognition_session': 'default_session_auto',
                 'prefix': None,
                 'sidebis': None,
             }},
@@ -318,6 +286,17 @@ def declare_morpho_schemas(morpho_module):
                 },
             },
         }
+
+        metadata_per_parameter = {
+            '*': {'unused': ['subject_only', 'sulci_graph_version',
+                             'sulci_recognition_session']},
+            '*_graph': {'unused': ['subject_only',
+                                   'sulci_recognition_session']},
+            '*_labelled_graph': {'unused': ['subject_only']},
+            'subject': {'used': ['subject_only', 'subject']},
+            'sulcal_morpho_measures': {'unused': ['subject_only']},
+        }
+
         imported_t1mri = {
             'analysis': undefined,
             'side': None,
@@ -352,8 +331,6 @@ def declare_morpho_schemas(morpho_module):
             'extension': 'referential'}
         Talairach_transform = {
             'analysis': undefined,
-            'sulci_graph_version': None,
-            'sulci_recognition_session': None,
             'seg_directory': 'registration',
             'prefix': '',
             'short_prefix': 'RawT1-',
@@ -380,13 +357,8 @@ def declare_morpho_schemas(morpho_module):
             'prefix': None,
             'suffix': None,
         }
-        left_labelled_graph = {
-            'side': 'L'
-        }
-        right_labelled_graph = {
-            'side': 'R'
-        }
-        subject = {'modality': None}
+        subject = {'subject_only': True}
+        sulcal_morpho_measures = {'subject_only': False}
 
     class MorphologistBIDS(MorphologistBrainVISA, schema='morphologist_bids',
                            process=Morphologist):
@@ -394,8 +366,14 @@ def declare_morpho_schemas(morpho_module):
             '*': {'process': None, 'modality': 't1mri',
                   'folder': 'derivative'},
             '*_pass1': Append('suffix', 'pass1'),
+            '*_labelled_graph': {
+                'suffix': lambda **kwargs:
+                    f'{kwargs["metadata"].sulci_recognition_session}'
+                    f'_{kwargs["metadata"].sulci_recognition_type}',
+            },
+            'left_*': {'side': 'L'},
+            'right_*': {'side': 'R'},
         }
-
         t1mri = {
             'folder': 'rawdata',
         }
@@ -659,17 +637,28 @@ def declare_morpho_schemas(morpho_module):
         _ = {
             '*': {'seg_directory': 'folds'},
         }
-        output_graph = {'suffix': lambda **kwargs:
-                            f'{kwargs["metadata"].sulci_recognition_session}',
-                        'extension': 'arg'}
-        energy_plot_file = {'suffix': lambda **kwargs:
-                                f'{kwargs["metadata"].sulci_recognition_session}',
-                            'extension': 'nrj'}
+        output_graph = {
+            'suffix': lambda **kwargs:
+                f'{kwargs["metadata"].sulci_recognition_session}'
+                f'_{kwargs["metadata"].sulci_recognition_type}',
+            'extension': 'arg'}
+        energy_plot_file = {
+            'suffix': lambda **kwargs:
+                f'{kwargs["metadata"].sulci_recognition_session}'
+                f'_{kwargs["metadata"].sulci_recognition_type}',
+            'extension': 'nrj'}
 
     class SulciLabellingANNBIDS(SulciLabellingANNBrainVISA,
                                 schema='morphologist_bids',
                                 process=SulciLabellingANN):
         pass
+
+    class SulciLabellingANNShared(ProcessSchema, schema='brainvisa_shared',
+                                 process=SulciLabellingANN):
+        _ = {
+            '*': {'model_version': '08',
+            }
+        }
 
     class SulciLabellingSPAMGlobalBrainVISA(ProcessSchema, schema='brainvisa',
                                             process=SulciLabellingSPAMGlobal):
@@ -677,7 +666,8 @@ def declare_morpho_schemas(morpho_module):
             '*': {'seg_directory': 'folds'},
         }
         output_graph = {'suffix': lambda **kwargs:
-                            f'{kwargs["metadata"].sulci_recognition_session}',
+                            f'{kwargs["metadata"].sulci_recognition_session}'
+                            f'_{kwargs["metadata"].sulci_recognition_type}',
                         'extension': 'arg'}
         posterior_probabilities = {
             'suffix': lambda **kwargs:
@@ -703,7 +693,8 @@ def declare_morpho_schemas(morpho_module):
             '*': {'seg_directory': 'folds'},
         }
         output_graph = {'suffix': lambda **kwargs:
-                            f'{kwargs["metadata"].sulci_recognition_session}',
+                            f'{kwargs["metadata"].sulci_recognition_session}'
+                            f'_{kwargs["metadata"].sulci_recognition_type}',
                         'extension': 'arg'}
         posterior_probabilities = {
             'suffix': lambda **kwargs:
@@ -725,7 +716,8 @@ def declare_morpho_schemas(morpho_module):
             '*': {'seg_directory': 'folds'},
         }
         output_graph = {'suffix': lambda **kwargs:
-                            f'{kwargs["metadata"].sulci_recognition_session}',
+                            f'{kwargs["metadata"].sulci_recognition_session}'
+                            f'_{kwargs["metadata"].sulci_recognition_type}',
                         'extension': 'arg'}
         posterior_probabilities = {
             'suffix': lambda **kwargs:
@@ -742,15 +734,45 @@ def declare_morpho_schemas(morpho_module):
         _ = {
             '*': {'seg_directory': 'folds'}}
 
-        labeled_graph = {'suffix':
-                            lambda **kwargs:
-                                f'{kwargs["metadata"].sulci_recognition_session}',
-                         'extension': 'arg'}
+        metadata_per_parameter = {
+            '*': {'unused': ['subject_only', 'sulci_recognition_session',
+                             'sulci_graph_version']},
+            'graph': {'unused': ['subject_only', 'sulci_recognition_session']},
+            'roots': {'unused': ['subject_only', 'sulci_recognition_session',
+                                 'sulci_graph_version']},
+            'skeleton': {'unused': ['subject_only',
+                                    'sulci_recognition_session',
+                                    'sulci_graph_version']},
+            'labeled_graph': {'unused': ['subject_only']},
+        }
+
+        graph = {'extension': 'arg'}
+        roots = {'seg_directory': 'segmentation',
+                 'prefix': 'roots',
+                 'extension': 'nii.gz',
+        }
+        skeleton = {'seg_directory': 'segmentation',
+                    'prefix': 'skeleton',
+                    'extension': 'nii.gz',
+        }
+        labeled_graph = {
+            'suffix': lambda **kwargs:
+                f'{kwargs["metadata"].sulci_recognition_session}'
+                f'_{kwargs["metadata"].sulci_recognition_type}',
+            'extension': 'arg'}
 
     class SulciDeepLabelingBIDS(SulciDeepLabelingBrainVISA,
                                 schema='morphologist_bids',
                                 process=SulciDeepLabeling):
         pass
+
+    class SulciDeepLabelingShared(ProcessSchema,
+                                  schema='brainvisa_shared',
+                                  process=SulciDeepLabeling):
+        model_file = {'data_id': 'sulci_cnn_recognition_model',
+                      'model_version': '19'}
+        param_file = {'data_id': 'sulci_cnn_recognition_param',
+                      'model_version': '19'}
 
     class sulcigraphmorphometrybysubjectBrainVISA(
             ProcessSchema, schema='brainvisa',
@@ -771,12 +793,16 @@ def declare_morpho_schemas(morpho_module):
                                 process=brainvolumes):
         _ = {
             '*': {'seg_directory': 'segmentation'}}
+        metadata_per_parameter = {
+            '*': {'unused': ['subject_only', 'sulci_graph_version',
+                             'sulci_recognition_session']},
+            '*_labelled_graph': {'unused': ['subject_only']},
+            'subject': {'used': ['subject_only', 'subject']},
+        }
         left_csf = {
             'prefix': 'csf',
             'side': 'L',
             'sidebis': None,
-            'sulci_graph_version': None,
-            'sulci_recognition_session': None,
             'suffix': None,
             'extension': 'nii.gz',  # should not be hard-coded but I failed
         }
@@ -784,8 +810,6 @@ def declare_morpho_schemas(morpho_module):
             'prefix': 'csf',
             'side': 'R',
             'sidebis': None,
-            'sulci_graph_version': None,
-            'sulci_recognition_session': None,
             'suffix': None,
             'extension': 'nii.gz',  # should not be hard-coded but I failed
         }
@@ -794,20 +818,13 @@ def declare_morpho_schemas(morpho_module):
             'suffix': None,
             'side': None,
             'sidebis': None,
-            'sulci_graph_version': None,
-            'sulci_recognition_session': None,
             'extension': 'csv',
         }
         subject = {
             'seg_directory': None,
             'prefix': None,
-            'center': undefined,
             'side': None,
-            'modality': None,
-            'acquisition': None,
-            'analysis': undefined,
             'subject_in_filename': False,
-            'extension': None
         }
         _meta_links = {
             '*_labelled_graph': {'*': []},
@@ -825,25 +842,24 @@ def declare_morpho_schemas(morpho_module):
                                 process=morpho_report):
         _ = {
             '*': {'seg_directory': None}}
+        metadata_per_parameter = {
+            '*': {'unused': ['subject_only', 'sulci_graph_version',
+                             'sulci_recognition_session']},
+            '*_labelled_graph': {'unused': ['subject_only']},
+            'subject': {'used': ['subject_only', 'subject']},
+        }
         report = {
             'prefix': None,
             'side': None,
             'sidebis': None,
             'subject_in_filename': False,
-            'sulci_graph_version': None,
-            'sulci_recognition_session': None,
             'suffix': 'morphologist_report',
             'extension': 'pdf'
         }
         subject = {
             'prefix': None,
-            'center': undefined,
             'side': None,
-            'modality': None,
-            'acquisition': None,
-            'analysis': undefined,
             'subject_in_filename': False,
-            'extension': None
         }
 
     class MorphoReportBIDS(MorphoReportBrainVISA, schema='morphologist_bids',

@@ -119,7 +119,7 @@ class MetadataSchema(Controller):
         '''
         return getattr(self, name, default)
 
-    def build_path(self):
+    def build_path(self, unused_meta=None):
         ''' Returns a list of path elements built from the current PathLayout
         fields values.
 
@@ -127,16 +127,17 @@ class MetadataSchema(Controller):
         subclasses.
         '''
         return functools.reduce(operator.truediv,
-                                self._path_list(),
+                                self._path_list(unused_meta=unused_meta),
                                 self.base_path)
 
-    def build_param(self, path_type=False):
+    def build_param(self, path_type=False, unused_meta=None):
         if path_type:
-            return self.build_path()
-        return '/'.join([str(p) for p in self._path_list()
+            return self.build_path(unused_meta=unused_meta)
+        return '/'.join([str(p) for p in self._path_list(
+                            unused_meta=unused_meta)
                          if p not in (None, undefined, '')])
 
-    def _path_list(self):
+    def _path_list(self, unused_meta=None):
         ''' Builds a path from metadata values in the fields of the current
         MetadataSchema fields. The returned path is a list of directories and
         ends with a filename. The resulting path is an
@@ -199,7 +200,7 @@ class BIDSSchema(MetadataSchema):
         # to a dictionary
         self._tsv_to_dict = {}
 
-    def _path_list(self):
+    def _path_list(self, unused_meta=None):
         '''
         The path has the following pattern:
           sub-{sub}/ses-{ses}/{data_type}/sub-{sub}_ses-{ses}[_task-{task}][_acq-{acq}][_ce-{ce}][_rec-{rec}][_run-{run}][_echo-{echo}][_part-{part}]{modality}.{extension}
@@ -360,12 +361,13 @@ class BrainVISASchema(MetadataSchema):
     modality: str = None
     process: str = None
     analysis: str = 'default_analysis'
-    acquisition: str = None
+    acquisition: str = 'default_acquisition'
     preprocessings: str = None
     longitudinal: list[str] = None
     seg_directory: str = None
-    sulci_graph_version: str = None
-    sulci_recognition_session: str = None
+    sulci_graph_version: str = '3.1'
+    sulci_recognition_session: str = 'default_session'
+    sulci_recognition_type: str = 'auto'
     prefix: str = None
     short_prefix: str = None
     suffix: str = None
@@ -384,48 +386,60 @@ class BrainVISASchema(MetadataSchema):
         r'_(?P<suffix>[^-_/]*)\.(?P<extension>.*)$'
     )
 
-    def _path_list(self):
+    def _path_list(self, unused_meta=None):
         '''
         The path has the following pattern:
         {center}/{subject}/[{modality}/][{process/][{acquisition}/][{preprocessings}/][{longitudinal}/][{analysis}/][seg_directory/][{sulci_graph_version}/[{sulci_recognition_session}]]/[side][{prefix}_][short_prefix]{subject}[_to_avg_{longitudinal}}[_{sidebis}{suffix}][.{extension}]
         '''
 
-        path_list = [self.center, self.subject]
-        for key in ('modality', 'process', 'acquisition', 'preprocessings',
-                    'longitudinal'):
-            value = getattr(self, key, None)
-            if value:
-                path_list.append(value)
-        if getattr(self, 'analysis', None):
-            path_list.append(self.analysis)
-        if self.seg_directory:
+        if unused_meta is None:
+            unused_meta = set()
+        elif not isinstance(unused_meta, set):
+            unused_meta = set(unused_meta)
+
+        path_list = []
+        for key in ('center', 'subject', 'modality', 'process', 'acquisition',
+                    'preprocessings', 'longitudinal', 'analysis'):
+            if key not in unused_meta:
+                value = getattr(self, key, None)
+                if value:
+                    path_list.append(value)
+        if 'seg_directory' not in unused_meta and self.seg_directory:
             path_list += self.seg_directory.split('/')
-        if self.sulci_graph_version:
+        if 'sulci_graph_version' not in unused_meta \
+                and self.sulci_graph_version:
             path_list.append(self.sulci_graph_version)
-            if self.sulci_recognition_session:
+            if 'sulci_recognition_session' not in unused_meta \
+                    and self.sulci_recognition_session:
                 path_list.append(self.sulci_recognition_session)
+                if 'sulci_recognition_type' not in unused_meta \
+                        and self.sulci_recognition_type:
+                    path_list[-1] += f'_{self.sulci_recognition_type}'
 
         filename = []
-        if self.side:
+        if 'side' not in unused_meta and self.side:
             filename.append(f'{self.side}')
-        if self.prefix:
+        if 'prefix' not in unused_meta and self.prefix:
             filename.append(f'{self.prefix}_')
-        if self.short_prefix:
+        if 'short_prefix' not in unused_meta and self.short_prefix:
             filename.append(f'{self.short_prefix}')
-        if self.subject_in_filename:
+        if 'subject_in_filename' not in unused_meta \
+                and self.subject_in_filename:
             filename.append(self.subject)
-        if self.longitudinal:
+        if 'longitudinal' not in unused_meta and self.longitudinal:
             filename.append(f'_to_avg_{self.longitudinal}')
-        if self.suffix or self.sidebis:
+        if ('suffix' not in unused_meta and self.suffix) \
+                or ('sidebis' not in unused_meta and self.sidebis):
             if filename:
                 filename.append('_')
-            if self.sidebis:
+            if 'sidebis' not in unused_meta and self.sidebis:
                 filename.append(f'{self.sidebis}')
-            if self.suffix:
+            if 'sufffix' not in unused_meta and self.suffix:
                 filename.append(f'{self.suffix}')
-        if self.extension:
+        if 'extension' not in unused_meta and self.extension:
             filename.append(f'.{self.extension}')
         path_list.append(''.join(filename))
+
         return path_list
 
 
@@ -434,11 +448,20 @@ class MorphologistBIDSSchema(BrainVISASchema):
     schema_name = 'morphologist_bids'
 
     folder: Literal['sourcedata', 'rawdata', 'derivative']
+    subject_only: bool = False
 
-    def _path_list(self):
-        path_list = super()._path_list()
+    def _path_list(self, unused_meta=None):
+        if unused_meta is None:
+            unused_meta = set()
+        if 'subject_only' not in unused_meta and  self.subject_only:
+            return [self.subject]
+
+        if unused_meta is None:
+            unused_meta = set()
+        path_list = super()._path_list(unused_meta=unused_meta)
         pre_path = [f'sub-{self.subject}', f'ses-{self.acquisition}', 'anat']
-        if self.folder not in (undefined, None, ''):
+        if 'folder' not in unused_meta \
+                and self.folder not in (undefined, None, ''):
             pre_path.insert(0, self.folder)
         return pre_path + path_list[2:]
 
@@ -750,13 +773,15 @@ class ProcessMetadata(Controller):
         '''
         dataset_name = None
         # 1: get manually given datasets
-        if self.datasets:
-            dataset_name = self.datasets.get(field.name)
+        if self.datasets and field.name in self.datasets:
+            dataset_name = self.datasets[field.name]
+            return dataset_name
         # Associates a Dataset name with the field
         if dataset_name is None:
-            dataset_name = getattr(field, 'dataset', None)
-        if dataset_name is not None:
-            return dataset_name
+            fmeta = field.metadata()
+            if 'dataset' in fmeta:
+                dataset_name = getattr(field, 'dataset', None)
+                return dataset_name
 
         # not manually given: filter out non-path fields
         inner_field = None
@@ -1037,6 +1062,12 @@ class ProcessMetadata(Controller):
                         self.dprint('   ', f.name, '=', repr(v))
             metadata_modifications = self.metadata_modifications(executable)
             for schema, parameters in self.parameters_per_schema.items():
+                proc_meta = executable.metadata_schemas.get(schema)
+                params_meta = {}
+                if proc_meta is not None:
+                    params_meta = getattr(proc_meta, 'metadata_per_parameter',
+                                          {})
+
                 for parameter in parameters:
                     self.dprint(f'  find value for {parameter} in schema {schema}')
                     dataset = self.dataset_per_parameter[parameter]
@@ -1047,9 +1078,24 @@ class ProcessMetadata(Controller):
                         metadata.import_dict(s.asdict())
                     for modifier in metadata_modifications.get(parameter, []):
                         modifier.apply(metadata, executable, parameter, s)
+
+                    unused_meta = set()
+                    for pattern, v in params_meta.items():
+                        if fnmatch.fnmatch(parameter, pattern):
+                            unused = v.get('unused')
+                            if unused is None:
+                                used = v.get('used')
+                                if used is not None:
+                                    unused = [
+                                        f.name for f in metadata.fields()
+                                        if f.name not in used]
+                            if unused is not None:
+                                unused_meta = unused
+
                     try:
                         path = str(metadata.build_param(
-                            executable.field(parameter).path_type))
+                            executable.field(parameter).path_type,
+                            unused_meta=unused_meta))
                     except Exception:
                         path = undefined
                     if self.debug:

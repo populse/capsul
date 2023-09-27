@@ -13,8 +13,7 @@ from soma.controller import undefined
 from capsul.api import Capsul
 from capsul.config.configuration import default_engine_start_workers
 from capsul.dataset import ProcessMetadata, BrainVISASchema
-from capsul.schemas.brainvisa import (declare_morpho_schemas,
-                                      morphologist_datasets)
+from capsul.schemas.brainvisa import declare_morpho_schemas
 
 
 # patch processes to setup their requirements
@@ -531,8 +530,7 @@ class TestFakeMorphologist(unittest.TestCase):
             morphologist.spm_normalization_version = normalization[3]
             morphologist.select_sulci_recognition = 'CNN_recognition19' # 'SPAM_recognition09'
 
-            metadata = ProcessMetadata(morphologist, execution_context,
-                                       datasets=morphologist_datasets)
+            metadata = ProcessMetadata(morphologist, execution_context)
 
             expected_sch = expected_params_per_schema
             expected_sch['brainvisa'] = sorted(expected_sch['brainvisa'])
@@ -891,8 +889,7 @@ class TestFakeMorphologist(unittest.TestCase):
         morphologist_iteration.spm_normalization_version \
             = spm_normalization_version
 
-        metadata = ProcessMetadata(morphologist_iteration, execution_context,
-                                   datasets=morphologist_datasets, debug=False)
+        metadata = ProcessMetadata(morphologist_iteration, execution_context)
         metadata.bids = iter_meta_bids
         metadata.brainvisa = iter_meta_brainvisa
         p = self.capsul.executable(
@@ -989,8 +986,7 @@ def with_iteration(engine):
     morphologist_iteration.spm_normalization_version \
         = spm_normalization_version
 
-    metadata = ProcessMetadata(morphologist_iteration, execution_context,
-                               datasets=morphologist_datasets)
+    metadata = ProcessMetadata(morphologist_iteration, execution_context)
     metadata.bids = iter_meta_bids
     metadata.brainvisa.center = 'whatever'
     metadata.brainvisa.analysis = analysis
@@ -1039,8 +1035,7 @@ def without_iteration(engine):
             morphologist.spm_normalization_version \
                 = spm_normalization_version[i]
 
-            metadata = ProcessMetadata(morphologist, execution_context,
-                                       datasets=morphologist_datasets)
+            metadata = ProcessMetadata(morphologist, execution_context)
             metadata.bids = input_metadata
             metadata.generate_paths(morphologist)
             execution_ids.append(engine.start(morphologist))
