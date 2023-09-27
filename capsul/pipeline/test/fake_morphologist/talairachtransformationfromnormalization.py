@@ -15,10 +15,10 @@ class TalairachTransformationFromNormalization(Process):
         self.add_field("commissure_coordinates", File, write=True, extensions=['.APC'], optional=False, read=True)
         self.add_field("t1mri", File, read=True, extensions=['.nii.gz', '.svs', '.bmp', '.dcm', '', '.i', '.v', '.fdf', '.mgh', '.mgz', '.gif', '.ima', '.dim', '.ndpi', '.vms', '.vmu', '.jpg', '.scn', '.mnc', '.nii', '.pbm', '.pgm', '.png', '.ppm', '.img', '.hdr', '.svslide', '.tiff', '.tif', '.vimg', '.vinfo', '.vhdr', '.bif', '.xbm', '.xpm', '.czi', '.mnc.gz'], optional=True, write=False)
         self.add_field("source_referential", File, read=True, write=False)
-        self.add_field("normalized_referential", File, read=True, write=False)
-        self.add_field("acpc_referential", File, read=True, optional=True, write=False)
+        self.add_field("normalized_referential", File, read=True, dataset='shared', write=False)
+        self.add_field("acpc_referential", File, read=True, optional=True, dataset='shared', write=False)
         self.acpc_referential = '/casa/host/build/share/brainvisa-share-5.2/registration/Talairach-AC_PC-Anatomist.referential'
-        self.add_field("transform_chain_ACPC_to_Normalized", File, read=True, write=False)
+        self.add_field("transform_chain_ACPC_to_Normalized", File, dataset='shared', read=True, write=False)
 
     def execute(self, context):
         outputs = []

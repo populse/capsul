@@ -12,8 +12,8 @@ class SulciDeepLabeling(Process):
 
         self.add_field("graph", File, doc='input graph to segment', read=True, write=False)
         self.add_field("roots", File, doc='root file corresponding to the input graph', read=True, write=False)
-        self.add_field("model_file", File, doc='file (.mdsm) storing neural network parameters', read=True, write=False)
-        self.add_field("param_file", File, doc='file (.json) storing the hyperparameters (cutting threshold)', read=True, write=False)
+        self.add_field("model_file", File, dataset='shared', doc='file (.mdsm) storing neural network parameters', read=True, write=False)
+        self.add_field("param_file", File, dataset='shared', doc='file (.json) storing the hyperparameters (cutting threshold)', read=True, write=False)
         self.add_field("rebuild_attributes", bool, default=True, optional=True)
         self.rebuild_attributes = True
         self.add_field("skeleton", File, doc='skeleton file corresponding to the input graph', read=True, write=False)

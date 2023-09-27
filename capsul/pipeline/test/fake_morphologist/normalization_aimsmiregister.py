@@ -11,13 +11,13 @@ class normalization_aimsmiregister(Process):
         self.name = 'Normalization_AimsMIRegister'
 
         self.add_field("anatomy_data", File, read=True, extensions=['.nii.gz', '.svs', '.bmp', '.dcm', '', '.i', '.v', '.fdf', '.mgh', '.mgz', '.gif', '.ima', '.dim', '.ndpi', '.vms', '.vmu', '.jpg', '.scn', '.mnc', '.nii', '.pbm', '.pgm', '.png', '.ppm', '.img', '.hdr', '.svslide', '.tiff', '.tif', '.vimg', '.vinfo', '.vhdr', '.bif', '.xbm', '.xpm', '.czi', '.mnc.gz'], write=False)
-        self.add_field("anatomical_template", File, read=True, extensions=['.nii.gz', '.svs', '.bmp', '.dcm', '', '.i', '.v', '.fdf', '.mgh', '.mgz', '.gif', '.ima', '.dim', '.ndpi', '.vms', '.vmu', '.jpg', '.scn', '.mnc', '.nii', '.pbm', '.pgm', '.png', '.ppm', '.img', '.hdr', '.svslide', '.tiff', '.tif', '.vimg', '.vinfo', '.vhdr', '.bif', '.xbm', '.xpm', '.czi', '.mnc.gz'], write=False)
+        self.add_field("anatomical_template", File, read=True, extensions=['.nii.gz', '.svs', '.bmp', '.dcm', '', '.i', '.v', '.fdf', '.mgh', '.mgz', '.gif', '.ima', '.dim', '.ndpi', '.vms', '.vmu', '.jpg', '.scn', '.mnc', '.nii', '.pbm', '.pgm', '.png', '.ppm', '.img', '.hdr', '.svslide', '.tiff', '.tif', '.vimg', '.vinfo', '.vhdr', '.bif', '.xbm', '.xpm', '.czi', '.mnc.gz'], dataset='shared', write=False)
         self.anatomical_template = '/casa/host/build/share/brainvisa-share-5.2/anatomical_templates/MNI152_T1_2mm.nii.gz'
         self.add_field("transformation_to_template", File, write=True, extensions=['.trm'], optional=True, read=True)
         self.add_field("normalized_anatomy_data", File, write=True, extensions=['.nii.gz', '.bmp', '.dcm', '', '.i', '.v', '.fdf', '.gif', '.ima', '.dim', '.jpg', '.mnc', '.nii', '.pbm', '.pgm', '.png', '.ppm', '.img', '.hdr', '.tiff', '.tif', '.vimg', '.vinfo', '.vhdr', '.xbm', '.xpm', '.mnc.gz'], optional=False, read=True)
         self.add_field("transformation_to_MNI", File, write=True, extensions=['.trm'], optional=False, read=True)
         self.add_field("transformation_to_ACPC", File, write=True, extensions=['.trm'], optional=True, read=True)
-        self.add_field("mni_to_acpc", File, read=True, extensions=['.trm'], optional=True, write=False)
+        self.add_field("mni_to_acpc", File, read=True, extensions=['.trm'], optional=True, dataset='shared', write=False)
         self.mni_to_acpc = '/casa/host/build/share/brainvisa-share-5.2/transformation/talairach_TO_spm_template_novoxels.trm'
         self.add_field("smoothing", float)
         self.smoothing = 1.0

@@ -14,8 +14,8 @@ class BaladinNormalizationPipeline(Pipeline):
         self.nodes["ReorientAnatomy"].enabled = False
 
         # links
-        self.export_parameter("NormalizeBaladin", "anatomy_data", "t1mri", is_optional=False)
-        self.add_link("t1mri->ConvertBaladinNormalizationToAIMS.source_volume")
+        self.export_parameter("ConvertBaladinNormalizationToAIMS", "source_volume", "t1mri", is_optional=False)
+        self.add_link("t1mri->NormalizeBaladin.anatomy_data")
         self.add_link("t1mri->ReorientAnatomy.t1mri")
         self.export_parameter("NormalizeBaladin", "anatomical_template", "template", is_optional=False)
         self.add_link("template->ConvertBaladinNormalizationToAIMS.registered_volume")

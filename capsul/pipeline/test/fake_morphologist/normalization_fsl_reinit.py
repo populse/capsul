@@ -11,7 +11,7 @@ class Normalization_FSL_reinit(Process):
         self.name = 'NormalizeFSL'
 
         self.add_field("anatomy_data", File, read=True, extensions=['.nii', '.nii.gz'], write=False)
-        self.add_field("anatomical_template", File, read=True, extensions=['.nii', '.nii.gz'], write=False)
+        self.add_field("anatomical_template", File, read=True, extensions=['.nii', '.nii.gz'], dataset='shared', write=False)
         self.add_field("Alignment", Literal['Already Virtually Aligned','Not Aligned but Same Orientation','Incorrectly Oriented'])
         self.Alignment = 'Not Aligned but Same Orientation'
         self.add_field("transformation_matrix", File, write=True, extensions=['.mat'], read=True)

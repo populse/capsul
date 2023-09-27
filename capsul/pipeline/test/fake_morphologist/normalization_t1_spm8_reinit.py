@@ -11,7 +11,7 @@ class normalization_t1_spm8_reinit(Process):
         self.name = 'normalization_t1_spm8_reinit'
 
         self.add_field("anatomy_data", File, read=True, extensions=['.nii', '.img', '.hdr'], write=False)
-        self.add_field("anatomical_template", File, read=True, extensions=['.nii', '.mnc', '.img', '.hdr'], optional=True, write=False)
+        self.add_field("anatomical_template", File, read=True, extensions=['.nii', '.mnc', '.img', '.hdr'], optional=True, dataset='shared', write=False)
         self.add_field("voxel_size", Literal['[1 1 1]'])
         self.voxel_size = '[1 1 1]'
         self.add_field("cutoff_option", int)

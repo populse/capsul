@@ -31,7 +31,7 @@ class AcpcOrientation(Process):
         self.add_field("reoriented_t1mri", File, write=True, extensions=['.nii.gz', '.bmp', '.dcm', '', '.i', '.v', '.fdf', '.gif', '.ima', '.dim', '.jpg', '.mnc', '.nii', '.pbm', '.pgm', '.png', '.ppm', '.img', '.hdr', '.tiff', '.tif', '.vimg', '.vinfo', '.vhdr', '.xbm', '.xpm', '.mnc.gz'], read=True)
         self.add_field("remove_older_MNI_normalization", bool)
         self.remove_older_MNI_normalization = True
-        self.add_field("older_MNI_normalization", File, read=True, extensions=['.trm'], optional=True, write=False)
+        self.add_field("older_MNI_normalization", File, read=True, extensions=['.trm'], optional=True, dataset=None, write=False)
 
     def execute(self, context):
         outputs = []

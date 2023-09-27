@@ -21,9 +21,9 @@ class morpho_report(Process):
         self.add_field("right_labelled_graph", File, read=True, extensions=['.arg', '.data'], optional=True, write=False)
         self.add_field("talairach_transform", File, read=True, extensions=['.trm'], optional=True, write=False)
         self.add_field("brain_volumes_file", File, read=True, extensions=['.csv'], optional=True, write=False)
-        self.add_field("normative_brain_stats", File, read=True, extensions=['.json'], optional=True, write=False)
+        self.add_field("normative_brain_stats", File, read=True, extensions=['.json'], optional=True, dataset=None, write=False)
         self.add_field("report", File, write=True, extensions=['.pdf'], read=True)
-        self.add_field("subject", str)
+        self.add_field("subject", str, dataset='output')
 
     def execute(self, context):
         outputs = []

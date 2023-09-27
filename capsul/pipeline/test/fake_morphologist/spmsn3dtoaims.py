@@ -15,7 +15,7 @@ class SPMsn3dToAims(Process):
         self.add_field("target", Literal['MNI template','unspecified template','normalized_volume in AIMS orientation'])
         self.target = 'MNI template'
         self.add_field("source_volume", File, read=True, extensions=['.nii', '.img', '.hdr'], optional=True, write=False)
-        self.add_field("normalized_volume", File, read=True, extensions=['.nii', '.img', '.hdr'], optional=True, write=False)
+        self.add_field("normalized_volume", File, read=True, extensions=['.nii', '.img', '.hdr'], optional=True, dataset=None, write=False)
         self.add_field("removeSource", bool)
         self.removeSource = False
 

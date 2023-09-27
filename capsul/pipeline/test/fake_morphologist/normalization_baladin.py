@@ -11,7 +11,7 @@ class Normalization_Baladin(Process):
         self.name = 'NormalizeBaladin'
 
         self.add_field("anatomy_data", File, read=True, extensions=['.ima', '.dim'], write=False)
-        self.add_field("anatomical_template", File, read=True, extensions=['.ima', '.dim'], write=False)
+        self.add_field("anatomical_template", File, read=True, extensions=['.ima', '.dim'], dataset='shared', write=False)
         self.add_field("transformation_matrix", File, write=True, extensions=['.txt'], read=True)
         self.add_field("normalized_anatomy_data", File, write=True, extensions=['.ima', '.dim', '.nii', '.nii.gz'], read=True)
 

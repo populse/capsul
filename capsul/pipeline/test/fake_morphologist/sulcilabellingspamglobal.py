@@ -14,13 +14,13 @@ class SulciLabellingSPAMGlobal(Process):
         self.add_field("output_graph", File, write=True, extensions=['.arg', '.data'], read=True)
         self.add_field("model_type", Literal['Talairach','Global registration'])
         self.model_type = 'Global registration'
-        self.add_field("model", File, read=True, extensions=['.dat'], write=False)
+        self.add_field("model", File, read=True, extensions=['.dat'], dataset='shared', write=False)
         self.add_field("posterior_probabilities", File, write=True, extensions=['.csv'], read=True)
-        self.add_field("labels_translation_map", File, read=True, extensions=['.trl', '.def'], write=False)
+        self.add_field("labels_translation_map", File, read=True, extensions=['.trl', '.def'], dataset='shared', write=False)
         self.labels_translation_map = '/casa/host/build/share/brainvisa-share-5.2/nomenclature/translation/sulci_model_2008.trl'
-        self.add_field("labels_priors", File, read=True, extensions=['.dat'], write=False)
+        self.add_field("labels_priors", File, read=True, extensions=['.dat'], dataset='shared', write=False)
         self.add_field("output_transformation", File, write=True, extensions=['.trm'], optional=True, read=True)
-        self.add_field("initial_transformation", File, read=True, extensions=['.trm'], optional=True, write=False)
+        self.add_field("initial_transformation", File, read=True, extensions=['.trm'], optional=True, dataset=None, write=False)
         self.add_field("output_t1_to_global_transformation", File, write=True, extensions=['.trm'], optional=True, read=True)
 
     def execute(self, context):

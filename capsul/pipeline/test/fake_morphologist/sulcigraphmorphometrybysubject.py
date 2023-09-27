@@ -12,7 +12,7 @@ class sulcigraphmorphometrybysubject(Process):
 
         self.add_field("left_sulci_graph", File, read=True, extensions=['.arg', '.data'], write=False)
         self.add_field("right_sulci_graph", File, read=True, extensions=['.arg', '.data'], write=False)
-        self.add_field("sulci_file", File, read=True, extensions=['.json'], write=False)
+        self.add_field("sulci_file", File, read=True, extensions=['.json'], dataset='shared', write=False)
         self.sulci_file = '/casa/host/build/share/brainvisa-share-5.2/nomenclature/translation/sulci_default_list.json'
         self.add_field("use_attribute", Literal['label','name'])
         self.use_attribute = 'label'

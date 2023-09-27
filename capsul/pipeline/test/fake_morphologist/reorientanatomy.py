@@ -14,7 +14,7 @@ class ReorientAnatomy(Process):
         self.add_field("output_t1mri", File, write=True, extensions=['.nii.gz', '.bmp', '.dcm', '', '.i', '.v', '.fdf', '.gif', '.ima', '.dim', '.jpg', '.mnc', '.nii', '.pbm', '.pgm', '.png', '.ppm', '.img', '.hdr', '.tiff', '.tif', '.vimg', '.vinfo', '.vhdr', '.xbm', '.xpm', '.mnc.gz'], read=True)
         self.add_field("transformation", File, read=True, extensions=['.trm'], write=False)
         self.add_field("output_transformation", File, write=True, extensions=['.trm'], read=True)
-        self.add_field("commissures_coordinates", File, read=True, extensions=['.APC'], optional=True, write=False)
+        self.add_field("commissures_coordinates", File, read=True, extensions=['.APC'], optional=True, dataset=None, write=False)
         self.add_field("output_commissures_coordinates", File, write=True, extensions=['.APC'], optional=True, read=True)
         self.add_field("allow_flip_initial_MRI", bool)
         self.allow_flip_initial_MRI = False
