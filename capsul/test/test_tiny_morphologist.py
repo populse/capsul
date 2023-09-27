@@ -46,29 +46,38 @@ class BiasCorrection(Process):
         with open(self.output, 'w') as f:
             f.write(content)
 
+
 class BiasCorrectionBIDS(ProcessSchema, schema='bids', process=BiasCorrection):
     output = Prepend('part', 'nobias')
 
-class BiasCorrectionBrainVISA(ProcessSchema, schema='brainvisa', process=BiasCorrection):
+
+class BiasCorrectionBrainVISA(ProcessSchema, schema='brainvisa',
+                              process=BiasCorrection):
+
+    metadata_per_parameter = {
+        '*': {'unused': ['subject_only', 'sulci_graph_version',
+                         'sulci_recognition_session']},
+    }
+
     output = Prepend('prefix', 'nobias')
 
 
 class FakeSPMNormalization12(Process):
-    input: field(type_=File, extensions=('.nii',))
+    input: field(type_=File, extensions=('.nii', ))
     template: field(
-        type_=File, 
-        extensions=('.nii',),
+        type_=File,
+        extensions=('.nii', ),
         completion='spm',
         dataset='fakespm'
     ) = '!{fakespm.directory}/template'
-    output: field(type_=File, write=True, extensions=('.nii',))
-    
+    output: field(type_=File, write=True, extensions=('.nii', ))
+
     requirements = {
         'fakespm': {
             'version': '12'
         }
     }
-    
+
     def execute(self, context):
         fakespmdir = Path(context.fakespm.directory)
         real_version = (fakespmdir / 'fakespm').read_text().strip()
@@ -80,10 +89,20 @@ class FakeSPMNormalization12(Process):
         with open(self.output, 'w') as f:
             f.write(content)
 
-class FakeSPMNormalization12BIDS(ProcessSchema, schema='bids', process=FakeSPMNormalization12):
+
+class FakeSPMNormalization12BIDS(ProcessSchema, schema='bids',
+                                 process=FakeSPMNormalization12):
     output = Prepend('part', 'normalized_fakespm12')
 
-class FakeSPMNormalization12BrainVISA(ProcessSchema, schema='brainvisa', process=FakeSPMNormalization12):
+
+class FakeSPMNormalization12BrainVISA(ProcessSchema, schema='brainvisa',
+                                      process=FakeSPMNormalization12):
+
+    metadata_per_parameter = {
+        '*': {'unused': ['subject_only', 'sulci_graph_version',
+                         'sulci_recognition_session']},
+    }
+
     output = Prepend('prefix', 'normalized_fakespm12')
 
 
@@ -94,10 +113,20 @@ class FakeSPMNormalization8(FakeSPMNormalization12):
         }
     }
 
-class FakeSPMNormalization8BIDS(ProcessSchema, schema='bids', process=FakeSPMNormalization8):
+
+class FakeSPMNormalization8BIDS(ProcessSchema, schema='bids',
+                                process=FakeSPMNormalization8):
     output = Prepend('part', 'normalized_fakespm8')
 
-class FakeSPMNormalization8BrainVISA(ProcessSchema, schema='brainvisa', process=FakeSPMNormalization8):
+
+class FakeSPMNormalization8BrainVISA(ProcessSchema, schema='brainvisa',
+                                     process=FakeSPMNormalization8):
+
+    metadata_per_parameter = {
+        '*': {'unused': ['subject_only', 'sulci_graph_version',
+                         'sulci_recognition_session']},
+    }
+
     output = Prepend('prefix', 'normalized_fakespm8')
 
 
@@ -114,11 +143,22 @@ class AimsNormalization(Process):
         with open(self.output, 'w') as f:
             f.write(content)
 
-class AimsNormalizationBIDS(ProcessSchema, schema='bids', process=AimsNormalization):
+
+class AimsNormalizationBIDS(ProcessSchema, schema='bids',
+                            process=AimsNormalization):
     output = Prepend('part', 'normalized_aims')
 
-class AimsNormalizationBrainVISA(ProcessSchema, schema='brainvisa', process=AimsNormalization):
+
+class AimsNormalizationBrainVISA(ProcessSchema, schema='brainvisa',
+                                 process=AimsNormalization):
+
+    metadata_per_parameter = {
+        '*': {'unused': ['subject_only', 'sulci_graph_version',
+                         'sulci_recognition_session']},
+    }
+
     output = Prepend('prefix', 'normalized_aims')
+
 
 class SplitBrain(Process):
     input: field(type_=File, extensions=('.nii',))
@@ -136,10 +176,15 @@ class SplitBrain(Process):
                 f.write(side_content)
 
 
-class SplitBrainBrainVISA(ProcessSchema, schema='brainvisa', process=SplitBrain):
-    _ = { 
+class SplitBrainBrainVISA(ProcessSchema, schema='brainvisa',
+                          process=SplitBrain):
+    _ = {
         'right_output': Append('suffix', 'right'),
         'left_output': Append('suffix', 'left'),
+    }
+    metadata_per_parameter = {
+        '*': {'unused': ['subject_only', 'sulci_graph_version',
+                         'sulci_recognition_session']},
     }
     right_output = Prepend('prefix', 'split')
     left_output = Prepend('prefix', 'split')
@@ -157,7 +202,12 @@ class ProcessHemisphere(Process):
             f.write(content)
 
 
-class ProcessHemisphereBrainVISA(ProcessSchema, schema='brainvisa', process=ProcessHemisphere):
+class ProcessHemisphereBrainVISA(ProcessSchema, schema='brainvisa',
+                                 process=ProcessHemisphere):
+    metadata_per_parameter = {
+        '*': {'unused': ['subject_only', 'sulci_graph_version',
+                         'sulci_recognition_session']},
+    }
     output = Prepend('prefix', 'hemi')
 
 
@@ -178,7 +228,6 @@ class TinyMorphologist(Pipeline):
             'aims': {'output': 'aims_normalization.output'}
         })
 
-        
         self.add_link('nobias.output->fakespm_normalization_12.input')
         self.add_link('nobias.output->fakespm_normalization_8.input')
         self.export_parameter('fakespm_normalization_12', 'template')
@@ -194,7 +243,9 @@ class TinyMorphologist(Pipeline):
         self.add_link('split.left_output->left_hemi.input')
         self.export_parameter('left_hemi', 'output', 'left_hemisphere')
 
-class TinyMorphologistBIDS(ProcessSchema, schema='bids', process=TinyMorphologist):
+
+class TinyMorphologistBIDS(ProcessSchema, schema='bids',
+                           process=TinyMorphologist):
     _ = {
         '*': {'process': 'tinymorphologist'},
         'split.right_output': {'part': 'right_hemi'},
@@ -202,7 +253,9 @@ class TinyMorphologistBIDS(ProcessSchema, schema='bids', process=TinyMorphologis
     }
     input = {'process': None}
 
-class TinyMorphologistBrainVISA(ProcessSchema, schema='brainvisa', process=TinyMorphologist):
+
+class TinyMorphologistBrainVISA(ProcessSchema, schema='brainvisa',
+                                process=TinyMorphologist):
     _ = {
         '*': {'process': 'tinymorphologist'},
     }
@@ -215,9 +268,14 @@ class TinyMorphologistBrainVISA(ProcessSchema, schema='brainvisa', process=TinyM
         # 'fakespm_normalization_8': {'*': Append('suffix', 'fakespm8')},
         # 'aims_normalization': {'*': Append('suffix', 'aims')},
     }
+    metadata_per_parameter = {
+        '*': {'unused': ['subject_only', 'sulci_graph_version',
+                         'sulci_recognition_session']},
+    }
     input = {'process': None}
     # left_hemisphere = {'prefix': 'left_hemi'}
     # right_hemisphere = {'prefix': 'right_hemi'}
+
 
 def concatenate(inputs: list[File], result: File):
     with open(result, 'w') as o:
@@ -227,6 +285,7 @@ def concatenate(inputs: list[File], result: File):
             print('-' * 40, file=o)
             with open(f) as i:
                 o.write(i.read())
+
 
 class TestTinyMorphologist(unittest.TestCase):
     subjects = (
@@ -537,7 +596,6 @@ class TestTinyMorphologist(unittest.TestCase):
                 status = engine.run(tiny_morphologist, timeout=5)
                 self.assertEqual(status, 'ended')
 
-
     def test_tiny_morphologist_iteration(self):
         expected_completion = {
             'input': [
@@ -811,21 +869,24 @@ if __name__ == '__main__':
         )
 
         engine = self.capsul.engine()
-        execution_context = engine.execution_context(tiny_morphologist_iteration)
+        execution_context = engine.execution_context(
+            tiny_morphologist_iteration)
 
         # Parse the dataset with BIDS-specific query (here "suffix" is part
         #  of BIDS specification). The object returned contains info for main
         # BIDS fields (sub, ses, acq, etc.)
         inputs = []
         normalizations = []
-        for path in sorted(self.capsul.config.builtin.dataset.input.find(suffix='T1w', extension='nii')):
-            input_metadata = execution_context.dataset['input'].schema.metadata(path)
+        for path in sorted(self.capsul.config.builtin.dataset.input.find(
+                suffix='T1w', extension='nii')):
+            input_metadata \
+                = execution_context.dataset['input'].schema.metadata(path)
             inputs.extend([input_metadata]*3)
             normalizations += ['none', 'aims', 'fakespm8']
         tiny_morphologist_iteration.normalization = normalizations
 
-        
-        metadata = ProcessMetadata(tiny_morphologist_iteration, execution_context)
+        metadata = ProcessMetadata(tiny_morphologist_iteration,
+                                   execution_context)
         metadata.bids = inputs
         metadata.brainvisa = {'center': 'whatever'}
         metadata.generate_paths(tiny_morphologist_iteration)
@@ -835,8 +896,9 @@ if __name__ == '__main__':
             try:
                 widget = CapsulBrowserWindow()
                 widget.show()
-                from capsul.qt_gui.widgets import PipelineDeveloperView
-                tiny_morphologist = Capsul.executable('capsul.test.test_tiny_morphologist.TinyMorphologist')
+                # from capsul.qt_gui.widgets import PipelineDeveloperView
+                tiny_morphologist = Capsul.executable(
+                    'capsul.test.test_tiny_morphologist.TinyMorphologist')
                 # view1 = PipelineDeveloperView(tiny_morphologist, show_sub_pipelines=True, allow_open_controller=True, enable_edition=True)
                 # view1.show()
                 qt_app.exec_()
