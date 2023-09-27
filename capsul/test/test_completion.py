@@ -71,7 +71,6 @@ class TestPipeline(Pipeline):
         self.export_parameter('right_hemi', 'output', 'right_gw_mesh')
 
 
-
 class TestPipelineBIDS(ProcessSchema, schema='bids',
                        process=TestPipeline):
     __test__ = False
@@ -80,12 +79,17 @@ class TestPipelineBIDS(ProcessSchema, schema='bids',
         '*': {'pipeline': 'test_pipeline'}
     }
 
+
 class TestPipelineBrainVISA(ProcessSchema, schema='brainvisa',
                             process=TestPipeline):
     __test__ = False
 
     _ = {
         '*': {'process': 'test_pipeline'},
+    }
+    metadata_per_parameter = {
+        '*': {'unused': ['subject_only', 'sulci_graph_version',
+                         'sulci_recognition_session']},
     }
     _nodes = {
         'nobias': {

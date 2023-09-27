@@ -48,7 +48,7 @@ class CustomMetadataSchema(MetadataSchema):
     analysis: str
     group: str
 
-    def _path_list(self):
+    def _path_list(self, unused_meta=None):
         items = []
         for field in self.fields():  # noqa: F402
             value = getattr(self, field.name, None)
