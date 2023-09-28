@@ -15,7 +15,6 @@
 {% block script %}
 <script>
   function set_engines(engines_status) {
-    console.log('!1!', engines_status)
     let engines_table = document.getElementById("engines_table");
     engines_status.forEach(engine_status => {
       let tr = document.createElement("tr");
