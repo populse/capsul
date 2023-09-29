@@ -196,7 +196,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         self.add_trait('out_file',
                        traits.File(output=True, input_filename=False))
 
-    However as most of our processes are based on the "commandline behavior"
+    However, as most of our processes are based on the "commandline behavior"
     (the filename is an input) and we often forget to specify the
     ``input_filename`` parameter, the default is the "filename is an input"
     behavior, when not specified.
@@ -243,7 +243,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
 
     def __getstate__(self):
         """ Remove the _weakref attribute eventually set by 
-        soma.utils.weak_proxy because it prevent Process instance
+        soma.utils.weak_proxy because it prevents Process instance
         from being used with pickle.
         """
         state = super(Process, self).__getstate__()
@@ -331,7 +331,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         and python / capsul correctly installed and available on it.
 
         :meth:`get_commandline` at the contrary, can implement commandlines
-        which are completely inependent from Capsul, and from python.
+        which are completely independent from Capsul, and from python.
 
         .. note::
 
@@ -357,7 +357,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
     
     def _before_run_process(self):
         """This method is called by StudyConfig.run() before calling
-        _run_process(). By default it does nothing but can be overridden
+        _run_process(). By default, it does nothing but can be overridden
         in derived classes.
         """
         pass
@@ -365,7 +365,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
     def _after_run_process(self, run_process_result):
         """This method is called by StudyConfig.run() after calling
         _run_process(). It is expected to return the final result of the
-        process. By default it does nothing but can be overridden
+        process. By default, it does nothing but can be overridden
         in derived classes.
         """
         return run_process_result
@@ -410,7 +410,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
 
         Parameters
         ----------
-        data: list of list of str (mandatory)
+        data: list of lists of str (mandatory)
             the table line-cell centent.
 
         Returns
@@ -512,7 +512,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         """ Method to generate a commandline representation of the process.
 
         If not implemented, it will generate a commandline running python,
-        instaitiating the current process, and calling its
+        instantiating the current process, and calling its
         :meth:`_run_process` method.
 
         Returns
@@ -599,10 +599,10 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         Generates a commandline representation of the process.
 
         If not implemented, it will generate a commandline running python,
-        instaitiating the current process, and calling its
+        instantiating the current process, and calling its
         :meth:`_run_process` method.
 
-        This methood is new in Capsul v3 and is a replacement for
+        This method is new in Capsul v3 and is a replacement for
         :meth:`get_commandline`.
 
         It can be overwritten by custom Process subclasses. Actually each
@@ -741,8 +741,13 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
             raise
         # actually run the process
         ce.study_config.use_soma_workflow = False
-        result = ce.study_config.run(process, configuration_dict=configuration)
-        # collect output parameers
+        cwd = os.getcwd()
+        with tempfile.TemporaryDirectory() as temp_work_dir:
+            os.chdir(temp_work_dir)
+            result = ce.study_config.run(process,
+                                         configuration_dict=configuration)
+            os.chdir(cwd)
+        # collect output parameters
         out_param_file = os.environ.get('SOMAWF_OUTPUT_PARAMS')
 
         # fix expandvars problem when the env var SOMAWF_OUTPUT_PARAMS is
@@ -991,7 +996,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
             else:
                 opthelpstr += functools.reduce(operator.add, data)
 
-        # Add the mandatry and optional input string description if necessary
+        # Add the mandatory and optional input string description if necessary
         if mandatory_items:
             helpstr += manhelpstr
         if optional_items:
@@ -1701,7 +1706,7 @@ class NipypeProcess(FileCopyProcess):
         NipypeProcess instance gets automatically an additional user trait
         'output_directory'.
 
-        This class also fix also some lacks of the nipye version '0.10.0'.
+        This class also fix some lacks of the nipype version '0.10.0'.
 
         NipypeProcess is normally not instantiated directly, but through the
         CapsulEngine factory, using a nipype interface name::
@@ -1709,7 +1714,7 @@ class NipypeProcess(FileCopyProcess):
             ce = capsul_engine()
             npproc = ce.get_process_instance('nipype.interfaces.spm.Smooth')
 
-        However it is now still possible to instantiate it directly, using a
+        However, it is now still possible to instantiate it directly, using a
         nipype interface class or instance::
 
             npproc = NipypeProcess(nipype.interfaces.spm.Smooth)
@@ -1726,7 +1731,7 @@ class NipypeProcess(FileCopyProcess):
         instance.
         * (optionally) a class attribute `_nipype_trait_mapping`: a dict
         specifying a translation table between nipype traits names and the
-        names they will get in the Process instance. By default inputs get the
+        names they will get in the Process instance. By default, inputs get the
         same name as in their nipype interface, and outputs are prefixed with
         an underscore ('_') to avoid names collisions when a trait exists both
         in inputs and outputs in nipype. A special trait name
@@ -1783,7 +1788,7 @@ class NipypeProcess(FileCopyProcess):
             else:
                 raise TypeError(
                     'NipypeProcess.__init__ must either be called with a '
-                    'nipye interface instance as 1st argument, or from a '
+                    'nipype interface instance as 1st argument, or from a '
                     'specialized subclass providing the _nipype_class_type '
                     'class attribute')
         self._nipype_interface = nipype_instance
@@ -1891,7 +1896,7 @@ class NipypeProcess(FileCopyProcess):
         inp_npp.configure_all()
 
     def _run_process(self):
-        """ Method that do the processings when the instance is called.
+        """ Method that do the processing when the instance is called.
 
         Returns
         -------
@@ -1985,7 +1990,7 @@ class InteractiveProcess(Process):
     '''
     Base class for interactive processes. The value of the is_interactive 
     parameter determine if either the process can be run in background
-    (eventually remotely) as a standardl process (is_interactive = False)
+    (eventually remotely) as a standard process (is_interactive = False)
     or if the process must be executed interactively in the user environment
     (is_interactive = False).
     '''
