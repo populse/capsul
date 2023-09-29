@@ -7,6 +7,7 @@ import sys
 
 from .api import Capsul
 from .config.configuration import ApplicationConfiguration
+from soma.controller import undefined
 
 
 def executable_parser(executable):
@@ -82,12 +83,17 @@ elif options.subcommand == 'run':
         if field.type is int:
             value = int(value)
         elif field.type is float:
-            value = float(value)
-        elif field.type is str:
+            if value == 'None' or value == 'null' or value == 'undefined':
+                value = undefined
+            else:
+                value = float(value)
+        elif field.type is str or field.is_path():
             if value and value[0] == '"':
                 value = json.loads(value)
         else:
             value = json.loads(value)
+        if value is None:
+            value = undefined
         kwargs[name] = value
     executable.import_dict(kwargs)
     with capsul.engine() as ce:
