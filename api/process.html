@@ -228,7 +228,7 @@ files (SPM does this a lot).</p></li>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.process.process.</span></span><span class="sig-name descname"><span class="pre">InteractiveProcess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/process/process.html#InteractiveProcess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.process.process.InteractiveProcess" title="Link to this definition">¶</a></dt>
 <dd><p>Base class for interactive processes. The value of the is_interactive
 parameter determine if either the process can be run in background
-(eventually remotely) as a standardl process (is_interactive = False)
+(eventually remotely) as a standard process (is_interactive = False)
 or if the process must be executed interactively in the user environment
 (is_interactive = False).</p>
 <div class="admonition note">
@@ -257,14 +257,14 @@ or if the process must be executed interactively in the user environment
 <p>Initialize the NipypeProcess class.</p>
 <p>NipypeProcess instance gets automatically an additional user trait
 ‘output_directory’.</p>
-<p>This class also fix also some lacks of the nipye version ‘0.10.0’.</p>
+<p>This class also fix some lacks of the nipype version ‘0.10.0’.</p>
 <p>NipypeProcess is normally not instantiated directly, but through the
 CapsulEngine factory, using a nipype interface name:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ce</span> <span class="o">=</span> <span class="n">capsul_engine</span><span class="p">()</span>
 <span class="n">npproc</span> <span class="o">=</span> <span class="n">ce</span><span class="o">.</span><span class="n">get_process_instance</span><span class="p">(</span><span class="s1">&#39;nipype.interfaces.spm.Smooth&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>However it is now still possible to instantiate it directly, using a
+<p>However, it is now still possible to instantiate it directly, using a
 nipype interface class or instance:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">npproc</span> <span class="o">=</span> <span class="n">NipypeProcess</span><span class="p">(</span><span class="n">nipype</span><span class="o">.</span><span class="n">interfaces</span><span class="o">.</span><span class="n">spm</span><span class="o">.</span><span class="n">Smooth</span><span class="p">)</span>
 </pre></div>
@@ -282,7 +282,7 @@ setup. This <cite>__postinit__</cite> method allows to customize the new class
 instance.
 * (optionally) a class attribute <cite>_nipype_trait_mapping</cite>: a dict
 specifying a translation table between nipype traits names and the
-names they will get in the Process instance. By default inputs get the
+names they will get in the Process instance. By default, inputs get the
 same name as in their nipype interface, and outputs are prefixed with
 an underscore (‘_’) to avoid names collisions when a trait exists both
 in inputs and outputs in nipype. A special trait name
@@ -469,7 +469,7 @@ input, and False when the filename is an output:</p>
                <span class="n">traits</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">input_filename</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
 </pre></div>
 </div>
-<p>However as most of our processes are based on the “commandline behavior”
+<p>However, as most of our processes are based on the “commandline behavior”
 (the filename is an input) and we often forget to specify the
 <code class="docutils literal notranslate"><span class="pre">input_filename</span></code> parameter, the default is the “filename is an input”
 behavior, when not specified.</p>
@@ -560,7 +560,7 @@ config values.</p>
 <span class="sig-name descname"><span class="pre">get_commandline</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/process/process.html#Process.get_commandline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.process.process.Process.get_commandline" title="Link to this definition">¶</a></dt>
 <dd><p>Method to generate a commandline representation of the process.</p>
 <p>If not implemented, it will generate a commandline running python,
-instaitiating the current process, and calling its
+instantiating the current process, and calling its
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">_run_process()</span></code> method.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -762,9 +762,9 @@ arguments to strings (using repr()).</p>
 <span class="sig-name descname"><span class="pre">params_to_command</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/process/process.html#Process.params_to_command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.process.process.Process.params_to_command" title="Link to this definition">¶</a></dt>
 <dd><p>Generates a commandline representation of the process.</p>
 <p>If not implemented, it will generate a commandline running python,
-instaitiating the current process, and calling its
+instantiating the current process, and calling its
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">_run_process()</span></code> method.</p>
-<p>This methood is new in Capsul v3 and is a replacement for
+<p>This method is new in Capsul v3 and is a replacement for
 <a class="reference internal" href="#capsul.process.process.Process.get_commandline" title="capsul.process.process.Process.get_commandline"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_commandline()</span></code></a>.</p>
 <p>It can be overwritten by custom Process subclasses. Actually each
 process should overwrite either <a class="reference internal" href="#capsul.process.process.Process.params_to_command" title="capsul.process.process.Process.params_to_command"><code class="xref py py-meth docutils literal notranslate"><span class="pre">params_to_command()</span></code></a> or

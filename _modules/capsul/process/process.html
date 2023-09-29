@@ -310,7 +310,7 @@
 <span class="sd">        self.add_trait(&#39;out_file&#39;,</span>
 <span class="sd">                       traits.File(output=True, input_filename=False))</span>
 
-<span class="sd">    However as most of our processes are based on the &quot;commandline behavior&quot;</span>
+<span class="sd">    However, as most of our processes are based on the &quot;commandline behavior&quot;</span>
 <span class="sd">    (the filename is an input) and we often forget to specify the</span>
 <span class="sd">    ``input_filename`` parameter, the default is the &quot;filename is an input&quot;</span>
 <span class="sd">    behavior, when not specified.</span>
@@ -357,7 +357,7 @@
 
     <span class="k">def</span> <span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Remove the _weakref attribute eventually set by </span>
-<span class="sd">        soma.utils.weak_proxy because it prevent Process instance</span>
+<span class="sd">        soma.utils.weak_proxy because it prevents Process instance</span>
 <span class="sd">        from being used with pickle.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">state</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">Process</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__getstate__</span><span class="p">()</span>
@@ -451,7 +451,7 @@
 <span class="sd">        and python / capsul correctly installed and available on it.</span>
 
 <span class="sd">        :meth:`get_commandline` at the contrary, can implement commandlines</span>
-<span class="sd">        which are completely inependent from Capsul, and from python.</span>
+<span class="sd">        which are completely independent from Capsul, and from python.</span>
 
 <span class="sd">        .. note::</span>
 
@@ -477,7 +477,7 @@
     
     <span class="k">def</span> <span class="nf">_before_run_process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;This method is called by StudyConfig.run() before calling</span>
-<span class="sd">        _run_process(). By default it does nothing but can be overridden</span>
+<span class="sd">        _run_process(). By default, it does nothing but can be overridden</span>
 <span class="sd">        in derived classes.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span>
@@ -485,7 +485,7 @@
     <span class="k">def</span> <span class="nf">_after_run_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_process_result</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;This method is called by StudyConfig.run() after calling</span>
 <span class="sd">        _run_process(). It is expected to return the final result of the</span>
-<span class="sd">        process. By default it does nothing but can be overridden</span>
+<span class="sd">        process. By default, it does nothing but can be overridden</span>
 <span class="sd">        in derived classes.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">run_process_result</span>
@@ -530,7 +530,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        data: list of list of str (mandatory)</span>
+<span class="sd">        data: list of lists of str (mandatory)</span>
 <span class="sd">            the table line-cell centent.</span>
 
 <span class="sd">        Returns</span>
@@ -640,7 +640,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to generate a commandline representation of the process.</span>
 
 <span class="sd">        If not implemented, it will generate a commandline running python,</span>
-<span class="sd">        instaitiating the current process, and calling its</span>
+<span class="sd">        instantiating the current process, and calling its</span>
 <span class="sd">        :meth:`_run_process` method.</span>
 
 <span class="sd">        Returns</span>
@@ -730,10 +730,10 @@
 <span class="sd">        Generates a commandline representation of the process.</span>
 
 <span class="sd">        If not implemented, it will generate a commandline running python,</span>
-<span class="sd">        instaitiating the current process, and calling its</span>
+<span class="sd">        instantiating the current process, and calling its</span>
 <span class="sd">        :meth:`_run_process` method.</span>
 
-<span class="sd">        This methood is new in Capsul v3 and is a replacement for</span>
+<span class="sd">        This method is new in Capsul v3 and is a replacement for</span>
 <span class="sd">        :meth:`get_commandline`.</span>
 
 <span class="sd">        It can be overwritten by custom Process subclasses. Actually each</span>
@@ -878,8 +878,13 @@
             <span class="k">raise</span>
         <span class="c1"># actually run the process</span>
         <span class="n">ce</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">use_soma_workflow</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">ce</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">configuration_dict</span><span class="o">=</span><span class="n">configuration</span><span class="p">)</span>
-        <span class="c1"># collect output parameers</span>
+        <span class="n">cwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">temp_work_dir</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">temp_work_dir</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">ce</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">process</span><span class="p">,</span>
+                                         <span class="n">configuration_dict</span><span class="o">=</span><span class="n">configuration</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">cwd</span><span class="p">)</span>
+        <span class="c1"># collect output parameters</span>
         <span class="n">out_param_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;SOMAWF_OUTPUT_PARAMS&#39;</span><span class="p">)</span>
 
         <span class="c1"># fix expandvars problem when the env var SOMAWF_OUTPUT_PARAMS is</span>
@@ -1149,7 +1154,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">opthelpstr</span> <span class="o">+=</span> <span class="n">functools</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">add</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
 
-        <span class="c1"># Add the mandatry and optional input string description if necessary</span>
+        <span class="c1"># Add the mandatory and optional input string description if necessary</span>
         <span class="k">if</span> <span class="n">mandatory_items</span><span class="p">:</span>
             <span class="n">helpstr</span> <span class="o">+=</span> <span class="n">manhelpstr</span>
         <span class="k">if</span> <span class="n">optional_items</span><span class="p">:</span>
@@ -1899,7 +1904,7 @@
 <span class="sd">        NipypeProcess instance gets automatically an additional user trait</span>
 <span class="sd">        &#39;output_directory&#39;.</span>
 
-<span class="sd">        This class also fix also some lacks of the nipye version &#39;0.10.0&#39;.</span>
+<span class="sd">        This class also fix some lacks of the nipype version &#39;0.10.0&#39;.</span>
 
 <span class="sd">        NipypeProcess is normally not instantiated directly, but through the</span>
 <span class="sd">        CapsulEngine factory, using a nipype interface name::</span>
@@ -1907,7 +1912,7 @@
 <span class="sd">            ce = capsul_engine()</span>
 <span class="sd">            npproc = ce.get_process_instance(&#39;nipype.interfaces.spm.Smooth&#39;)</span>
 
-<span class="sd">        However it is now still possible to instantiate it directly, using a</span>
+<span class="sd">        However, it is now still possible to instantiate it directly, using a</span>
 <span class="sd">        nipype interface class or instance::</span>
 
 <span class="sd">            npproc = NipypeProcess(nipype.interfaces.spm.Smooth)</span>
@@ -1924,7 +1929,7 @@
 <span class="sd">        instance.</span>
 <span class="sd">        * (optionally) a class attribute `_nipype_trait_mapping`: a dict</span>
 <span class="sd">        specifying a translation table between nipype traits names and the</span>
-<span class="sd">        names they will get in the Process instance. By default inputs get the</span>
+<span class="sd">        names they will get in the Process instance. By default, inputs get the</span>
 <span class="sd">        same name as in their nipype interface, and outputs are prefixed with</span>
 <span class="sd">        an underscore (&#39;_&#39;) to avoid names collisions when a trait exists both</span>
 <span class="sd">        in inputs and outputs in nipype. A special trait name</span>
@@ -1981,7 +1986,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
                     <span class="s1">&#39;NipypeProcess.__init__ must either be called with a &#39;</span>
-                    <span class="s1">&#39;nipye interface instance as 1st argument, or from a &#39;</span>
+                    <span class="s1">&#39;nipype interface instance as 1st argument, or from a &#39;</span>
                     <span class="s1">&#39;specialized subclass providing the _nipype_class_type &#39;</span>
                     <span class="s1">&#39;class attribute&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_nipype_interface</span> <span class="o">=</span> <span class="n">nipype_instance</span>
@@ -2098,7 +2103,7 @@
         <span class="n">inp_npp</span><span class="o">.</span><span class="n">configure_all</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_run_process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Method that do the processings when the instance is called.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Method that do the processing when the instance is called.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -2198,7 +2203,7 @@
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Base class for interactive processes. The value of the is_interactive </span>
 <span class="sd">    parameter determine if either the process can be run in background</span>
-<span class="sd">    (eventually remotely) as a standardl process (is_interactive = False)</span>
+<span class="sd">    (eventually remotely) as a standard process (is_interactive = False)</span>
 <span class="sd">    or if the process must be executed interactively in the user environment</span>
 <span class="sd">    (is_interactive = False).</span>
 <span class="sd">    &#39;&#39;&#39;</span>
