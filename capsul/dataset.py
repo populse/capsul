@@ -1000,6 +1000,10 @@ class ProcessMetadata(Controller):
         return schema
 
     def generate_paths(self, executable=None):
+        '''
+        Generate all paths for parameters of the given executable. Completion
+        rules will apply using the current values of the metadata.
+        '''
         # self.debug = True
         if executable is None:
             executable = self.executable()
@@ -1104,3 +1108,95 @@ class ProcessMetadata(Controller):
                             self.dprint(f'    {field.name} = {repr(value)}')
                         self.dprint(f'    => {path}')
                     setattr(executable, parameter, path)
+
+    def path_for_parameter(self, executable, parameter):
+        '''
+        Generates a path (or value) for a given parameter.
+        This is a restricted version of generate_paths(), which does not assign
+        the generated value to the executable parameter but just returns it.
+        '''
+        # TODO: factorize some code with generate_paths()
+        if executable is None:
+            executable = self.executable()
+
+        if isinstance(executable, ProcessIteration):
+            empty_iterative_schema = set()
+            iteration_size = 0
+            for schema in self.iterative_schemas:
+                schema_iteration_size = len(getattr(self, schema))
+                if schema_iteration_size:
+                    if iteration_size == 0:
+                        iteration_size = schema_iteration_size
+                        first_schema = schema
+                    elif iteration_size != schema_iteration_size:
+                        raise ValueError(f'Iteration on schema {first_schema} has {iteration_size} element(s) which is not equal to schema {schema} ({schema_iteration_size} element(s))')
+                else:
+                    empty_iterative_schema.add(schema)
+
+            for schema in empty_iterative_schema:
+                setattr(self, schema, [Dataset.find_schema(schema)() for i in range(iteration_size)])
+
+            if parameter in executable.iterative_parameters:
+                paths = []
+                for iteration in range(iteration_size):
+                    self._current_iteration = iteration
+                    executable.select_iteration_index(iteration)
+                    path = self.parh_for_parameter(executable.process,
+                                                   parameter)
+                    paths.append(path)
+                    return paths
+            else:
+                path = self.parh_for_parameter(executable.process, parameter)
+                return path
+        else:
+            for schema_name in self.parameters_per_schema:
+                for other_schema_name in self.parameters_per_schema:
+                    if other_schema_name == schema_name:
+                        continue
+                    source = self.get_schema(schema_name)
+                    dest = self.get_schema(other_schema_name)
+                    if source and dest:
+                        mapping = Dataset.find_schema_mapping(
+                            schema_name, other_schema_name)
+                        if mapping:
+                            mapping.map_schemas(source, dest)
+            metadata_modifications = self.metadata_modifications(executable)
+            for schema, parameters in self.parameters_per_schema.items():
+                if parameter not in parameters:
+                    continue
+                proc_meta = executable.metadata_schemas.get(schema)
+                params_meta = {}
+                if proc_meta is not None:
+                    params_meta = getattr(proc_meta, 'metadata_per_parameter',
+                                          {})
+
+                dataset = self.dataset_per_parameter[parameter]
+                metadata = Dataset.find_schema(schema)(
+                    base_path=f'!{{dataset.{dataset}.path}}')
+                s = self.get_schema(schema)
+                if s:
+                    metadata.import_dict(s.asdict())
+                for modifier in metadata_modifications.get(parameter, []):
+                    modifier.apply(metadata, executable, parameter, s)
+
+                unused_meta = set()
+                for pattern, v in params_meta.items():
+                    if fnmatch.fnmatch(parameter, pattern):
+                        unused = v.get('unused')
+                        if unused is None:
+                            used = v.get('used')
+                            if used is not None:
+                                unused = [
+                                    f.name for f in metadata.fields()
+                                    if f.name not in used]
+                        if unused is not None:
+                            unused_meta = unused
+
+                try:
+                    path = str(metadata.build_param(
+                        executable.field(parameter).path_type,
+                        unused_meta=unused_meta))
+                except Exception:
+                    path = undefined
+
+                return path
