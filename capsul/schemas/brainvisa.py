@@ -297,6 +297,13 @@ def declare_morpho_schemas(morpho_module):
             'sulcal_morpho_measures': {'unused': ['subject_only']},
         }
 
+        t1mri = {
+            'analysis': undefined,
+            'side': None,
+            'sidebis': None,
+            'seg_directory': None,
+            'suffix': None,
+        }
         imported_t1mri = {
             'analysis': undefined,
             'side': None,
