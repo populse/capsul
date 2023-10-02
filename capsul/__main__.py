@@ -81,14 +81,19 @@ elif options.subcommand == 'run':
         field = executable.field(name)
         done.add(name)
         if field.type is int:
-            value = int(value)
+            if value == 'None' or value == 'null' or value == 'undefined':
+                value = undefined
+            else:
+                value = int(value)
         elif field.type is float:
             if value == 'None' or value == 'null' or value == 'undefined':
                 value = undefined
             else:
                 value = float(value)
         elif field.type is str or field.is_path():
-            if value and value[0] == '"':
+            if value == 'None' or value == 'null' or value == 'undefined':
+                value = undefined
+            elif value and value[0] == '"':
                 value = json.loads(value)
         else:
             value = json.loads(value)
