@@ -22,19 +22,22 @@ except ImportError:
 
 
 class DeletingList(list):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # save access to modules for global destructor
+        # because they will not be accessible any longer in globals
+        self._os = os
+        self._shutil = shutil
+
     def __del__(self):
-        try:
-            import os.path as osp
-            for filename in self:
-                try:
-                    if osp.isdir(filename):
-                        shutil.rmtree(filename)
-                    else:
-                        os.unlink(filename)
-                except OSError:
-                    pass
-        except ImportError:
-            pass
+        for filename in self:
+            try:
+                if self._os.path.isdir(filename):
+                    self._shutil.rmtree(filename)
+                else:
+                    self._os.unlink(filename)
+            except OSError:
+                pass
 
 
 capsul_app = None
@@ -46,7 +49,7 @@ def get_capsul_app():
 
     if capsul_app is None:
         capsul_app = Capsul(database_path='')
-        tmp = tempfile.mkdtemp(prefix='capsul_test_')
+        tmp = tempfile.mkdtemp(prefix='capsul_test_nipype_')
         temp_files.append(tmp)
         capsul_app.config.databases['builtin']['path'] \
             = osp.join(tmp, 'capsul_engine_database.rdb')
