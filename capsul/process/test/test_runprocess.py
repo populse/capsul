@@ -39,13 +39,13 @@ class TestRunProcess(unittest.TestCase):
     def test_run_dummy_process(self):
         with open(os.devnull, 'wb') as f:
             ret = subprocess.call([
-                sys.executable, "-m", "capsul", "run",
+                sys.executable, "-m", "capsul", "run", "--non-persistent",
                 "capsul.process.test.test_runprocess.DummyProcess",
                 "f=0.5"
             ], stdout=f, stderr=f)
             self.assertEqual(ret, 0)
             ret = subprocess.call([
-                sys.executable, "-m", "capsul", "run",
+                sys.executable, "-m", "capsul", "run", "--non-persistent",
                 "capsul.process.test.test_runprocess.DummyProcess",
                 "0.5"
             ], stdout=f, stderr=f)
@@ -54,18 +54,18 @@ class TestRunProcess(unittest.TestCase):
     def test_run_dummy_process_wrong_args(self):
         with open(os.devnull, 'wb') as f:
             ret = subprocess.call([
-                sys.executable, "-m", "capsul", "run",
+                sys.executable, "-m", "capsul", "run", "--non-persistent",
                 "capsul.process.test.test_runprocess.DummyProcess",
                 "f=toto"
             ], stdout=f, stderr=f)
             self.assertNotEqual(ret, 0)
             ret = subprocess.call([
-                sys.executable, "-m", "capsul", "run",
+                sys.executable, "-m", "capsul", "run", "--non-persistent",
                 "capsul.process.test.test_runprocess.DummyProcess",
             ], stdout=f, stderr=f)
             self.assertNotEqual(ret, 0)
             ret = subprocess.call([
-                sys.executable, "-m", "capsul", "run",
+                sys.executable, "-m", "capsul", "run", "--non-persistent",
                 "capsul.process.test.test_runprocess.DummyProcess",
             ], stdout=f, stderr=f)
             self.assertNotEqual(ret, 0)
