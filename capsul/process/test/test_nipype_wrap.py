@@ -51,8 +51,6 @@ def get_capsul_app():
         capsul_app = Capsul(database_path='')
         tmp = tempfile.mkdtemp(prefix='capsul_test_nipype_')
         temp_files.append(tmp)
-        capsul_app.config.databases['builtin']['path'] \
-            = osp.join(tmp, 'capsul_engine_database.rdb')
 
     return capsul_app
 
@@ -116,8 +114,6 @@ def init_spm_config():
     db_config = capsul_app.config.databases['builtin']
     capsul_app.config = config.merged_config
     capsul_app.config.databases['builtin'] = db_config
-    with open('/tmp/log.txt', 'a') as f:
-        print('local config:', capsul_app.config.asdict(), file=f)
 
     return True
 
