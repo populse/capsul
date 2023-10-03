@@ -34,6 +34,11 @@ subparsers = parser.add_subparsers(title="Subcommands",
 configure_parser = subparsers.add_parser('configure', help='Configure capsul environment')
 
 run_parser = subparsers.add_parser('run', help='Execute a Capsul process or pipeline')
+run_parser.add_argument(
+    '--non-persistent', dest='non_persistent', action='store_true',
+    help='use a non-persistent config: database and server will be disposed at'
+    ' the end of the execution, accessing logs will not be possible '
+    'afterwards')
 run_parser.add_argument('executable')
 
 help_parser = subparsers.add_parser('help', help='Get help about a command or a process')
@@ -41,7 +46,10 @@ help_parser.add_argument('command_or_executable')
 
 options, args = parser.parse_known_args()
 
-capsul = Capsul()
+db_path = None
+if options.subcommand == 'run' and options.non_persistent:
+    db_path = ''
+capsul = Capsul(database_path=db_path)
 
 if options.subcommand == 'configure':
     # Other commands must be able to work without PyQt installed
