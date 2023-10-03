@@ -521,7 +521,7 @@ def declare_morpho_schemas(morpho_module):
         }
 
     class ScalpMeshBBIDS(ScalpMeshBrainVISA, schema='morphologist_bids',
-                             process=ScalpMesh):
+                         process=ScalpMesh):
         pass
 
     class SplitBrainBrainVISA(ProcessSchema, schema='brainvisa',
