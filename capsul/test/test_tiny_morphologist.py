@@ -372,7 +372,7 @@ class TestTinyMorphologist(unittest.TestCase):
         config = {
             'databases': {
                 'builtin': {
-                    'path': osp.join(tmp, 'capsul_engine_database.rdb'),
+                    'path': '',
                 },
             },
             'builtin': {
@@ -426,7 +426,7 @@ class TestTinyMorphologist(unittest.TestCase):
         expected_config = {
             'databases': {
                 'builtin': {
-                    'path': osp.join(self.tmp, 'capsul_engine_database.rdb'),
+                    'path': '',
                     'type': 'redis+socket'
                 }
             },
