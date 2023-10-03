@@ -74,6 +74,14 @@ class URL:
         return f'{self.scheme}://{login}{host}{path}{parameters}{query}{fragment}'
 
 
+class ResponseError(Exception):
+    pass
+
+
+class ConnectionError(Exception):
+    pass
+
+
 def engine_database(config):
     class_string = database_classes.get(config['type'])
     if class_string is None:

@@ -10,7 +10,7 @@ from uuid import uuid4
 
 import redis
 
-from . import ExecutionDatabase
+from . import ExecutionDatabase, ResponseError, ConnectionError
 
 
 class RedisExecutionDatabase(ExecutionDatabase):
@@ -47,6 +47,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
             if self.path is None:
                 raise ValueError('Database path is missing in configuration')
             self.redis_socket = f'{self.path}.socket'
+
             if self.path == '' or not os.path.exists(self.redis_socket):
                 # Start the redis server
                 tmp = tempfile.mkdtemp(prefix='capsul_redis_')
@@ -54,7 +55,6 @@ class RedisExecutionDatabase(ExecutionDatabase):
                     if self.path == '':
                         self._path = os.path.join(tmp, 'database.rdb')
                         self.redis_socket = f'{self.path}.socket'
-                    print('start redis:', self._path, self.redis_socket)
                     dir, dbfilename = os.path.split(self.path)
                     pid_file = f'{tmp}/redis.pid'
                     log_file = f'{tmp}/redis.log'
@@ -82,8 +82,17 @@ class RedisExecutionDatabase(ExecutionDatabase):
                     self.redis.delete('capsul:shutting_down')
                     self.redis.set('capsul:redis_tmp', tmp)
                     self.redis.set('capsul:redis_pid_file', pid_file)
-                except Exception:
+                except Exception as e:
                     shutil.rmtree(tmp)
+                    # translate exception type
+                    exc_types = {redis.ConnectionError: ConnectionError,
+                                 redis.ResponseError: ResponseError,
+                                 redis.TimeoutError: TimeoutError}
+                    exc_type = exc_types.get(type(e))
+                    if exc_type is not None:
+                        exc = exc_type(e.args)
+                        exc.with_traceback(e.__traceback__)
+                        raise e from None
                     raise
             else:
                 self.redis = redis.Redis(unix_socket_path=self.redis_socket,
@@ -436,8 +445,10 @@ class RedisExecutionDatabase(ExecutionDatabase):
 
     def _exit(self):
         self.redis.hdel('capsul:connections', self.uuid)
-        self.check_shutdown()
-        del self.redis
+        try:
+            self.check_shutdown()
+        finally:
+            del self.redis
    
 
     def get_or_create_engine(self, engine, update_database=False):
@@ -505,12 +516,10 @@ class RedisExecutionDatabase(ExecutionDatabase):
         ]
         self._worker_ended(keys=keys, args=args)
 
-
     def persistent(self, engine_id):
         p = self.redis.hget(f'capsul:{engine_id}', 'persistent')
         r = bool(int(p))
         return r
-
 
     def set_persistent(self, engine_id, persistent):
         self.redis.hset(f'capsul:{engine_id}', 'persistent', (1 if persistent else 0))
@@ -728,35 +737,40 @@ class RedisExecutionDatabase(ExecutionDatabase):
 
 
     def check_shutdown(self):
-        if self._check_shutdown():
-            pipeline = self.redis.pipeline()
-            pipeline.get('capsul:redis_tmp')
-            pipeline.delete('capsul:redis_tmp')
-            tmp = pipeline.execute()[0]
-            if tmp:
-                pid_file = self.redis.get('capsul:redis_pid_file')
-                self.redis.delete('capsul:redis_pid_file')
+        try:
+            if self._check_shutdown():
+                pipeline = self.redis.pipeline()
+                pipeline.get('capsul:redis_tmp')
+                pipeline.delete('capsul:redis_tmp')
+                tmp = pipeline.execute()[0]
+                if tmp:
+                    pid_file = self.redis.get('capsul:redis_pid_file')
+                    self.redis.delete('capsul:redis_pid_file')
 
-                keys = self.redis.keys('capsul:*')
-                if not keys or keys == ['capsul:shutting_down']:
-                    # Nothing in the database, do not save it
-                    save= False
-                else:
-                    save = True
-                    self.redis.save()
+                    keys = self.redis.keys('capsul:*')
+                    if not keys or keys == ['capsul:shutting_down']:
+                        # Nothing in the database, do not save it
+                        save= False
+                    else:
+                        save = True
+                        self.redis.save()
 
-                # Kill the redis server
-                self.redis.shutdown()
+                    # Kill the redis server
+                    self.redis.shutdown()
 
-                # Ensure the pid file is deleted
-                for i in range(20):
-                    if not os.path.exists(pid_file):
-                        break
-                    time.sleep(0.1)
+                    # Ensure the pid file is deleted
+                    for i in range(20):
+                        if not os.path.exists(pid_file):
+                            break
+                        time.sleep(0.1)
 
-                shutil.rmtree(tmp)
-                if not save and os.path.exists(self.path):
-                    os.remove(self.path)
+                    shutil.rmtree(tmp)
+                    if not save and os.path.exists(self.path):
+                        os.remove(self.path)
+        except redis.exceptions.ResponseError as e:
+            exc = ResponseError(e.args)
+            exc.with_traceback(e.__traceback__)
+            raise exc from None
 
     
     def start_execution(self, engine_id, execution_id, tmp):
