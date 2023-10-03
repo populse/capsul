@@ -54,6 +54,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
                     if self.path == '':
                         self._path = os.path.join(tmp, 'database.rdb')
                         self.redis_socket = f'{self.path}.socket'
+                    print('start redis:', self._path, self.redis_socket)
                     dir, dbfilename = os.path.split(self.path)
                     pid_file = f'{tmp}/redis.pid'
                     log_file = f'{tmp}/redis.log'
@@ -94,7 +95,8 @@ class RedisExecutionDatabase(ExecutionDatabase):
                 f'Invalid Redis connection type: {self.config["type"]}')
         if self.redis.get('capsul:shutting_down'):
             raise RuntimeError(
-                'Cannot connect to database because it is shutting down')
+                'Cannot connect to database because it is shutting down: '
+                f'{self._path}: {self.redis_socket}')
         self.redis.hset('capsul:connections', self.uuid,
                         datetime.now().isoformat())
 
