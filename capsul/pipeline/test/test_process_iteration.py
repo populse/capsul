@@ -120,10 +120,6 @@ class TestPipeline(unittest.TestCase):
         """
 
         capsul = Capsul(database_path='')
-        tmp = tempfile.mkdtemp(prefix='capsul_test_proc_it_')
-        self.temp_files = [tmp]
-        capsul.config.databases['builtin']['path'] \
-            = osp.join(tmp, 'capsul_engine_database.rdb')
         # Test the output connection
         with capsul.engine() as ce:
             ce.run(self.pipeline, timeout=5)

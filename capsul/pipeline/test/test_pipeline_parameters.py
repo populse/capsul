@@ -194,8 +194,6 @@ class TestPipelineMethods(unittest.TestCase):
             prefix='capsul_test_pipeline_parameters_')
         self.path = os.path.join(self.temp_folder, "test.json")
         self.capsul = Capsul(database_path='')
-        self.capsul.config.databases['builtin']['path'] \
-            = osp.join(self.temp_folder, 'capsul_engine_database.rdb')
 
     def tearDown(self):
         """

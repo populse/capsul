@@ -116,7 +116,8 @@ class TestCompletion(unittest.TestCase):
                         }
                     }
                 }, f)
-            self.capsul = Capsul(app_name, site_file=site_file)
+            self.capsul = Capsul(app_name, site_file=site_file,
+                                 database_path='')
 
         except BaseException:  # clean up in case of interruption
             if old_home is None:

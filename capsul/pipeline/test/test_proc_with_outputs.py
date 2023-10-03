@@ -248,8 +248,6 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
             print('Initial file content.', file=f)
         self.pipeline.output = tmpout
         self.capsul = Capsul(database_path='')
-        self.capsul.config.databases['builtin']['path'] \
-            = osp.join(tmpdir, 'capsul_engine_database.rdb')
 
     def tearDown(self):
         if '--keep-tmp' not in sys.argv[1:]:

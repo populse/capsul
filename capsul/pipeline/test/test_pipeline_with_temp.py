@@ -125,10 +125,6 @@ class TestPipelineWithTemp(unittest.TestCase):
             self.pipeline.output_image = output_name
 
             capsul = Capsul(database_path='')
-            tmp = tempfile.mkdtemp(prefix='capsul_test_pp_tmp_')
-            self.temp_files = [tmp]
-            capsul.config.databases['builtin']['path'] \
-                = osp.join(tmp, 'capsul_engine_database.rdb')
             # run sequentially
             with capsul.engine() as ce:
                 ce.run(self.pipeline, timeout=5)
@@ -165,10 +161,6 @@ class TestPipelineWithTemp(unittest.TestCase):
             self.iter_pipeline.output = output_name
 
             capsul = Capsul(database_path='')
-            tmp = tempfile.mkdtemp(prefix='capsul_test_pp_tmp2_')
-            self.temp_files = [tmp]
-            capsul.config.databases['builtin']['path'] \
-                = osp.join(tmp, 'capsul_engine_database.rdb')
             with capsul.engine() as ce:
                 ce.run(self.iter_pipeline, timeout=5)
 

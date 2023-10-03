@@ -113,10 +113,6 @@ class TestLoadFromDescription(unittest.TestCase):
         """ Method to test the function to process on the fly warpping.
         """
         capsul = Capsul(database_path='')
-        tmp = tempfile.mkdtemp(prefix='capsul_test_load_')
-        self.temp_files = [tmp]
-        capsul.config.databases['builtin']['path'] \
-            = osp.join(tmp, 'capsul_engine_database.rdb')
 
         process = capsul.executable(
             'capsul.process.test.test_load_from_description.to_warp_func')
@@ -190,10 +186,6 @@ class TestLoadFromDescription(unittest.TestCase):
 
     def test_return_string(self):
         capsul = Capsul(database_path='')
-        tmp = tempfile.mkdtemp(prefix='capsul_test_load2_')
-        self.temp_files = [tmp]
-        capsul.config.databases['builtin']['path'] \
-            = osp.join(tmp, 'capsul_engine_database.rdb')
         process = capsul.executable(
             'capsul.process.test.test_load_from_description.cat',
             value1='a',
@@ -210,10 +202,6 @@ class TestLoadFromDescription(unittest.TestCase):
 
     def test_return_list(self):
         capsul = Capsul(database_path='')
-        tmp = tempfile.mkdtemp(prefix='capsul_test_load3_')
-        self.temp_files = [tmp]
-        capsul.config.databases['builtin']['path'] \
-            = osp.join(tmp, 'capsul_engine_database.rdb')
         process = capsul.executable(
             'capsul.process.test.test_load_from_description.join')
         with capsul.engine() as capsul_engine:
@@ -260,10 +248,6 @@ class TestProcessWrap(unittest.TestCase):
         """
         # Execute the process
         capsul = Capsul(database_path='')
-        tmp = tempfile.mkdtemp(prefix='capsul_test_load4_')
-        self.temp_files = [tmp]
-        capsul.config.databases['builtin']['path'] \
-            = osp.join(tmp, 'capsul_engine_database.rdb')
         with capsul.engine() as ce:
             ce.run(self.process, timeout=5)
             self.assertEqual(

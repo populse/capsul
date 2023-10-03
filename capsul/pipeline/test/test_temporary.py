@@ -156,8 +156,6 @@ class TestTemporary(unittest.TestCase):
 
         # Create Capsul instance
         self.capsul = Capsul(database_path='')
-        self.capsul.config.databases['builtin']['path'] \
-            = osp.join(os.environ['HOME'], 'capsul_engine_database.rdb')
         # study_config = StudyConfig(modules=['SomaWorkflowConfig'])
         # study_config.input_directory = '/tmp'
         # study_config.somaworkflow_computing_resource = 'localhost'

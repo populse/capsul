@@ -151,8 +151,6 @@ class TestPipelineWorkflow(unittest.TestCase):
         self.capsul = Capsul(database_path='')
         self.pipeline = self.capsul.executable(DummyPipeline)
         self.tmpdir = tempfile.mkdtemp()
-        self.capsul.config.databases['builtin']['path'] \
-            = osp.join(self.tmpdir, 'capsul_engine_database.rdb')
         self.pipeline.input = osp.join(self.tmpdir, 'file_in.nii')
         self.pipeline.output1 = osp.join(self.tmpdir, '/tmp/file_out1.nii')
         self.pipeline.output2 = osp.join(self.tmpdir, '/tmp/file_out2.nii')
