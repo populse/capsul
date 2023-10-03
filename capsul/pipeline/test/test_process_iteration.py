@@ -102,6 +102,7 @@ class TestPipeline(unittest.TestCase):
         self.output_file = NamedTemporaryFile()
         self.output_file.close()
         self.pipeline.output_image = self.output_file.name
+        self.temp_files = [self.input_file.name, self.output_file.name]
 
     def tearDown(self):
         if hasattr(self, 'temp_files'):
