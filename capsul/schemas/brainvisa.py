@@ -3,6 +3,7 @@
 from capsul.dataset import ProcessSchema, MetadataSchema, Append, SchemaMapping
 from soma.controller import undefined
 import importlib
+import copy
 
 
 class BrainVISASharedSchema(MetadataSchema):
@@ -238,6 +239,20 @@ def declare_morpho_schemas(morpho_module):
     sulcigraphmorphometrybysubject \
         = sulcigraphmorphometrybysubject.sulcigraphmorphometrybysubject
 
+    bv_acq_meta = {'unused': ['subject_only', 'analysis', 'seg_directory',
+                              'side', 'sidebis',
+                              'sulci_graph_version',
+                              'sulci_recognition_session']}
+    bv_t1_meta = copy.deepcopy(bv_acq_meta)
+    bv_t1_meta['unused'] += ['suffix']
+    bv_ref_meta = copy.deepcopy(bv_acq_meta)
+    bv_ref_meta['unused'].remove('seg_directory')
+
+    def updated(d, *args):
+        res = copy.deepcopy(d)
+        for d2 in args:
+            res.update(d2)
+        return res
 
     class MorphologistBrainVISA(ProcessSchema, schema='brainvisa',
                                 process=Morphologist):
@@ -293,68 +308,44 @@ def declare_morpho_schemas(morpho_module):
             '*_graph': {'unused': ['subject_only',
                                    'sulci_recognition_session']},
             '*_labelled_graph': {'unused': ['subject_only']},
+            't1mri': bv_t1_meta,
+            'imported_t1mri': bv_t1_meta,
+            'reoriented_t1mri': bv_t1_meta,
+            'normalized_t1mri': bv_acq_meta,
+            'normalization_spm_native_transformation': bv_acq_meta,
+            'commissure_coordinates': bv_t1_meta,
+            't1mri_referential': bv_ref_meta,
+            'Talairach_transform': bv_ref_meta,
+            'MNI_transform': bv_ref_meta,
             'subject': {'used': ['subject_only', 'subject']},
             'sulcal_morpho_measures': {'unused': ['subject_only']},
         }
 
-        t1mri = {
-            'analysis': undefined,
-            'side': None,
-            'sidebis': None,
-            'seg_directory': None,
-            'suffix': None,
-        }
-        imported_t1mri = {
-            'analysis': undefined,
-            'side': None,
-            'sidebis': None,
-            'seg_directory': None,
-            'suffix': None,
-        }
-        normalized_t1mri = {
-            'seg_directory': None,
-            'analysis': undefined,
-        }
         normalization_spm_native_transformation = {
-            'seg_directory': None,
             'prefix': None
         }
-        reoriented_t1mri = {
-            'analysis': undefined,
-        }
         commissure_coordinates = {
-            'seg_directory': None,
-            'analysis': undefined,
-            'prefix': None,
-            'side': None,
             'extension': 'APC',
         }
         t1mri_referential = {
-            'analysis': undefined,
             'seg_directory': 'registration',
             'short_prefix': 'RawT1-',
             'suffix': lambda **kwargs:
                 f'{kwargs["metadata"].acquisition}',
             'extension': 'referential'}
         Talairach_transform = {
-            'analysis': undefined,
             'seg_directory': 'registration',
             'prefix': '',
             'short_prefix': 'RawT1-',
             'suffix': lambda **kwargs:
                 f'{kwargs["metadata"].acquisition}_TO_Talairach-ACPC',
-            'side': None,
-            'sidebis': None,
             'extension': 'trm'}
         MNI_transform = {
-            'analysis': undefined,
             'seg_directory': 'registration',
             'prefix': '',
             'short_prefix': 'RawT1-',
             'suffix': lambda **kwargs:
                 f'{kwargs["metadata"].acquisition}_TO_Talairach-MNI',
-            'side': None,
-            'sidebis': None,
             'extension': 'trm'}
         left_graph = {
             'prefix': None,
