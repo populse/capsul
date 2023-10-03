@@ -74,7 +74,7 @@ class TestFakeMorphologist(unittest.TestCase):
     )
 
     def setUp(self):
-        self.tmp = tmp = Path(tempfile.mkdtemp(prefix='capsul_test_'))
+        self.tmp = tmp = Path(tempfile.mkdtemp(prefix='capsul_test_fakem'))
         #-------------------#
         # Environment setup #
         #-------------------#

@@ -144,7 +144,7 @@ class TestPipeline(unittest.TestCase):
         os.close(tmp[0])
         # os.unlink(tmp[1])
         capsul = Capsul(database_path='')
-        tmp = tempfile.mkdtemp(prefix='capsul_test_')
+        tmp = tempfile.mkdtemp(prefix='capsul_test_pipeline_')
         self.temp_files.append(tmp)
         capsul.config.databases['builtin']['path'] \
             = osp.join(tmp, 'capsul_engine_database.rdb')
