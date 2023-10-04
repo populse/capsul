@@ -58,7 +58,7 @@ if options.subcommand == 'configure':
 
     app_config = ApplicationConfiguration('global_config')
     app = QtGui.QApplication(sys.argv)
-    w = SettingsEditor(capsul.engine())
+    w = SettingsEditor(capsul.config)
     w.show()
     app.exec_()
     del w
