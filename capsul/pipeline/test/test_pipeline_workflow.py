@@ -173,9 +173,9 @@ class TestPipelineWorkflow(unittest.TestCase):
         wf = CapsulWorkflow(self.pipeline, create_output_dirs=True)
         # 5 jobs with the directories creation
         self.assertEqual(len(wf.jobs), 5)
-        # 4 deps
+        # 4 deps + create outputs for 3 nodes (node2, node3, node4)
         self.assertEqual(sum(len(job['wait_for']) for job in wf.jobs.values()),
-                         4)
+                         7)
 
     def test_partial_wf1(self):
         self.pipeline.enable_all_pipeline_steps()

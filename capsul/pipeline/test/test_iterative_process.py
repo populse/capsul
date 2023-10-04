@@ -221,7 +221,8 @@ class TestPipeline(unittest.TestCase):
             os.path.join(self.directory, 'toto_out'),
             os.path.join(self.directory, 'tutu_out')]
         self.small_pipeline.other_output = [1., 2.]
-        workflow = CapsulWorkflow(self.small_pipeline)
+        workflow = CapsulWorkflow(self.small_pipeline,
+                                  create_output_dirs=False)
         #expect 2 + 2 (iter)  jobs
         self.assertEqual(len(workflow.jobs), 4)
         # expect 4 dependencies:
@@ -242,7 +243,7 @@ class TestPipeline(unittest.TestCase):
              os.path.join(self.directory, 'titi_out'),
              os.path.join(self.directory, 'tete_out')]]
         self.big_pipeline.other_output = [[1.1, 2.1], [3.1, 4.1, 5.1]]
-        workflow = CapsulWorkflow(self.big_pipeline)
+        workflow = CapsulWorkflow(self.big_pipeline, create_output_dirs=False)
         # expect:
         #  outer iteration 1: init + 2 iterative jobs + end
         #  outer iteration 2: init + 3 iterative jobs + end
