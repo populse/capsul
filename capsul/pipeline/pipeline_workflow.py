@@ -1546,7 +1546,8 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
         # workflow.
         new_pipeline = Pipeline()
         new_pipeline.set_study_config(study_config)
-        new_pipeline.add_process('main', pipeline)
+        # "pipeline" is actually a single process, the name is ClassName_1
+        new_pipeline.add_process(pipeline.name.lower() + "_1", pipeline)
         new_pipeline.autoexport_nodes_parameters(include_optional=True)
         pipeline = new_pipeline
         temp_pipeline = True
