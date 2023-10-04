@@ -68,6 +68,10 @@ def execution_context(engine_label, engine_config, executable):
                 f'Execution environment "{engine_label}" has no '
                 f'valid configuration for module {module_name}')
         if len(valid_module_configs) > 1:
+            print(f'several {module_name} valid condfigs:')
+            for field, v in valid_module_configs.items():
+                print(field.name, ':', v.asdict())
+            print(valid_module_configs)
             raise RuntimeError(
                 f'Execution environment "{engine_label}" has '
                 f'{len(valid_configs)} possible configurations for '
