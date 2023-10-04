@@ -543,8 +543,7 @@ class CapsulWorkflow(Controller):
 
     def find_job(self, full_name):
         for job in self.jobs.values():
-            pl = [p for p in job['parameters_location'] if p != 'nodes']
-            name = '.'.join(pl)
+            name = self.job_name(job)
             if name == full_name:
                 return job
         return None
@@ -571,6 +570,108 @@ class CapsulWorkflow(Controller):
             'waited_by': list(out_deps),
             'write_parameters': ['directories'],
         }
+
+    def job_name(self, job):
+        if isinstance(job, str):  # job_id
+            job = self.jobs[job]
+
+        return '.'.join([x for x in job['parameters_location']
+                         if x != 'nodes'])
+
+    def to_soma_workflow(self, name=None):
+        ''' Convert a CapsulWorkflow to a Soma-Workflow Workflow object
+
+        This conversion is provided for compatibility and used by older tools
+        (Axon, Morphologist-UI) before they are ported to CapsulWorkflow.
+
+        Remember that Soma-Workflow will be stopped and removed. This method
+        will disappear also in the future, so it is already obsolete.
+
+        In order to work, soma-workflow needs to be installed also.
+
+        Each Capsul job is converted into a SWF job which will run using the
+        commandline interface
+        ``python -m capsul run --non-persistent <proc> [params...]``.
+        This means that execution will be done in each Soma-Workflow job using
+        the "full" Capsul execution system, which will run a local redis
+        database and workers, just for a job. It is somewhat overkill, but
+        allows to run Capsul pipelines integrated into Soma-Workflow-based
+        tools.
+        '''
+        import soma_workflow.client as swc
+        import json
+        import tempfile
+
+        def resolve_tmp(value, temps, ref_param, param_dict, pname):
+            if isinstance(value, list):
+                return [resolve_tmp(v, temps, ref_param, param_dict,
+                                    '%s_%d' % (pname, i))
+                        for i, v in enumerate(value)]
+            if isinstance(value, str) \
+                    and value.startswith('!{dataset.tmp.path}'):
+                tvalue = temps.get(value)
+                if tvalue is not None:
+                    ref_param.append(tvalue)
+                    param_dict[pname] = tvalue
+                    return tvalue
+                if len(value) == 19:  # exactly temp dir
+                    tvalue = tempfile.gettempdir()  # FIXME
+                else:
+                    tvalue = swc.TemporaryPath(suffix=value[20:])
+                    ref_param.append(tvalue)
+                temps[value] = tvalue
+                param_dict[pname] = tvalue
+                return tvalue
+            return value
+
+        deps = []
+        job_map = {}
+        temps = {}
+        for job_id, cjob in self.jobs.items():
+            cmd = [
+                'python', '-m', 'capsul', 'run', '--non-persistent',
+                cjob['process']['definition'],
+            ]
+            ref_inputs = []
+            ref_outputs = []
+            param_dict = {}
+            for param, index in cjob.get('parameters_index', {}).items():
+                value = self.parameters_values[index]
+                while isinstance(value, list) and len(value) == 2 \
+                        and value[0] == '&':
+                    value = value[1]
+                if param in cjob.get('write_parameters', []):
+                    ref_param = ref_outputs
+                else:
+                    ref_param = ref_inputs
+                value = resolve_tmp(value, temps, ref_param, param_dict, param)
+                try:
+                    value = json.dumps(value)
+                except TypeError:  # TemporaryPath are not jsonisable
+                    pass
+                if isinstance(value, str):
+                    cmd.append(f'{param}={value}')
+                else:
+                    cmd.append(['<join>', f'{param}=', value])
+            job = swc.Job(command=cmd,
+                          name=self.job_name(cjob)
+                          + ' (' + cjob['process']['definition'] + ')',
+                          param_dict=param_dict,
+                          referenced_input_files=ref_inputs,
+                          referenced_output_files=ref_outputs)
+            job_map[job_id] = job
+            priority = cjob.get('priority')
+            if priority is not None:
+                job.priority = priority
+            # TODO param links
+
+        for job_id, cjob in self.jobs.items():
+            for dep in cjob.get('wait_for', []):
+                deps.append((job_map[dep], job_map[job_id]))
+
+        wf = swc.Workflow(name=name, jobs=job_map.values(),
+                          dependencies=deps)
+        return wf
 
 
 def find_temporary_to_generate(executable):
