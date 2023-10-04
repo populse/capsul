@@ -215,27 +215,25 @@ class CapsulWorkflow(Controller):
                         if isinstance(value, (list, tuple)):
                             todo += value
                         elif isinstance(value, str):
-                            if value.startswith('!{dataset.') \
-                                    and value.find('}') >= 11:
-                                dpath = os.path.dirname(value)
-                                # remove redundant paths (parents of others)
-                                dpathf = os.path.join(dpath, '')
-                                do_add = True
-                                to_remove = []
-                                for p in out_dirs:
-                                    if p.startswith(dpathf):
-                                        # already a deeper one present
-                                        do_add = False
-                                        break
-                                    if dpath.startswith(os.path.join(p, '')):
-                                        # current is deeper
-                                        to_remove.append(p)
-                                for p in to_remove:
-                                    out_dirs.remove(p)
-                                if do_add:
-                                    out_dirs.add(dpath)
-                                # anyway make a dependency of job over dir_job
-                                add_dep = True
+                            dpath = os.path.dirname(value)
+                            # remove redundant paths (parents of others)
+                            dpathf = os.path.join(dpath, '')
+                            do_add = True
+                            to_remove = []
+                            for p in out_dirs:
+                                if p.startswith(dpathf):
+                                    # already a deeper one present
+                                    do_add = False
+                                    break
+                                if dpath.startswith(os.path.join(p, '')):
+                                    # current is deeper
+                                    to_remove.append(p)
+                            for p in to_remove:
+                                out_dirs.remove(p)
+                            if do_add:
+                                out_dirs.add(dpath)
+                            # anyway make a dependency of job over dir_job
+                            add_dep = True
                 if add_dep:
                     out_deps.append(job_id)
                     if out_job_id is None:
