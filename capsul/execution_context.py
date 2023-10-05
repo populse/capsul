@@ -669,7 +669,7 @@ class CapsulWorkflow(Controller):
             for dep in cjob.get('wait_for', []):
                 deps.append((job_map[dep], job_map[job_id]))
 
-        wf = swc.Workflow(name=name, jobs=job_map.values(),
+        wf = swc.Workflow(name=name, jobs=list(job_map.values()),
                           dependencies=deps)
         return wf
 
