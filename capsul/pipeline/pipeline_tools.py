@@ -579,14 +579,14 @@ def disable_runtime_steps_with_existing_outputs(pipeline):
         step = field.name
         if not getattr(steps, step):
             continue  # already inactive
-        for node_name in steps.metadata(field)['nodes']:
+        for node_name in field.nodes:
             node = pipeline.nodes[node_name]
             if not node.enabled or not node.activated:
                 continue  # node not active anyway
             process = node
             for param in node.plugs:
                 pfield = process.field(param)
-                if process.metadata(pfield).get('write', False) \
+                if pfield.metadata().get('write', False) \
                         and pfield.is_path():
                     value = getattr(process, param, undefined)
                     if value is not None and value is not undefined \
@@ -596,7 +596,7 @@ def disable_runtime_steps_with_existing_outputs(pipeline):
                         disable = True
                         for t in process.fields():
                             n = t.name
-                            if not process.metadata(t).get('write', False) \
+                            if not t.metadata().get('write', False) \
                                     and t.is_path():
                                 v = getattr(process, n, undefined)
                                 if v == value:
@@ -654,8 +654,7 @@ def nodes_with_existing_outputs(pipeline, exclude_inactive=True,
         for field in steps.fields():
             step = field.name
             if not getattr(steps, step, undefined):
-                disabled_nodes.update(steps.metadata(field).get('nodes',
-                                                                set()))
+                disabled_nodes.update(field.nodes)
 
     # nodes = pipeline.nodes.items()
     nodes = list(pipeline.nodes.items())
@@ -726,8 +725,7 @@ def nodes_with_missing_inputs(pipeline, recursive=True):
         step = field.name
         if not getattr(steps, step, undefined):
             disabled_nodes.update(
-                [pipeline.nodes[node_name]
-                 for node_name in steps.metadata(field).get('nodes', set())])
+                [pipeline.nodes[node_name] for node_name in field.nodes])
 
     # nodes = pipeline.nodes.items()
     nodes = list(pipeline.nodes.items())
@@ -1229,11 +1227,9 @@ def is_node_enabled(pipeline, node_name=None, node=None):
     p = pipeline
     for name in names:
         steps = getattr(p, 'pipeline_steps', Controller())
-        disabled_nodes = set()
         for field in steps.fields():
             step = field.name
-            if not getattr(steps, step, undefined) \
-                    and name in steps.metadata(field).get('nodes', set()):
+            if not getattr(steps, step, undefined) and name in field.nodes:
                 return False
         p = p.nodes[name]
 
