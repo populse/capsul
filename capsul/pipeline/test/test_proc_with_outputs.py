@@ -2,7 +2,6 @@
 
 import unittest
 import os
-import os.path as osp
 import sys
 import tempfile
 
@@ -203,35 +202,6 @@ class PipelineWithIteration(Pipeline):
             'capsul.pipeline.test.test_proc_with_outputs.DummyProcess3')
         self.add_link("node_a.outputs->pipeline_a.input")
         self.add_link("pipeline_a.output->node_b.input")
-
-
-# def setUpModule():
-#     global old_home
-#     global temp_home_dir
-#     # Run tests with a temporary HOME directory so that they are isolated from
-#     # the user's environment
-#     temp_home_dir = None
-#     old_home = os.environ.get('HOME')
-#     try:
-#         temp_home_dir = tempfile.mkdtemp('', prefix='soma_workflow')
-#         os.environ['HOME'] = temp_home_dir
-#         swconfig.change_soma_workflow_directory(temp_home_dir)
-#     except BaseException:  # clean up in case of interruption
-#         if old_home is None:
-#             del os.environ['HOME']
-#         else:
-#             os.environ['HOME'] = old_home
-#         if temp_home_dir:
-#             shutil.rmtree(temp_home_dir)
-#         raise
-
-
-# def tearDownModule():
-#     if old_home is None:
-#         del os.environ['HOME']
-#     else:
-#         os.environ['HOME'] = old_home
-#     shutil.rmtree(temp_home_dir)
 
 
 class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
