@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import
-from __future__ import print_function
 
 import os
 import os.path as osp
+import tempfile
 
 
 def configure_all():
@@ -34,9 +33,16 @@ def configure_spm():
         from nipype.interfaces import spm
 
         spm_cmd = spmc.spm_command(None)
-        spm.SPMCommand.set_mlab_paths(
-            matlab_cmd=' '.join(spm_cmd + ['script']),
-            use_mcr=True)
+        # set_mlab_paths() writes a file "pyscript.m" in the current directory.
+        # This is bad but we cannot do anything about it. So let's run it
+        # from a temp directory.
+        cwd = os.getcwd()
+        with tempfile.TemporaryDirectory() as tmpdir:
+            os.chdir(tmpdir)
+            spm.SPMCommand.set_mlab_paths(
+                matlab_cmd=' '.join(spm_cmd + ['script']),
+                use_mcr=True)
+            os.chdir(cwd)
 
     else:
         # Matlab spm version
@@ -48,9 +54,17 @@ def configure_spm():
             from nipype.interfaces import matlab
             from nipype.interfaces import spm
 
-            matlab.MatlabCommand.set_default_paths(
-                [spm_directory])  # + add_to_default_matlab_path)
-            spm.SPMCommand.set_mlab_paths(matlab_cmd="", use_mcr=False)
+            # set_mlab_paths() writes a file "pyscript.m" in the current
+            # directory.
+            # This is bad but we cannot do anything about it. So let's run it
+            # from a temp directory.
+            cwd = os.getcwd()
+            with tempfile.TemporaryDirectory() as tmpdir:
+                os.chdir(tmpdir)
+                matlab.MatlabCommand.set_default_paths(
+                    [spm_directory])  # + add_to_default_matlab_path)
+                spm.SPMCommand.set_mlab_paths(matlab_cmd="", use_mcr=False)
+                os.chdir(cwd)
 
 
 def configure_matlab():
