@@ -85,6 +85,23 @@ def execution_context(engine_label, engine_config, executable):
 
 
 class Engine:
+    ''' The Capsul Engine provides the client API for executions control.
+
+    You normally get an Engine object from the application::
+
+        from capsul.api import Capsul
+
+        capsul = Capsul()  # plus options to reuse a config
+        engine = capsul.engine()
+        with engine as ce:
+            # ce is self, actually
+            print('current executions:', ce.executions_summary()
+
+    The engine contains a reference to the engine config
+    (:class:`~capsul.config.configuration.EngineConfiguration` object),
+    normally selected from the :class:`~capsul.application.Capsul` object for
+    the selected computing resource.
+    '''
 
     def __init__(self, label, config, databases_config, update_database=False):
         super().__init__()
@@ -94,7 +111,7 @@ class Engine:
         self.database = engine_database(self.database_config)
         self.nested_context = 0
         self.update_database = update_database
-    
+
     def __del__(self):
         if self.nested_context != 0:
             # force exit the engine
@@ -107,13 +124,15 @@ class Engine:
             self.database.__enter__()
             # Connect to the engine in the database. Adds the engine in
             # the database if it does not exist.
-            self.engine_id = self.database.get_or_create_engine(self,
-                update_database=self.update_database)
+            self.engine_id = self.database.get_or_create_engine(
+                self, update_database=self.update_database)
             self.config.persistent = self.database.persistent(self.engine_id)
         self.nested_context += 1
         return self
 
     def engine_status(self):
+        '''
+        '''
         result = {
             'label': self.label,
             'config': self.config.json(),
@@ -130,17 +149,26 @@ class Engine:
                 database = None
         if database:
             with database:
-                engine_id = result['engine_id'] = database.engine_id(self.label)
+                engine_id = result['engine_id'] = database.engine_id(
+                    self.label)
                 if engine_id:
                     result['workers_count'] = database.workers_count(engine_id)
-                    result['connections'] = database.engine_connections(engine_id)
+                    result['connections'] = database.engine_connections(
+                        engine_id)
                     result['persistent']: database.persistent(engine_id)
         return result
 
-
     def start_workers(self):
+        ''' Start workers for the current engine.
+
+        The engine configuration ``start_workers `` subsection allows to
+        customize how workers will be started (local processes, or via ssh, or
+        through a job management system...)
+        '''
         requested = self.config.start_workers.get('count', 0)
-        start_count = max(0, requested - self.database.workers_count(self.engine_id))
+        start_count = max(
+            0,
+            requested - self.database.workers_count(self.engine_id))
         if start_count:
             for i in range(start_count):
                 workers_command = self.database.workers_command(self.engine_id)
@@ -151,8 +179,9 @@ class Engine:
                         check=True,
                     )
                 except Exception as e:
-                    quote = lambda x: f"'{x}'"
-                    raise RuntimeError(f'Command failed: {" ".join(quote(i) for i in workers_command)}') from e
+                    def quote(x): return f"'{x}'"
+                    raise RuntimeError(
+                        f'Command failed: {" ".join(quote(i) for i in workers_command)}') from e
 
     def __exit__(self, exception_type, exception_value, exception_traceback):
         # exiting the engine disposes it from the database: executions will
@@ -168,18 +197,35 @@ class Engine:
             del self.engine_id
 
     def execution_context(self, executable):
+        '''
+        '''
         return execution_context(self.label, self.config, executable)
 
     def assess_ready_to_start(self, executable):
+        '''
+        '''
         missing = []
         for field in executable.user_fields():
             value = getattr(executable, field.name)
-            if value is undefined and not field.optional and not field.is_output():
+            if value is undefined and not field.optional \
+                    and not field.is_output():
                 missing.append(field.name)
         if missing:
-            raise ValueError(f'Value missing for the following parameters: {", ".join(missing)}')
+            raise ValueError(
+                f'Value missing for the following parameters: {", ".join(missing)}')
 
     def start(self, executable, debug=False):
+        ''' Start the execution for an executable.
+
+        Start workers if needed.
+
+        Execution will be asynchronous: start() returns as soon as the workflow
+        is pushed to the engine database. It can be monitored using
+        :meth:`status`, :meth:`wait`, :meth:`stop` [TODO].
+
+        :meth:`run` provides a shorthand for combining these methods to work as
+        a synchronous (blocking) execution.
+        '''
         # Starts workers if necessary
         econtext = self.execution_context(executable)
         workflow = CapsulWorkflow(executable, debug=debug)
@@ -197,40 +243,69 @@ class Engine:
         self.start_workers()
         return execution_id
 
-
     def executions_summary(self):
+        '''
+        '''
         with self:
             return self.database.executions_summary(self.engine_id)
-    
 
     def status(self, execution_id):
+        '''
+        '''
         return self.database.status(self.engine_id, execution_id)
-    
 
     def wait(self, execution_id, *args, **kwargs):
+        ''' Wait for the given execution to end.
+
+        Keyword arguments may specify additional parameters
+
+        Parameters
+        ----------
+        execution_id: str
+            ID of the execution to be monitored
+        timeout: float
+            wait timeout (in seconds). If execution has not ended by that time,
+            return anyway but the execution status will not be "done". If not
+            provided (or None), wait() will not return before the execution is
+            finished (which may block indefinitely in case of problem).
+        '''
         self.database.wait(self.engine_id, execution_id, *args, **kwargs)
 
-
     def raise_for_status(self, *args, **kwargs):
+        ''' Raises an exception according to the execution status.
+        '''
         self.database.raise_for_status(self.engine_id, *args, **kwargs)
 
-
     def execution_report(self, *args, **kwargs):
+        '''
+        '''
         return self.database.execution_report(self.engine_id, *args, **kwargs)
 
-
     def print_execution_report(self, engine_id, *args, **kwargs):
+        '''
+        '''
         self.database.print_execution_report(engine_id, *args, **kwargs)
 
     def update_executable(self, *args, **kwargs):
         self.database.update_executable(self.engine_id, *args, **kwargs)
 
-
     def dispose(self, *args, **kwargs):
+        ''' Remove the given execution from the database and the associated
+        resources (temporary files etc.)
+        '''
         self.database.dispose(self.engine_id, *args, **kwargs)
 
+    def run(self, executable, timeout=None, print_report=False, debug=False,
+            **kwargs):
+        ''' Run synchronously an executable, blocking until execution has
+        finished or a timeout has been reached.
 
-    def run(self, executable, timeout=None, print_report=False, debug=False, **kwargs):
+        If execution does not finish without an error, an exception will be
+        raised (also if a timeout occurs).
+
+        Execution will not continue after the timeout, jobs will be stopped
+        [should be.. ?](TODO).
+        '''
         for k, v in kwargs.items():
             setattr(executable, k, v)
         self.assess_ready_to_start(executable)
@@ -239,22 +314,23 @@ class Engine:
             try:
                 self.wait(execution_id, timeout=timeout)
             except TimeoutError:
-                self.print_execution_report(self.execution_report(execution_id), sys.stderr)
+                self.print_execution_report(
+                    self.execution_report(execution_id), sys.stderr)
                 raise
             status = self.status(execution_id)
             self.raise_for_status(execution_id)
             if print_report:
-                self.print_execution_report(self.execution_report(execution_id), file=sys.stdout)
+                self.print_execution_report(
+                    self.execution_report(execution_id), file=sys.stdout)
             self.update_executable(execution_id, executable)
         finally:
             if 'CAPSUL_DEBUG' not in os.environ:
                 self.dispose(execution_id)
         return status
 
+
 class Workers(Controller):
     def __init__(self, engine_label, engine_config, database):
         self.engine_label = engine_label
         self.engine_config = engine_config
         self.database = database
-
-    
