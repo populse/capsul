@@ -2,15 +2,12 @@
 """ Script to auto-generate pipeline rst documentation.
 """
 
-from __future__ import print_function
-
 # System import
-from __future__ import absolute_import
 import os
 from optparse import OptionParser
 import logging
 import sys
-import distutils.spawn
+import shutil
 
 # Get the module name passed in argument
 default_output_dir = os.path.join("source", "generated")
@@ -67,11 +64,11 @@ from capsul.sphinxext.pipelinedocgen import PipelineHelpWriter
 # Generate shemas first
 ###############################################################################
 
-if schema and distutils.spawn.find_executable('dot'):
+if schema and shutil.which('dot'):
     # schemas need the dot tool
     import subprocess
     cmd = [sys.executable, '-m', 'capsul.sphinxext.capsul_pipeline_view',
-       '-i', options.module, '-o', base_outdir]
+           '-i', options.module, '-o', base_outdir]
     if options.verbose:
         cmd.append('-v')
     if options.short_names:
@@ -163,7 +160,8 @@ for module_name in modules:
     outdir = os.path.join(base_outdir, short_name)
     print('short name:', short_name, ', outdir:', outdir)
 
-    docwriter.write_main_index(outdir, module_name, options.module,
+    docwriter.write_main_index(outdir, module_name,
+                               options.module.rsplit('.', 1)[0],
                                have_usecases=False)
     logger.info("Index: an index has been written for module '{0}' at "
                 "location {1}.".format(module_name, os.path.abspath(outdir)))

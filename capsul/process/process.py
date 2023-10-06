@@ -242,8 +242,9 @@ class Process(Node):
                     delimiter_index = cell_row.index(":")
                     cell_row = ("**" + cell_row[:delimiter_index] + "**" +
                                 cell_row[delimiter_index:])
-                rsttable.append(cell_row)
-
+                rsttable.append('    ' + cell_row)
+            if len(table_row) == 1:
+                rsttable.append('')
         return rsttable
 
 
@@ -252,13 +253,13 @@ class Process(Node):
         """ Generate a field string description of the form:
             [field name: type (default value) field doc]
         """
-        result = f'{field.name}: {field.type_str}'
+        result = [f'{field.name}:  {field.type_str()}']
         default = field.default_value()
         if default is not undefined:
-            result = f'{result} ({default})'
+            result[0] += f' ({default}'
         doc = getattr(field, 'doc', None)
         if doc:
-            result = f'{result} {doc}'
+            result.append(doc)
         return result
 
     def get_help(self, returnhelp=False, use_labels=False):
@@ -342,8 +343,8 @@ class Process(Node):
 
         Returns
         -------
-        helpstr: str
-            the class input fields help
+        helpstr: list[str]
+            the class input fields help, as a list of text lines
         """
         # Generate an input section
         helpstr = ["Inputs", "~" * 6, ""]
@@ -353,7 +354,7 @@ class Process(Node):
 
         # Get all the mandatory input fields
         mandatory_items = [i for i in self.user_fields()
-                           if not i.output and not i.optional]
+                           if not i.is_output() and not i.optional]
 
         # If we have mandatory inputs, get the corresponding string
         # descriptions
@@ -376,7 +377,7 @@ class Process(Node):
 
         # Get all optional input fields
         optional_items = [field for field in self.user_fields()
-                          if not field.output and field.optional]
+                          if not field.is_output() and field.optional]
 
         # If we have optional inputs, get the corresponding string
         # descriptions
@@ -421,7 +422,7 @@ class Process(Node):
         # Get all the process output fields, keep their order
         items = [field
                  for field in self.user_fields()
-                 if field.output]
+                 if field.is_output()]
 
         # If we have no output field, return no string description
         if not items:
