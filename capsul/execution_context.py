@@ -5,7 +5,7 @@ import importlib
 import os
 
 from soma.controller import (
-    Controller, OpenKeyDictController, File, Directory, field)
+    Controller, OpenKeyDictController, File, Directory, field, to_json)
 from soma.api import DictWithProxy, undefined
 
 from .dataset import Dataset
@@ -517,7 +517,7 @@ class CapsulWorkflow(Controller):
                     value = process.getattr(field.name, None)
                 # print('  ', field.name, '<-', repr(value), getattr(field, 'generate_temporary', False))
                 # debug = (field.name in debug_plugs)
-                proxy = parameters.proxy(executable.json_value(value))
+                proxy = parameters.proxy(to_json(value))
                 parameters[field.name] = proxy
                 # if debug: print('create proxy for', field.name, ':', proxy)
                 if field.is_output() and isinstance(
