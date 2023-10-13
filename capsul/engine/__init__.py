@@ -271,6 +271,52 @@ class Engine:
         '''
         self.database.wait(self.engine_id, execution_id, *args, **kwargs)
 
+    def stop(self, execution_id, kill_running=True):
+        ''' Stop a running execution
+        '''
+        self.database.stop_execution(self.engine_id, execution_id)
+        if kill_running:
+            self.kill_jobs(execution_id)
+
+    def kill_jobs(self, execution_id, job_ids=None):
+        ''' Kill running jobs during execution
+
+        Passing None as the job_ids argument kills all currently running jobs
+        '''
+        self.database.kill_jobs(self.engine_id, execution_id, job_ids)
+
+    def restart_jobs(self, execution_id: str, job_ids: list[str],
+                     force_stop: bool = False,
+                     allow_restart_execution: bool = False):
+        ''' Restart jobs which have been stopped or have failed.
+
+        Jobs are reset to ready or waiting state in the execution workflow,
+        thus can be run again when their dependencies are satisfied.
+
+        Parameters
+        ----------
+        execution_id: str
+            execution ID
+        job_ids: list[str]
+            list of jobs to be restarted
+        force_stop: bool
+            if True, jobs in the job_ids list which are currently running are
+            killed then reset to ready state. Otherwise a running job is not
+            modified (we let it finish and do not restart it)
+        allow_restart_execution: bool
+            if the execution workflow is stopped, by default only the jobs
+            state is modified, the workdlow is left waiting. If
+            allow_restart_execution is True, then restart() is called and the
+            workflow starts execution again.
+        '''
+        raise NotImplementedError()
+
+    def restart(self, execution_id):
+        ''' Restart a workflow which has failed or has been stopped, and is
+        thus not currently running.
+        '''
+        raise NotImplementedError()
+
     def raise_for_status(self, *args, **kwargs):
         ''' Raises an exception according to the execution status.
         '''

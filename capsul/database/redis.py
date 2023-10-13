@@ -561,26 +561,24 @@ class RedisExecutionDatabase(ExecutionDatabase):
                         self.redis.hget(execution_key, 'done'))),
                     'failed': len(json.loads(
                         self.redis.hget(execution_key, 'failed'))),
-                    'engine_label': self.redis.hget(f'capsul:{engine_id}', 'label'),
+                    'engine_label': self.redis.hget(f'capsul:{engine_id}',
+                                                    'label'),
                     'execution_id': execution_id,
                 }
                 result.append(info)
         return result
 
-
-
     def store_execution(self,
-            engine_id,
-            label,
-            start_time, 
-            executable_json,
-            execution_context_json,
-            workflow_parameters_values_json,
-            workflow_parameters_dict_json,
-            jobs,
-            ready,
-            waiting
-        ):
+                        engine_id,
+                        label,
+                        start_time,
+                        executable_json,
+                        execution_context_json,
+                        workflow_parameters_values_json,
+                        workflow_parameters_dict_json,
+                        jobs,
+                        ready,
+                        waiting):
         execution_id = str(uuid4())
         keys = [
             f'capsul:{engine_id}',
@@ -601,13 +599,12 @@ class RedisExecutionDatabase(ExecutionDatabase):
         self._store_execution(keys=keys, args=args)
         return execution_id
 
-
     def execution_context_json(self, engine_id, execution_id):
-        return json.loads(self.redis.hget(f'capsul:{engine_id}:{execution_id}', 'execution_context'))
-
+        return json.loads(self.redis.hget(f'capsul:{engine_id}:{execution_id}',
+                                          'execution_context'))
 
     def pop_job_json(self, engine_id, start_time):
-        executions = self.redis.hget(f'capsul:{engine_id}','executions')
+        executions = self.redis.hget(f'capsul:{engine_id}', 'executions')
         if executions is None:
             # engine_id does not exists anymore
             # return None to say to workers that they can die
@@ -615,11 +612,12 @@ class RedisExecutionDatabase(ExecutionDatabase):
         else:
             all_disposed = True
             for execution_id in json.loads(executions):
-                all_disposed = all_disposed and self.redis.hget(f'capsul:{engine_id}:{execution_id}', 'dispose') 
+                all_disposed = all_disposed and self.redis.hget(
+                    f'capsul:{engine_id}:{execution_id}', 'dispose')
                 keys = [
                     f'capsul:{engine_id}:{execution_id}'
                 ]
-                args=[start_time]
+                args = [start_time]
                 job_uuid = self._pop_job(keys=keys, args=args)
                 if job_uuid:
                     return execution_id, job_uuid
@@ -630,34 +628,34 @@ class RedisExecutionDatabase(ExecutionDatabase):
                 # Empty string means "no job ready yet"
                 return '', ''
 
-    def job_finished_json(self, engine_id, execution_id, job_uuid, 
+    def job_finished_json(self, engine_id, execution_id, job_uuid,
                           end_time, return_code, stdout, stderr):
         keys = [
             f'capsul:{engine_id}',
             f'capsul:{engine_id}:{execution_id}'
         ]
         args = [
-            execution_id, 
-            job_uuid, 
-            end_time, 
-            return_code, 
-            stdout, 
+            execution_id,
+            job_uuid,
+            end_time,
+            return_code,
+            stdout,
             stderr
         ]
         self._job_finished(keys=keys, args=args)
 
-
     def status(self, engine_id, execution_id):
         return self.redis.hget(f'capsul:{engine_id}:{execution_id}', 'status')
 
-        
     def workflow_parameters_values_json(self, engine_id, execution_id):
-        return json.loads(self.redis.hget(f'capsul:{engine_id}:{execution_id}', 'workflow_parameters_values') or 'null')
-
+        return json.loads(self.redis.hget(
+            f'capsul:{engine_id}:{execution_id}', 'workflow_parameters_values')
+            or 'null')
 
     def workflow_parameters_dict(self, engine_id, execution_id):
-        return json.loads(self.redis.hget(f'capsul:{engine_id}:{execution_id}', 'workflow_parameters_dict') or 'null')
-
+        return json.loads(self.redis.hget(
+            f'capsul:{engine_id}:{execution_id}', 'workflow_parameters_dict')
+            or 'null')
 
     def get_job_input_parameters(self, engine_id, execution_id, job_uuid):
         values = self.workflow_parameters_values_json(engine_id, execution_id)
@@ -670,25 +668,28 @@ class RedisExecutionDatabase(ExecutionDatabase):
             else:
                 result[k] = values[i]
         job['input_parameters'] = result
-        self.redis.hset(f'capsul:{engine_id}:{execution_id}', f'job:{job_uuid}', json.dumps(job))
-        return result        
+        self.redis.hset(f'capsul:{engine_id}:{execution_id}',
+                        f'job:{job_uuid}', json.dumps(job))
+        return result
 
-
-    def set_job_output_parameters(self, engine_id, execution_id, job_uuid, output_parameters):
+    def set_job_output_parameters(self, engine_id, execution_id, job_uuid,
+                                  output_parameters):
         keys = [
             f'capsul:{engine_id}:{execution_id}'
         ]
         args = [
-            job_uuid, 
+            job_uuid,
             json.dumps(output_parameters),
         ]
         self._set_job_output_parameters(keys=keys, args=args)
 
-
     def job_json(self, engine_id, execution_id, job_uuid):
-        job = json.loads(self.redis.hget(f'capsul:{engine_id}:{execution_id}', f'job:{job_uuid}'))
+        job = json.loads(self.redis.hget(f'capsul:{engine_id}:{execution_id}',
+                                         f'job:{job_uuid}'))
         return job
 
+    def kill_jobs(self, engine_id, execution_id, job_ids):
+        raise NotImplementedError
 
     def execution_report_json(self, engine_id, execution_id):
         (label, execution_context, status, error,
@@ -724,7 +725,6 @@ class RedisExecutionDatabase(ExecutionDatabase):
 
         return result
 
-
     def dispose(self, engine_id, execution_id):
         keys = [
             f'capsul:{engine_id}',
@@ -734,7 +734,6 @@ class RedisExecutionDatabase(ExecutionDatabase):
             execution_id,
         ]
         self._dispose(keys=keys, args=args)
-
 
     def check_shutdown(self):
         try:
@@ -750,7 +749,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
                     keys = self.redis.keys('capsul:*')
                     if not keys or keys == ['capsul:shutting_down']:
                         # Nothing in the database, do not save it
-                        save= False
+                        save = False
                     else:
                         save = True
                         self.redis.save()
@@ -772,32 +771,39 @@ class RedisExecutionDatabase(ExecutionDatabase):
             exc.with_traceback(e.__traceback__)
             raise exc from None
 
-    
     def start_execution(self, engine_id, execution_id, tmp):
         self.redis.hset(f'capsul:{engine_id}:{execution_id}', 'tmp', tmp)
-        self.redis.hset(f'capsul:{engine_id}:{execution_id}', 'status', 'running')
+        self.redis.hset(f'capsul:{engine_id}:{execution_id}', 'status',
+                        'running')
 
+    def stop_execution(self, engine_id, execution_id):
+        status = self.status(engine_id, execution_id)
+        if status == 'running':
+            self.redis.hset(f'capsul:{engine_id}:{execution_id}', 'error',
+                            'Aborted by user')
+            self.redis.hset(f'capsul:{engine_id}:{execution_id}', 'status',
+                            'finalization')
 
     def end_execution(self, engine_id, execution_id):
-        self.redis.hset(f'capsul:{engine_id}:{execution_id}', 'status', 'ended')
+        self.redis.hset(f'capsul:{engine_id}:{execution_id}', 'status',
+                        'ended')
         tmp = self.redis.hget(f'capsul:{engine_id}:{execution_id}', 'tmp')
         self.redis.hdel(f'capsul:{engine_id}:{execution_id}', 'tmp')
         if self.redis.hget(f'capsul:{engine_id}:{execution_id}', 'dispose'):
-            executions = json.loads(self.redis.hget(f'capsul:{engine_id}', 'executions'))
+            executions = json.loads(self.redis.hget(f'capsul:{engine_id}',
+                                                    'executions'))
             executions.remove(execution_id)
-            self.redis.hset(f'capsul:{engine_id}', 'executions', json.dumps(executions))
+            self.redis.hset(f'capsul:{engine_id}', 'executions',
+                            json.dumps(executions))
             self.redis.delete(f'capsul:{engine_id}:{execution_id}')
-            if not executions and not self.redis.hget(f'capsul:{engine_id}', 'label'):
+            if not executions and not self.redis.hget(f'capsul:{engine_id}',
+                                                      'label'):
                 # Engine is already disopsed: delete it
                 self.redis.delete(f'capsul:{engine_id}')
         return tmp
 
-
     def tmp(self, engine_id, execution_id):
         return self.redis.hget(f'capsul:{engine_id}:{execution_id}', 'tmp')
 
-
     def error(self, engine_id, execution_id):
         return self.redis.hget(f'capsul:{engine_id}:{execution_id}', 'error')
-
-    
