@@ -17,7 +17,8 @@ def worflow_loop(db_config, engine_id):
             worker_id = database.worker_started(engine_id)
             # print(f'!worker {worker_id}! started', engine_id)
             try:
-                execution_id, job_uuid = database.pop_job(engine_id, start_time=datetime.now())
+                execution_id, job_uuid = database.pop_job(
+                    engine_id, start_time=datetime.now())
                 while job_uuid is not None:
                     if not job_uuid:
                         # Empty string means no job available yet
@@ -25,10 +26,12 @@ def worflow_loop(db_config, engine_id):
                     elif job_uuid == 'start_execution':
                         # print(f'!worker {worker_id}! start', execution_id)
                         # This part is done before the processing of any job
-                        tmp = os.path.join(tempfile.gettempdir(), f'capsul_execution_{execution_id}')
+                        tmp = os.path.join(tempfile.gettempdir(),
+                                           f'capsul_execution_{execution_id}')
                         os.mkdir(tmp)
                         try:
-                            database.start_execution(engine_id, execution_id, tmp)
+                            database.start_execution(engine_id, execution_id,
+                                                     tmp)
                         except Exception:
                             os.rmdir(tmp)
                     elif job_uuid == 'end_execution':
@@ -46,12 +49,14 @@ def worflow_loop(db_config, engine_id):
                             debug=False,
                         )
                         # print(f'!worker {worker_id}! job', execution_id, job_uuid, database.job_finished)
-                        database.job_finished(engine_id, execution_id, job_uuid,
-                            end_time=datetime.now(),
-                            return_code=return_code,
-                            stdout=stdout,
-                            stderr=stderr)
-                    execution_id, job_uuid = database.pop_job(engine_id, start_time=datetime.now())
+                        database.job_finished(engine_id, execution_id,
+                                              job_uuid,
+                                              end_time=datetime.now(),
+                                              return_code=return_code,
+                                              stdout=stdout,
+                                              stderr=stderr)
+                    execution_id, job_uuid = database.pop_job(
+                        engine_id,  start_time=datetime.now())
             finally:
                 # print(f'!worker {worker_id}! ended' )
                 database.worker_ended(engine_id, worker_id)
@@ -61,7 +66,8 @@ def worflow_loop(db_config, engine_id):
 
 if __name__ == '__main__':
     if len(sys.argv) != 3:
-        raise ValueError('This command must be called with two '
+        raise ValueError(
+            'This command must be called with two '
             'parameters: an engine id and a database configuration')
     engine_id = sys.argv[1]
     db_config = json.loads(sys.argv[2])
@@ -72,7 +78,7 @@ if __name__ == '__main__':
     if pid == 0:
         os.setsid()
         worflow_loop(db_config, engine_id)
-        
+
         # import cProfile
         # import tempfile
         # f = tempfile.mktemp(prefix='worker_profile_', dir='/tmp')
