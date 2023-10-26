@@ -10,20 +10,6 @@ from uuid import uuid4
 
 from . import ExecutionDatabase
 
-class SQliteDebug:
-    def __init__(self, sqlite):
-        self.sqlite = sqlite
-    
-    def execute(self, sql, data=[]):
-        print('!sql!', sql, data)
-        result = self.sqlite.execute(sql, data)
-        print('!sql! ->', (result.rowcount if result else ''))
-        return result
-    
-    def executemany(self, sql, data=[]):
-        print('!sql!', sql, '[...]')
-        return self.sqlite.executemany(sql, data)
-
 
 class SQliteExecutionDatabase(ExecutionDatabase):
     @property
@@ -475,7 +461,7 @@ class SQliteExecutionDatabase(ExecutionDatabase):
                     row = sqlite.execute(sql, [engine_id, execution_id, waiting_id]).fetchone()
                     waiting_job = json.loads(row[0])
                     ready_to_go = True
-                    for waited in waiting_job.get('waited_by', []):
+                    for waited in waiting_job.get('wait_for', []):
                         if waited not in done:
                             ready_to_go = False
                             break
@@ -585,8 +571,8 @@ class SQliteExecutionDatabase(ExecutionDatabase):
                 done, failed) = row
                 
                 sql = 'SELECT job FROM capsul_job WHERE engine_id=? AND execution_id=?'
-                row = sqlite.execute(sql, [engine_id, execution_id]).fetchone()
-                jobs = [json.loads(job) for job in row]
+                rows = sqlite.execute(sql, [engine_id, execution_id])
+                jobs = [json.loads(row[0]) for row in rows]
                 parameters_values = json.loads(parameters_values)
                 for job in jobs:
                     job['parameters'] = self.job_parameters_from_values(

@@ -5,7 +5,6 @@ import json
 import multiprocessing
 import os
 import sys
-import tempfile
 
 from soma.controller import (Controller, field,
                              OpenKeyDictController, File)
@@ -18,11 +17,6 @@ default_builtin_database = {
     'type': 'redis+socket',
     'path': '$HOME/.config/{app_name}/database.rdb',
 }
-
-# default_builtin_database = {
-#     'type': 'sqlite',
-#     'path': '$HOME/.config/{app_name}/database.sqlite',
-# }
 
 default_engine_start_workers = {
     'type': 'builtin',

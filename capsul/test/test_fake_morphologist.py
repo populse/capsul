@@ -14,7 +14,7 @@ from capsul.api import Capsul
 from capsul.config.configuration import default_engine_start_workers
 from capsul.dataset import ProcessMetadata, BrainVISASchema
 from capsul.schemas.brainvisa import declare_morpho_schemas
-
+from capsul.config.configuration import default_builtin_database
 
 # patch processes to setup their requirements
 
@@ -199,7 +199,7 @@ class TestFakeMorphologist(unittest.TestCase):
             'databases': {
                 'builtin': {
                     'path': osp.join(self.tmp, 'capsul_engine_database.rdb'),
-                    'type': 'redis+socket'
+                    'type': default_builtin_database['type']
                 }
             },
 

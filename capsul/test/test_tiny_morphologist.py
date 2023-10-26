@@ -13,6 +13,7 @@ from soma.controller import Directory, undefined
 from capsul.api import Capsul, Process, Pipeline
 from capsul.config.configuration import ModuleConfiguration, default_engine_start_workers
 from capsul.dataset import ProcessMetadata, ProcessSchema, Prepend, Append
+from capsul.config.configuration import default_builtin_database
 
 
 class FakeSPMConfiguration(ModuleConfiguration):
@@ -427,7 +428,7 @@ class TestTinyMorphologist(unittest.TestCase):
             'databases': {
                 'builtin': {
                     'path': '',
-                    'type': 'redis+socket'
+                    'type': default_builtin_database['type']
                 }
             },
 
