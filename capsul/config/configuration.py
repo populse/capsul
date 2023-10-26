@@ -14,8 +14,8 @@ from ..dataset import Dataset
 
 
 default_builtin_database = {
-    'type': 'redis+socket',
-    'path': '$HOME/.config/{app_name}/database.rdb',
+    'type': 'sqlite',
+    'path': '$HOME/.config/{app_name}/database.sqlite',
 }
 
 default_engine_start_workers = {
