@@ -18,7 +18,7 @@ from ..pipeline.pipeline import Process, Pipeline
 
 
 database_classes = {
-    'sqlite': 'capsul.database.populse_db:Populse_dbExecutionDatabase',
+    'sqlite': 'capsul.database.sqlite:SQliteExecutionDatabase',
     'redis': 'capsul.database.redis:RedisExecutionDatabase',
     'redis+socket': 'capsul.database.redis:RedisExecutionDatabase',
 }

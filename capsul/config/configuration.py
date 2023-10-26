@@ -19,6 +19,11 @@ default_builtin_database = {
     'path': '$HOME/.config/{app_name}/database.rdb',
 }
 
+# default_builtin_database = {
+#     'type': 'sqlite',
+#     'path': '$HOME/.config/{app_name}/database.sqlite',
+# }
+
 default_engine_start_workers = {
     'type': 'builtin',
     'count': max(1, int(multiprocessing.cpu_count()/4)),
