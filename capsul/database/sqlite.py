@@ -110,7 +110,7 @@ class SQliteExecutionDatabase(ExecutionDatabase):
     def engine_id(self, label):
         with self._read() as sqlite:
             if sqlite:
-                sql = 'SELECT id FROM capsul_engine WHERE label=?'
+                sql = 'SELECT engine_id FROM capsul_engine WHERE label=?'
                 cursor = sqlite.execute(sql, [label])
                 return cursor.fetchone()[0]
 

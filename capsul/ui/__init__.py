@@ -1,42 +1,55 @@
 # -*- coding: utf-8 -*-
-from soma.web import WebRoutes, WebBackend
+from soma.qt_gui.qt_backend.Qt import QVariant
+from soma.web import WebBackend, json_exception, pyqtSlot
 
 
-class CapsulRoutes(WebRoutes):
-    def dashboard(self):
-        return self._result('dashboard.html')
+# class CapsulRoutes(WebRoutes):
+#     def dashboard(self):
+#         return self._result('dashboard.html')
 
 
 
-    def engine(self, engine_label):
-        engine = self._handler['capsul'].engine(engine_label)
-        if engine:
-            return self._result('engine.html', engine=engine)
+#     def engine(self, engine_label):
+#         engine = self._handler['capsul'].engine(engine_label)
+#         if engine:
+#             return self._result('engine.html', engine=engine)
 
 
-    def execution(self, engine_label, execution_id):
-        return self._result('execution.html',
-            engine_label=engine_label,
-            execution_id=execution_id)
+#     def execution(self, engine_label, execution_id):
+#         return self._result('execution.html',
+#             engine_label=engine_label,
+#             execution_id=execution_id)
 
 
-class CapsulBackend(WebBackend):
-    def engines(self) -> list:
-        return [engine.engine_status() for engine in self._handler['capsul'].engines()]
+class CapsulWebBackend(WebBackend):
+    def __init__(self, capsul):
+        super().__init__()
+        self._capsul = capsul
+    
+    @pyqtSlot(result=QVariant)
+    @json_exception
+    def engines(self):
+        return [engine.engine_status() for engine in self._capsul.engines()]
 
 
-    def engine_status(self, engine_label: str) -> dict:
+    @pyqtSlot(str, result=QVariant)
+    @json_exception
+    def engine_status(self, engine_label):
         try:
-            engine = self._handler['capsul'].engine(engine_label)
+            engine = self._capsul.engine(engine_label)
         except ValueError:
             return {}
         return engine.engine_status()
 
 
-    def executions_summary(self, engine_label: str) -> list:
-        return self._handler['capsul'].engine(engine_label).executions_summary()
+    @pyqtSlot(str, result=QVariant)
+    @json_exception
+    def executions_summary(self, engine_label):
+        return self._capsul.engine(engine_label).executions_summary()
 
 
-    def execution_report(self, engine_label: str, execution_id: str) -> dict:
-        with self._handler['capsul'].engine(engine_label) as engine:
+    @pyqtSlot(str, str, result=QVariant)
+    @json_exception
+    def execution_report(self, engine_label, execution_id):
+        with self._capsul.engine(engine_label) as engine:
             return engine.database.execution_report_json(engine.engine_id, execution_id)

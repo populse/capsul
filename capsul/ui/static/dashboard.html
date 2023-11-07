@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Capsul dashboard</title>
+  <script type="text/javascript" src="controller.js"></script>
+  <link rel="stylesheet" href="controller.css">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="capsul.css">
+</head>
+
+<body>
+  <h1>Capsul engines</h1>
+
+  <table>
+  <thead>
+    <th>Label</th>
+    <th>Database</th>
+    <th>Workers</th>
+  </thead>
+  <tbody id="engines_table">
+  </tbody>
+  </table>
+</body>
+<script>
+    var web_backend = new WebBackend('http://localhost:8080/backend');
+  
+    function set_engines(engines_status) {
+      let engines_table = document.getElementById("engines_table");
+      engines_status.forEach(engine_status => {
+        let tr = document.createElement("tr");
+        
+        let td = document.createElement("td");
+        td.innerHTML = '<a href="engine.html?engine_label=' + engine_status['label'] + '">' + engine_status["label"] + '</a>';
+        tr.appendChild(td);
+  
+        td = document.createElement("td");
+        if (engine_status['database_ready']) {
+          td.innerHTML = '✅';
+        } else {
+          td.innerHTML = '⭕';
+        }
+        tr.appendChild(td);
+        
+        td = document.createElement('td');
+        let count = engine_status['workers_count'];
+        if ( count == undefined ) {
+          if ( engine_status['database_ready'] ) {
+            count = 0;
+          } else {
+            count = '❔';
+          }
+        }
+        td.innerHTML = count
+        tr.appendChild(td);
+  
+        engines_table.appendChild(tr);
+      });
+    }
+
+    window.addEventListener("backend_ready", async (event) => {
+      const engines_status = await web_backend.call('engines');
+      set_engines(engines_status);
+    });
+  </script>
+</html>

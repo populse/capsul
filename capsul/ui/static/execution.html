@@ -1,21 +1,37 @@
-{% extends 'layout.html' %}
-{%block body %}
-<h1><span id="process_label">Process</span> execution report</h1>
-<table>
-    <tbody id="details_table">
-    </tbody>
-</table>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Capsul dashboard</title>
+  <script type="text/javascript" src="controller.js"></script>
+  <link rel="stylesheet" href="controller.css">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="capsul.css">
+</head>
 
-<h2>Jobs</h2>
-<div id="jobs">
-</div>
-
-<h2>Parameters values</h2>
-<div id="parameters_values">
-</div>
-{% endblock %}
-{% block script %}
+<body>
+    <h1><span id="process_label">Process</span> execution report</h1>
+    <table>
+        <tbody id="details_table">
+        </tbody>
+    </table>
+    
+    <h2>Jobs</h2>
+    <div id="jobs">
+    </div>
+    
+    <h2>Parameters values</h2>
+    <div id="parameters_values">
+    </div>
+</body>
 <script>
+  const urlParams = new URLSearchParams(window.location.search);
+  var engine_label = urlParams.get("engine_label");
+  var execution_id = urlParams.get("execution_id");
+  
+  var web_backend = new WebBackend('http://localhost:8080/backend');
+
   function set_execution_report(report) {
     let status_icon;
     if ( report['failed'].length )
@@ -186,9 +202,10 @@
       }    
 
   }
-
-  window.addEventListener("backend_ready", (event) => {
-    backend.execution_report('{{engine_label}}', '{{execution_id}}', set_execution_report);
-  });
-</script>
-{% endblock %}
+  
+  window.addEventListener("backend_ready", async (event) => {
+      const execution_report = await web_backend.call('execution_report', engine_label, execution_id);
+      set_execution_report(execution_report);
+    });
+  </script>
+</html>

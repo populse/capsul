@@ -17,6 +17,10 @@ default_builtin_database = {
     'type': 'sqlite',
     'path': '$HOME/.config/{app_name}/database.sqlite',
 }
+default_builtin_database = {
+    'type': 'redis+socket',
+    'path': '$HOME/.config/{app_name}/database.redis',
+}
 
 default_engine_start_workers = {
     'type': 'builtin',
@@ -394,20 +398,20 @@ class ApplicationConfiguration(Controller):
     which allows a complete control and validation at every level, contrarily
     to a ``dict[str, ModuleConfiguration]`` for instance.
     '''
-    site_file: File = field(doc='site configuration file')
-    site: ConfigurationLayer = field(
+    site_file: field(type_=File, doc='site configuration file')
+    site: field(type_=ConfigurationLayer,
         default_factory=ConfigurationLayer,
         doc='Site-wise configuration, set by the software admin or installer. '
         'Elements represent computing resources configs.')
-    user_file: File = field(doc='user configuration file')
-    user: ConfigurationLayer = field(
+    user_file: field(type_=File, doc='user configuration file')
+    user: field(type_=ConfigurationLayer,
         default_factory=ConfigurationLayer,
         doc='Personal user config: overrides or completes the site config. '
         'Elements represent computing resources configs.')
-    app_name: str = field(default='capsul', doc='Application name')
+    app_name: field(type_=str, default='capsul', doc='Application name')
 
     # read-only modified by merge
-    merged_config: ConfigurationLayer = field(
+    merged_config: field(type_=ConfigurationLayer,
         default_factory=ConfigurationLayer, user_level=2)
 
     def __init__(self, app_name, user_file=undefined, site_file=None, user=None):
