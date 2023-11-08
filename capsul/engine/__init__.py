@@ -130,6 +130,17 @@ class Engine:
         self.nested_context += 1
         return self
 
+
+    @property
+    def persistent(self):
+        return self.database.persistent(self.engine_id)
+
+
+    @persistent.setter
+    def persistent(self, persistent):
+        return self.database.set_persistent(self.engine_id, persistent)
+
+
     def engine_status(self):
         '''
         '''

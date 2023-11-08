@@ -14,7 +14,7 @@ def web_server_gui():
     import http, http.server
     from soma.web import SomaHTTPHandler
 
-    class Handler(SomaHTTPHandler, base_url='http://localhost:8080', **handler_kwargs):
+    class Handler(SomaHTTPHandler, **handler_kwargs):
         pass
     httpd = http.server.HTTPServer(('', 8080), Handler)
     httpd.serve_forever()
@@ -32,8 +32,8 @@ def qt_web_gui():
         starting_url=starting_url,
         **handler_kwargs
     )
-    w.static_path.append("/".join(s))
     w.showMaximized()
     app.exec_()
 
 qt_web_gui()
+# web_server_gui()

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 from soma.qt_gui.qt_backend.Qt import QVariant
 from soma.web import WebBackend, json_exception, pyqtSlot
 
@@ -6,6 +7,8 @@ from soma.web import WebBackend, json_exception, pyqtSlot
 class CapsulWebBackend(WebBackend):
     def __init__(self, capsul):
         super().__init__()
+        s = os.path.split(os.path.dirname(__file__)) + ('static',)
+        self.static_path.append("/".join(s))
         self._capsul = capsul
     
     @pyqtSlot(result=QVariant)
