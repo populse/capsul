@@ -3,24 +3,6 @@ from soma.qt_gui.qt_backend.Qt import QVariant
 from soma.web import WebBackend, json_exception, pyqtSlot
 
 
-# class CapsulRoutes(WebRoutes):
-#     def dashboard(self):
-#         return self._result('dashboard.html')
-
-
-
-#     def engine(self, engine_label):
-#         engine = self._handler['capsul'].engine(engine_label)
-#         if engine:
-#             return self._result('engine.html', engine=engine)
-
-
-#     def execution(self, engine_label, execution_id):
-#         return self._result('execution.html',
-#             engine_label=engine_label,
-#             execution_id=execution_id)
-
-
 class CapsulWebBackend(WebBackend):
     def __init__(self, capsul):
         super().__init__()
