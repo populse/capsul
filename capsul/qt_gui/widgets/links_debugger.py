@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''
 Tool to debug and understand process / pipeline parameters links
 

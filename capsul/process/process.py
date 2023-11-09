@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 ''' Process main class and infrastructure
 
 Classes

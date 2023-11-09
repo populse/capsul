@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 # Capsul documentation build configuration file, created by
 # sphinx-quickstart on Wed Sep  4 12:18:01 2013.
 #

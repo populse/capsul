@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import os
 from ..api import Capsul
 from . import CapsulWebBackend

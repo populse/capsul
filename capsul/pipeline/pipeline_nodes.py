@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''
 Specialized Node subclasses for CAPSUL pipeline elements
 

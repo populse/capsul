@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Simple, inelegant Sphinx extension which adds a directive for a
 highlighted code-block that may be toggled hidden and shown in HTML.
 This is possibly useful for teaching courses.

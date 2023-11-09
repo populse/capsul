@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import unittest
 from capsul.api import Process, Pipeline, executable
 from capsul.pipeline import python_export

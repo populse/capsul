@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''
 Pipeline exportation function as a python source code file.
 

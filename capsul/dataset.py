@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 '''
 Metadata handling and attributes-based path generation system. In other words, this module is the completion system for Capsul processes and other executables.
 

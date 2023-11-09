@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''
 Node classes for CAPSUL process and pipeline elements
 

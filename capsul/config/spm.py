@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from .configuration import ModuleConfiguration
 from soma.controller import Directory, undefined
 

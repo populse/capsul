@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from contextlib import contextmanager
 from datetime import datetime
 import json

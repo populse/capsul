@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''
 A tool to debug and inspect nodes activation / deactivation in a pipeline.
 

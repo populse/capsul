@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from .info import __version__
 
 _doc_path = None
