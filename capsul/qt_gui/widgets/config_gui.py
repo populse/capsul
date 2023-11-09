@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from soma.qt_gui.controller import (
     ControllerWidget, WidgetFactory, OpenKeyControllerWidgetFactory,
     ControllerWidgetFactory, ControllerSubwidget)

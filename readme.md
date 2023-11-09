@@ -14,7 +14,7 @@ The simplest is to use a [casa-distro](https://github.com/brainvisa/casa-distro>
 
 
 * get a recent [developer image](https://brainvisa.info/web/download.html#installing-a-singularity-developer-environment>):
-```  
+```
         wget https://brainvisa.info/download/casa-dev-5.3-6.sif
 ```
 

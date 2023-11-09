@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import unittest
 from soma.controller import File
 from capsul.api import Process, executable

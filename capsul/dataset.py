@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 '''
 Metadata handling and attributes-based path generation system. In other words, this module is the completion system for Capsul processes and other executables.
 
@@ -666,7 +664,7 @@ class Prepend:
         self.key = key
         self.value = value
         self.sep = sep
-    
+
     def __call__(self, metadata, process, parameter, initial_meta):
         current_value = getattr(metadata, self.key, '')
         setattr(metadata, self.key, self.value + (self.sep + current_value if current_value else ''))
@@ -679,7 +677,7 @@ class Append:
         self.key = key
         self.value = value
         self.sep = sep
-    
+
     def __call__(self, metadata, process, parameter, initial_meta):
         current_value = getattr(metadata, self.key, '')
         setattr(metadata, self.key, (current_value + self.sep if current_value else '') + self.value)

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from uuid import uuid4
 import importlib
 import os
@@ -533,7 +531,7 @@ class CapsulWorkflow(Controller):
                         if isinstance(dest_node, Pipeline):
                             continue
                         process_chronology.setdefault(
-                            dest_node.uuid + ','.join(process_iterations.get(dest_node.uuid, [])), 
+                            dest_node.uuid + ','.join(process_iterations.get(dest_node.uuid, [])),
                             set()).add(
                                 process.uuid + ','.join(process_iterations.get(process.uuid, [])))
             if opar:

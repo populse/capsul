@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import sys
 from soma.qt_gui.qt_backend import Qt
 from soma.qt_gui.qvtabbar import QVTabWidget

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import json
 from pathlib import Path
 import shutil
@@ -108,7 +106,7 @@ class TestFakeMorphologist(unittest.TestCase):
                     file_name = str(file.name)
                     with file.open('w') as f:
                         print(f'{data_type} acquisition for subject {subject} acquired in session {session}', file=f)
-                    
+
                     sessions_file = subject_dir / f'sub-{subject}_sessions.tsv'
                     if not sessions_file.exists():
                         with open(sessions_file, 'w') as f:
@@ -250,7 +248,7 @@ class TestFakeMorphologist(unittest.TestCase):
 
         morphologist.select_Talairach = 'StandardACPC'
         morphologist.perform_skull_stripped_renormalization = 'initial'
-        
+
         context = engine.execution_context(morphologist)
         expected_context = {
             #'config_modules': ['capsul.test.test_fake_morphologist'],
@@ -579,7 +577,7 @@ class TestFakeMorphologist(unittest.TestCase):
                 pv.show()
                 app.exec_()
 
-            params = dict((i, 
+            params = dict((i,
                 getattr(morphologist, i, undefined)) for i in (
                     'PrepareSubject_Normalization_Normalization_AimsMIRegister_anatomical_template',
                     'imported_t1mri',
@@ -830,7 +828,7 @@ class TestFakeMorphologist(unittest.TestCase):
             'capsul.pipeline.test.fake_morphologist.morphologist.Morphologist',
             non_iterative_plugs=['template'],
         )
-        
+
         self.clear_values(morphologist_iteration)
         self.clear_values(morphologist_iteration.process)
 
@@ -872,13 +870,13 @@ class TestFakeMorphologist(unittest.TestCase):
                 'normalization_t1_spm12_reinit',
                 'normalization_t1_spm12_reinit',
                 'normalization_t1_spm8_reinit']
-            
+
             for i in range(3):
                 brainvisa = BrainVISASchema()
                 brainvisa.analysis = f'{select_Talairach[i]}-{Normalization_select_Normalization_pipeline[i]}'
                 brainvisa.center = 'whatever'
                 iter_meta_brainvisa.append(brainvisa)
-            
+
 
         # Set the input data
         morphologist_iteration.select_Talairach = select_Talairach
@@ -895,7 +893,7 @@ class TestFakeMorphologist(unittest.TestCase):
         p = self.capsul.executable(
             'capsul.pipeline.test.fake_morphologist.morphologist.Morphologist')
         metadata.generate_paths(morphologist_iteration)
-        
+
         # debug = False
         # if debug:
         #     from soma.qt_gui.qt_backend import Qt
@@ -917,7 +915,7 @@ class TestFakeMorphologist(unittest.TestCase):
         for name, value in expected_resolution.items():
             self.assertEqual(getattr(morphologist_iteration, name, undefined),
                              value)
-        
+
     #     try:
     #         with capsul.engine() as ce:
     #             # Finally execute all the Morphologist instances
@@ -1060,7 +1058,7 @@ if __name__ == '__main__':
             # import cProfile
             # cProfile.run(
             #     'execution_ids = without_iteration(engine)',
-            #     '/tmp/without_iteration')       
+            #     '/tmp/without_iteration')
             # cProfile.run(
             #     'execution_ids = with_iteration(engine)',
             #     '/tmp/with_iteration')

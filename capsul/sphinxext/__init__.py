@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''
 Extension to sphinx to document Capsul processes
 

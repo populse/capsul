@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''
 A tool to debug and inspect nodes activation / deactivation in a pipeline.
 
@@ -205,7 +204,7 @@ class ActivationInspector(QtGui.QWidget):
                         type(self.ui), control_name))
 
     ###########################################################################
-    # Slots   
+    # Slots
     ###########################################################################
 
     def refresh_activation_from_record(self):
@@ -220,7 +219,7 @@ class ActivationInspector(QtGui.QWidget):
             if record_pipeline_id != str(self.pipeline.definition):
                 raise ValueError(
                     "'{0}' recorded activations for pipeline '{1}' but not for "
-                    "'{2}'".format(self.record_file, record_pipeline_id, 
+                    "'{2}'".format(self.record_file, record_pipeline_id,
                                    self.pipeline.definition))
 
             # Clear the list where the recorded activation is displayed
@@ -303,7 +302,7 @@ class ActivationInspector(QtGui.QWidget):
             next_activation_row += 1
 
         return 0
-        
+
     def find_previous(self):
         """ Backward search for a pattern in the activation list.
 
@@ -347,7 +346,7 @@ class ActivationInspector(QtGui.QWidget):
 
 if __name__ == "__main__":
     """ Command example:
-    >>> python activation_inspector.py -p funtk.connectivity.conn.Conn 
+    >>> python activation_inspector.py -p funtk.connectivity.conn.Conn
         -r ~/tmp/conn_activation.txt
     """
     # Create a tool we can control easily

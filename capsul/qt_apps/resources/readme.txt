@@ -9,5 +9,5 @@
 # WARNING: this results in a python file which will NOT work with PyQt
 # We'd better use compiled binary resources (rcc -binary)
 
-compile resources with pyside-tools: 
+compile resources with pyside-tools:
     pyside-rcc icones.qrc -o icones.py

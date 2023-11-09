@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import os
 from ..api import Capsul
 from . import CapsulWebBackend
@@ -25,7 +23,7 @@ def qt_web_gui():
     import sys
     from soma.qt_gui.qt_backend import Qt
     from soma.web import SomaBrowserWidget
-    
+
     s = os.path.split(os.path.dirname(__file__)) + ('static',)
     starting_url = f'file://{"/".join(s)}/dashboard.html'
     app = Qt.QApplication(sys.argv)

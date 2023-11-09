@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 ''' Process main class and infrastructure
 
 Classes
@@ -133,7 +132,7 @@ class Process(Node):
     @property
     def uuid(self):
         return self._uuid
-    
+
     @property
     def requirements(self):
         return getattr(super(), 'requirements', {})
@@ -153,10 +152,10 @@ class Process(Node):
         if include_parameters:
             result['parameters'] = self.json_parameters()
         return result
-    
+
     def json_parameters(self):
         return super(Process, self).json()
-    
+
     def before_execute(self, context):
         """This method is called by CapsulEngine before calling
         execute(). By default it does nothing but can be overriden
@@ -169,8 +168,8 @@ class Process(Node):
         execute(). By default it does nothing but can be overridden
         in derived classes.
         """
-        pass        
- 
+        pass
+
     def get_missing_mandatory_parameters(self):
         ''' Returns a list of parameters which are not optional, and which
         value is Undefined or None, or an empty string for a file or
@@ -207,8 +206,8 @@ class Process(Node):
                 context_dict.update((f.name, getattr(execution_context, f.name, None)) for f in execution_context.fields())
                 context_dict['executable'] = execution_context.executable
             try:
-                value = eval(f"f'{value[1:]}'", 
-                             context_dict, 
+                value = eval(f"f'{value[1:]}'",
+                             context_dict,
                              context_dict)
             except NameError:
                 pass
@@ -1078,7 +1077,7 @@ class NipypeProcess(FileCopyProcess):
         '''
         pass
 
-    
+
     @property
     def requirements(self):
         result = super().requirements.copy()

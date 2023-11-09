@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import json
 import os
 import os.path as osp
@@ -46,7 +45,7 @@ class TestConfiguration(unittest.TestCase):
                     }}},
             'databases': {
                 'builtin': default_builtin_database,
-            
+
             }}
         with open(user_file, 'w') as f:
             json.dump(conf_dict, f)
@@ -91,7 +90,7 @@ class TestConfiguration(unittest.TestCase):
                     }}},
             'databases': {
                 'builtin': default_builtin_database,
-            
+
             }}
 
         app_config = ApplicationConfiguration('single_conf',
