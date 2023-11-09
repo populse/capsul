@@ -1,9 +1,9 @@
-table {  
+table {
     font-family:sans-serif;
     border-collapse:separate;
     border-spacing:.25em 1em;
 }
-  
+
 th, td {
     padding:.25em .5em;
     text-align:left;
@@ -18,12 +18,12 @@ th {
 }
 
 tbody tr:nth-child(odd) td {
-    background-color:rgb(238, 255, 242);    
+    background-color:rgb(238, 255, 242);
 }
 
 thead tr,
   tbody tr:nth-child(even) td {
-    background-color:rgb(210, 245, 218);    
+    background-color:rgb(210, 245, 218);
 }
 
 /* Remove bullets and margin for lists inside

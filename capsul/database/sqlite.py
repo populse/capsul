@@ -91,7 +91,7 @@ class SQliteExecutionDatabase(ExecutionDatabase):
                 raise
         else:
             yield None
-    
+
     @contextmanager
     def _read_write(self):
         sqlite = self._connect()
@@ -135,13 +135,13 @@ class SQliteExecutionDatabase(ExecutionDatabase):
         with self._read_write() as sqlite:
             sql = 'INSERT INTO capsul_connection (connection_id, date) VALUES (?, ?)'
             sqlite.execute(sql, [self.uuid, datetime.now().isoformat()])
-    
+
 
     def _exit(self):
         with self._read_write() as sqlite:
             sql = "DELETE FROM capsul_connection WHERE connection_id=?"
             sqlite.execute(sql, [self.uuid])
-   
+
 
     def get_or_create_engine(self, engine, update_database=False):
         with self._read_write() as sqlite:
@@ -176,7 +176,7 @@ class SQliteExecutionDatabase(ExecutionDatabase):
             sql = 'UPDATE capsul_engine SET connections = connections + 1 WHERE engine_id=?'
             sqlite.execute(sql, [engine_id])
             return engine_id
-    
+
 
     def engine_connections(self, engine_id):
         with self._read() as sqlite:
@@ -185,7 +185,7 @@ class SQliteExecutionDatabase(ExecutionDatabase):
                 row = sqlite.execute(sql, [engine_id]).fetchone()
                 if row:
                     return row[0]
-    
+
 
     def engine_config(self, engine_id):
         with self._read() as sqlite:
@@ -317,7 +317,7 @@ class SQliteExecutionDatabase(ExecutionDatabase):
     def store_execution(self,
             engine_id,
             label,
-            start_time, 
+            start_time,
             executable_json,
             execution_context_json,
             workflow_parameters_values_json,
@@ -422,7 +422,7 @@ class SQliteExecutionDatabase(ExecutionDatabase):
                 return '', ''
 
 
-    def job_finished_json(self, engine_id, execution_id, job_id, 
+    def job_finished_json(self, engine_id, execution_id, job_id,
                           end_time, return_code, stdout, stderr):
         with self._read_write() as sqlite:
             sql = 'SELECT job FROM capsul_job WHERE engine_id=? AND execution_id=? AND job_id=?'
@@ -494,7 +494,7 @@ class SQliteExecutionDatabase(ExecutionDatabase):
                 sql = 'SELECT status FROM capsul_execution WHERE engine_id=? AND execution_id=?'
                 return sqlite.execute(sql, [engine_id, execution_id]).fetchone()[0]
 
-        
+
     def workflow_parameters_values_json(self, engine_id, execution_id):
         with self._read() as sqlite:
             if sqlite:
@@ -529,7 +529,7 @@ class SQliteExecutionDatabase(ExecutionDatabase):
             job['input_parameters'] = result
             sql = 'UPDATE capsul_job SET job=? WHERE engine_id=? AND execution_id=? AND job_id=?'
             sqlite.execute(sql, [json.dumps(job), engine_id, execution_id, job_id])
-            return result        
+            return result
 
 
     def set_job_output_parameters(self, engine_id, execution_id, job_id, output_parameters):
@@ -569,7 +569,7 @@ class SQliteExecutionDatabase(ExecutionDatabase):
                 (label, status, tmp, error, error_detail, start_time, end_time, executable,
                 execution_context, parameters_values, waiting, ready, ongoing,
                 done, failed) = row
-                
+
                 sql = 'SELECT job FROM capsul_job WHERE engine_id=? AND execution_id=?'
                 rows = sqlite.execute(sql, [engine_id, execution_id])
                 jobs = [json.loads(row[0]) for row in rows]
@@ -619,7 +619,7 @@ class SQliteExecutionDatabase(ExecutionDatabase):
                     executions.remove(execution_id)
                     sql = 'UPDATE capsul_engine SET executions=? WHERE engine_id=?'
                     sqlite.execute(sql, [json.dumps(executions), engine_id])
-                    
+
 
 
     def check_shutdown(self):
@@ -636,7 +636,7 @@ class SQliteExecutionDatabase(ExecutionDatabase):
         if database_empty and os.path.exists(self.path):
             os.remove(self.path)
 
-    
+
     def start_execution(self, engine_id, execution_id, tmp):
         with self._read_write() as sqlite:
             sql = 'UPDATE capsul_execution SET tmp=?, status=? WHERE engine_id=? AND execution_id=?'
@@ -688,5 +688,3 @@ class SQliteExecutionDatabase(ExecutionDatabase):
                 row = sqlite.execute(sql, [engine_id, execution_id]).fetchone()
                 if row:
                     return row[0]
-
-    

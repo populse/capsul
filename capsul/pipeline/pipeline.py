@@ -177,7 +177,7 @@ class Pipeline(Process):
     _doc_path = 'api/pipeline.html#pipeline'
 
     selection_changed = Event()
-    
+
     # The default value for do_autoexport_nodes_parameters is stored in the
     # pipeline class. This makes it possible to change this default value
     # in derived classes (for instance in DynamicPipeline).
@@ -236,13 +236,13 @@ class Pipeline(Process):
             self.node_position = node_position.copy()
         else:
             self.node_position = {}
-        
+
         node_dimension = getattr(self,'node_dimension', None)
         if node_dimension:
             self.node_dimension = node_dimension.copy()
         else:
             self.node_dimension = {}
-            
+
         self.nodes[''] = self  # FIXME may cause memory leaks
         self.do_not_export = set()
         self._disable_update_nodes_and_plugs_activation = 1
@@ -470,7 +470,7 @@ class Pipeline(Process):
             self._set_node_enabled, node_name)
         self.nodes_activation.remove_field(node_name)
 
-    def add_iterative_process(self, name, process, 
+    def add_iterative_process(self, name, process,
                               non_iterative_plugs=None, iterative_plugs=None,
                               do_not_export=None, make_optional=None,
                               **kwargs):
@@ -516,19 +516,19 @@ class Pipeline(Process):
 
         context_name = self._make_subprocess_context_name(name)
         iterative_process = ProcessIteration(
-                definition=f'{self.definition}#{name}', 
+                definition=f'{self.definition}#{name}',
                 process=process,
                 iterative_parameters=iterative_plugs,
                 context_name=context_name)
         self.add_process(
             name=name,
             process=iterative_process,
-            do_not_export=do_not_export, 
+            do_not_export=do_not_export,
             make_optional=make_optional,
             **kwargs)
         iterative_process.process.name = f'{name}.{iterative_process.process.name}'
 
-    
+
     def create_switch(self, name, options,
                       export_switch=True,
                       make_optional=None,
@@ -572,11 +572,11 @@ class Pipeline(Process):
                 'out2': 'node2.out2'
               },
             })
-        
+
 
         will create a switch allowing to "choose" two woutputs parameters from
         either node1 or node2. This creates a node with 4 inputs and 2 outputs:
-        inputs: "first_choice_switch_out1", "first_choice_switch_out2", 
+        inputs: "first_choice_switch_out1", "first_choice_switch_out2",
         "second_choice_switch_out1" and "second_choice_switch_out2"
         outputs: "out1" and "out2"
 
@@ -619,7 +619,7 @@ class Pipeline(Process):
             self.add_link(link)
 
         return switch
-    
+
 
     def add_switch(self, name, inputs, outputs, export_switch=True,
                    make_optional=(), output_types=None, switch_value=None):
@@ -917,7 +917,7 @@ class Pipeline(Process):
                 )
                 Controller.remove_field(dest_node, dest_field.name)
                 Controller.add_field(dest_node, dest_field.name, new_field)
-                
+
                 output_field = dest_node.field(dest_field.name.split('_switch_')[-1])
                 if output_field.type is Any:
                     new_field = field(
@@ -1100,7 +1100,7 @@ class Pipeline(Process):
                 for sub_node in node.all_nodes():
                     if sub_node is not node:
                         yield sub_node
-            if (in_iterations and 
+            if (in_iterations and
                isinstance(node, ProcessIteration) and
                isinstance(node.process, Pipeline)):
                 yield from node.process.all_nodes(in_iterations=True)
@@ -1520,7 +1520,7 @@ class Pipeline(Process):
         # Create a graph and a list of graph node edges
         graph = self.workflow_graph(remove_disabled_steps)
 
-        
+
         # Start the topological sort
         ordered_list = graph.topological_sort()
 
@@ -1751,7 +1751,7 @@ class Pipeline(Process):
             (e.g. 'node "my_process" is missing')
         """
         result = []
-        
+
         def compare_dict(ref_dict, other_dict):
             for ref_key, ref_value in ref_dict.items():
                 if ref_key not in other_dict:
@@ -1817,11 +1817,11 @@ class Pipeline(Process):
                                 result.append('in plug "%s:%s": link to %s is'
                                               '%sweak' % (node_name, plug_name,
                                                           link_name, (' not'
-                                                          if weak_link else 
+                                                          if weak_link else
                                                           '')))
                     for link_name, weak_link in links_to_dict.items():
                         result.append('in plug "%s:%s": %slink to %s is new' %
-                            (node_name,plug_name, (' weak' if weak_link else 
+                            (node_name,plug_name, (' weak' if weak_link else
                             ''),link_name))
                     for nn, pn, n, p, weak_link in plug.links_from:
                         link_name = '%s:%s' % (n.full_name, pn)
@@ -1833,7 +1833,7 @@ class Pipeline(Process):
                             other_weak_link = links_from_dict.pop(link_name)
                             if weak_link != other_weak_link:
                                 result.append('in plug "%s:%s": link from %s '
-                                              'is%sweak' % (node_name, 
+                                              'is%sweak' % (node_name,
                                                             plug_name,
                                                             link_name,(' not'
                                                             if weak_link else
@@ -1893,7 +1893,7 @@ class Pipeline(Process):
         streams. They are different from pipelines in that steps are purely
         virtual groups, they do not have parameters.
 
-        Disabling a step acts differently as the pipeline node activation: 
+        Disabling a step acts differently as the pipeline node activation:
         other nodes are not inactivated according to their dependencies.
         Instead, those steps are not run.
 
@@ -1967,7 +1967,7 @@ class Pipeline(Process):
         for group, processes in \
                 self.processes_selection[selection_name].items():
             enabled = (group == selection_group)
-            for node_name in processes: 
+            for node_name in processes:
                 self.nodes[node_name].enabled = enabled
         self.restore_update_nodes_and_plugs_activation()
 
@@ -2413,7 +2413,7 @@ class Pipeline(Process):
 class CustomPipeline(Pipeline):
     def __init__(self, definition='custom_pipeline', json_executable = {}):
         object.__setattr__(self, 'json_executable' , json_executable)
-        super().__init__(definition=definition, 
+        super().__init__(definition=definition,
                          autoexport_nodes_parameters=json_executable.get('export_parameters', True))
         for node_full_name, activations in self.json_executable.get('activations', {}).items():
             node = self
@@ -2421,7 +2421,7 @@ class CustomPipeline(Pipeline):
                 node = node.nodes[i]
             node.enabled = activations['enabled']
             node.activated = activations['activated']
-    
+
     def pipeline_definition(self):
         '''
         define the pipeline contents
@@ -2432,7 +2432,7 @@ class CustomPipeline(Pipeline):
         for name, ejson in self.json_executable.get('executables', {}).items():
             e = executable(ejson)
             self.add_process(name, e)
-        
+
         for sel_key, sel_group_def in self.json_executable.get(
                 'processes_selections', {}).items():
             sel_groups = sel_group_def.get("groups")
@@ -2441,7 +2441,7 @@ class CustomPipeline(Pipeline):
 
         all_links = [(i, False) for i in self.json_executable.get('links', [])]
         all_links += [(i, True) for i in self.json_executable.get('weak_links', [])]
-        
+
         for link_def, weak_link in all_links:
             if isinstance(link_def, (list, tuple)):
                 source, dest = link_def
@@ -2466,7 +2466,7 @@ class CustomPipeline(Pipeline):
                 self.export_parameter(node, plug, source,
                                          weak_link=weak_link)
                 exported_parameters.add(source)
-    
+
     def json(self, include_parameters=True):
         result = super().json(include_parameters=include_parameters)
         if self.definition == 'custom_pipeline':
@@ -2518,7 +2518,7 @@ class CustomPipeline(Pipeline):
                 raise NotImplementedError(f'Serialization of {type(node)} not implemented')
             if not node.enabled:
                 node_json['enabled'] = False
-        
+
         for node in self.all_nodes():
             if node is not self:
                 definition.setdefault('activations', {})[node.full_name] = {

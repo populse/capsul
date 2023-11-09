@@ -130,7 +130,7 @@ def update_execution_widget(widget, database, engine_id, execution_id):
         if job_uuid == current_job:
             widget.jobs.setCurrentItem(item)
 
-        
+
     # now = datetime.now()
     # count = 0
     # for job in sorted(jobs, key=lambda j: (j.get('start_time') if j.get('start_time') else now)):

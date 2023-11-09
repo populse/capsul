@@ -256,7 +256,7 @@ class Node(Controller):
 
     def set_pipeline(self, pipeline):
         from capsul.api import Pipeline
-        
+
         self._release_pipeline()
 
         if pipeline is None:

@@ -10,7 +10,7 @@ class CapsulWebBackend(WebBackend):
         s = os.path.split(os.path.dirname(__file__)) + ('static',)
         self.static_path.append("/".join(s))
         self._capsul = capsul
-    
+
     @pyqtSlot(result=QVariant)
     @json_exception
     def engines(self):

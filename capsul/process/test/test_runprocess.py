@@ -13,7 +13,7 @@ from capsul.api import Process
 class DummyProcess(Process):
     """Description of DummyProcess"""
     f: field(type_=float, doc="help for parameter f")
-    
+
     def execute(self, context=None):
         print("DummyProcess exec, f={0}".format(self.f))
 

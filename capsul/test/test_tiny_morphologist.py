@@ -349,7 +349,7 @@ class TestTinyMorphologist(unittest.TestCase):
                     file_name = str(file.name)
                     with file.open('w') as f:
                         print(f'{data_type} acquisition for subject {subject} acquired in session {session}', file=f)
-                    
+
                     sessions_file = subject_dir / f'sub-{subject}_sessions.tsv'
                     if not sessions_file.exists():
                         with open(sessions_file, 'w') as f:
@@ -541,13 +541,13 @@ class TestTinyMorphologist(unittest.TestCase):
             },
         }
 
-        tiny_morphologist = self.capsul.executable('capsul.test.test_tiny_morphologist.TinyMorphologist')            
+        tiny_morphologist = self.capsul.executable('capsul.test.test_tiny_morphologist.TinyMorphologist')
         engine = self.capsul.engine()
         execution_context = engine.execution_context(tiny_morphologist)
         input = str(self.tmp / 'bids'/'rawdata'/'sub-aleksander'/'ses-m0'/'anat'/'sub-aleksander_ses-m0_T1w.nii')
         input_metadata = execution_context.dataset['input'].schema.metadata(input)
         self.assertEqual(input_metadata, {
-            'folder': 'rawdata', 
+            'folder': 'rawdata',
             'sub': 'aleksander',
             'ses': 'm0',
             'data_type': 'anat',
@@ -572,23 +572,23 @@ class TestTinyMorphologist(unittest.TestCase):
                 metadata.bids.asdict(),
                 {
                     'folder': 'rawdata',
-                    'process': None, 
-                    'sub': 'aleksander', 
-                    'ses': 'm0', 
-                    'data_type': 'anat', 
-                    'task': None, 
-                    'acq': None, 
-                    'ce': None, 
-                    'rec': None, 
-                    'run': None, 
-                    'echo': None, 
-                    'part': None, 
-                    'suffix': 'T1w', 
+                    'process': None,
+                    'sub': 'aleksander',
+                    'ses': 'm0',
+                    'data_type': 'anat',
+                    'task': None,
+                    'acq': None,
+                    'ce': None,
+                    'rec': None,
+                    'run': None,
+                    'echo': None,
+                    'part': None,
+                    'suffix': 'T1w',
                     'extension': 'nii'
                 })
             metadata.generate_paths(tiny_morphologist)
-            params = dict((i, 
-                getattr(tiny_morphologist, i, undefined)) for i in ('template', 
+            params = dict((i,
+                getattr(tiny_morphologist, i, undefined)) for i in ('template',
                     'nobias', 'normalized', 'right_hemisphere', 'left_hemisphere'))
             self.maxDiff = 2000
             self.assertEqual(params, expected[normalization])

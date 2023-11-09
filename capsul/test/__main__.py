@@ -14,7 +14,7 @@ parser.add_argument('--html',
                     metavar='DIRECTORY',
                     help='Create tests and coverage HTML reports in given '
                     'directory. Entrypoints are test.html and index.html')
-parser.add_argument('-v', '--verbose', 
+parser.add_argument('-v', '--verbose',
                     action='count',
                     default=0,
                     help='Increase verbosity')
@@ -22,7 +22,7 @@ parser.add_argument('-s',
                     action='store_true',
                     default=None,
                     help='Do not capture stdout nor stderr')
-parser.add_argument('-x', '--exitfirst', 
+parser.add_argument('-x', '--exitfirst',
                     action='store_true',
                     help='Exit instantly on first error or failed test')
 parser.add_argument('-k',

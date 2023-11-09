@@ -1,48 +1,48 @@
 <pipeline capsul_xml="2.0">
-    <process name="threshold_gt_1" 
+    <process name="threshold_gt_1"
      module="capsul.process.test.test_load_from_description.threshold">
         <set name="threshold" value="1"/>
         <set name="method" value="'gt'"/>
     </process>
-    <process name="threshold_gt_10" 
+    <process name="threshold_gt_10"
      module="capsul.process.test.test_load_from_description.threshold">
         <set name="threshold" value="10"/>
         <set name="method" value="'gt'"/>
     </process>
-    <process name="threshold_gt_100" 
+    <process name="threshold_gt_100"
      module="capsul.process.test.test_load_from_description.threshold">
         <set name="threshold" value="100"/>
         <set name="method" value="'gt'"/>
     </process>
-    <process name="threshold_lt_1" 
+    <process name="threshold_lt_1"
      module="capsul.process.test.test_load_from_description.threshold">
         <set name="threshold" value="1"/>
         <set name="method" value="'lt'"/>
     </process>
-    <process name="threshold_lt_10" 
+    <process name="threshold_lt_10"
      module="capsul.process.test.test_load_from_description.threshold">
         <set name="threshold" value="10"/>
         <set name="method" value="'lt'"/>
     </process>
-    <process name="threshold_lt_100" 
+    <process name="threshold_lt_100"
      module="capsul.process.test.test_load_from_description.threshold">
         <set name="threshold" value="100"/>
         <set name="method" value="'lt'"/>
     </process>
-    <process name="mask_1" 
+    <process name="mask_1"
      module="capsul.process.test.test_load_from_description.mask">
     </process>
-    <process name="mask_10" 
+    <process name="mask_10"
      module="capsul.process.test.test_load_from_description.mask">
     </process>
-    <process name="mask_100" 
+    <process name="mask_100"
      module="capsul.process.test.test_load_from_description.mask">
     </process>
 
     <link source="input_image" dest="threshold_gt_1.input_image"/>
     <link source="input_image" dest="threshold_gt_10.input_image"/>
     <link source="input_image" dest="threshold_gt_100.input_image"/>
-    
+
     <link source="input_image" dest="threshold_lt_1.input_image"/>
     <link source="input_image" dest="threshold_lt_10.input_image"/>
     <link source="input_image" dest="threshold_lt_100.input_image"/>
@@ -76,7 +76,7 @@
     </processes_selection>
 
     <!--set name="output_1" optional="1" /-->
-    
+
     <gui>
         <position name="threshold_gt_100" x="386.0" y="403.0"/>
         <position name="inputs" x="50.0" y="50.0"/>

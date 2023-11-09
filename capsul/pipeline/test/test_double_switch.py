@@ -55,7 +55,7 @@ class DoubleSwitchPipeline1(Pipeline):
             options={
                 "one": {
                     "switch_image": "node1.output_image"
-                },  
+                },
                 "two": {
                     "switch_image": "switch1.switch_image1"
                 }

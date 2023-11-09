@@ -197,7 +197,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
                     end
                 end
             end
-            
+
             local engine_key = KEYS[1]
             local execution_key = KEYS[2]
 
@@ -410,7 +410,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
 
             return {label, execution_context, status, error, error_detail,
                 start_time, end_time, waiting, ready, ongoing, done, failed,
-                jobs}                
+                jobs}
             ''')
 
 
@@ -424,7 +424,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
                 return false
             end
             ''')
-    
+
         self._set_job_output_parameters  = self.redis.register_script('''
             local execution_key = KEYS[1]
 
@@ -449,7 +449,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
             self.check_shutdown()
         finally:
             del self.redis
-   
+
 
     def get_or_create_engine(self, engine, update_database=False):
         engine_id = self.redis.hget('capsul:engine', engine.label)
@@ -473,11 +473,11 @@ class RedisExecutionDatabase(ExecutionDatabase):
             self.set_persistent(engine_id, engine.config.persistent)
         self.redis.hincrby(f'capsul:{engine_id}', 'connections', 1)
         return engine_id
-    
+
 
     def engine_connections(self, engine_id):
         return self.redis.hget(f'capsul:{engine_id}', 'connections')
-    
+
 
     def engine_config(self, engine_id):
         config = self.redis.hget(f'capsul:{engine_id}', 'config')
@@ -536,7 +536,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
                 # Check if some executions had been submited or are ongoing
                 # An empty list modified with Redis Lua scripts may be encoded as empty dict
                 executions = json.loads(self.redis.hget(f'capsul:{engine_id}', 'executions'))
-                if all(not self.redis.hget(f'capsul:{engine_id}:{execution_id}', 'dispose') 
+                if all(not self.redis.hget(f'capsul:{engine_id}:{execution_id}', 'dispose')
                        for execution_id in executions):
                     # Nothing is ongoing, completely remove engine
                     self.redis.delete(f'capsul:{engine_id}')

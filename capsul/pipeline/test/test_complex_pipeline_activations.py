@@ -14,7 +14,7 @@ from capsul.api import Process, Pipeline, executable
 class Identity(Process):
     input_image: File = field(optional=False, output=False)
     output_image: File = field(optional=False, output=True)
-    
+
 class ComplexPipeline(Pipeline):
     """Pipeline to test complex constructions behaviours
     """
@@ -26,9 +26,9 @@ class ComplexPipeline(Pipeline):
         self.add_process('pipeline_1',
             'capsul.process.test.test_pipeline',
             make_optional=['output_1', 'output_10','output_100'])
-        
+
         # self.export_parameter('pipeline_1', 'output_1')
-        
+
         self.add_process('pipeline_10',
             'capsul.process.test.test_pipeline',
             make_optional=['output_1', 'output_10','output_100'])
@@ -57,20 +57,20 @@ class ComplexPipeline(Pipeline):
         self.add_process(
             'identity_c',
             'capsul.pipeline.test.test_complex_pipeline_activations.Identity')
-        
+
         self.export_parameter('first_pipeline', 'select_method')
         self.add_link('select_method->pipeline_1.select_method')
         self.add_link('select_method->pipeline_10.select_method')
         self.add_link('select_method->pipeline_100.select_method')
-        
+
         self.add_link('first_pipeline.output_1->pipeline_1.input_image')
         self.add_link('first_pipeline.output_10->pipeline_10.input_image')
         self.add_link('first_pipeline.output_100->pipeline_100.input_image')
-        
+
         self.add_link('select_threshold.output_a->identity_a.input_image')
         self.add_link('select_threshold.output_b->identity_b.input_image')
         self.add_link('select_threshold.output_c->identity_c.input_image')
-        
+
         self.export_parameter('identity_a', 'output_image', 'output_a')
         self.export_parameter('identity_b', 'output_image', 'output_b')
         self.export_parameter('identity_c', 'output_image', 'output_c')
@@ -94,7 +94,7 @@ class TestComplexPipeline(unittest.TestCase):
                         '_activated': True,
                         '_enabled': True,
                     },
-                    
+
                     'first_pipeline': {
                         '_activated': True,
                         '_enabled': True,
@@ -135,7 +135,7 @@ class TestComplexPipeline(unittest.TestCase):
                         '_activated': True,
                         '_enabled': True,
                     },
-                    
+
                     'pipeline_1': {
                         '_activated': True,
                         '_enabled': True,
@@ -176,7 +176,7 @@ class TestComplexPipeline(unittest.TestCase):
                         '_activated': False,
                         '_enabled': True,
                     },
-                    
+
                     'pipeline_10': {
                         '_activated': True,
                         '_enabled': True,
@@ -217,7 +217,7 @@ class TestComplexPipeline(unittest.TestCase):
                         '_activated': False,
                         '_enabled': True,
                     },
-                    
+
                     'pipeline_100': {
                         '_activated': True,
                         '_enabled': True,
@@ -258,7 +258,7 @@ class TestComplexPipeline(unittest.TestCase):
                         '_activated': False,
                         '_enabled': True,
                     },
-                    
+
                     'select_threshold': {
                         '_activated': True,
                         '_enabled': True,
@@ -283,7 +283,7 @@ class TestComplexPipeline(unittest.TestCase):
                         '_activated': True,
                         '_enabled': True,
                     },
-                    
+
                     'first_pipeline': {
                         '_activated': True,
                         '_enabled': True,
@@ -324,7 +324,7 @@ class TestComplexPipeline(unittest.TestCase):
                         '_activated': True,
                         '_enabled': True,
                     },
-                    
+
                     'pipeline_1': {
                         '_activated': True,
                         '_enabled': True,
@@ -365,7 +365,7 @@ class TestComplexPipeline(unittest.TestCase):
                         '_activated': False,
                         '_enabled': True,
                     },
-                    
+
                     'pipeline_10': {
                         '_activated': True,
                         '_enabled': True,
@@ -406,7 +406,7 @@ class TestComplexPipeline(unittest.TestCase):
                         '_activated': False,
                         '_enabled': True,
                     },
-                    
+
                     'pipeline_100': {
                         '_activated': True,
                         '_enabled': True,
@@ -447,7 +447,7 @@ class TestComplexPipeline(unittest.TestCase):
                         '_activated': False,
                         '_enabled': True,
                     },
-                    
+
                     'select_threshold': {
                         '_activated': True,
                         '_enabled': True,
@@ -472,7 +472,7 @@ class TestComplexPipeline(unittest.TestCase):
                         '_activated': True,
                         '_enabled': True,
                     },
-                    
+
                     'first_pipeline': {
                         '_activated': True,
                         '_enabled': True,
@@ -513,7 +513,7 @@ class TestComplexPipeline(unittest.TestCase):
                         '_activated': True,
                         '_enabled': True,
                     },
-                    
+
                     'pipeline_1': {
                         '_activated': True,
                         '_enabled': True,
@@ -554,7 +554,7 @@ class TestComplexPipeline(unittest.TestCase):
                         '_activated': False,
                         '_enabled': True,
                     },
-                    
+
                     'pipeline_10': {
                         '_activated': True,
                         '_enabled': True,
@@ -595,7 +595,7 @@ class TestComplexPipeline(unittest.TestCase):
                         '_activated': False,
                         '_enabled': True,
                     },
-                    
+
                     'pipeline_100': {
                         '_activated': True,
                         '_enabled': True,
@@ -636,7 +636,7 @@ class TestComplexPipeline(unittest.TestCase):
                         '_activated': False,
                         '_enabled': True,
                     },
-                    
+
                     'select_threshold': {
                         '_activated': True,
                         '_enabled': True,
@@ -662,7 +662,7 @@ class TestComplexPipeline(unittest.TestCase):
                         '_activated': True,
                         '_enabled': True,
                     },
-                    
+
                     'first_pipeline': {
                         '_activated': True,
                         '_enabled': True,
@@ -703,7 +703,7 @@ class TestComplexPipeline(unittest.TestCase):
                         '_activated': True,
                         '_enabled': True,
                     },
-                    
+
                     'pipeline_1': {
                         '_activated': True,
                         '_enabled': True,
@@ -744,7 +744,7 @@ class TestComplexPipeline(unittest.TestCase):
                         '_activated': False,
                         '_enabled': True,
                     },
-                    
+
                     'pipeline_10': {
                         '_activated': True,
                         '_enabled': True,
@@ -785,7 +785,7 @@ class TestComplexPipeline(unittest.TestCase):
                         '_activated': False,
                         '_enabled': True,
                     },
-                    
+
                     'pipeline_100': {
                         '_activated': True,
                         '_enabled': True,
@@ -826,7 +826,7 @@ class TestComplexPipeline(unittest.TestCase):
                         '_activated': False,
                         '_enabled': True,
                     },
-                    
+
                     'select_threshold': {
                         '_activated': True,
                         '_enabled': True,
@@ -850,7 +850,7 @@ class TestComplexPipeline(unittest.TestCase):
     def test_complex_activations(self):
         for kwargs, activations_to_check in self.expected_status:
             pipeline = executable(ComplexPipeline, **kwargs)
-            
+
         for full_node_name, node_activations in activations_to_check.items():
             split = full_node_name.split('.')
             node_pipeline = pipeline
@@ -871,7 +871,7 @@ class TestComplexPipeline(unittest.TestCase):
                 expected = node_activations.get('_enabled')
                 if expected is not None:
                     got = node.enabled
-                    self.assertEqual(expected, got)            
+                    self.assertEqual(expected, got)
             except AssertionError:
                 raise AssertionError('Wrong activation within ComplexPipeline with parameters {0}: {1} is supposed to be {2} but is {3}'.format(kwargs, what, expected, got))
 
@@ -879,9 +879,9 @@ class TestComplexPipeline(unittest.TestCase):
 if __name__ == '__main__':
     if '-v' in sys.argv[1:]:
         from pprint import pprint
-        
+
         pipeline = executable(ComplexPipeline)
-            
+
         from soma.qt_gui.qt_backend import Qt
         from capsul.qt_gui.widgets import PipelineDeveloperView
         from capsul.qt_gui.widgets.activation_inspector import ActivationInspectorApp
@@ -894,6 +894,6 @@ if __name__ == '__main__':
         view = PipelineDeveloperView(pipeline, allow_open_controller=True,
                                      show_sub_pipelines=True)
         view.show()
-        
+
         app.exec_()
         del view

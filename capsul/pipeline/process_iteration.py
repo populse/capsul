@@ -24,7 +24,7 @@ class ProcessIteration(Process):
 
     _doc_path = 'api/pipeline.html#processiteration'
 
-    def __init__(self, definition, process, iterative_parameters, 
+    def __init__(self, definition, process, iterative_parameters,
                  context_name=None):
         # Avoid circular import
         from capsul.api import executable
@@ -69,11 +69,11 @@ class ProcessIteration(Process):
             self._add_plug(parameter)
 
         self.metadata_schema = getattr(self.process, 'metadata_schema', {})
-    
+
     @property
     def label(self):
         return self.process.name + f'[{self.iteration_size()}]'
-    
+
     def change_iterative_plug(self, parameter, iterative=None):
         '''
         Change a parameter to be iterative (or non-iterative)
@@ -132,7 +132,7 @@ class ProcessIteration(Process):
                     else:
                         raise ValueError('Iterative parameter values must be lists of the same size: %s' % '\n'.join('%s=%s' % (n, len(getattr(self,n))) for n in self.iterative_parameters if getattr(self,n) is not undefined))
         return size
-    
+
     def iterate_over_process_parmeters(self):
         size = self.iteration_size()
         if size is None:
@@ -140,7 +140,7 @@ class ProcessIteration(Process):
         for iteration_index in range(size):
             self.select_iteration_index(iteration_index)
             yield self.process
-    
+
     def select_iteration_index(self, iteration_index):
         if isinstance(self.process, capsul.pipeline.pipeline.Pipeline):
             self.process.delay_update_nodes_and_plugs_activation()
@@ -174,7 +174,7 @@ class ProcessIteration(Process):
         if include_parameters:
             result['parameters'] = super(Process,self).json()
         return result
-    
+
     def get_linked_items(self, node, plug_name=None, in_sub_pipelines=True,
                          activated_only=True, process_only=True, direction=None,
                          in_outer_pipelines=False):

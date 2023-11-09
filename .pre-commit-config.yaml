@@ -17,7 +17,7 @@ repos:
         exclude: \.min\.js$
     -   id: fix-byte-order-marker
     -   id: fix-encoding-pragma
-    #-   id: trailing-whitespace  # not ready yet
+    -   id: trailing-whitespace
 
 -   repo: https://github.com/PyCQA/flake8
     rev: 4.0.1
@@ -26,5 +26,5 @@ repos:
         name: flake8 under python3
         language_version: python3
         exclude: ^(doc/source|capsul)/sphinxext/
-        args: 
+        args:
         - --ignore=F722,F821

@@ -58,8 +58,8 @@ class Capsul:
     It allows configuration customization and instanciation of a
     CapsulEngine instance to reach an execution environment.
 
-    If database_path is given, it replaces 
-    self.config['databases']['builtin'].path after all site and user 
+    If database_path is given, it replaces
+    self.config['databases']['builtin'].path after all site and user
     configuration is read.
 
     Example:
@@ -142,14 +142,14 @@ class Capsul:
         ''' Get a :class:`~capsul.engine.Engine` instance
         '''
         from .engine import Engine
-        
+
         # get engine type from config
         engine_config = getattr(self.config, name, None)
         if engine_config is None:
             raise ValueError(f'engine "{name}" is not configured.')
         return Engine(name, engine_config, databases_config=self.config.databases,
                       update_database=update_database)
-    
+
     @staticmethod
     def dataset(path):
         ''' Get a :class:`~.dataset.DataSet` instance associated with the given path
@@ -167,7 +167,7 @@ class Capsul:
 
     @classmethod
     def executable_iteration(cls, executable,
-            non_iterative_plugs=None, 
+            non_iterative_plugs=None,
             iterative_plugs=None):
             """ Create a ProcessIteration to run several times (in parallel
             if possible) the same executable with different parameters.
@@ -198,7 +198,7 @@ class Capsul:
                                 if field.name not in forbidden]
 
             iterative_process = ProcessIteration(
-                    definition=f'{process.definition}[]', 
+                    definition=f'{process.definition}[]',
                     process=process,
                     iterative_parameters=iterative_plugs)
             return iterative_process
@@ -211,7 +211,7 @@ def executable(definition, **kwargs):
       - A dictionary containing the JSON serialization of a process.
         A new instance is created by desierializing this dictionary.
       - A process instance.
-    '''        
+    '''
     result = None
     item = None
     if isinstance(definition, dict):
@@ -324,8 +324,8 @@ def executable(definition, **kwargs):
         for name, value in kwargs.items():
             setattr(result, name, value)
         return result
-    raise ValueError(f'Invalid executable definition: {definition}') 
-    
+    raise ValueError(f'Invalid executable definition: {definition}')
+
 def find_executables(module):
     ''' Look for "executables" (:class:`~.process.node.Node` classes) in the
     given module
@@ -375,7 +375,7 @@ def executable_from_python(definition, item):
             raise ValueError(f'Cannot find annotation description to make function {item} a process')
 
     else:
-        raise ValueError(f'Cannot create an executable from {item}')           
+        raise ValueError(f'Cannot create an executable from {item}')
 
     return result
 
@@ -396,7 +396,7 @@ def executable_from_json(definition, json_executable):
         if definition is not None:
             result.definition = definition
     elif type == 'custom_pipeline':
-        result = CustomPipeline(definition=definition, 
+        result = CustomPipeline(definition=definition,
                                 json_executable=process_definition)
     elif type == 'iterative_process':
         result = ProcessIteration(

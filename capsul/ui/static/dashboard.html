@@ -25,16 +25,16 @@
 </body>
 <script>
     var web_backend = new WebBackend('http://localhost:8080/backend');
-  
+
     function set_engines(engines_status) {
       let engines_table = document.getElementById("engines_table");
       engines_status.forEach(engine_status => {
         let tr = document.createElement("tr");
-        
+
         let td = document.createElement("td");
         td.innerHTML = '<a href="engine.html?engine_label=' + engine_status['label'] + '">' + engine_status["label"] + '</a>';
         tr.appendChild(td);
-  
+
         td = document.createElement("td");
         if (engine_status['database_ready']) {
           td.innerHTML = '✅';
@@ -42,7 +42,7 @@
           td.innerHTML = '⭕';
         }
         tr.appendChild(td);
-        
+
         td = document.createElement('td');
         let count = engine_status['workers_count'];
         if ( count == undefined ) {
@@ -54,7 +54,7 @@
         }
         td.innerHTML = count
         tr.appendChild(td);
-  
+
         engines_table.appendChild(tr);
       });
     }

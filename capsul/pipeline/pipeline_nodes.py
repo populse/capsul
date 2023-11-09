@@ -109,7 +109,7 @@ class Switch(Node):
             default they are mandatory.
         output_types: sequence of types (optional)
             If given, this sequence should have the same size as outputs. It
-            will specify each switch output parameter type. 
+            will specify each switch output parameter type.
             Input parameters for each input block will also have this
             type.
         """

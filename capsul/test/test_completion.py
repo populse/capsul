@@ -43,7 +43,7 @@ class TestPipeline(Pipeline):
         self.add_process('right_hemi', 'capsul.test.test_completion.HemiPipeline')
         self.nodes['right_hemi'].nodes['gw_segment'].side = 'right'
         # self.create_switch('normalization', {
-        #     'none': {'output': 'nobias.output'}, 
+        #     'none': {'output': 'nobias.output'},
         #     'fakespm12': {'output': 'fakespm_normalization_12.output'},
         #     'aims':{'output': 'aims_normalization.output'}
         # })

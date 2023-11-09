@@ -110,7 +110,7 @@ class Application(Qt.QApplication):
 
             # Configure the logging module
             logging.basicConfig(level=level, format=logging_format,
-                                datefmt=date_format)           
+                                datefmt=date_format)
 
             # Disable deprecation warnings if we are not in the debug mode
             if level != logging.DEBUG:
