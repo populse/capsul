@@ -3,6 +3,7 @@
 import os
 from ..api import Capsul
 from . import CapsulWebBackend
+import sys
 
 # Parameters common to Qt and Web server handlers
 handler_kwargs = dict(
@@ -35,5 +36,7 @@ def qt_web_gui():
     w.showMaximized()
     app.exec_()
 
-qt_web_gui()
-# web_server_gui()
+if len(sys.argv) < 2 or sys.argv[1] == 'qt':
+    qt_web_gui()
+else:
+    web_server_gui()
