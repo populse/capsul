@@ -215,7 +215,9 @@ class CapsulWorkflow(Controller):
                         if isinstance(value, (list, tuple)):
                             todo += value
                         elif isinstance(value, str):
-                            dpath = os.path.dirname(value)
+                            dpath = os.path.normpath(os.path.dirname(value))
+                            if not dpath:
+                                continue  # skip empty dpath
                             # remove redundant paths (parents of others)
                             dpathf = os.path.join(dpath, '')
                             do_add = True
