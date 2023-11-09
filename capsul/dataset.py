@@ -202,11 +202,16 @@ class BIDSSchema(MetadataSchema):
 
     def _path_list(self, unused_meta=None):
         '''
-        The path has the following pattern:
-          sub-{sub}/ses-{ses}/{data_type}/sub-{sub}_ses-{ses}[_task-{task}][_acq-{acq}][_ce-{ce}][_rec-{rec}][_run-{run}][_echo-{echo}][_part-{part}]{modality}.{extension}
+        The path has one of the following pattern:
+          {folder}/sub-{sub}/ses-{ses}/{data_type}/sub-{sub}_ses-{ses}[_task-{task}][_acq-{acq}][_ce-{ce}][_rec-{rec}][_run-{run}][_echo-{echo}][_part-{part}]{modality}.{extension}
+          derivative/{process}/ses-{ses}/{data_type}/sub-{sub}_ses-{ses}[_task-{task}][_acq-{acq}][_ce-{ce}][_rec-{rec}][_run-{run}][_echo-{echo}][_part-{part}]{modality}.{extension}
         '''
         path_list = [self.folder]
-        if self.process and self.folder == 'derivative':
+        if self.process:
+            if not self.folder:
+                self.folder = 'derivative'
+            elif self.folder != 'derivative':
+                raise ValueError('BIDS schema with a process requires folder=="derivative"')
             path_list += [self.process]
         path_list += [f'sub-{self.sub}',
                       f'ses-{self.ses}']
@@ -515,7 +520,7 @@ class ProcessSchema:
     a metadata dict ``{'part': 'normalized_spm12'}``.
 
     The class does not need to be instantiated or registered anywhere: just its
-    declaration registets it automatically. Thus just importing the subclass
+    declaration registers it automatically. Thus just importing the subclass
     definition is enough.
 
     Metadata can be assigned by parameter name, in a variable corresponding to
