@@ -43,6 +43,12 @@ class CapsulWebBackend(WebBackend):
 
     @pyqtSlot(str, str)
     @json_exception
+    def dispose_execution(self, engine_label, execution_id):
+        with self._capsul.engine(engine_label) as engine:
+            return engine.dispose(execution_id, bypass_persistence=True)
+
+    @pyqtSlot(str, str)
+    @json_exception
     def restart_execution(self, engine_label, execution_id):
         with self._capsul.engine(engine_label) as engine:
             return engine.restart(execution_id)

@@ -103,21 +103,42 @@
 
     async function stop_execution(execution_id) {
       console.log('STOP:', execution_id);
-      await web_backend.call('stop_execution', engine_label, execution_id);
-      location.reload();
+      var result = await web_backend.call('stop_execution', engine_label,
+                                          execution_id);
+      if( result != null && result._json_error_type ) {
+        console.log('Error:', result._json_error_type,
+                    result._json_error_message);
+        console.log(result._json_traceback);
+      }
+      else
+        location.reload();
     }
 
     async function restart_execution(execution_id) {
       console.log('RESTART:', execution_id);
-      await web_backend.call('restart_execution', engine_label, execution_id);
-      console.log('restat done.');
-      location.reload();
+      var result = await web_backend.call('restart_execution', engine_label,
+                                          execution_id);
+      console.log('restart done.');
+      if( result != null && result._json_error_type ) {
+        console.log('Error:', result._json_error_type,
+                    result._json_error_message);
+        console.log(result._json_traceback);
+      }
+      else
+        location.reload();
     }
 
     async function dispose_execution(execution_id) {
       console.log('DISPOSE:', execution_id);
-      await web_backend.call('dispose_execution', engine_label, execution_id);
-      location.reload();
+      var result = await web_backend.call('dispose_execution', engine_label,
+                                          execution_id);
+      if( result != null && result._json_error_type ) {
+        console.log('Error:', result._json_error_type,
+                    result._json_error_message);
+        console.log(result._json_traceback);
+      }
+      else
+        location.reload();
     }
   </script>
 </html>

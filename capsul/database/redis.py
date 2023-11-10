@@ -348,10 +348,11 @@ class RedisExecutionDatabase(ExecutionDatabase):
             local execution_key = KEYS[2]
 
             local execution_id = ARGV[1]
+            local bypass_persistence = ARGV[2]
 
             redis.call('hset', execution_key, 'dispose', 1)
             if (redis.call('hget', execution_key, 'status') == 'ended') and
-               (redis.call('hget', engine_key, 'persistent') == '0') then
+               (bypass_persistence or (redis.call('hget', engine_key, 'persistent') == '0')) then
                 redis.call('del', execution_key)
                 local executions = cjson.decode(redis.call('hget', engine_key, 'executions'))
                 table.remove(executions, table_find(executions, execution_id))
@@ -761,10 +762,11 @@ class RedisExecutionDatabase(ExecutionDatabase):
 
         return result
 
-    def dispose(self, engine_id, execution_id):
+    def dispose(self, engine_id, execution_id, bypass_persistence=False):
         keys = [f"capsul:{engine_id}", f"capsul:{engine_id}:{execution_id}"]
         args = [
             execution_id,
+            int(bool(bypass_persistence))
         ]
         self._dispose(keys=keys, args=args)
 

@@ -343,6 +343,7 @@ class Engine:
         """Remove the given execution from the database and the associated
         resources (temporary files etc.)
         """
+        print('Dispose:', self.engine_id, args, kwargs)
         self.database.dispose(self.engine_id, *args, **kwargs)
 
     def run(self, executable, timeout=None, print_report=False, debug=False, **kwargs):
