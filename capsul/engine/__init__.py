@@ -19,7 +19,7 @@ def execution_context(engine_label, engine_config, executable):
     # {'spm': {'spm12-standalone': {...}, 'spm8': {...}}
     # whereas EXecutionContext expects an execution-side single, filtered
     # config: {'spm': {...}}
-    # Thie filtering is done here in this function, but later after the context
+    # This filtering is done here in this function, but later after the context
     # is built.
     # So for now, give it only the dataset and config_modules part, removing
     # all modules config.
