@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """Simple, inelegant Sphinx extension which adds a directive for a
-highlighted code-block that may be toggled hidden and shown in HTML.  
+highlighted code-block that may be toggled hidden and shown in HTML.
 This is possibly useful for teaching courses.
 
 The directive, like the standard code-block directive, takes
 a language argument and an optional linenos parameter.  The
-hidden-code-block adds starthidden and label as optional 
+hidden-code-block adds starthidden and label as optional
 parameters.
 
 Examples:
@@ -22,10 +22,10 @@ Examples:
     x = 10
     y = x + 5
 
-Thanks to http://www.javascriptkit.com/javatutors/dom3.shtml for 
-inspiration on the javascript.  
+Thanks to http://www.javascriptkit.com/javatutors/dom3.shtml for
+inspiration on the javascript.
 
-Thanks to Milad 'animal' Fatenejad for suggesting this extension 
+Thanks to Milad 'animal' Fatenejad for suggesting this extension
 in the first place.
 
 Written by Anthony 'el Scopz' Scopatz, January 2012.
@@ -74,7 +74,7 @@ class HiddenCodeBlock(CodeBlock):
 
     def run(self):
         # Body of the method is more or less copied from CodeBlock
-        code = u"\n".join(self.content)
+        code = "\n".join(self.content)
         hcb = hidden_code_block(code, code)
         hcb["language"] = self.arguments[0]
         hcb["linenos"] = "linenos" in self.options

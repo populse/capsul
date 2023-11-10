@@ -5,7 +5,7 @@ We call path generation the automatic creation of paths values for a process ins
 
 ## General principles
 
-The path generation system is designed to be **fully automatic**. Path generation must not need any user input except the selection of a few input parameters of the process. This is important to be able to use path generation on iteration of hundreds of executions. 
+The path generation system is designed to be **fully automatic**. Path generation must not need any user input except the selection of a few input parameters of the process. This is important to be able to use path generation on iteration of hundreds of executions.
 
 Path generation is done using **metadata and metadata schema**. The metadata contains the values that are used to build various part of the path. For instance, the subject code is often used in path names as well as an extension defining the file type. These two values are included in the metadata. There is no single way to create a path given metadata. There are many possible layouts for path names using various metadata. For instance, BrainVISA has defined a path organisation layout. BIDS is another path organisation layout that is the actual standard for neuroimaging. Capsul can support many different systems; each one beign defined in a `MetadataSchema` class (see below).
 
@@ -111,7 +111,7 @@ class SegmentHemispheres(Process):
 
 
 
-class SegmentHemispheresBids(ProcessSchema, 
+class SegmentHemispheresBids(ProcessSchema,
                             schema='bids',
                             process=SegmentHemispheres):
     _ = {
@@ -167,7 +167,7 @@ In this example, a fake process with one input parameter and three outputs is cr
 
 A configuration is created containing two datasets for the symbolic names `input` and `output`. These dataset names are used by default for input and output parameters.
 
-After the creation of a process instance and an execution context, a `ProcessMetadata` class is created, some user metadata attributes are set (BIDS values for `folder`, `sub`, `ses`) and `generate_paths()` is called to create path values for each parameters given process and user and metadatas. 
+After the creation of a process instance and an execution context, a `ProcessMetadata` class is created, some user metadata attributes are set (BIDS values for `folder`, `sub`, `ses`) and `generate_paths()` is called to create path values for each parameters given process and user and metadatas.
 
 Finally, this script prints the process parameters twice. The output is:
 ```
@@ -183,6 +183,6 @@ left_output = '/output/derivative/segment_hemispheres/sub-thesubject/ses-thesess
 right_output = '/output/derivative/segment_hemispheres/sub-thesubject/ses-thesession/sub-thesubject_ses-thesession_rhemi.nii'
 ```
 
-First, the parameters are printed as they are created by `generate_paths()`. These paths (starting with `!` character) are using expressions that will be resolved at runtime using the execution context. This allows to make paths that uses symbolic dataset names (`input` and `output` in this case) and can be used on client side independently of the final configuration. 
+First, the parameters are printed as they are created by `generate_paths()`. These paths (starting with `!` character) are using expressions that will be resolved at runtime using the execution context. This allows to make paths that uses symbolic dataset names (`input` and `output` in this case) and can be used on client side independently of the final configuration.
 
 Then, the final real path value after the resolution of special expressions is printed.

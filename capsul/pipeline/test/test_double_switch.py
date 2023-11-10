@@ -26,7 +26,6 @@ class DoubleSwitchPipeline1(Pipeline):
     """Simple Pipeline to test the Switch-Switch connection"""
 
     def pipeline_definition(self):
-
         # Create processes
         self.add_process(
             "node1", "capsul.pipeline.test.test_double_switch.DummyProcess"

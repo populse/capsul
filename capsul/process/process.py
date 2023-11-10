@@ -571,7 +571,6 @@ class FileCopyProcess(Process):
 
         # The copy option is activated
         if self.activate_copy:
-
             # Copy the desired items
             self._update_input_fields()
 
@@ -894,7 +893,6 @@ class NipypeProcess(FileCopyProcess):
 
     def __new__(cls, *args, **kwargs):
         def init_with_skip(self, *args, **kwargs):
-
             cls = self.__init__.cls
             init_att = "__%s_np_init_done__" % cls.__name__
             if hasattr(self, init_att) and getattr(self, init_att):

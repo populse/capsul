@@ -16,7 +16,7 @@
       <tbody  id="status_table">
       </tbody>
   </table>
-  
+
   <h2>Executions</h2>
   <table>
       <thead>
@@ -50,7 +50,7 @@
         status_table.appendChild(tr);
       }
     }
-  
+
     function set_executions_summary(executions_summary) {
       let status_table = document.getElementById("executions_table");
       for (const e of executions_summary) {
@@ -72,7 +72,7 @@
         status_table.appendChild(tr);
       }
     }
-  
+
     window.addEventListener("backend_ready", async (event) => {
       const engine_status = await web_backend.call('engine_status', engine_label);
       set_engine_status(engine_status);

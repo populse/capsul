@@ -112,7 +112,6 @@ class Application(Qt.QApplication):
 
         # If the logging level is specified
         if self.options.debug is not None:
-
             # Get the real logging level from the mapping
             level = levels.get(self.options.debug, None)
 
@@ -141,7 +140,6 @@ class Application(Qt.QApplication):
         # Check if the redirection option is found: redirecect stdout and
         # stderr to a message box
         if self.options.redirect:
-
             # Create a message box
             self.message_box = Qt.QTextEdit()
 

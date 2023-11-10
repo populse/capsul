@@ -44,7 +44,7 @@ CLASSIFIERS = [
 description = "CAPSUL"
 long_description = """
 ========
-CAPSUL 
+CAPSUL
 ========
 
 [capsul] Collaborative Analysis Platform: Simple Unifying, Lean.

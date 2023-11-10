@@ -31,7 +31,6 @@ class MyPipelineWithOptOut(Pipeline):
     """Simple Pipeline to test the OptionalOutputSwitch Node"""
 
     def pipeline_definition(self):
-
         # Create processes
         self.add_process(
             "node1", "capsul.pipeline.test.test_optional_output_switch.DummyProcess"

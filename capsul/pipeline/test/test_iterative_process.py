@@ -284,7 +284,6 @@ class TestPipeline(unittest.TestCase):
         self.assertEqual(subjects, set(["toto", "tutu", "tata", "titi", "tete"]))
 
     def test_iterative_pipeline_workflow_run(self):
-
         self.small_pipeline.output_image = [
             os.path.join(self.directory, "toto_out"),
             os.path.join(self.directory, "tutu_out"),

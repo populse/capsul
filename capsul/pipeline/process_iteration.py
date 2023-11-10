@@ -21,7 +21,6 @@ class IndependentExecutables:
 
 
 class ProcessIteration(Process):
-
     _doc_path = "api/pipeline.html#processiteration"
 
     def __init__(self, definition, process, iterative_parameters, context_name=None):

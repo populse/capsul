@@ -123,7 +123,6 @@ for modules, sorted_dict in (
     [pipelines, sorted_pipelines],
     [processes, sorted_processes],
 ):
-
     # From the modules full path 'm1.m2.pipeline/process' get the module
     # name 'm2'
     module_names = set([x.split(".")[1] for x in modules])
@@ -143,10 +142,8 @@ for sorted_modules, dtype in (
     [sorted_pipelines, "pipeline"],
     [sorted_processes, "process"],
 ):
-
     # Go through all modules
     for module_name, modules in sorted_modules.items():
-
         # Generate the writer object
         docwriter = PipelineHelpWriter(modules, short_names=short_names)
 
@@ -188,7 +185,6 @@ modules = set(list(sorted_processes.keys()) + list(sorted_pipelines.keys()))
 
 # Go through all unique modules
 for module_name in modules:
-
     # Generate an empty writer object
     docwriter = PipelineHelpWriter([], short_names=short_names)
 

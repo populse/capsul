@@ -216,7 +216,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
                     end
                 end
             end
-            
+
             local engine_key = KEYS[1]
             local execution_key = KEYS[2]
 
@@ -437,7 +437,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
 
             return {label, execution_context, status, error, error_detail,
                 start_time, end_time, waiting, ready, ongoing, done, failed,
-                jobs}                
+                jobs}
             """
         )
 
