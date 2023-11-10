@@ -8,7 +8,7 @@ Classes
 """
 
 
-class GraphNode(object):
+class GraphNode:
     """Simple Graph Node Structure
 
     Attributes
@@ -103,7 +103,7 @@ class GraphNode(object):
             self.links_from_degree -= 1
 
 
-class Graph(object):
+class Graph:
     """Simple Graph Structure on which we want to perform a
     topological tree (no cycle).
 

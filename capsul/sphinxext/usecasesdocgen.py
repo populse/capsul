@@ -19,7 +19,7 @@ from six.moves import range
 logger = logging.getLogger(__file__)
 
 
-class UseCasesHelperWriter(object):
+class UseCasesHelperWriter:
     """ A basic class to convert the pilot codes to rst use cases
     """
     def __init__(self, pilots, rst_extension=".rst"):

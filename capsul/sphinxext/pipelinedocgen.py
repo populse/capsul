@@ -3,7 +3,7 @@ import os
 from capsul.api import executable
 
 
-class PipelineHelpWriter(object):
+class PipelineHelpWriter:
     """ Class for automatic generation of pipeline API documentations
     in Sphinx-parsable reST format.
     """

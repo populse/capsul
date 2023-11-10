@@ -1378,7 +1378,7 @@ class %s(Process):
                 has_default = True
             elif field.default_factory != dataclasses.MISSING:
                 # difficult/implssible to replicate...
-                class def_fac(object):
+                class def_fac:
                     def __init__(self, value):
                         self.value = value
 
