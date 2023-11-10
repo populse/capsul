@@ -132,11 +132,13 @@
                 parent_element.appendChild(details);
                 let e = document.createElement('summary');
                 e.innerText = path[path.length -1];
-                if( report.ongoing.includes(job.uuid) ) {
+                if( report.ongoing.includes(job.uuid) || true ) {
                     e.innerText += ' ';
                     btn = document.createElement('button');
                     btn.innerText = '❌';
-                    btn.setAttribute('onclick', 'stop_job(\'' + job.uuid + '\')');
+                    btn.setAttribute(
+                        'onclick', 'stop_job(\'' + report.engine_id
+                        + '\', \'' + job.uuid + '\')');
                     e.appendChild(btn);
                 }
                 details.appendChild(e);
@@ -232,20 +234,28 @@
       set_execution_report(execution_report);
     });
 
-  function stop_execution(execution_id) {
+  async function stop_execution(execution_id) {
     console.log('STOP:', execution_id);
+    await web_backend.call('stop_execution', engine_label, execution_id);
+    location.reload();
   }
 
-  function restart_execution(execution_id) {
+  async function restart_execution(execution_id) {
     console.log('RESTART:', execution_id);
+    await web_backend.call('restart_execution', engine_label, execution_id);
+    location.reload();
   }
 
-  function dispose_execution(execution_id) {
+  async function dispose_execution(execution_id) {
     console.log('DISPOSE:', execution_id);
+    await web_backend.call('dispose_execution', engine_label, execution_id);
+    location.reload();
   }
 
-  function stop_job(job_id) {
-    console.log('STOP job:', job_id);
+  async function stop_job(engine_id, job_id) {
+    console.log('STOP job:', engine_id, job_id);
+    await web_backend.call('stop_job', engine_label, execution_id, job_id);
+    location.reload();
   }
 
   </script>

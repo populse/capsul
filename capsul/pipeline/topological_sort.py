@@ -1,14 +1,15 @@
-'''
+"""
 Build graph with dependencies from a pipeline
 
 Classes
 =======
 :class:`GraphNode`
 ------------------
-'''
+"""
+
 
 class GraphNode(object):
-    """ Simple Graph Node Structure
+    """Simple Graph Node Structure
 
     Attributes
     ----------
@@ -34,7 +35,7 @@ class GraphNode(object):
     """
 
     def __init__(self, name, meta):
-        """ Create a Graph Node
+        """Create a Graph Node
 
         Parameters
         ----------
@@ -54,7 +55,7 @@ class GraphNode(object):
         self.links_from_degree = 0
 
     def add_link_to(self, node):
-        """ Method to add a Successor
+        """Method to add a Successor
 
         Parameters
         ----------
@@ -66,7 +67,7 @@ class GraphNode(object):
             self.links_to_degree += 1
 
     def remove_link_to(self, node):
-        """ Method to remove a Successor
+        """Method to remove a Successor
 
         Parameters
         ----------
@@ -78,7 +79,7 @@ class GraphNode(object):
             self.links_to_degree -= 1
 
     def add_link_from(self, node):
-        """ Method to add a Predecessor
+        """Method to add a Predecessor
 
         Parameters
         ----------
@@ -90,7 +91,7 @@ class GraphNode(object):
             self.links_from_degree += 1
 
     def remove_link_from(self, node):
-        """ Method to remove a Predecessor
+        """Method to remove a Predecessor
 
         Parameters
         ----------
@@ -103,7 +104,7 @@ class GraphNode(object):
 
 
 class Graph(object):
-    """ Simple Graph Structure on which we want to perform a
+    """Simple Graph Structure on which we want to perform a
     topological tree (no cycle).
 
     The algorithm is based on the R.E. Tarjanlinear linear
@@ -125,13 +126,12 @@ class Graph(object):
     """
 
     def __init__(self):
-        """ Create a Graph
-        """
+        """Create a Graph"""
         self._nodes = {}
         self._links = []
 
     def add_node(self, node):
-        """ Method to add a GraphNode in the Graph
+        """Method to add a GraphNode in the Graph
 
         Parameters
         ----------
@@ -141,12 +141,13 @@ class Graph(object):
         if not isinstance(node, GraphNode):
             raise Exception("Expect a GraphNode, got {0}".format(node))
         if node.name in self._nodes:
-            raise Exception("Expect a GraphNode with a unique name, "
-                            "got {0}".format(node))
+            raise Exception(
+                "Expect a GraphNode with a unique name, " "got {0}".format(node)
+            )
         self._nodes[node.name] = node
 
     def find_node(self, node_name):
-        """ Method to find a GraphNode in the Graph
+        """Method to find a GraphNode in the Graph
 
         Parameters
         ----------
@@ -158,7 +159,7 @@ class Graph(object):
         return None
 
     def add_link(self, from_node, to_node):
-        """ Method to add an edge between two GraphNodes of the Graph
+        """Method to add an edge between two GraphNodes of the Graph
 
         Parameters
         ----------
@@ -168,18 +169,22 @@ class Graph(object):
         the successor node
         """
         if from_node not in self._nodes:
-            raise Exception("Node {0} is not defined in the Graph."
-                   "Use add_node() method".format(from_node))
+            raise Exception(
+                "Node {0} is not defined in the Graph."
+                "Use add_node() method".format(from_node)
+            )
         if to_node not in self._nodes:
-            raise Exception("Node {0} is not defined in the Graph."
-                   "Use add_node() method".format(to_node))
+            raise Exception(
+                "Node {0} is not defined in the Graph."
+                "Use add_node() method".format(to_node)
+            )
         if (from_node, to_node) not in self._links:
             self._nodes[to_node].add_link_from(self._nodes[from_node])
             self._nodes[from_node].add_link_to(self._nodes[to_node])
             self._links.append((from_node, to_node))
 
     def topological_sort(self):
-        """ Perform the topological sort: find an order in which all the
+        """Perform the topological sort: find an order in which all the
         nodes can be taken.
         Step 1: Identify nodes that have no incoming link (nnil).
         Step 2: Loop until there are nnil
@@ -205,14 +210,14 @@ class Graph(object):
 
         # Step 2
         while len(nnil):
-        #-- a
+            # -- a
             c_nnil = nnil.pop()
-        #-- b
+            # -- b
             ordered_nodes.append(c_nnil)
-        #-- c
+            # -- c
             for node in c_nnil.links_to:
                 node.remove_link_from(c_nnil)
-        #-- d
+                # -- d
                 if node.links_from_degree == 0:
                     nnil.append(node)
 
@@ -220,19 +225,25 @@ class Graph(object):
         if len(ordered_nodes) == len(self._nodes):
             return [(node.name, node.meta) for node in ordered_nodes]
         else:
-            raise Exception("There is loop in the Graph."
-                            "Please inverstigate")
+            raise Exception("There is loop in the Graph." "Please inverstigate")
 
 
-if __name__ == '__main__':
-
-    """ A toy example:
+if __name__ == "__main__":
+    """A toy example:
     slip -> chaussettes -> chemise -> veste -> pantalon -> ceinture ->
     chaussures -> cravate
     """
 
-    objects = ["chaussures", "chaussettes", "slip", "pantalon", "ceinture",
-        "chemise", "veste", "cravate"]
+    objects = [
+        "chaussures",
+        "chaussettes",
+        "slip",
+        "pantalon",
+        "ceinture",
+        "chemise",
+        "veste",
+        "cravate",
+    ]
 
     dependencies = [
         ("slip", "pantalon"),
@@ -243,7 +254,7 @@ if __name__ == '__main__':
         ("pantalon", "chaussures"),
         ("ceinture", "chaussures"),
         ("chemise", "veste"),
-        ]
+    ]
 
     g = Graph()
 

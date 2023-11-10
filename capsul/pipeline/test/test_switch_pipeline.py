@@ -8,11 +8,10 @@ from soma.controller import undefined
 
 
 class DummyProcess(Process):
-    """ Dummy Test Process
-    """
+    """Dummy Test Process"""
+
     def __init__(self, definition=None):
-        super(DummyProcess, self).__init__(
-            'capsul.pipeline.test.test_switch_pipeline')
+        super(DummyProcess, self).__init__("capsul.pipeline.test.test_switch_pipeline")
 
         # inputs
         self.add_field("input_image", str, optional=False)
@@ -24,35 +23,44 @@ class DummyProcess(Process):
 
     def execute(self, context=None):
         self.output_image = self.input_image
-        self.other_output = getattr(self, 'other_input', undefined)
+        self.other_output = getattr(self, "other_input", undefined)
 
 
 class SwitchPipeline(Pipeline):
-    """ Simple Pipeline to test the Switch Node
-    """
+    """Simple Pipeline to test the Switch Node"""
+
     def pipeline_definition(self):
-
         # Create processes
-        self.add_process("node",
-            "capsul.pipeline.test.test_switch_pipeline.DummyProcess")
-        self.add_process("way1",
-            "capsul.pipeline.test.test_switch_pipeline.DummyProcess")
-        self.add_process("way21",
-            "capsul.pipeline.test.test_switch_pipeline.DummyProcess")
-        self.add_process("way22",
-             "capsul.pipeline.test.test_switch_pipeline.DummyProcess")
+        self.add_process(
+            "node", "capsul.pipeline.test.test_switch_pipeline.DummyProcess"
+        )
+        self.add_process(
+            "way1", "capsul.pipeline.test.test_switch_pipeline.DummyProcess"
+        )
+        self.add_process(
+            "way21", "capsul.pipeline.test.test_switch_pipeline.DummyProcess"
+        )
+        self.add_process(
+            "way22", "capsul.pipeline.test.test_switch_pipeline.DummyProcess"
+        )
 
-        self.create_switch("switch",
-            options = {
+        self.create_switch(
+            "switch",
+            options={
                 "one": {
                     "switch_image": "way1.output_image",
-                    "switch_output": "way1.other_output"},
+                    "switch_output": "way1.other_output",
+                },
                 "two": {
                     "switch_image": "way22.output_image",
-                    "switch_output": "way22.other_output"},
+                    "switch_output": "way22.other_output",
+                },
                 "none": {
                     "switch_image": "node.output_image",
-                    "switch_output": "node.other_output"}})
+                    "switch_output": "node.other_output",
+                },
+            },
+        )
 
         # Links
         self.add_link("node.output_image->way1.input_image")
@@ -63,46 +71,55 @@ class SwitchPipeline(Pipeline):
         self.add_link("way21.output_image->way22.input_image")
         self.add_link("way21.other_output->way22.other_input")
 
-
         # Outputs
-        self.export_parameter("node", "other_output",
-                              pipeline_parameter="hard_output",
-                              is_optional=True)
-        self.export_parameter("way21", "other_output",
-                              pipeline_parameter="weak_output_1",
-                              weak_link=True,
-                              is_optional=True)
-        self.export_parameter("way22", "other_output",
-                              pipeline_parameter="weak_output_2",
-                              weak_link=True,
-                              is_optional=True)
-        self.export_parameter("switch", "switch_image",
-                              pipeline_parameter="result_image")
-        self.export_parameter("switch", "switch_output",
-                              pipeline_parameter="result_output")
+        self.export_parameter(
+            "node", "other_output", pipeline_parameter="hard_output", is_optional=True
+        )
+        self.export_parameter(
+            "way21",
+            "other_output",
+            pipeline_parameter="weak_output_1",
+            weak_link=True,
+            is_optional=True,
+        )
+        self.export_parameter(
+            "way22",
+            "other_output",
+            pipeline_parameter="weak_output_2",
+            weak_link=True,
+            is_optional=True,
+        )
+        self.export_parameter(
+            "switch", "switch_image", pipeline_parameter="result_image"
+        )
+        self.export_parameter(
+            "switch", "switch_output", pipeline_parameter="result_output"
+        )
 
 
 class TestSwitchPipeline(unittest.TestCase):
-
     def setUp(self):
         self.pipeline = executable(SwitchPipeline)
 
     def test_way1(self):
         self.pipeline.switch = "one"
-        workflow_repr = '->'.join([
-            j.name for j in self.pipeline.workflow_ordered_nodes()])
+        workflow_repr = "->".join(
+            [j.name for j in self.pipeline.workflow_ordered_nodes()]
+        )
         self.assertEqual(workflow_repr, "node->way1")
 
     def test_way2(self):
         self.pipeline.switch = "two"
-        workflow_repr = '->'.join([
-            j.name for j in self.pipeline.workflow_ordered_nodes()])
+        workflow_repr = "->".join(
+            [j.name for j in self.pipeline.workflow_ordered_nodes()]
+        )
         self.assertEqual(workflow_repr, "node->way21->way22")
 
     def test_way3(self):
         self.pipeline.switch = "none"
-        workflow_repr = '->'.join([
-            j.name for j in self.pipeline.workflow_ordered_nodes()])
+        workflow_repr = "->".join(
+            [j.name for j in self.pipeline.workflow_ordered_nodes()]
+        )
         self.assertEqual(workflow_repr, "node")
 
     def test_weak_on(self):
@@ -179,8 +196,9 @@ if __name__ == "__main__":
     pipeline = executable(SwitchPipeline)
     # pipeline.switch = "two"
     # pipeline.input_image = 'test'
-    view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True,
-                                    allow_open_controller=True)
+    view1 = PipelineDeveloperView(
+        pipeline, show_sub_pipelines=True, allow_open_controller=True
+    )
     view1.show()
     app.exec_()
     del view1

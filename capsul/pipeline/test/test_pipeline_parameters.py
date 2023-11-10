@@ -9,8 +9,10 @@ from datetime import time, datetime
 from populse_db import json_encode
 
 from capsul.api import Process, Capsul
-from capsul.pipeline.pipeline_tools import (save_pipeline_parameters,
-                                            load_pipeline_parameters)
+from capsul.pipeline.pipeline_tools import (
+    save_pipeline_parameters,
+    load_pipeline_parameters,
+)
 from soma.controller import File
 
 
@@ -21,7 +23,7 @@ def load_pipeline_dictionary(filename):
     :param filename: the json filename
     """
     if filename:
-        with open(filename, 'r', encoding='utf8') as file:
+        with open(filename, "r", encoding="utf8") as file:
             return json.load(file)
 
 
@@ -188,10 +190,9 @@ class TestPipelineMethods(unittest.TestCase):
         Creates a temporary folder containing the json file that will be used for the test
         """
 
-        self.temp_folder = tempfile.mkdtemp(
-            prefix='capsul_test_pipeline_parameters_')
+        self.temp_folder = tempfile.mkdtemp(prefix="capsul_test_pipeline_parameters_")
         self.path = os.path.join(self.temp_folder, "test.json")
-        self.capsul = Capsul(database_path='')
+        self.capsul = Capsul(database_path="")
 
     def tearDown(self):
         """
@@ -345,9 +346,9 @@ class TestPipelineMethods(unittest.TestCase):
             pipeline.export_parameter("node_1", "out", "out")
             return pipeline
 
-        in_1 = '/tmp/yolo.nii'
-        in_2 = '/tmp/yolo2.nii'
-        out = ['/tmp/yolo.nii', '/tmp/yolo2.nii']
+        in_1 = "/tmp/yolo.nii"
+        in_2 = "/tmp/yolo2.nii"
+        out = ["/tmp/yolo.nii", "/tmp/yolo2.nii"]
 
         pipeline1 = create_pipeline()
         pipeline1.in_1 = in_1

@@ -1,11 +1,11 @@
-'''
+"""
 Classes
 =======
 :class:`Application`
 --------------------
 :class:`EmittingStream`
 -----------------------
-'''
+"""
 
 # System import
 from __future__ import absolute_import
@@ -19,13 +19,13 @@ from soma.qt_gui.qt_backend import Qt
 
 
 class Application(Qt.QApplication):
-    """ Base Application class.
+    """Base Application class.
 
     Used to set some user options
     """
 
     def __init__(self, extra_options=None):
-        """ Method to initialize the Application class.
+        """Method to initialize the Application class.
 
         The capsulview application can be executed with command
         line options (that can also be passed to the class constructor
@@ -64,29 +64,42 @@ class Application(Qt.QApplication):
             "info": logging.INFO,
             "warning": logging.WARNING,
             "error": logging.ERROR,
-            "critical": logging.CRITICAL
+            "critical": logging.CRITICAL,
         }
 
         # Parse command line and internal options
         parser = optparse.OptionParser()
-        parser.add_option("-d", "--debug", dest="debug",
-                          help="Set the logging level "
-                               "(debug, info, warning, error, or critical",
-                          metavar="LEVEL")
-        parser.add_option("-r", "--redirect-to-messagebox", dest="redirect",
-                          action="store_true", default=False,
-                          help="Redirect all messages to the console")
-        parser.add_option("-t", "--test", dest="test",
-                          action="store_true", default=False,
-                          help="Add a set of test pipelines")
+        parser.add_option(
+            "-d",
+            "--debug",
+            dest="debug",
+            help="Set the logging level " "(debug, info, warning, error, or critical",
+            metavar="LEVEL",
+        )
+        parser.add_option(
+            "-r",
+            "--redirect-to-messagebox",
+            dest="redirect",
+            action="store_true",
+            default=False,
+            help="Redirect all messages to the console",
+        )
+        parser.add_option(
+            "-t",
+            "--test",
+            dest="test",
+            action="store_true",
+            default=False,
+            help="Add a set of test pipelines",
+        )
         for args, kwargs in extra_options:
             parser.add_option(*args, **kwargs)
         self.options, self.arguments = parser.parse_args()
 
         # Logging format
-        logging_format = ("[%(asctime)s] "
-                          "{%(pathname)s:%(lineno)d} "
-                          "%(levelname)s - %(message)s")
+        logging_format = (
+            "[%(asctime)s] " "{%(pathname)s:%(lineno)d} " "%(levelname)s - %(message)s"
+        )
         date_format = "%Y-%m-%d %H:%M:%S"
 
         # If someone tried to log something before basicConfig is called,
@@ -98,18 +111,17 @@ class Application(Qt.QApplication):
 
         # If the logging level is specified
         if self.options.debug is not None:
-
             # Get the real logging level from the mapping
             level = levels.get(self.options.debug, None)
 
             # If a no valid logging level is found raise an Exception
             if level is None:
-                raise Exception("Warning : unknown logging level "
-                                "{0}".format(self.options.debug))
+                raise Exception(
+                    "Warning : unknown logging level " "{0}".format(self.options.debug)
+                )
 
             # Configure the logging module
-            logging.basicConfig(level=level, format=logging_format,
-                                datefmt=date_format)
+            logging.basicConfig(level=level, format=logging_format, datefmt=date_format)
 
             # Disable deprecation warnings if we are not in the debug mode
             if level != logging.DEBUG:
@@ -117,8 +129,9 @@ class Application(Qt.QApplication):
 
         # Set the default logging level
         else:
-            logging.basicConfig(level=logging.ERROR, format=logging_format,
-                                datefmt=date_format)
+            logging.basicConfig(
+                level=logging.ERROR, format=logging_format, datefmt=date_format
+            )
 
             # Disable deprecation warnings
             warnings.simplefilter("ignore", DeprecationWarning)
@@ -126,7 +139,6 @@ class Application(Qt.QApplication):
         # Check if the redirection option is found: redirecect stdout and
         # stderr to a message box
         if self.options.redirect:
-
             # Create a message box
             self.message_box = Qt.QTextEdit()
 
@@ -135,12 +147,12 @@ class Application(Qt.QApplication):
             sys.stderr = EmittingStream()
 
             # Connect with text written signal
-            self.connect(sys.stdout,
-                         Qt.SIGNAL('textWritten(QString)'),
-                         self._on_text_print)
-            self.connect(sys.stderr,
-                         Qt.SIGNAL('textWritten(QString)'),
-                         self._on_text_print)
+            self.connect(
+                sys.stdout, Qt.SIGNAL("textWritten(QString)"), self._on_text_print
+            )
+            self.connect(
+                sys.stderr, Qt.SIGNAL("textWritten(QString)"), self._on_text_print
+            )
 
             # Update root logger handler
             root_logger = logging.getLogger()
@@ -160,7 +172,7 @@ class Application(Qt.QApplication):
 
 
 class EmittingStream(Qt.QObject):
-    """ Logging emitting string basic handler.
-    """
+    """Logging emitting string basic handler."""
+
     def write(self, text):
         self.textWritten.emit(str(text))
