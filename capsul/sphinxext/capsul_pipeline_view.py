@@ -2,7 +2,6 @@
 """
 
 # System import
-from __future__ import absolute_import
 import os
 from optparse import OptionParser
 import logging
@@ -36,7 +35,7 @@ parser.add_option(
     default=default_output_dir,
     help="output base directory. Docs will be generated in "
     "sub-directories there, named by their module names. "
-    "default: {0}".format(default_output_dir),
+    "default: {}".format(default_output_dir),
 )
 parser.add_option(
     "-s",
@@ -57,12 +56,12 @@ logger = logging.getLogger(__file__)
 if options.verbose:
     logging.basicConfig(
         level=logging.DEBUG,
-        format="{0}::%(asctime)s::%(levelname)s::%(message)s".format(logger.name),
+        format="{}::%(asctime)s::%(levelname)s::%(message)s".format(logger.name),
     )
 else:
     logging.basicConfig(
         level=logging.INFO,
-        format="{0}::%(asctime)s::%(levelname)s::%(message)s".format(logger.name),
+        format="{}::%(asctime)s::%(levelname)s::%(message)s".format(logger.name),
     )
 
 base_outdir = options.outdir
@@ -78,14 +77,14 @@ from capsul.sphinxext.pipelinedocgen import PipelineHelpWriter
 pipelines = find_pipeline_and_process(os.path.basename(options.module))[
     "pipeline_descs"
 ]
-logger.info("Found '{0}' pipeline(s) in '{1}'.".format(len(pipelines), options.module))
+logger.info("Found '{}' pipeline(s) in '{}'.".format(len(pipelines), options.module))
 
 # Sort pipelines processes
 # From the pipelines full path 'm1.m2.pipeline' get there module names 'm2'
-module_names = set([x.split(".")[1] for x in pipelines])
+module_names = {x.split(".")[1] for x in pipelines}
 # Sort each pipeline according to its module name.
 # The result is a dict of the form 'd[m2] = [pipeline1, pipeline2, ...]'.
-sorted_pipelines = dict((x, []) for x in module_names)
+sorted_pipelines = {x: [] for x in module_names}
 for pipeline in pipelines:
     module_name = pipeline.split(".")[1]
     sorted_pipelines[module_name].append(pipeline)
@@ -114,13 +113,13 @@ for module_name, module_pipelines in sorted_pipelines.items():
             pipeline_instance, image_name, nodesep=0.1, include_io=False, rankdir="TB"
         )
         logger.info(
-            "Pipeline '{0}' representation has been written at "
-            "location '{1}'.".format(module_pipeline, os.path.abspath(image_name))
+            "Pipeline '{}' representation has been written at "
+            "location '{}'.".format(module_pipeline, os.path.abspath(image_name))
         )
 
     # Just print a summary
     logger.info(
-        "Summary: '{0}' files written for module '{1}'.".format(
+        "Summary: '{}' files written for module '{}'.".format(
             len(module_pipelines), module_name
         )
     )

@@ -152,7 +152,7 @@ class Process(Node):
         return result
 
     def json_parameters(self):
-        return super(Process, self).json()
+        return super().json()
 
     def before_execute(self, context):
         """This method is called by CapsulEngine before calling
@@ -292,7 +292,7 @@ class Process(Node):
         # Update the documentation with a description of the pipeline
         # when the xml to pipeline wrapper has been used
         if returnhelp and hasattr(self, "_pipeline_desc"):
-            str_desc = "".join(["    {0}".format(line) for line in self._pipeline_desc])
+            str_desc = "".join(["    {}".format(line) for line in self._pipeline_desc])
             doctring += [
                 ".. hidden-code-block:: python",
                 "    :starthidden: True",
@@ -309,26 +309,26 @@ class Process(Node):
         # when the function to process wrapper has been used
         if hasattr(self, "_func_name") and hasattr(self, "_func_module"):
             doctring += [
-                "This process has been wrapped from {0}.{1}.".format(
+                "This process has been wrapped from {}.{}.".format(
                     self._func_module, self._func_name
                 ),
                 "",
             ]
             if returnhelp:
                 doctring += [
-                    ".. currentmodule:: {0}".format(self._func_module),
+                    ".. currentmodule:: {}".format(self._func_module),
                     "",
                     ".. autosummary::",
                     "    :toctree: ./",
                     "",
-                    "    {0}".format(self._func_name),
+                    "    {}".format(self._func_name),
                     "",
                 ]
 
         # Append the input and output fields help
         if use_labels:
-            in_label = [".. _%s.%s_inputs:\n\n" % (self.__module__, self.name)]
-            out_label = [".. _%s.%s_outputs:\n\n" % (self.__module__, self.name)]
+            in_label = [".. _{}.{}_inputs:\n\n".format(self.__module__, self.name)]
+            out_label = [".. _{}.{}_outputs:\n\n".format(self.__module__, self.name)]
         else:
             in_label = []
             out_label = []
@@ -914,7 +914,7 @@ class NipypeProcess(FileCopyProcess):
         if len(stack) >= 2:
             s2 = stack[-2]
             if s2[2] == "nipype_factory":
-                instance = super(NipypeProcess, cls).__new__(cls, *args, **kwargs)
+                instance = super().__new__(cls, *args, **kwargs)
                 setattr(instance, "__%s_np_init_done__" % cls.__name__, False)
                 return instance
         nipype_class = getattr(cls, "_nipype_class_type", None)
@@ -947,7 +947,7 @@ class NipypeProcess(FileCopyProcess):
                 instance.id = instance.__class__.__module__ + "." + instance.name
             instance.__postinit__(*nargs, **nkwargs)
         else:
-            instance = super(NipypeProcess, cls).__new__(cls, *args, **kwargs)
+            instance = super().__new__(cls, *args, **kwargs)
             setattr(instance, "__%s_np_init_done__" % cls.__name__, False)
         return instance
 
@@ -1076,7 +1076,7 @@ class NipypeProcess(FileCopyProcess):
             ]
             if use_temp_output_dir is None:
                 use_temp_output_dir = True
-            super(NipypeProcess, self).__init__(
+            super().__init__(
                 definition=definition,
                 activate_copy=True,
                 inputs_to_copy=inputs_to_copy,
@@ -1089,7 +1089,7 @@ class NipypeProcess(FileCopyProcess):
         else:
             if use_temp_output_dir is None:
                 use_temp_output_dir = False
-            super(NipypeProcess, self).__init__(
+            super().__init__(
                 definition=definition,
                 activate_copy=False,
                 use_temp_output_dir=use_temp_output_dir,
@@ -1220,4 +1220,4 @@ class NipypeProcess(FileCopyProcess):
             )
             if os.path.exists(script_file):
                 shutil.move(script_file, getattr(self, script_tname))
-        return super(NipypeProcess, self).after_execute(exec_result, context)
+        return super().after_execute(exec_result, context)

@@ -3,7 +3,7 @@ import os
 from capsul.api import executable
 
 
-class PipelineHelpWriter(object):
+class PipelineHelpWriter:
     """ Class for automatic generation of pipeline API documentations
     in Sphinx-parsable reST format.
     """
@@ -62,12 +62,12 @@ class PipelineHelpWriter(object):
 
         # Set the current module
         currentmodule = ".".join(pipeline_instance.definition.split(".")[:-1])
-        ad += ".. currentmodule:: {0}\n\n".format(currentmodule)
+        ad += ".. currentmodule:: {}\n\n".format(currentmodule)
 
         # Generate a bookmark (for cross references)
         pipeline_name = pipeline_instance.__class__.__name__
         label = pipeline + ":"
-        ad += "\n.. _{0}\n\n".format(label)
+        ad += "\n.. _{}\n\n".format(label)
 
         chap_title = pipeline
         ad += (chap_title + "\n" +
@@ -86,7 +86,7 @@ class PipelineHelpWriter(object):
             schama_title = "Pipeline schema"
             ad += ("\n" + schama_title + "\n" +
                    "~" * len(schama_title) + "\n\n")
-            ad += ".. image:: {0}\n".format(schema)
+            ad += ".. image:: {}\n".format(schema)
             ad += "    :height: 400px\n"
             ad += "    :align: center\n\n"
 
@@ -141,7 +141,7 @@ class PipelineHelpWriter(object):
             if returnrst is False:
                 outfile = os.path.join(outdir,
                                        pipeline_short + self.rst_extension)
-                fileobj = open(outfile, "wt")
+                fileobj = open(outfile, "w")
                 fileobj.write(api_str)
                 fileobj.close()
             else:
@@ -208,7 +208,7 @@ class PipelineHelpWriter(object):
         print('relpath:', relpath)
 
         # Edit the index file
-        idx = open(path, "wt")
+        idx = open(path, "w")
         w = idx.write
 
         # Add header to tell us that this documentation must not be edited
@@ -235,9 +235,9 @@ class PipelineHelpWriter(object):
             print('ref:', ref)
             table.append("<tr class='row-odd'>")
             table.append(
-                "<td><a class='reference internal' href='{0}'>"
-                "<em>{1}</em></a></td>\n".format(ref, relative_pipeline))
-            table.append("<td>{0}</td>".format(title_str))
+                "<td><a class='reference internal' href='{}'>"
+                "<em>{}</em></a></td>\n".format(ref, relative_pipeline))
+            table.append("<td>{}</td>".format(title_str))
             table.append("</tr>")
 
         # Close divs
@@ -274,7 +274,7 @@ class PipelineHelpWriter(object):
         path = os.path.join(outdir, froot + rst_extension)
 
         # Open the result index file
-        idx = open(path, "wt")
+        idx = open(path, "w")
 
         # Stat writing
         w = idx.write
@@ -290,11 +290,11 @@ class PipelineHelpWriter(object):
 
         # Generate a markup
         label = module_name
-        w(".. _{0}:\n\n".format(label))
+        w(".. _{}:\n\n".format(label))
 
         # Page use cases
         # # Generate a title
-        chap_title = ":mod:`{0}.{1}`: User Guide".format(
+        chap_title = ":mod:`{}.{}`: User Guide".format(
             root_module_name, module_name)
         w(chap_title + "\n" +
           self.rst_section_levels[1] * len(chap_title) + "\n\n")
@@ -302,7 +302,7 @@ class PipelineHelpWriter(object):
         if have_usecases:
             # # Generate a markup
             label = module_name + "_ug"
-            w(".. _{0}:\n\n".format(label))
+            w(".. _{}:\n\n".format(label))
             # # Some text description
             w("Some live examples containing snippets of codes.\n\n")
             # # Include user guide index
@@ -310,18 +310,18 @@ class PipelineHelpWriter(object):
 
         # API page
         # # Generate a title
-        chap_title = ":mod:`{0}.{1}`: API".format(
+        chap_title = ":mod:`{}.{}`: API".format(
             root_module_name, module_name)
         w(chap_title + "\n" +
           self.rst_section_levels[1] * len(chap_title) + "\n\n")
         # # Generate a markup
         label = module_name + "_api"
-        w(".. _{0}:\n\n".format(label))
+        w(".. _{}:\n\n".format(label))
         # # Some text description
         w("The API of functions and classes, as given by the "
           "docstrings.")
         if have_usecases:
-            w(" For the *user guide* see the {0}_ug_ "
+            w(" For the *user guide* see the {}_ug_ "
               "section for further details.\n\n".format(module_name))
         else:
             w("\n\n")

@@ -344,7 +344,7 @@ def dot_graph_from_pipeline(
         if use_nodes_pos:
             pos = nodes_pos.get(id)
             if pos is not None:
-                node_props.update({"pos": "%f,%f" % (pos[0] * scale, -pos[1] * scale)})
+                node_props.update({"pos": "{:f},{:f}".format(pos[0] * scale, -pos[1] * scale)})
         size = nodes_sizes.get(id)
         if size is not None:
             node_props.update(
@@ -463,7 +463,7 @@ def dot_graph_from_workflow(
         if use_nodes_pos:
             pos = pipeline.node_position.get(n)
             if pos is not None:
-                node_props.update({"pos": "%f,%f" % (pos[0] * scale, -pos[1] * scale)})
+                node_props.update({"pos": "{:f},{:f}".format(pos[0] * scale, -pos[1] * scale)})
         size = nodes_sizes.get(n)
         if size is not None:
             node_props.update(
@@ -524,13 +524,13 @@ def save_dot_graph(dot_graph, filename, **kwargs):
         )
         if len(props) != 0:
             attstr = " " + attstr
-        fileobj.write('  %s [label="%s" style="filled"%s];\n' % (id, node, attstr))
+        fileobj.write('  {} [label="{}" style="filled"{}];\n'.format(id, node, attstr))
     for edge, descr in dot_graph[1].items():
         props = descr[0]
         attstr = " ".join(
             ["=".join([aname, _str_repr(val)]) for aname, val in props.items()]
         )
-        fileobj.write('  "%s" -> "%s" [%s];\n' % (edge[0], edge[1], attstr))
+        fileobj.write('  "{}" -> "{}" [{}];\n'.format(edge[0], edge[1], attstr))
     fileobj.write("}\n")
 
 
@@ -734,7 +734,7 @@ def nodes_with_existing_outputs(
         process = node
         if recursive and isinstance(process, Pipeline):
             nodes += [
-                ("%s.%s" % (node_name, new_name), new_node)
+                ("{}.{}".format(node_name, new_name), new_node)
                 for new_name, new_node in process.nodes.items()
                 if new_name != ""
             ]
@@ -810,7 +810,7 @@ def nodes_with_missing_inputs(pipeline, recursive=True):
         process = node.process
         if recursive and isinstance(process, Pipeline):
             nodes += [
-                ("%s.%s" % (node_name, new_name), new_node)
+                ("{}.{}".format(node_name, new_name), new_node)
                 for new_name, new_node in process.nodes.items()
                 if new_name != ""
             ]
@@ -1215,7 +1215,7 @@ def load_pipeline_parameters(filename, pipeline):
     """
 
     if filename:
-        with io.open(filename, "r", encoding="utf8") as file:
+        with open(filename, encoding="utf8") as file:
             dic = json.load(file)
 
         if "pipeline_parameters" not in dic:
@@ -1262,7 +1262,7 @@ def find_node(pipeline, node):
             if sn is not n and isinstance(sn, Pipeline):
                 pipelines.append((sn, names + [sk]))
 
-    raise KeyError("Node %s not found in the pipeline %s" % (node.name, pipeline.name))
+    raise KeyError("Node {} not found in the pipeline {}".format(node.name, pipeline.name))
 
 
 def nodes_full_names(executable):
@@ -1378,7 +1378,7 @@ class %s(Process):
                 has_default = True
             elif field.default_factory != dataclasses.MISSING:
                 # difficult/implssible to replicate...
-                class def_fac(object):
+                class def_fac:
                     def __init__(self, value):
                         self.value = value
 
@@ -1392,11 +1392,11 @@ class %s(Process):
                 meta["optional"] = True
             meta_str = ""
             if meta:
-                meta_str = ", ".join("%s=%s" % (k, repr(v)) for k, v in meta.items())
+                meta_str = ", ".join("{}={}".format(k, repr(v)) for k, v in meta.items())
                 meta_str = ", " + meta_str
-            f.write('        self.add_field("%s", %s%s)\n' % (name, t_str, meta_str))
+            f.write('        self.add_field("{}", {}{})\n'.format(name, t_str, meta_str))
             if value is not undefined:
-                f.write("        self.%s = %s\n" % (name, repr(value)))
+                f.write("        self.{} = {}\n".format(name, repr(value)))
 
         f.write(
             """

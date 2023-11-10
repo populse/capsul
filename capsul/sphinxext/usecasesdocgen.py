@@ -7,19 +7,17 @@
 ##########################################################################
 
 # System import
-from __future__ import absolute_import
 import inspect
 import ast
 import os
 import logging
 import six
-from six.moves import range
 
 # Define logger
 logger = logging.getLogger(__file__)
 
 
-class UseCasesHelperWriter(object):
+class UseCasesHelperWriter:
     """ A basic class to convert the pilot codes to rst use cases
     """
     def __init__(self, pilots, rst_extension=".rst"):
@@ -72,12 +70,12 @@ class UseCasesHelperWriter(object):
         nb_lines = len(lines)
         ad = ".. AUTO-GENERATED FILE -- DO NOT EDIT!\n\n"
         ad += ":orphan:\n\n"
-        ad += ".. _example_{0} :\n\n".format(module_name)
+        ad += ".. _example_{} :\n\n".format(module_name)
 
         line_start_code = 0
         line_end_code = 0
         is_header = True
-        full_code = "# The full use case code: {0}\n".format(module_name)
+        full_code = "# The full use case code: {}\n".format(module_name)
         for code_item in pilot_tree:
             if (isinstance(code_item, ast.Expr) and
                     isinstance(code_item.value, ast.Str)):
@@ -146,7 +144,7 @@ class UseCasesHelperWriter(object):
         """
         # Check output directory
         if returnrst is False:
-            if not isinstance(outdir, six.string_types):
+            if not isinstance(outdir, str):
                 raise Exception("If 'returnrst' is False, need a valid output "
                                 "directory.")
             if not os.path.exists(outdir):
@@ -159,7 +157,7 @@ class UseCasesHelperWriter(object):
         for pilot in self.pilots:
 
             # Information message
-            logger.info("Processing pilot '{0}' in module '{1}'...".format(
+            logger.info("Processing pilot '{}' in module '{}'...".format(
                 pilot.__name__, pilot.__module__))
 
             # Generate reST
@@ -173,7 +171,7 @@ class UseCasesHelperWriter(object):
             # Write to file
             if returnrst is False:
                 outfile = os.path.join(outdir, uid + self.rst_extension)
-                fileobj = open(outfile, "wt")
+                fileobj = open(outfile, "w")
                 fileobj.write(use_case_str)
                 fileobj.close()
             else:
@@ -216,7 +214,7 @@ class UseCasesHelperWriter(object):
             relpath = outdir.replace(relative_to + os.path.sep, "")
         else:
             relpath = outdir
-        idx = open(path, "wt")
+        idx = open(path, "w")
         w = idx.write
         w(".. AUTO-GENERATED FILE -- DO NOT EDIT!\n\n")
         w(".. raw:: html\n\n")
@@ -235,9 +233,9 @@ class UseCasesHelperWriter(object):
             ref = os.path.join(relpath, f + ".html")
             table.append("<tr class='row-odd'>")
             table.append(
-                "<td><a class='reference internal' href='{0}'>"
-                "<em>{1}</em></a></td>\n".format(ref, relative_uid))
-            table.append("<td>{0}</td>".format(title_str))
+                "<td><a class='reference internal' href='{}'>"
+                "<em>{}</em></a></td>\n".format(ref, relative_uid))
+            table.append("<td>{}</td>".format(title_str))
             table.append("</tr>")
 
         table.append("</tbody>\n\n")

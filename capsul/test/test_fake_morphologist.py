@@ -630,8 +630,8 @@ class TestFakeMorphologist(unittest.TestCase):
                 pv.show()
                 app.exec_()
 
-            params = dict(
-                (i, getattr(morphologist, i, undefined))
+            params = {
+                i: getattr(morphologist, i, undefined)
                 for i in (
                     "PrepareSubject_Normalization_Normalization_AimsMIRegister_anatomical_template",
                     "imported_t1mri",
@@ -640,7 +640,7 @@ class TestFakeMorphologist(unittest.TestCase):
                     "left_labelled_graph",
                     "right_labelled_graph",
                 )
-            )
+            }
             self.maxDiff = None
             self.assertEqual(params, expected[normalization])
             # for field in morphologist.fields():

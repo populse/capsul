@@ -9,7 +9,6 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-from __future__ import print_function
 import sys, os
 import time
 import shutil
@@ -126,9 +125,9 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'CAPSUL'
+project = 'CAPSUL'
 release_info['COPYRIGHT_YEAR'] = time.strftime('%Y')
-copyright = u'%(COPYRIGHT_YEAR)s, %(AUTHOR)s <%(AUTHOR_EMAIL)s>' % release_info
+copyright = '%(COPYRIGHT_YEAR)s, %(AUTHOR)s <%(AUTHOR_EMAIL)s>' % release_info
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -275,8 +274,8 @@ htmlhelp_basename = 'capsul-doc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'capsul.tex', u'CAPSUL Documentation',
-   u'CATI', 'manual'),
+  ('index', 'capsul.tex', 'CAPSUL Documentation',
+   'CATI', 'manual'),
 ]
 
 autoclass_content = "both"

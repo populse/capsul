@@ -135,7 +135,7 @@ class ActivationInspector(QtGui.QWidget):
             os.close(record_file_s[0])
             print("temporary record file:", record_file)
 
-            class AutoDeleteFile(object):
+            class AutoDeleteFile:
                 def __init__(self, record_file):
                     self.record_file = record_file
 

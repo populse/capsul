@@ -192,8 +192,8 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
                 ex_type, ex, tb = sys.exc_info()
                 logging.debug(
                     "Something wrong in the nipype output trait "
-                    "synchronization:\n\n\tError: {0} - {1}\n"
-                    "\tTraceback:\n{2}".format(
+                    "synchronization:\n\n\tError: {} - {}\n"
+                    "\tTraceback:\n{}".format(
                         ex_type, ex, "".join(traceback.format_tb(tb))
                     )
                 )
@@ -232,8 +232,8 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
                     ex_type, ex, tb = sys.exc_info()
                     logging.debug(
                         "Something wrong in the nipype output trait "
-                        "synchronization:\n\n\tError: {0} - {1}\n"
-                        "\tTraceback:\n{2}".format(
+                        "synchronization:\n\n\tError: {} - {}\n"
+                        "\tTraceback:\n{}".format(
                             ex_type, ex, "".join(traceback.format_tb(tb))
                         )
                     )
@@ -263,8 +263,8 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
                             ex_type, ex, tb = sys.exc_info()
                             logging.debug(
                                 "Something wrong in the nipype output trait "
-                                "synchronization:\n\n\tError: {0} - {1}\n"
-                                "\tTraceback:\n{2}".format(
+                                "synchronization:\n\n\tError: {} - {}\n"
+                                "\tTraceback:\n{}".format(
                                     ex_type, ex, "".join(traceback.format_tb(tb))
                                 )
                             )

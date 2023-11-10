@@ -26,7 +26,7 @@ class ProcessIteration(Process):
         # Avoid circular import
         from capsul.api import executable
 
-        super(ProcessIteration, self).__init__(definition=definition)
+        super().__init__(definition=definition)
         self.process = executable(process)
         if context_name is not None:
             self.process.context_name = context_name
@@ -133,7 +133,7 @@ class ProcessIteration(Process):
                         raise ValueError(
                             "Iterative parameter values must be lists of the same size: %s"
                             % "\n".join(
-                                "%s=%s" % (n, len(getattr(self, n)))
+                                "{}={}".format(n, len(getattr(self, n)))
                                 for n in self.iterative_parameters
                                 if getattr(self, n) is not undefined
                             )

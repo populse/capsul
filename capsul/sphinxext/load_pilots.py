@@ -7,7 +7,6 @@
 ##########################################################################
 
 # System import
-from __future__ import absolute_import
 import os
 import sys
 import logging
@@ -79,7 +78,7 @@ def load_pilots(root, path, root_module_name):
 
             # An api exists, but it cannot be imported
             except ImportError as e:
-                logging.debug("Could not import {0}: {1}".format(module_name, e))
+                logging.debug("Could not import {}: {}".format(module_name, e))
                 raise
 
     return pilots

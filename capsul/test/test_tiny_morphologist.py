@@ -638,8 +638,8 @@ class TestTinyMorphologist(unittest.TestCase):
                 },
             )
             metadata.generate_paths(tiny_morphologist)
-            params = dict(
-                (i, getattr(tiny_morphologist, i, undefined))
+            params = {
+                i: getattr(tiny_morphologist, i, undefined)
                 for i in (
                     "template",
                     "nobias",
@@ -647,7 +647,7 @@ class TestTinyMorphologist(unittest.TestCase):
                     "right_hemisphere",
                     "left_hemisphere",
                 )
-            )
+            }
             self.maxDiff = 2000
             self.assertEqual(params, expected[normalization])
 

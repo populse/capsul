@@ -11,7 +11,6 @@ installation index.
 """
 
 # System import
-from __future__ import absolute_import
 import os
 from optparse import OptionParser
 import logging
@@ -43,7 +42,7 @@ parser.add_option(
     default=default_output_dir,
     help="output base directory. Docs will be generated in "
     "sub-directories there, named by their module names. "
-    "default: {0}".format(default_output_dir),
+    "default: {}".format(default_output_dir),
 )
 (options, args) = parser.parse_args()
 if options.module is None:
@@ -54,12 +53,12 @@ logger = logging.getLogger(__file__)
 if options.verbose:
     logging.basicConfig(
         level=logging.DEBUG,
-        format="{0}::%(asctime)s::%(levelname)s::%(message)s".format(logger.name),
+        format="{}::%(asctime)s::%(levelname)s::%(message)s".format(logger.name),
     )
 else:
     logging.basicConfig(
         level=logging.INFO,
-        format="{0}::%(asctime)s::%(levelname)s::%(message)s".format(logger.name),
+        format="{}::%(asctime)s::%(levelname)s::%(message)s".format(logger.name),
     )
 
 # Capsul import
@@ -71,14 +70,14 @@ from capsul.sphinxext.layoutdocgen import LayoutHelperWriter
 descriptions = find_pipeline_and_process(os.path.basename(options.module))
 pipelines = descriptions["pipeline_descs"]
 processes = descriptions["process_descs"]
-logger.info("Found '{0}' pipeline(s) in '{1}'.".format(len(pipelines), options.module))
-logger.info("Found '{0}' process(es) in '{1}'.".format(len(processes), options.module))
+logger.info("Found '{}' pipeline(s) in '{}'.".format(len(pipelines), options.module))
+logger.info("Found '{}' process(es) in '{}'.".format(len(processes), options.module))
 
 # Get all the modules involved
 module_names = [x.split(".")[1] for x in pipelines]
 module_names.extend([x.split(".")[1] for x in processes])
 module_names = set(module_names)
-logger.info("Module names for layout generation '{0}'.".format(module_names))
+logger.info("Module names for layout generation '{}'.".format(module_names))
 
 # Create object to write the sphinx template elements
 docwriter = LayoutHelperWriter(module_names, options.module)
@@ -88,19 +87,19 @@ outdir = options.outdir
 # Generate the sphinx main index
 ###############################################################################
 
-logger.info("Generating documentation index in '{0}'.".format(os.path.abspath(outdir)))
+logger.info("Generating documentation index in '{}'.".format(os.path.abspath(outdir)))
 docwriter.write_index(outdir, froot="documentation")
 
 ###############################################################################
 # Generate installation recommendation
 ###############################################################################
 
-logger.info("Generating installation index in '{0}'.".format(os.path.abspath(outdir)))
+logger.info("Generating installation index in '{}'.".format(os.path.abspath(outdir)))
 docwriter.write_installation(outdir)
 
 ###############################################################################
 # Generate the layout
 ###############################################################################
 
-logger.info("Generating layout index in '{0}'.".format(os.path.abspath(outdir)))
+logger.info("Generating layout index in '{}'.".format(os.path.abspath(outdir)))
 docwriter.write_layout(os.path.join(outdir, "_templates"))

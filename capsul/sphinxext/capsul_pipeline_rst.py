@@ -35,7 +35,7 @@ parser.add_option(
     default=default_output_dir,
     help="output base directory. Docs will be generated in "
     "sub-directories there, named by their module names. "
-    "default: {0}".format(default_output_dir),
+    "default: {}".format(default_output_dir),
 )
 parser.add_option(
     "-s",
@@ -62,12 +62,12 @@ logger = logging.getLogger(__file__)
 if options.verbose:
     logging.basicConfig(
         level=logging.DEBUG,
-        format="{0}::%(asctime)s::%(levelname)s::%(message)s".format(logger.name),
+        format="{}::%(asctime)s::%(levelname)s::%(message)s".format(logger.name),
     )
 else:
     logging.basicConfig(
         level=logging.INFO,
-        format="{0}::%(asctime)s::%(levelname)s::%(message)s".format(logger.name),
+        format="{}::%(asctime)s::%(levelname)s::%(message)s".format(logger.name),
     )
 
 base_outdir = options.outdir
@@ -108,8 +108,8 @@ if schema and shutil.which("dot"):
 descriptions = find_pipeline_and_process(os.path.basename(options.module))
 pipelines = descriptions["pipeline_descs"]
 processes = descriptions["process_descs"]
-logger.info("Found '{0}' pipeline(s) in '{1}'.".format(len(pipelines), options.module))
-logger.info("Found '{0}' process(es) in '{1}'.".format(len(processes), options.module))
+logger.info("Found '{}' pipeline(s) in '{}'.".format(len(pipelines), options.module))
+logger.info("Found '{}' process(es) in '{}'.".format(len(processes), options.module))
 
 ###############################################################################
 # Sort pipelines and processes by module names
@@ -124,7 +124,7 @@ for modules, sorted_dict in (
 ):
     # From the modules full path 'm1.m2.pipeline/process' get the module
     # name 'm2'
-    module_names = set([x.split(".")[1] for x in modules])
+    module_names = {x.split(".")[1] for x in modules}
 
     # Sort each item according to its module name.
     # The result is a dict of the form 'd[m2] = [pipeline/process1, ...]'.
@@ -166,8 +166,8 @@ for sorted_modules, dtype in (
 
         # Just print a summary
         logger.info(
-            "{0}: '{1}' files written for module '{2}' at location "
-            "{3}.".format(
+            "{}: '{}' files written for module '{}' at location "
+            "{}.".format(
                 dtype,
                 len(docwriter.written_modules),
                 module_name,
@@ -196,6 +196,6 @@ for module_name in modules:
         outdir, module_name, options.module.rsplit(".", 1)[0], have_usecases=False
     )
     logger.info(
-        "Index: an index has been written for module '{0}' at "
-        "location {1}.".format(module_name, os.path.abspath(outdir))
+        "Index: an index has been written for module '{}' at "
+        "location {}.".format(module_name, os.path.abspath(outdir))
     )

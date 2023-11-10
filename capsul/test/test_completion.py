@@ -211,8 +211,8 @@ class TestCompletion(unittest.TestCase):
         metadata.bids = input_metadata
         metadata.generate_paths(pipeline)
 
-        params = dict(
-            (i, getattr(pipeline, i, undefined))
+        params = {
+            i: getattr(pipeline, i, undefined)
             for i in (
                 "input",
                 "template",
@@ -223,7 +223,7 @@ class TestCompletion(unittest.TestCase):
                 "right_gw_classif",
                 "right_gw_mesh",
             )
-        )
+        }
 
         expected = {
             "input": "!{dataset.input.path}/rawdata/sub-aleksander/ses-m0/anat/sub-aleksander_ses-m0_T1w.nii",

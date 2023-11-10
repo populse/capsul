@@ -7,8 +7,6 @@ Functions
 ------------------------
 """
 
-from __future__ import print_function
-from __future__ import absolute_import
 
 from soma.controller import Controller, undefined
 import os
@@ -75,7 +73,7 @@ def save_py_pipeline(pipeline, py_file):
         if skip_invalid:
             node_options += ", skip_invalid=True"
         print(
-            '        self.add_process("%s", "%s"%s)' % (name, procname, node_options),
+            '        self.add_process("{}", "{}"{})'.format(name, procname, node_options),
             file=pyf,
         )
 
@@ -142,7 +140,7 @@ def save_py_pipeline(pipeline, py_file):
                     )
 
             if isinstance(snode, Pipeline):
-                sself_str = '%s.nodes["%s"]' % (self_str, "%s")
+                sself_str = '{}.nodes["{}"]'.format(self_str, "%s")
                 for node_name, snode in snode.nodes.items():
                     scnode = cnode.nodes[node_name]
 
@@ -179,9 +177,9 @@ def save_py_pipeline(pipeline, py_file):
         nodename = ".".join((mod, classname))
         if hasattr(node, "configured_controller"):
             c = node.configured_controller()
-            params = dict(
-                (p, v) for p, v in c.asdict().items() if v not in (None, undefined)
-            )
+            params = {
+                p: v for p, v in c.asdict().items() if v not in (None, undefined)
+            }
             print(
                 '        self.add_custom_node("%s", "%s", %s)'
                 % (name, nodename, get_repr_value(params)),
@@ -189,7 +187,7 @@ def save_py_pipeline(pipeline, py_file):
             )
         else:
             print(
-                '        self.add_custom_node("%s", "%s")' % (name, nodename), file=pyf
+                '        self.add_custom_node("{}", "{}")'.format(name, nodename), file=pyf
             )
         # optional plugs
         for plug_name, plug in node.plugs.items():
@@ -360,14 +358,14 @@ def save_py_pipeline(pipeline, py_file):
                                 exported_plug = _write_export(pipeline, pyf, src)
                                 exported.add(src)
                         else:
-                            src = "%s.%s" % (node_name, plug_name)
+                            src = "{}.{}".format(node_name, plug_name)
                         if link[0] == "":
                             dst = link[1]
                             if dst not in exported:
                                 exported_plug = _write_export(pipeline, pyf, dst)
                                 exported.add(dst)
                         else:
-                            dst = "%s.%s" % (link[0], link[1])
+                            dst = "{}.{}".format(link[0], link[1])
                         if not exported_plug or ".".join(exported_plug) not in (
                             src,
                             dst,
@@ -422,7 +420,7 @@ def save_py_pipeline(pipeline, py_file):
                 if not isinstance(pos, (list, tuple)):
                     # pos is probably a QPointF
                     pos = (pos.x(), pos.y())
-                print('            "%s": %s,' % (node_name, repr(pos)), file=pyf)
+                print('            "{}": {},'.format(node_name, repr(pos)), file=pyf)
             print("        }", file=pyf)
         if hasattr(pipeline, "scene_scale_factor"):
             print(
@@ -440,7 +438,7 @@ def save_py_pipeline(pipeline, py_file):
             for node_name, dim in pipeline.node_dimension.items():
                 if not isinstance(dim, (list, tuple)):
                     dim = (dim.width(), dim.height())
-                print('            "%s": %s,' % (node_name, repr(dim)), file=pyf)
+                print('            "{}": {},'.format(node_name, repr(dim)), file=pyf)
             print("        }", file=pyf)
 
     ######################################################
@@ -461,7 +459,7 @@ def save_py_pipeline(pipeline, py_file):
                     for i in notepos:
                         if (
                             splitdoc[i + 2].find(
-                                "* Type '{0}.help()'".format(
+                                "* Type '{}.help()'".format(
                                     pipeline.__class__.__name__
                                 )
                             )
@@ -500,7 +498,7 @@ def save_py_pipeline(pipeline, py_file):
                 if first:
                     first = False
                     print("\n        # default and initial values", file=pyf)
-                print("        self.%s = %s" % (param_name, value_repr), file=pyf)
+                print("        self.{} = {}".format(param_name, value_repr), file=pyf)
 
     class_name = type(pipeline).__name__
     if class_name == "Pipeline":

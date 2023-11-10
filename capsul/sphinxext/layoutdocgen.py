@@ -7,7 +7,6 @@
 ##########################################################################
 
 # System import
-from __future__ import absolute_import
 import os
 import sys
 import six
@@ -16,7 +15,7 @@ import logging
 import traceback
 
 
-class LayoutHelperWriter(object):
+class LayoutHelperWriter:
     """ A basic class to create sphinx layout and associated index.
     """
     def __init__(self, module_names, root_module_name, rst_extension=".rst"):
@@ -52,26 +51,26 @@ class LayoutHelperWriter(object):
             the reST formatted index description.
         """
         # Try to get the module description
-        full_module_name = "{0}.{1}".format(self.root_module_name, module_name)
+        full_module_name = "{}.{}".format(self.root_module_name, module_name)
         try:
             __import__(full_module_name)
         except ImportError:
             exc_info = sys.exc_info()
             logging.error("".join(traceback.format_exception(*exc_info)))
             logging.error(
-                "Can't load module {0}".format(full_module_name))
+                "Can't load module {}".format(full_module_name))
         module = sys.modules[full_module_name]
         description = module.__doc__
 
         # Then reST formatting
         spacer = " " * 4
         ad = spacer + "<div class='span6 box'>\n"
-        ad += spacer + "<h2><a href='{0}/index.html'>\n".format(module_name)
-        ad += spacer + "{0} module\n".format(module_name)
+        ad += spacer + "<h2><a href='{}/index.html'>\n".format(module_name)
+        ad += spacer + "{} module\n".format(module_name)
         ad += spacer + "</a></h2>\n"
         ad += spacer + "<blockquote>\n"
         if description is not None:
-            ad += spacer + "{0}\n".format(("\n" + spacer).join(
+            ad += spacer + "{}\n".format(("\n" + spacer).join(
                 self.rst2html(description).splitlines()))
         ad += spacer + "</blockquote>\n"
         ad += spacer + "</div>\n"
@@ -138,7 +137,7 @@ class LayoutHelperWriter(object):
             exc_info = sys.exc_info()
             logging.error("".join(traceback.format_exception(*exc_info)))
             logging.error(
-                "Can't load module {0}".format(self.root_module_name))
+                "Can't load module {}".format(self.root_module_name))
         module = sys.modules[self.root_module_name]
         release_info = {}
         exec(compile(open(os.path.join(module.__path__[0], "info.py"), "rb").read(), os.path.join(module.__path__[0], "info.py"), 'exec'), release_info)
@@ -162,7 +161,7 @@ class LayoutHelperWriter(object):
                     "</div></a>" % item)
             else:
                 indicators.append(
-                    "<li data-target='#examples_carousel' data-slide-to='{0}' "
+                    "<li data-target='#examples_carousel' data-slide-to='{}' "
                     "</li>".format(cnt))
                 images.append(
                     "<div class=\"item\"><a href=\"{{pathto('index')}}\">"
@@ -184,14 +183,14 @@ class LayoutHelperWriter(object):
         path = os.path.join(outdir, "layout.html")
 
         # Start writing the index
-        idx = open(path, "wt")
+        idx = open(path, "w")
         w = idx.write
 
         # Edit the template
         with open(layout_file) as open_file:
             s = "".join(open_file.readlines())
-            for key, value in six.iteritems(layout_info):
-                s = s.replace("%({0})s".format(key), value)
+            for key, value in layout_info.items():
+                s = s.replace("%({})s".format(key), value)
             w(s)
 
         # Close the open file
@@ -214,7 +213,7 @@ class LayoutHelperWriter(object):
             os.path.dirname(__file__), "resources", "installation.rst")
 
         # Generate title
-        title = "Installing `{0}`".format(self.root_module_name.upper())
+        title = "Installing `{}`".format(self.root_module_name.upper())
         title = [self.rst_section_levels[1] * len(title), title,
                  self.rst_section_levels[1] * len(title)]
 
@@ -229,14 +228,14 @@ class LayoutHelperWriter(object):
         path = os.path.join(outdir, "installation.rst")
 
         # Start writing the index
-        idx = open(path, "wt")
+        idx = open(path, "w")
         w = idx.write
 
         # Edit the template
         with open(layout_file) as open_file:
             s = "".join(open_file.readlines())
-            for key, value in six.iteritems(layout_info):
-                s = s.replace("%({0})s".format(key), value)
+            for key, value in layout_info.items():
+                s = s.replace("%({})s".format(key), value)
             w(s)
 
         # Close the open file
@@ -263,14 +262,14 @@ class LayoutHelperWriter(object):
         path = os.path.join(outdir, froot + rst_extension)
 
         # Start writing the index
-        idx = open(path, "wt")
+        idx = open(path, "w")
         w = idx.write
 
         # Header
         w(".. AUTO-GENERATED FILE -- DO NOT EDIT!\n\n")
         w(".. raw:: html\n\n")
         w("    <div class='container-index'>\n\n")
-        title = "Documentation of the {0} Pipelines\n".format(
+        title = "Documentation of the {} Pipelines\n".format(
             self.root_module_name.upper())
         w(title)
         w(self.rst_section_levels[1] * len(title) + "\n\n")

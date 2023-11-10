@@ -135,7 +135,7 @@ class Switch(Node):
             raise Exception(
                 "The Switch node input and output parameters "
                 "are inconsistent: expect list, "
-                "got {0}, {1}".format(type(inputs), type(outputs))
+                "got {}, {}".format(type(inputs), type(outputs))
             )
 
         # private copy of outputs and inputs
@@ -147,7 +147,7 @@ class Switch(Node):
         for switch_name in inputs:
             flat_inputs.extend(
                 [
-                    "{0}_switch_{1}".format(switch_name, plug_name)
+                    "{}_switch_{}".format(switch_name, plug_name)
                     for plug_name in outputs
                 ]
             )
@@ -320,14 +320,14 @@ class Switch(Node):
 
     def __setstate__(self, state):
         self.__block_output_propagation = True
-        super(Switch, self).__setstate__(state)
+        super().__setstate__(state)
 
     def get_connections_through(self, plug_name, single=False):
         if not self.activated or not self.enabled:
             return []
         plug = self.plugs[plug_name]
         if plug.output:
-            connected_plug_name = "%s_switch_%s" % (self.switch, plug_name)
+            connected_plug_name = "{}_switch_{}".format(self.switch, plug_name)
         else:
             splitter = plug_name.split("_switch_")
             if len(splitter) != 2:

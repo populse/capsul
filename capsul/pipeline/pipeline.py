@@ -217,8 +217,8 @@ class Pipeline(Process):
             raise TypeError("No definition string given to Pipeline constructor")
 
         # Inheritance
-        super(Pipeline, self).__init__(**kwargs)
-        super(Pipeline, self).add_field(
+        super().__init__(**kwargs)
+        super().add_field(
             "nodes_activation", Controller, hidden=self.hide_nodes_activation
         )
 
@@ -400,7 +400,7 @@ class Pipeline(Process):
         if name in self.nodes:
             raise ValueError(
                 "Pipeline cannot have two nodes with the "
-                "same name : {0}".format(name)
+                "same name : {}".format(name)
             )
 
         if skip_invalid:
@@ -464,7 +464,7 @@ class Pipeline(Process):
             if not plug.output:
                 for link_def in list(plug.links_from):
                     src_node, src_plug = link_def[:2]
-                    link_descr = "%s.%s->%s.%s" % (
+                    link_descr = "{}.{}->{}.{}".format(
                         src_node,
                         src_plug,
                         node_name,
@@ -474,7 +474,7 @@ class Pipeline(Process):
             else:
                 for link_def in list(plug.links_to):
                     dst_node, dst_plug = link_def[:2]
-                    link_descr = "%s.%s->%s.%s" % (
+                    link_descr = "{}.{}->{}.{}".format(
                         node_name,
                         plug_name,
                         dst_node,
@@ -675,7 +675,7 @@ class Pipeline(Process):
         # Check the unicity of the name we want to insert
         if name in self.nodes:
             raise ValueError(
-                "Pipeline cannot have two nodes with the same " "name: {0}".format(name)
+                "Pipeline cannot have two nodes with the same " "name: {}".format(name)
             )
 
         # Create the node
@@ -864,7 +864,7 @@ class Pipeline(Process):
                     node = None
                     plug = None
                 else:
-                    raise ValueError("{0} is not a valid node name".format(node_name))
+                    raise ValueError("{} is not a valid node name".format(node_name))
             plug_name = name[dot + 1 :]
 
         # Check if plug nexists
@@ -885,8 +885,8 @@ class Pipeline(Process):
                                 break
                     if err and check:
                         raise ValueError(
-                            "'{0}' is not a valid parameter name for "
-                            "node '{1}'".format(
+                            "'{}' is not a valid parameter name for "
+                            "node '{}'".format(
                                 plug_name, (node_name if node_name else "pipeline")
                             )
                         )
@@ -968,16 +968,16 @@ class Pipeline(Process):
 
         # Assure that pipeline plugs are not linked
         if not source_plug.output and source_node is not self:
-            raise ValueError("Cannot link from an input plug: {0}".format(link))
+            raise ValueError("Cannot link from an input plug: {}".format(link))
         if source_plug.output and source_node is self:
             raise ValueError(
-                "Cannot link from a pipeline output " "plug: {0}".format(link)
+                "Cannot link from a pipeline output " "plug: {}".format(link)
             )
         if dest_plug.output and dest_node is not self:
-            raise ValueError("Cannot link to an output plug: {0}".format(link))
+            raise ValueError("Cannot link to an output plug: {}".format(link))
         if not dest_plug.output and dest_node is self:
             raise ValueError(
-                "Cannot link to a pipeline input " "plug: {0}".format(link)
+                "Cannot link to a pipeline input " "plug: {}".format(link)
             )
 
         # Propagate the plug value from source to destination
@@ -1924,10 +1924,10 @@ class Pipeline(Process):
                 )
                 plugs_list.append((plug_name, plug_dict))
                 for nn, pn, n, p, weak_link in plug.links_to:
-                    link_name = "%s:%s" % (n.full_name, pn)
+                    link_name = "{}:{}".format(n.full_name, pn)
                     links_to_dict[link_name] = weak_link
                 for nn, pn, n, p, weak_link in plug.links_from:
-                    link_name = "%s:%s" % (n.full_name, pn)
+                    link_name = "{}:{}".format(n.full_name, pn)
                     links_from_dict[link_name] = weak_link
         return result
 
@@ -1946,17 +1946,17 @@ class Pipeline(Process):
         def compare_dict(ref_dict, other_dict):
             for ref_key, ref_value in ref_dict.items():
                 if ref_key not in other_dict:
-                    yield "%s = %s is missing" % (ref_key, repr(ref_value))
+                    yield "{} = {} is missing".format(ref_key, repr(ref_value))
                 else:
                     other_value = other_dict.pop(ref_key)
                     if ref_value != other_value:
-                        yield "%s = %s differs from %s" % (
+                        yield "{} = {} differs from {}".format(
                             ref_key,
                             repr(ref_value),
                             repr(other_value),
                         )
             for other_key, other_value in other_dict.items():
-                yield "%s=%s is new" % (other_key, repr(other_value))
+                yield "{}={} is new".format(other_key, repr(other_value))
 
         pipeline_state = deepcopy(pipeline_state)
         for node in self.all_nodes():
@@ -1967,7 +1967,7 @@ class Pipeline(Process):
             else:
                 plugs_list = OrderedDict(node_dict.pop("plugs"))
                 result.extend(
-                    'in node "%s": %s' % (node_name, i)
+                    'in node "{}": {}'.format(node_name, i)
                     for i in compare_dict(
                         dict(
                             name=node.name,
@@ -1999,7 +1999,7 @@ class Pipeline(Process):
                     links_to_dict = plug_dict.pop("links_to")
                     links_from_dict = plug_dict.pop("links_from")
                     result.extend(
-                        'in plug "%s:%s": %s' % (node_name, plug_name, i)
+                        'in plug "{}:{}": {}'.format(node_name, plug_name, i)
                         for i in compare_dict(
                             dict(
                                 enabled=plug.enabled,
@@ -2012,7 +2012,7 @@ class Pipeline(Process):
                         )
                     )
                     for nn, pn, n, p, weak_link in plug.links_to:
-                        link_name = "%s:%s" % (n.full_name, pn)
+                        link_name = "{}:{}".format(n.full_name, pn)
                         if link_name not in links_to_dict:
                             result.append(
                                 'in plug "%s:%s": missing link to %s'
@@ -2042,7 +2042,7 @@ class Pipeline(Process):
                             )
                         )
                     for nn, pn, n, p, weak_link in plug.links_from:
-                        link_name = "%s:%s" % (n.full_name, pn)
+                        link_name = "{}:{}".format(n.full_name, pn)
                         if link_name not in links_from_dict:
                             result.append(
                                 'in plug "%s:%s": missing link from '
@@ -2313,7 +2313,7 @@ class Pipeline(Process):
         A pipeline will return a list of unique configuration values.
         """
         # start with pipeline-level requirements
-        conf = super(Pipeline, self).check_requirements(
+        conf = super().check_requirements(
             environment, message_list=message_list
         )
         if conf is None:
