@@ -5,7 +5,7 @@ from soma.qt_gui.controller import (
     ControllerWidgetFactory,
     ControllerSubwidget,
 )
-from soma.qt_gui.collapsable import CollapsableWidget
+from soma.qt_gui.collapsible import CollapsibleWidget
 from soma.controller import undefined
 from soma.qt_gui.qt_backend import Qt
 from functools import partial
@@ -25,7 +25,7 @@ class EngineConfigurationWidgetFactory(ControllerWidgetFactory):
             buttons = ["+"]
         else:
             buttons = []
-        self.widget = CollapsableWidget(
+        self.widget = CollapsibleWidget(
             self.inner_widget,
             label=label,
             expanded=(self.parent_interaction.depth == 0),
