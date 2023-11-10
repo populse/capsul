@@ -101,16 +101,23 @@
       set_executions_summary(executions_summary);
     });
 
-    function stop_execution(execution_id) {
+    async function stop_execution(execution_id) {
       console.log('STOP:', execution_id);
+      await web_backend.call('stop_execution', engine_label, execution_id);
+      location.reload();
     }
 
-    function restart_execution(execution_id) {
+    async function restart_execution(execution_id) {
       console.log('RESTART:', execution_id);
+      await web_backend.call('restart_execution', engine_label, execution_id);
+      console.log('restat done.');
+      location.reload();
     }
 
-    function dispose_execution(execution_id) {
+    async function dispose_execution(execution_id) {
       console.log('DISPOSE:', execution_id);
+      await web_backend.call('dispose_execution', engine_label, execution_id);
+      location.reload();
     }
   </script>
 </html>

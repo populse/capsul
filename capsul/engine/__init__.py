@@ -325,6 +325,7 @@ class Engine:
         ''' Restart a workflow which has failed or has been stopped, and is
         thus not currently running.
         '''
+        print('Engine.restart')
         raise NotImplementedError()
 
     def raise_for_status(self, *args, **kwargs):
