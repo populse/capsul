@@ -54,9 +54,10 @@ js_showhide = """\
 </script>
 """
 
+
 def nice_bool(arg):
-    tvalues = ('true',  't', 'yes', 'y')
-    fvalues = ('false', 'f', 'no',  'n')
+    tvalues = ("true", "t", "yes", "y")
+    fvalues = ("false", "f", "no", "n")
     arg = directives.choice(arg, tvalues + fvalues)
     return arg in tvalues
 
@@ -68,18 +69,16 @@ class hidden_code_block(nodes.General, nodes.FixedTextElement):
 class HiddenCodeBlock(CodeBlock):
     """Hidden code block is Hidden"""
 
-    option_spec = dict(starthidden=nice_bool,
-                       label=str,
-                       **CodeBlock.option_spec)
+    option_spec = dict(starthidden=nice_bool, label=str, **CodeBlock.option_spec)
 
     def run(self):
         # Body of the method is more or less copied from CodeBlock
-        code = u'\n'.join(self.content)
+        code = u"\n".join(self.content)
         hcb = hidden_code_block(code, code)
-        hcb['language'] = self.arguments[0]
-        hcb['linenos'] = 'linenos' in self.options
-        hcb['starthidden'] = self.options.get('starthidden', True)
-        hcb['label'] = self.options.get('label', '[+ show/hide code]')
+        hcb["language"] = self.arguments[0]
+        hcb["linenos"] = "linenos" in self.options
+        hcb["starthidden"] = self.options.get("starthidden", True)
+        hcb["label"] = self.options.get("label", "[+ show/hide code]")
         hcb.line = self.lineno
         return [hcb]
 
@@ -102,15 +101,17 @@ def visit_hcb_html(self, node):
     # block that was just made.
     code_block = self.body[-1]
 
-    fill_header = {'divname': 'hiddencodeblock{0}'.format(HCB_COUNTER),
-                   'startdisplay': 'none' if node['starthidden'] else 'block',
-                   'label': node.get('label'),
-                   }
+    fill_header = {
+        "divname": "hiddencodeblock{0}".format(HCB_COUNTER),
+        "startdisplay": "none" if node["starthidden"] else "block",
+        "label": node.get("label"),
+    }
 
-    divheader = ("""<a href="javascript:showhide(document.getElementById('{divname}'))">"""
-                 """{label}</a><br />"""
-                 '''<div id="{divname}" style="display: {startdisplay}">'''
-                 ).format(**fill_header)
+    divheader = (
+        """<a href="javascript:showhide(document.getElementById('{divname}'))">"""
+        """{label}</a><br />"""
+        """<div id="{divname}" style="display: {startdisplay}">"""
+    ).format(**fill_header)
 
     code_block = js_showhide + divheader + code_block + "</div>"
 
@@ -125,5 +126,5 @@ def depart_hcb_html(self, node):
 
 
 def setup(app):
-    app.add_directive('hidden-code-block', HiddenCodeBlock)
+    app.add_directive("hidden-code-block", HiddenCodeBlock)
     app.add_node(hidden_code_block, html=(visit_hcb_html, depart_hcb_html))

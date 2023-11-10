@@ -24,11 +24,10 @@ def execution_context(engine_label, engine_config, executable):
     # So for now, give it only the dataset and config_modules part, removing
     # all modules config.
     cdict = engine_config.asdict()
-    for conf_item in ('dataset', 'config_modules', 'python_modules'):
+    for conf_item in ("dataset", "config_modules", "python_modules"):
         if conf_item in cdict:
             config[conf_item] = cdict[conf_item]
-    execution_context = ExecutionContext(executable=executable,
-                                         config=config)
+    execution_context = ExecutionContext(executable=executable, config=config)
 
     req_to_check = execution_context.executable_requirements(executable)
     done_req = []  # record requirements to avoid loops
@@ -54,8 +53,7 @@ def execution_context(engine_label, engine_config, executable):
             module_config = getattr(module_configs, module_field.name)
             added_req = module_config.is_valid_config(requirements)
             if added_req not in (False, None):
-                valid_configs.setdefault(
-                    module_name, {})[module_field] = module_config
+                valid_configs.setdefault(module_name, {})[module_field] = module_config
                 if isinstance(added_req, dict):
                     req_to_check.update(added_req)
 
@@ -65,26 +63,29 @@ def execution_context(engine_label, engine_config, executable):
         if not valid_module_configs:
             raise RuntimeError(
                 f'Execution environment "{engine_label}" has no '
-                f'valid configuration for module {module_name}')
+                f"valid configuration for module {module_name}"
+            )
         if len(valid_module_configs) > 1:
-            print(f'several {module_name} valid condfigs:')
+            print(f"several {module_name} valid condfigs:")
             for field, v in valid_module_configs.items():
-                print(field.name, ':', v.asdict())
+                print(field.name, ":", v.asdict())
             print(valid_module_configs)
             raise RuntimeError(
                 f'Execution environment "{engine_label}" has '
-                f'{len(valid_configs)} possible configurations for '
-                f'module {module_name}')
+                f"{len(valid_configs)} possible configurations for "
+                f"module {module_name}"
+            )
         # get the single remaining config
         valid_config = next(iter(valid_module_configs.values()))
-        execution_context.add_field(module_name, type_=ModuleConfiguration,
-                                    override=True)
-        setattr(execution_context, module_name,  valid_config)
+        execution_context.add_field(
+            module_name, type_=ModuleConfiguration, override=True
+        )
+        setattr(execution_context, module_name, valid_config)
     return execution_context
 
 
 class Engine:
-    ''' The Capsul Engine provides the client API for executions control.
+    """The Capsul Engine provides the client API for executions control.
 
     You normally get an Engine object from the application::
 
@@ -100,7 +101,7 @@ class Engine:
     (:class:`~capsul.config.configuration.EngineConfiguration` object),
     normally selected from the :class:`~capsul.application.Capsul` object for
     the selected computing resource.
-    '''
+    """
 
     def __init__(self, label, config, databases_config, update_database=False):
         super().__init__()
@@ -124,61 +125,54 @@ class Engine:
             # Connect to the engine in the database. Adds the engine in
             # the database if it does not exist.
             self.engine_id = self.database.get_or_create_engine(
-                self, update_database=self.update_database)
+                self, update_database=self.update_database
+            )
             self.config.persistent = self.database.persistent(self.engine_id)
         self.nested_context += 1
         return self
-
 
     @property
     def persistent(self):
         return self.database.persistent(self.engine_id)
 
-
     @persistent.setter
     def persistent(self, persistent):
         return self.database.set_persistent(self.engine_id, persistent)
 
-
     def engine_status(self):
-        '''
-        '''
+        """ """
         result = {
-            'label': self.label,
-            'config': self.config.json(),
+            "label": self.label,
+            "config": self.config.json(),
         }
-        result['database_connected'] = self.database.is_connected
-        if result['database_connected']:
-            result['database_ready'] = True
+        result["database_connected"] = self.database.is_connected
+        if result["database_connected"]:
+            result["database_ready"] = True
             database = self.database
         else:
-            result['database_ready'] = self.database.is_ready
-            if result['database_ready']:
+            result["database_ready"] = self.database.is_ready
+            if result["database_ready"]:
                 database = engine_database(self.database_config)
             else:
                 database = None
         if database:
             with database:
-                engine_id = result['engine_id'] = database.engine_id(
-                    self.label)
+                engine_id = result["engine_id"] = database.engine_id(self.label)
                 if engine_id:
-                    result['workers_count'] = database.workers_count(engine_id)
-                    result['connections'] = database.engine_connections(
-                        engine_id)
-                    result['persistent']: database.persistent(engine_id)
+                    result["workers_count"] = database.workers_count(engine_id)
+                    result["connections"] = database.engine_connections(engine_id)
+                    result["persistent"]: database.persistent(engine_id)
         return result
 
     def start_workers(self):
-        ''' Start workers for the current engine.
+        """Start workers for the current engine.
 
         The engine configuration ``start_workers `` subsection allows to
         customize how workers will be started (local processes, or via ssh, or
         through a job management system...)
-        '''
-        requested = self.config.start_workers.get('count', 0)
-        start_count = max(
-            0,
-            requested - self.database.workers_count(self.engine_id))
+        """
+        requested = self.config.start_workers.get("count", 0)
+        start_count = max(0, requested - self.database.workers_count(self.engine_id))
         if start_count:
             for i in range(start_count):
                 workers_command = self.database.workers_command(self.engine_id)
@@ -189,9 +183,13 @@ class Engine:
                         check=True,
                     )
                 except Exception as e:
-                    def quote(x): return f"'{x}'"
+
+                    def quote(x):
+                        return f"'{x}'"
+
                     raise RuntimeError(
-                        f'Command failed: {" ".join(quote(i) for i in workers_command)}') from e
+                        f'Command failed: {" ".join(quote(i) for i in workers_command)}'
+                    ) from e
 
     def __exit__(self, exception_type, exception_value, exception_traceback):
         # exiting the engine disposes it from the database: executions will
@@ -200,32 +198,29 @@ class Engine:
         # certain settings ?
         self.nested_context -= 1
         if self.nested_context == 0:
-            if 'CAPSUL_DEBUG' not in os.environ:
+            if "CAPSUL_DEBUG" not in os.environ:
                 self.database.dispose_engine(self.engine_id)
-            self.database.__exit__(exception_type, exception_value,
-                                   exception_traceback)
+            self.database.__exit__(exception_type, exception_value, exception_traceback)
             del self.engine_id
 
     def execution_context(self, executable):
-        '''
-        '''
+        """ """
         return execution_context(self.label, self.config, executable)
 
     def assess_ready_to_start(self, executable):
-        '''
-        '''
+        """ """
         missing = []
         for field in executable.user_fields():
             value = getattr(executable, field.name)
-            if value is undefined and not field.optional \
-                    and not field.is_output():
+            if value is undefined and not field.optional and not field.is_output():
                 missing.append(field.name)
         if missing:
             raise ValueError(
-                f'Value missing for the following parameters: {", ".join(missing)}')
+                f'Value missing for the following parameters: {", ".join(missing)}'
+            )
 
     def start(self, executable, debug=False):
-        ''' Start the execution for an executable.
+        """Start the execution for an executable.
 
         Start workers if needed.
 
@@ -235,7 +230,7 @@ class Engine:
 
         :meth:`run` provides a shorthand for combining these methods to work as
         a synchronous (blocking) execution.
-        '''
+        """
         # Starts workers if necessary
         econtext = self.execution_context(executable)
         workflow = CapsulWorkflow(executable, debug=debug)
@@ -248,24 +243,22 @@ class Engine:
         # print('----')
         # pprint(workflow.jobs)
         execution_id = self.database.new_execution(
-            executable, self.engine_id, econtext, workflow,
-            start_time=datetime.now())
+            executable, self.engine_id, econtext, workflow, start_time=datetime.now()
+        )
         self.start_workers()
         return execution_id
 
     def executions_summary(self):
-        '''
-        '''
+        """ """
         with self:
             return self.database.executions_summary(self.engine_id)
 
     def status(self, execution_id):
-        '''
-        '''
+        """ """
         return self.database.status(self.engine_id, execution_id)
 
     def wait(self, execution_id, *args, **kwargs):
-        ''' Wait for the given execution to end.
+        """Wait for the given execution to end.
 
         Keyword arguments may specify additional parameters
 
@@ -278,27 +271,30 @@ class Engine:
             return anyway but the execution status will not be "done". If not
             provided (or None), wait() will not return before the execution is
             finished (which may block indefinitely in case of problem).
-        '''
+        """
         self.database.wait(self.engine_id, execution_id, *args, **kwargs)
 
     def stop(self, execution_id, kill_running=True):
-        ''' Stop a running execution
-        '''
+        """Stop a running execution"""
         self.database.stop_execution(self.engine_id, execution_id)
         if kill_running:
             self.kill_jobs(execution_id)
 
     def kill_jobs(self, execution_id, job_ids=None):
-        ''' Kill running jobs during execution
+        """Kill running jobs during execution
 
         Passing None as the job_ids argument kills all currently running jobs
-        '''
+        """
         self.database.kill_jobs(self.engine_id, execution_id, job_ids)
 
-    def restart_jobs(self, execution_id: str, job_ids: list[str],
-                     force_stop: bool = False,
-                     allow_restart_execution: bool = False):
-        ''' Restart jobs which have been stopped or have failed.
+    def restart_jobs(
+        self,
+        execution_id: str,
+        job_ids: list[str],
+        force_stop: bool = False,
+        allow_restart_execution: bool = False,
+    ):
+        """Restart jobs which have been stopped or have failed.
 
         Jobs are reset to ready or waiting state in the execution workflow,
         thus can be run again when their dependencies are satisfied.
@@ -318,43 +314,39 @@ class Engine:
             state is modified, the workdlow is left waiting. If
             allow_restart_execution is True, then restart() is called and the
             workflow starts execution again.
-        '''
+        """
         raise NotImplementedError()
 
     def restart(self, execution_id):
-        ''' Restart a workflow which has failed or has been stopped, and is
+        """Restart a workflow which has failed or has been stopped, and is
         thus not currently running.
-        '''
-        print('Engine.restart')
+        """
+        print("Engine.restart")
         raise NotImplementedError()
 
     def raise_for_status(self, *args, **kwargs):
-        ''' Raises an exception according to the execution status.
-        '''
+        """Raises an exception according to the execution status."""
         self.database.raise_for_status(self.engine_id, *args, **kwargs)
 
     def execution_report(self, *args, **kwargs):
-        '''
-        '''
+        """ """
         return self.database.execution_report(self.engine_id, *args, **kwargs)
 
     def print_execution_report(self, engine_id, *args, **kwargs):
-        '''
-        '''
+        """ """
         self.database.print_execution_report(engine_id, *args, **kwargs)
 
     def update_executable(self, *args, **kwargs):
         self.database.update_executable(self.engine_id, *args, **kwargs)
 
     def dispose(self, *args, **kwargs):
-        ''' Remove the given execution from the database and the associated
+        """Remove the given execution from the database and the associated
         resources (temporary files etc.)
-        '''
+        """
         self.database.dispose(self.engine_id, *args, **kwargs)
 
-    def run(self, executable, timeout=None, print_report=False, debug=False,
-            **kwargs):
-        ''' Run synchronously an executable, blocking until execution has
+    def run(self, executable, timeout=None, print_report=False, debug=False, **kwargs):
+        """Run synchronously an executable, blocking until execution has
         finished or a timeout has been reached.
 
         If execution does not finish without an error, an exception will be
@@ -362,7 +354,7 @@ class Engine:
 
         Execution will not continue after the timeout, jobs will be stopped
         [should be.. ?](TODO).
-        '''
+        """
         for k, v in kwargs.items():
             setattr(executable, k, v)
         self.assess_ready_to_start(executable)
@@ -372,16 +364,18 @@ class Engine:
                 self.wait(execution_id, timeout=timeout)
             except TimeoutError:
                 self.print_execution_report(
-                    self.execution_report(execution_id), sys.stderr)
+                    self.execution_report(execution_id), sys.stderr
+                )
                 raise
             status = self.status(execution_id)
             self.raise_for_status(execution_id)
             if print_report:
                 self.print_execution_report(
-                    self.execution_report(execution_id), file=sys.stdout)
+                    self.execution_report(execution_id), file=sys.stdout
+                )
             self.update_executable(execution_id, executable)
         finally:
-            if 'CAPSUL_DEBUG' not in os.environ:
+            if "CAPSUL_DEBUG" not in os.environ:
                 self.dispose(execution_id)
         return status
 

@@ -1,4 +1,4 @@
-'''
+"""
 Functions
 =========
 :func:`find_pipelines_from_description`
@@ -7,7 +7,7 @@ Functions
 ---------------------------------
 :func:`lists2dict`
 ------------------
-'''
+"""
 
 # System import
 import logging
@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 
 def find_pipelines_from_description(module_name, url=None):
-    """ Function that list all the pipeline of a module.
+    """Function that list all the pipeline of a module.
 
     Parameters
     ----------
@@ -57,8 +57,7 @@ def find_pipelines_from_description(module_name, url=None):
     module_path = module.__path__[0]
 
     # Build the expected pipeline description file
-    description_file = os.path.join(
-        module_path, "{0}.capsul".format(module_name))
+    description_file = os.path.join(module_path, "{0}.capsul".format(module_name))
 
     # Load the description file
     if os.path.isfile(description_file):
@@ -77,7 +76,7 @@ def find_pipelines_from_description(module_name, url=None):
 
 
 def find_pipeline_and_process(module_name):
-    """ Function that return all the Pipeline and Process classes of a module.
+    """Function that return all the Pipeline and Process classes of a module.
 
     All the mdoule path are scanned recuresively. Any pipeline or process will
     be added to the output.
@@ -104,13 +103,13 @@ def find_pipeline_and_process(module_name):
 
     # Get the module path
     module = sys.modules[module_name]
-    if hasattr(module, '__path__'):
+    if hasattr(module, "__path__"):
         module_path = module.__path__[0]
     else:
         module_path = os.path.dirname(module.__file__)
 
     # Use setuptools to go through the module
-    sub_modules = find_packages(where=module_path, exclude=("doc", ))
+    sub_modules = find_packages(where=module_path, exclude=("doc",))
     sub_modules = [module_name + "." + x for x in sub_modules]
     sub_modules.insert(0, module_name)
     logger.debug("Modules found with setuptools: '{0}'.".format(sub_modules))
@@ -122,13 +121,14 @@ def find_pipeline_and_process(module_name):
     pip_and_proc = [set(), set()]
     for sub_module in sub_modules:
         # Get the sub module path
-        sub_module_path = os.path.join(
-            module_path, *sub_module.split(".")[shift:])
+        sub_module_path = os.path.join(module_path, *sub_module.split(".")[shift:])
 
         # List all the mdule in sub module path
         sub_sub_module_names = [
-            sub_module + "." + x[:-3] for x in os.listdir(sub_module_path)
-            if (x.endswith(".py") and not x.startswith("_"))]
+            sub_module + "." + x[:-3]
+            for x in os.listdir(sub_module_path)
+            if (x.endswith(".py") and not x.startswith("_"))
+        ]
 
         # Try to import the sub sub module
         for sub_sub_module_name in sub_sub_module_names:
@@ -137,8 +137,7 @@ def find_pipeline_and_process(module_name):
             except ImportError:
                 exc_info = sys.exc_info()
                 logger.error("".join(traceback.format_exception(*exc_info)))
-                logger.error("Can't load module "
-                              "{0}".format(sub_sub_module_name))
+                logger.error("Can't load module " "{0}".format(sub_sub_module_name))
                 continue
 
             # Get the module
@@ -152,22 +151,22 @@ def find_pipeline_and_process(module_name):
                 # Check all the authorized derived class
                 parent_classes = [Pipeline, Process]
                 for cnt, parent_class in enumerate(parent_classes):
-                    if (isclass(tool) and issubclass(tool, parent_class)) \
-                            and tool not in parent_classes:
-                        pip_and_proc[cnt].add(
-                            sub_sub_module_name + "." + tool_name)
+                    if (
+                        isclass(tool) and issubclass(tool, parent_class)
+                    ) and tool not in parent_classes:
+                        pip_and_proc[cnt].add(sub_sub_module_name + "." + tool_name)
                         break
     # Format output
     output = {
         "pipeline_descs": list(pip_and_proc[0]),
-        "process_descs": list(pip_and_proc[1])
+        "process_descs": list(pip_and_proc[1]),
     }
 
     return output
 
 
 def lists2dict(list_of_pipeline_description, url, d):
-    """ Convert a list of splited module names to a hierachic dictionary with
+    """Convert a list of splited module names to a hierachic dictionary with
     list leafs that contain the url to the module docuementation.
 
     Parameters

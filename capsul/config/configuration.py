@@ -4,38 +4,38 @@ import multiprocessing
 import os
 import sys
 
-from soma.controller import (Controller, field,
-                             OpenKeyDictController, File)
+from soma.controller import Controller, field, OpenKeyDictController, File
 from soma.undefined import undefined
 
 from ..dataset import Dataset
 
 
 default_builtin_database = {
-    'type': 'sqlite',
-    'path': '$HOME/.config/{app_name}/database.sqlite',
+    "type": "sqlite",
+    "path": "$HOME/.config/{app_name}/database.sqlite",
 }
 default_builtin_database = {
-    'type': 'redis+socket',
-    'path': '$HOME/.config/{app_name}/database.redis',
+    "type": "redis+socket",
+    "path": "$HOME/.config/{app_name}/database.redis",
 }
 
 default_engine_start_workers = {
-    'type': 'builtin',
-    'count': max(1, int(multiprocessing.cpu_count()/4)),
+    "type": "builtin",
+    "count": max(1, int(multiprocessing.cpu_count() / 4)),
 }
 
+
 def full_module_name(module_name):
-    '''
+    """
     Return a complete module name (which must be a valid Python module
     name) given a possibly abbreviated module name. This method must
     be used whenever a module name is written by a user (for instance
     in a configuration file.
     This method add the prefix `'capsul.engine.module.'` if the module
     name does not contain a dot.
-    '''
-    if '.' not in module_name:
-        module_name = 'capsul.config.' + module_name
+    """
+    if "." not in module_name:
+        module_name = "capsul.config." + module_name
     return module_name
 
 
@@ -46,7 +46,7 @@ def get_config_class(module_name, exception=True):
         python_module = importlib.import_module(full_mod)
     except ModuleNotFoundError:
         # maybe module + class name
-        full_mod2 = full_mod.rsplit('.', 1)
+        full_mod2 = full_mod.rsplit(".", 1)
         if len(full_mod2) == 2:
             try:
                 python_module = importlib.import_module(full_mod2[0])
@@ -74,19 +74,21 @@ def get_config_class(module_name, exception=True):
             pass
     if len(classes) == 0:
         if exception:
-            raise ValueError(f'No ModuleClass found in module {module_name}')
+            raise ValueError(f"No ModuleClass found in module {module_name}")
         else:
             return None
     if len(classes) > 1:
         if exception:
-            raise ValueError(f'Several ModuleClass found {len(classes)} in module {module_name}: {classes}')
+            raise ValueError(
+                f"Several ModuleClass found {len(classes)} in module {module_name}: {classes}"
+            )
         else:
             return None
     return classes[0]
 
 
 class ModuleConfiguration(Controller):
-    ''' Module-level configuration object.
+    """Module-level configuration object.
 
     This base class is meant to be inherited in specific modules
     (:class:`~spm.SPMConfiguration` etc).
@@ -110,11 +112,12 @@ class ModuleConfiguration(Controller):
       (execution_context.config) its own module config, and do whatever is
       needed to configure things and/or add in the context itself things that
       can be used during execution.
-    '''
-    name = ''
+    """
+
+    name = ""
 
     def is_valid_config(self, requirements):
-        ''' Checks validity of this config in regard to given requirements
+        """Checks validity of this config in regard to given requirements
 
         Parameters
         ----------
@@ -134,13 +137,14 @@ class ModuleConfiguration(Controller):
             If the return value is a dict, then it means the module is valid,
             if additional requirements for other dependent modules are met. For
             instance a SPM module may return ``{'matlab': {'mcr': True'}}``
-        '''
-        raise NotImplementedError('A subclass of ModuleConfiguration must '
-                                  'define is_valid_config()')
+        """
+        raise NotImplementedError(
+            "A subclass of ModuleConfiguration must " "define is_valid_config()"
+        )
 
 
 class EngineConfiguration(Controller):
-    ''' Engine-level configuration object
+    """Engine-level configuration object
 
     It corresponds to a given computing resource in the
     :class:`ApplicationConfiguration`. It contains modules and instances of
@@ -150,49 +154,52 @@ class EngineConfiguration(Controller):
     Modules keys should correspond to their module name, however it should not
     include dots as they are field names, so we either take the "short name",
     or replace dots with underscores.
-    '''
+    """
 
     dataset: OpenKeyDictController[Dataset]
     config_modules: list[str]
     python_modules: list[str]
 
-    database: str = 'builtin'
+    database: str = "builtin"
     persistent: bool = True
 
-    start_workers: field(type_=dict,
-                         default_factory=lambda: default_engine_start_workers)
+    start_workers: field(
+        type_=dict, default_factory=lambda: default_engine_start_workers
+    )
 
     def add_module(self, module_name, allow_existing=False):
-        ''' Loads a modle and adds it in the engine configuration.
+        """Loads a modle and adds it in the engine configuration.
 
         This operation is performed automatically, thus should not need to be
         called manually.
-        '''
+        """
         cls = get_config_class(module_name)
         old_module_name = module_name
-        module_name = getattr(cls, 'name', module_name.rsplit('.')[-1])
+        module_name = getattr(cls, "name", module_name.rsplit(".")[-1])
         if not module_name:
             # fallback
-            module_name = old_module_name.rsplit('.')[-1]
+            module_name = old_module_name.rsplit(".")[-1]
 
         if allow_existing:
             field = self.field(module_name)
             if field is not None and field.type is OpenKeyDictController[cls]:
                 return
 
-        self.add_field(module_name, OpenKeyDictController[cls],
-                       doc=cls.__doc__,
-                       default_factory=OpenKeyDictController[cls])
+        self.add_field(
+            module_name,
+            OpenKeyDictController[cls],
+            doc=cls.__doc__,
+            default_factory=OpenKeyDictController[cls],
+        )
 
-        if hasattr(cls, 'module_dependencies'):
-            module_dependencies = getattr(cls, 'module_dependencies')
+        if hasattr(cls, "module_dependencies"):
+            module_dependencies = getattr(cls, "module_dependencies")
             for dependency in module_dependencies:
                 self.add_module(dependency, allow_existing=True)
 
     def remove_module(self, module_name):
-        ''' Remove the given module
-        '''
-        module_name = module_name.rsplit('.')[-1]
+        """Remove the given module"""
+        module_name = module_name.rsplit(".")[-1]
         if self.field(module_name) is not None:
             self.remove_field(module_name)
 
@@ -200,20 +207,20 @@ class EngineConfiguration(Controller):
         # Load Python modules
         # These modules are typically used to register a class
         # such as a MetadataSchema when they are loaded
-        python_modules = conf_dict.get('python_modules')
+        python_modules = conf_dict.get("python_modules")
         if python_modules:
             for module_name in python_modules:
                 __import__(module_name)
 
         # Load config modules
-        config_modules = conf_dict.get('config_modules')
+        config_modules = conf_dict.get("config_modules")
         if config_modules:
             for module_name in config_modules:
                 self.add_module(module_name, allow_existing=True)
 
         # Set configuration values
         for mod in conf_dict:
-            if mod in ('python_modules', 'config_modules'):
+            if mod in ("python_modules", "config_modules"):
                 continue
             if not self.has_field(mod):
                 self.add_module(mod, allow_existing=True)
@@ -221,13 +228,13 @@ class EngineConfiguration(Controller):
 
 
 class ConfigurationLayer(OpenKeyDictController[EngineConfiguration]):
-    ''' Configuration "layer", which represents a config file (site config or
+    """Configuration "layer", which represents a config file (site config or
     user config, typically).
 
     A ConfigurationLayer contains sub-configs corresponding to computing
     resources, which are keys in this :class:`Controller`. A "default" config
     resource could be named "builtin".
-    '''
+    """
 
     def __init__(self, conf_dict=None):
         super().__init__()
@@ -236,45 +243,47 @@ class ConfigurationLayer(OpenKeyDictController[EngineConfiguration]):
             self.import_dict(conf_dict)
 
     def add_builtin_fields(self):
-        self.add_field('databases', dict[str, dict],
-                       default_factory=lambda: {'builtin': {}})
         self.add_field(
-            'builtin', EngineConfiguration,
+            "databases", dict[str, dict], default_factory=lambda: {"builtin": {}}
+        )
+        self.add_field(
+            "builtin",
+            EngineConfiguration,
             default_factory=EngineConfiguration,
-            doc='Default builtin computing resource config. Elements are '
-                'config modules which should be registered in the application '
-                '(spm, fsl, ...)')
+            doc="Default builtin computing resource config. Elements are "
+            "config modules which should be registered in the application "
+            "(spm, fsl, ...)",
+        )
 
     def import_dict(self, d, clear=False):
         if clear:
             super().import_dict({}, clear=True)
             self.add_builtin_fields()
-        builtin = self.databases['builtin']
+        builtin = self.databases["builtin"]
         super().import_dict(d, clear=False)
         # self.databases.setdefault('builtin', builtin)
         # merge builtins rather than reset the former value
-        builtin.update(self.databases.get('builtin', {}))
-        self.databases['builtin'] = builtin
+        builtin.update(self.databases.get("builtin", {}))
+        self.databases["builtin"] = builtin
 
     def load(self, filename):
-        ''' Load configuration from a JSON or YAML file
-        '''
-        if filename.endswith('.py'):
+        """Load configuration from a JSON or YAML file"""
+        if filename.endswith(".py"):
             context = {}
             with open(filename) as f:
                 exec(f.read(), context, context)
             conf = None
-            for n in ('config', 'configuration', 'conf'):
+            for n in ("config", "configuration", "conf"):
                 conf = context.get(n)
                 if conf:
                     break
             if not conf:
-                raise RuntimeError(
-                    f'No valid configuration found in "{filename}"')
-        elif filename.endswith('.yaml'):
+                raise RuntimeError(f'No valid configuration found in "{filename}"')
+        elif filename.endswith(".yaml"):
             # YAML support is optional, yaml module may not
             # be installed
             import yaml
+
             with open(filename) as f:
                 conf = yaml.safe_load(f)
         else:
@@ -283,46 +292,48 @@ class ConfigurationLayer(OpenKeyDictController[EngineConfiguration]):
         self.import_dict(conf)
 
     def add_field(self, name, *args, **kwargs):
-        if 'doc' not in kwargs:
+        if "doc" not in kwargs:
             kwargs = dict(kwargs)
-            if name == 'builtin':
-                kwargs['doc'] = 'Default builtin computing resource config. ' \
-                    'Elements are config modules which should be registered ' \
-                    'in the application (spm, fsl, ...)'
+            if name == "builtin":
+                kwargs["doc"] = (
+                    "Default builtin computing resource config. "
+                    "Elements are config modules which should be registered "
+                    "in the application (spm, fsl, ...)"
+                )
             else:
-                kwargs['doc'] = 'Computing resource config. Elements are ' \
-                    'config modules which should be registered in the ' \
-                    'application (spm, fsl, ...)'
+                kwargs["doc"] = (
+                    "Computing resource config. Elements are "
+                    "config modules which should be registered in the "
+                    "application (spm, fsl, ...)"
+                )
         super().add_field(name, *args, **kwargs)
 
     def save(self, filename, format=None):
-        ''' Save configuration to a JSON or YAML file
-        '''
+        """Save configuration to a JSON or YAML file"""
         if format is None:
-            if filename.endswith('.yaml'):
-                format = 'yaml'
+            if filename.endswith(".yaml"):
+                format = "yaml"
             else:
-                format = 'json'
-        if format == 'json':
-            with open(filename, 'w') as f:
+                format = "json"
+        if format == "json":
+            with open(filename, "w") as f:
                 json.dump(self.asdict(), f)
-        elif format == 'yaml':
+        elif format == "yaml":
             # YAML support is optional, yaml module may not
             # be installed
             import yaml
-            with open(filename, 'w') as f:
+
+            with open(filename, "w") as f:
                 yaml.dump(self.asdict(), f)
         else:
-            raise ValueError(f'Unsupported format: {format}')
+            raise ValueError(f"Unsupported format: {format}")
 
     def merge(self, other_layer):
-        ''' Merge in-place: other_layer is "added" to self.
-        '''
+        """Merge in-place: other_layer is "added" to self."""
         self.import_dict(other_layer.asdict(), clear=False)
 
     def merged(self, other_layer):
-        ''' Returns a merged copy of self and another ConfigurationLayer layer
-        '''
+        """Returns a merged copy of self and another ConfigurationLayer layer"""
         merged = ConfigurationLayer()
         merged.import_dict(self.asdict())
         merged.merge(other_layer)
@@ -330,7 +341,7 @@ class ConfigurationLayer(OpenKeyDictController[EngineConfiguration]):
 
 
 class ApplicationConfiguration(Controller):
-    ''' Application-wide configuration class.
+    """Application-wide configuration class.
 
     It contains a "site" and a "user" configuration, and a merge of both.
 
@@ -395,25 +406,31 @@ class ApplicationConfiguration(Controller):
     precisely :class:`~soma.controller.controller.OpenKeyDictController` class,
     which allows a complete control and validation at every level, contrarily
     to a ``dict[str, ModuleConfiguration]`` for instance.
-    '''
-    site_file: field(type_=File, doc='site configuration file')
-    site: field(type_=ConfigurationLayer,
+    """
+
+    site_file: field(type_=File, doc="site configuration file")
+    site: field(
+        type_=ConfigurationLayer,
         default_factory=ConfigurationLayer,
-        doc='Site-wise configuration, set by the software admin or installer. '
-        'Elements represent computing resources configs.')
-    user_file: field(type_=File, doc='user configuration file')
-    user: field(type_=ConfigurationLayer,
+        doc="Site-wise configuration, set by the software admin or installer. "
+        "Elements represent computing resources configs.",
+    )
+    user_file: field(type_=File, doc="user configuration file")
+    user: field(
+        type_=ConfigurationLayer,
         default_factory=ConfigurationLayer,
-        doc='Personal user config: overrides or completes the site config. '
-        'Elements represent computing resources configs.')
-    app_name: field(type_=str, default='capsul', doc='Application name')
+        doc="Personal user config: overrides or completes the site config. "
+        "Elements represent computing resources configs.",
+    )
+    app_name: field(type_=str, default="capsul", doc="Application name")
 
     # read-only modified by merge
-    merged_config: field(type_=ConfigurationLayer,
-        default_factory=ConfigurationLayer, user_level=2)
+    merged_config: field(
+        type_=ConfigurationLayer, default_factory=ConfigurationLayer, user_level=2
+    )
 
     def __init__(self, app_name, user_file=undefined, site_file=None, user=None):
-        '''
+        """
         Parameters
         ----------
         app_name: str
@@ -429,16 +446,18 @@ class ApplicationConfiguration(Controller):
             file name for the site config file. If `̀`None`` (the default), then
             no config will be loaded.
 
-        '''
+        """
         super().__init__()
 
         self.app_name = app_name
         builtin_db = default_builtin_database.copy()
-        builtin_db['path'] = os.path.expandvars(builtin_db['path']).format(app_name=app_name)
-        d = os.path.dirname(builtin_db['path'])
+        builtin_db["path"] = os.path.expandvars(builtin_db["path"]).format(
+            app_name=app_name
+        )
+        d = os.path.dirname(builtin_db["path"])
         if not os.path.exists(d):
             os.makedirs(d)
-        self.site.databases = {'builtin': builtin_db}
+        self.site.databases = {"builtin": builtin_db}
 
         if site_file is not None:
             self.site_file = site_file
@@ -448,17 +467,19 @@ class ApplicationConfiguration(Controller):
             if user:
                 user_file = None
             else:
-                user_file = os.path.expanduser(f'~/.config/{app_name}.json')
+                user_file = os.path.expanduser(f"~/.config/{app_name}.json")
                 if not os.path.exists(user_file):
                     user_file = None
         if user and user_file is not None:
-            raise ValueError('ApplicationConfiguration does not accept both '
-                             'user_file and user parameters.')
+            raise ValueError(
+                "ApplicationConfiguration does not accept both "
+                "user_file and user parameters."
+            )
         if user_file is undefined:
             if user:
                 user_file = None
             else:
-                user_file = os.path.expanduser(f'~/.config/{app_name}.json')
+                user_file = os.path.expanduser(f"~/.config/{app_name}.json")
                 if not os.path.exists(user_file):
                     user_file = None
         if user:
@@ -469,26 +490,26 @@ class ApplicationConfiguration(Controller):
         self.merge_configs()
 
     def merge_configs(self):
-        ''' Merge site and user configs into the ``merged_config``
+        """Merge site and user configs into the ``merged_config``
         configuration. This ``merged_config`` will be erased and rebuilt during
         the operation, so *never modify the merged_config*, but site or user
         configs instead.
-        '''
+        """
         self.merged_config = self.site.merged(self.user)
 
     @staticmethod
     def available_modules():
         module = sys.modules.get(__name__)
-        mod_base = module.__name__.rsplit('.', 1)[0]
-        mod_path = getattr(module, '__file__')
+        mod_base = module.__name__.rsplit(".", 1)[0]
+        mod_path = getattr(module, "__file__")
         if mod_path is None:
-            mod_path = getattr(module, '__path__')
+            mod_path = getattr(module, "__path__")
         mod_dir = os.path.dirname(mod_path)
         modules = []
         for p in os.listdir(mod_dir):
-            if not p.endswith('.py'):
+            if not p.endswith(".py"):
                 continue
-            if p in ('configuration.py', '__init__.py'):
+            if p in ("configuration.py", "__init__.py"):
                 continue
-            modules.append('.'.join((mod_base, p[:-3])))
+            modules.append(".".join((mod_base, p[:-3])))
         return sorted(modules)

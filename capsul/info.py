@@ -2,8 +2,8 @@ from __future__ import absolute_import
 import os.path
 import sys
 
-''' Information module describing the Capsul package.
-'''
+""" Information module describing the Capsul package.
+"""
 
 # Capsul current version
 version_major = 3
@@ -22,20 +22,22 @@ _version_extra = version_extra
 __version__ = "{0}.{1}.{2}".format(version_major, version_minor, version_micro)
 
 brainvisa_dependencies = [
-    'soma-base',
-    'soma-workflow',
-    ('RUN', 'RECOMMENDS', 'python-qt4', 'RUN'),
-    ('RUN', 'RECOMMENDS', 'graphviz', 'RUN'),
+    "soma-base",
+    "soma-workflow",
+    ("RUN", "RECOMMENDS", "python-qt4", "RUN"),
+    ("RUN", "RECOMMENDS", "graphviz", "RUN"),
 ]
 
 # Expected by setup.py: the status of the project
-CLASSIFIERS = ["Development Status :: 5 - Production/Stable",
-               "Environment :: Console",
-               "Environment :: X11 Applications :: Qt",
-               "Operating System :: OS Independent",
-               "Programming Language :: Python",
-               "Topic :: Scientific/Engineering",
-               "Topic :: Utilities"]
+CLASSIFIERS = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Environment :: X11 Applications :: Qt",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Utilities",
+]
 
 # Project descriptions
 description = "CAPSUL"
@@ -89,10 +91,7 @@ REQUIRES = [
     "PyYAML",
 ]
 EXTRA_REQUIRES = {
-    "test": [
-        "pytest",
-        "jupyter"
-    ],
+    "test": ["pytest", "jupyter"],
     "doc": [
         "sphinx >=1.0",
         "numpy >={0}".format(NUMPY_MIN_VERSION),
@@ -108,7 +107,7 @@ EXTRA_REQUIRES = {
 }
 
 # tests to run
-test_commands = ['%s -m capsul.test --verbose' % os.path.basename(sys.executable)]
+test_commands = ["%s -m capsul.test --verbose" % os.path.basename(sys.executable)]
 # Shorten the default timeout: tests usually last 4 minutes, and have a known
 # deadlock issue so we want them to fail asap.
 test_timeouts = [600]

@@ -29,8 +29,8 @@ js_showhide = """
 
 
 def nice_bool(arg):
-    tvalues = ('true',  't', 'yes', 'y')
-    fvalues = ('false', 'f', 'no',  'n')
+    tvalues = ("true", "t", "yes", "y")
+    fvalues = ("false", "f", "no", "n")
     arg = directives.choice(arg, tvalues + fvalues)
     return arg in tvalues
 
@@ -38,6 +38,7 @@ def nice_bool(arg):
 # Add node
 class hidden_technical_block(nodes.Admonition, nodes.Element):
     """Node for inserting hidden technical block."""
+
     pass
 
 
@@ -52,15 +53,13 @@ class MyError(Exception):
 # Add directive
 class HiddenTechnicalBlock(BaseAdmonition):
     """Hidden technical block"""
+
     node_class = hidden_technical_block
     has_content = True
     required_arguments = 0
     optional_arguments = 2
     final_argument_whitespace = False
-    option_spec = {
-        "starthidden": nice_bool,
-        "label": str
-    }
+    option_spec = {"starthidden": nice_bool, "label": str}
 
     def run(self):
         # Include raw item
@@ -74,15 +73,16 @@ class HiddenTechnicalBlock(BaseAdmonition):
                 try:
                     fo = open(resource_path, "r")
                     # Item content is a string or buffer
-                    item_content = [x.replace("\n", "")
-                                    for x in fo.readlines()]
+                    item_content = [x.replace("\n", "") for x in fo.readlines()]
                     for string_content in item_content:
-                        new_content.append(six.text_type(string_content),
-                                           source=self.content)
+                        new_content.append(
+                            six.text_type(string_content), source=self.content
+                        )
                     fo.close()
                 except MyError as e:
-                    item_content = ("Can't open the resource file "
-                                    "'{0}'".format(resource_path))
+                    item_content = "Can't open the resource file " "'{0}'".format(
+                        resource_path
+                    )
                     logging.error(item_content + e.value)
                     # Add an error item
                     new_content.append(item_content, source=self.content)
@@ -113,7 +113,7 @@ def visit_htb_html(self, node):
     fill_header = {
         "divname": "hiddencodeblock{0}".format(HTB_COUNTER),
         "startdisplay": "none" if node["starthidden"] else "block",
-        "label": node.get("label", "[+ show/hide technical details]")
+        "label": node.get("label", "[+ show/hide technical details]"),
     }
 
     # Generate the html div
@@ -141,5 +141,4 @@ def depart_htb_html(self, node):
 # Register new directive
 def setup(app):
     app.add_directive("hidden-technical-block", HiddenTechnicalBlock)
-    app.add_node(hidden_technical_block,
-                 html=(visit_htb_html, depart_htb_html))
+    app.add_node(hidden_technical_block, html=(visit_htb_html, depart_htb_html))

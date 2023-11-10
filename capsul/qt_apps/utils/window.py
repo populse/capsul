@@ -1,9 +1,9 @@
-'''
+"""
 Classes
 =======
 :class:`MyQUiLoader`
 --------------------
-'''
+"""
 
 # Soma import
 from __future__ import absolute_import
@@ -14,11 +14,10 @@ from capsul.qt_apps.resources.icones import *
 
 
 class MyQUiLoader(object):
-    """ Base window class based on ui file description.
-    """
+    """Base window class based on ui file description."""
 
     def __init__(self, uifile):
-        """ Method to initialize the base window.
+        """Method to initialize the base window.
 
         Parameters
         ----------
