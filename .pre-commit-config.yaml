@@ -1,5 +1,6 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
+exclude: '^capsul/sphinxext/resources/numpy_ext/'
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
@@ -11,6 +12,7 @@ repos:
     -   id: check-merge-conflict
     -   id: check-shebang-scripts-are-executable
     -   id: check-symlinks
+    -   id: check-toml
     -   id: check-xml
     -   id: check-yaml
     -   id: debug-statements
@@ -23,7 +25,12 @@ repos:
     rev: 23.11.0
     hooks:
       - id: black
-        exclude: doc
+        exclude: '^doc/'
+#-   repo: https://github.com/astral-sh/ruff-pre-commit
+#    rev: v0.1.5
+#    hooks:
+#    -   id: ruff
+#        exclude: '^doc/'
 -   repo: https://github.com/PyCQA/flake8
     rev: 4.0.1
     hooks:
