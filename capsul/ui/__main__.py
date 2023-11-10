@@ -30,7 +30,7 @@ def qt_web_gui():
         starting_url=starting_url,
         web_backend=web_backend,
     )
-    w.showMaximized()
+    w.show()
     app.exec_()
 
 

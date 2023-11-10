@@ -560,7 +560,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
                 # Removes association between label and engine_id
                 self.redis.hdel("capsul:engine", label)
                 self.redis.hdel(f"capsul:{engine_id}", "label")
-                # Check if some executions had been submitted or are ongoing
+                # Check if some executions had been submited or are ongoing
                 # An empty list modified with Redis Lua scripts may be encoded as empty dict
                 executions = json.loads(
                     self.redis.hget(f"capsul:{engine_id}", "executions")
@@ -715,7 +715,24 @@ class RedisExecutionDatabase(ExecutionDatabase):
         return job
 
     def kill_jobs(self, engine_id, execution_id, job_ids):
-        raise NotImplementedError
+        """ Request killing of jobs
+        """
+        # we just set a flag to 1 associated with the jobs to be killed.
+        # Workers will poll for it while jobs are running, and react
+        # accordingly.
+        # TODO:
+        # - atomicity: ensure jobs still exist and are running
+        # - skip or error if a job is not running
+        key = f'capsul:{engine_id}:{execution_id}'
+        if job_ids is None:
+            job_ids = self.redis.hget(f'capsul:{engine_id}:{execution_id}',
+                                      'ongoing')
+        for job_id in job_ids:
+            self.redis.hset(key, f'kill_job:{job_id}', 1)
+
+    def job_kill_requested(self, engine_id, execution_id, job_id):
+        return self.redis.hget(f'capsul:{engine_id}:{execution_id}',
+                               f'kill_job:{job_id}')
 
     def execution_report_json(self, engine_id, execution_id):
         (

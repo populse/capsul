@@ -19,7 +19,7 @@ def execution_context(engine_label, engine_config, executable):
     # {'spm': {'spm12-standalone': {...}, 'spm8': {...}}
     # whereas EXecutionContext expects an execution-side single, filtered
     # config: {'spm': {...}}
-    # This filtering is done here in this function, but later after the context
+    # Thie filtering is done here in this function, but later after the context
     # is built.
     # So for now, give it only the dataset and config_modules part, removing
     # all modules config.
@@ -72,7 +72,7 @@ def execution_context(engine_label, engine_config, executable):
             print(valid_module_configs)
             raise RuntimeError(
                 f'Execution environment "{engine_label}" has '
-                f"{len(valid_module_configs)} possible configurations for "
+                f"{len(valid_configs)} possible configurations for "
                 f"module {module_name}"
             )
         # get the single remaining config
@@ -177,6 +177,7 @@ class Engine:
             for i in range(start_count):
                 workers_command = self.database.workers_command(self.engine_id)
                 try:
+                    print('workers_command:', workers_command)
                     subprocess.run(
                         workers_command,
                         capture_output=False,

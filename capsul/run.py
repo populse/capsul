@@ -14,7 +14,7 @@ from .database import engine_database
 
 
 def run_job(
-    database, engine_id, execution_id, job_uuid, same_python=False, debug=False
+    database, engine_id, execution_id, job_uuid, same_python=False, debug=False, set_pid_function=None
 ):
     if same_python:
         stdout = io.StringIO()
@@ -33,14 +33,18 @@ def run_job(
         env["CAPSUL_WORKER_DATABASE"] = json.dumps(database.config)
         if debug:
             env["CAPSUL_DEBUG"] = "1"
-        result = subprocess.run(
-            ["python", "-m", "capsul.run", engine_id, job_uuid],
+
+        proc = subprocess.Popen(
+            [sys.executable, "-m", "capsul.run", engine_id, execution_id,
+             job_uuid],
             env=env,
-            capture_output=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
         )
-        return_code = result.returncode
-        stdout = result.stdout.decode()
-        stderr = result.stderr.decode()
+        if set_pid_function is not None:
+            set_pid_function(proc.pid)
+        stdout, stderr = proc.communicate()
+        return_code = proc.returncode
     return return_code, stdout, stderr
 
 
@@ -103,14 +107,15 @@ def execute_job(database, engine_id, execution_id, job_uuid, debug=False):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
+    if len(sys.argv) != 4:
         print(
-            "Wrong number of parameters, 2 expected:" f"command={sys.argv}",
+            "Wrong number of paramaters, 3 expected:" f"command={sys.argv}",
             file=sys.stderr,
         )
         sys.exit(1)
     engine_id = sys.argv[1]
-    job_uuid = sys.argv[2]
+    execution_id = sys.argv[2]
+    job_uuid = sys.argv[3]
     db_config = os.environ.get("CAPSUL_WORKER_DATABASE")
     if not db_config:
         print(
@@ -122,4 +127,4 @@ if __name__ == "__main__":
     db_config = json.loads(db_config)
     debug = "CAPSUL_DEBUG" in os.environ
     with engine_database(db_config) as database:
-        execute_job(database, engine_id, job_uuid, debug=debug)
+        execute_job(database, engine_id, execution_id, job_uuid, debug=debug)

@@ -5,15 +5,63 @@ import shutil
 import sys
 import time
 import tempfile
+import threading
+import signal
+import math
 
 from capsul.database import engine_database, ResponseError, ConnectionError
 from capsul.run import run_job
+
+
+class PollingThread(threading.Thread):
+    def __init__(self, database, engine_id):
+        super().__init__()
+        self.lock = threading.RLock()
+        self.database = database
+        self.engine_id = engine_id
+        self.stop_me = False
+        self.current_execution = None
+        self.current_job = None
+        self.job_pid = None
+        self.poll_interval = 5.
+        self.stop_poll_interval = 0.1
+
+    def run(self):
+        while True:
+            with self.lock:
+                if self.stop_me:
+                    return
+                engine_id = self.engine_id
+                execution_id = self.current_execution
+                job_id = self.current_job
+                job_pid = self.job_pid
+            if job_id is not None and execution_id is not None \
+                    and job_pid is not None:
+                # poll the database
+                kill_job = self.database.job_kill_requested(
+                    engine_id, execution_id, job_id)
+                if kill_job:
+                    os.kill(job_pid, signal.SIGTERM)
+                    os.kill(job_pid, signal.SIGKILL)
+
+            n = int(math.ceil(self.poll_interval / self.stop_poll_interval))
+            for i in range(n):
+                time.sleep(self.stop_poll_interval)
+                with self.lock:
+                    if self.stop_me:
+                        return
+
+    def set_pid(self, pid):
+        with self.lock:
+            self.job_pid = pid
 
 
 def worflow_loop(db_config, engine_id):
     try:
         with engine_database(db_config) as database:
             worker_id = database.worker_started(engine_id)
+            poll_thread = PollingThread(database, engine_id)
+            poll_thread.start()
             # print(f'!worker {worker_id}! started', engine_id)
             try:
                 execution_id, job_uuid = database.pop_job(
@@ -40,14 +88,19 @@ def worflow_loop(db_config, engine_id):
                         if tmp and os.path.exists(tmp):
                             shutil.rmtree(tmp)
                     else:
+                        with poll_thread.lock:
+                            poll_thread.current_execution = execution_id
+                            poll_thread.current_job = job_uuid
                         return_code, stdout, stderr = run_job(
                             database,
                             engine_id,
                             execution_id,
                             job_uuid,
-                            same_python=True,
+                            same_python=False,
                             debug=False,
                         )
+                        with poll_thread.lock:
+                            poll_thread.job_pid = None
                         # print(f'!worker {worker_id}! job', execution_id, job_uuid, database.job_finished)
                         database.job_finished(
                             engine_id,
@@ -63,6 +116,9 @@ def worflow_loop(db_config, engine_id):
                     )
             finally:
                 # print(f'!worker {worker_id}! ended' )
+                with poll_thread.lock:
+                    poll_thread.stop_me = True
+                poll_thread.join()
                 database.worker_ended(engine_id, worker_id)
     except (ResponseError, ConnectionError, TimeoutError):
         print("server has probably shutdown. Exiting.")
