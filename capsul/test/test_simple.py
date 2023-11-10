@@ -1,3 +1,4 @@
+import tempfile
 import unittest
 
 import capsul.api
@@ -86,11 +87,11 @@ class SimplePipelineTests(unittest.TestCase):
 
     def test_pipeline_loading_from_json_file(self):
         p = capsul.api.executable("capsul.test.simple_pipeline_with_output")
-        p.output_file = "output.txt"
-        with Capsul().engine() as ce:
-            ce.run(p)
-        with open("output.txt") as f:
-            assert f.read() == "ProcessWithOutputFile has run!\n"
+        with tempfile.NamedTemporaryFile("r") as tmpfile:
+            p.output_file = tmpfile.name
+            with Capsul().engine() as ce:
+                ce.run(p)
+            assert tmpfile.read() == "ProcessWithOutputFile has run!\n"
 
     def test_intermediate_temporary_file(self):
         p = capsul.api.executable(
@@ -120,4 +121,4 @@ class SimplePipelineTests(unittest.TestCase):
         with Capsul().engine() as ce:
             ce.run(p)
         assert p.process_has_run
-        # print(p.name_of_intermediate_file)
+        assert p.name_of_intermediate_file
