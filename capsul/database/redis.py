@@ -559,7 +559,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
                 # Removes association between label and engine_id
                 self.redis.hdel("capsul:engine", label)
                 self.redis.hdel(f"capsul:{engine_id}", "label")
-                # Check if some executions had been submited or are ongoing
+                # Check if some executions had been submitted or are ongoing
                 # An empty list modified with Redis Lua scripts may be encoded as empty dict
                 executions = json.loads(
                     self.redis.hget(f"capsul:{engine_id}", "executions")

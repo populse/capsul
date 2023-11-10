@@ -4,7 +4,7 @@
 
 %(TITLE)s
 
-This tutorial will walk you through the process of intalling %(NAME_UPPER)s...
+This tutorial will walk you through the process of installing %(NAME_UPPER)s...
 
   * :ref:`Install an official release <install_release>`. This
     is the best approach for users who want a stable version.

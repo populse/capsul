@@ -192,7 +192,7 @@ define the XML string associated to the function. Here is an example :
     @xml_process('''
     <process capsul_xml="2.0">
         <input name="input_image" type="file" desc="Path of a NIFTI-1 image file."/>
-        <input name="method" type="enum" values="['gt', 'ge', 'lt', 'le']" desc="Mehod for thresolding."/>
+        <input name="method" type="enum" values="['gt', 'ge', 'lt', 'le']" desc="Method for thresolding."/>
         <input name="threshold" type="float" desc="Threshold value."/>
         <output name="output_image" input_filename="output_location" type="file"
      desc="If set, define the output file name. Otherwise, the name is generated using a "threshold_" prefix on the input file name."/>
@@ -211,7 +211,7 @@ Example :
         '''
         <process capsul_xml="2.0">
             <input name="input_image" type="file" desc="Path of a NIFTI-1 image file."/>
-            <input name="method" type="enum" values="['gt', 'ge', 'lt', 'le']" desc="Mehod for thresolding."/>
+            <input name="method" type="enum" values="['gt', 'ge', 'lt', 'le']" desc="Method for thresolding."/>
             <input name="threshold" type="float" desc="Threshold value."/>
             <output name="output_image" input_filename="output_location" type="file"
               desc="If set, define the output file name. Otherwise, the name is generated using a 'threshold_' prefix on the input file name."/>
@@ -230,7 +230,7 @@ Processes examples
     <process capsul_xml="2.0">
         <input name="input_image" type="file" doc="Path of a NIFTI-1 image file."/>
         <input name="method" type="enum" values="['gt', 'ge', 'lt', 'le']"
-         doc="Mehod for thresolding."/>
+         doc="Method for thresolding."/>
         <input name="threshold" type="float" doc="Threshold value."/>
         <output name="output_image" input_filename="output_image" type="file" doc="Output file name."/>
     </process>
@@ -357,7 +357,7 @@ Attributes:
 -  **name**: node name in the pipeline (as in process elements)
 -  **switch\_value** (optional): value of the "switch" parameter: name
    of the active input
--  **enabed** (optional): as in process elements
+-  **enabled** (optional): as in process elements
 
 Children:
 
@@ -392,7 +392,7 @@ temporary values inside the pipeline if they are left undefined.
 Attributes:
 
 -  **name**: node name in the pipeline (as in process elements)
--  **enabed** (optional): as in process elements
+-  **enabled** (optional): as in process elements
 
 Children:
 

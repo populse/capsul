@@ -5,7 +5,7 @@
 `CAPSUL` installation
 =====================
 
-.. This tutorial will walk you through the process of intalling CAPSUL.
+.. This tutorial will walk you through the process of installing CAPSUL.
 ..
 ..   * :ref:`Install an official release <install_release>`. This
 ..     is the best approach for users who want a stable version.

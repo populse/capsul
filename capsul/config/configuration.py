@@ -168,7 +168,7 @@ class EngineConfiguration(Controller):
     )
 
     def add_module(self, module_name, allow_existing=False):
-        """Loads a modle and adds it in the engine configuration.
+        """Loads a module and adds it in the engine configuration.
 
         This operation is performed automatically, thus should not need to be
         called manually.

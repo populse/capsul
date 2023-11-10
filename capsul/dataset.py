@@ -29,7 +29,7 @@ class Dataset(Controller):
     Dataset representation.
     You don't need to define or instantiate this class yourself, it will be done automatically and internally in the path generation system.
 
-    Instead, users need to define datsets in the Capsul config. See :func:`generate_paths`.
+    Instead, users need to define datasets in the Capsul config. See :func:`generate_paths`.
     """
 
     path: Directory
@@ -676,7 +676,7 @@ class MetadataModifier:
                         continue
                     if callable(v):
                         if debug:
-                            print("call modifier funciton for", k)
+                            print("call modifier function for", k)
                             print(
                                 ":",
                                 v(
@@ -700,7 +700,7 @@ class MetadataModifier:
                         setattr(metadata, k, v)
             else:
                 if debug:
-                    print("call modifier funciton")
+                    print("call modifier function")
                 modifier(metadata, process, parameter, initial_meta=initial_meta)
 
 

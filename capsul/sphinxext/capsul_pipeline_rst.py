@@ -79,7 +79,7 @@ from capsul.qt_apps.utils.find_pipelines import find_pipeline_and_process
 from capsul.sphinxext.pipelinedocgen import PipelineHelpWriter
 
 ###############################################################################
-# Generate shemas first
+# Generate schemas first
 ###############################################################################
 
 if schema and shutil.which("dot"):

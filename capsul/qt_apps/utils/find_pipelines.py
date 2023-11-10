@@ -123,7 +123,7 @@ def find_pipeline_and_process(module_name):
         # Get the sub module path
         sub_module_path = os.path.join(module_path, *sub_module.split(".")[shift:])
 
-        # List all the mdule in sub module path
+        # List all the module in sub module path
         sub_sub_module_names = [
             sub_module + "." + x[:-3]
             for x in os.listdir(sub_module_path)
@@ -166,13 +166,13 @@ def find_pipeline_and_process(module_name):
 
 
 def lists2dict(list_of_pipeline_description, url, d):
-    """Convert a list of splited module names to a hierachic dictionary with
-    list leafs that contain the url to the module docuementation.
+    """Convert a list of split module names to a hierachic dictionary with
+    list leafs that contain the url to the module documentation.
 
     Parameters
     ----------
     list_of_pipeline_description: list of list of str (mandatory)
-        the splited module names to organize bu modules
+        the split module names to organize by modules
     url: str (mandatory)
         the url to the module documentation
 
