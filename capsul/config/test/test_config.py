@@ -1,15 +1,18 @@
-# -*- coding: utf-8 -*-
-import unittest
-from capsul.config import (ApplicationConfiguration, ConfigurationLayer,
-                           EngineConfiguration)
-from soma.controller import undefined
-import sys
+import json
 import os
 import os.path as osp
 import shutil
 import tempfile
-import json
+import unittest
 
+from soma.controller import undefined
+
+from capsul.config import ApplicationConfiguration
+from capsul.config.configuration import (default_engine_start_workers,
+                                         default_builtin_database)
+
+expected_default_builtin_database = default_builtin_database.copy()
+expected_default_builtin_database['path'] = osp.expandvars(expected_default_builtin_database['path']).format(app_name='single_conf')
 
 class TestConfiguration(unittest.TestCase):
 
@@ -26,8 +29,10 @@ class TestConfiguration(unittest.TestCase):
 
         user_file = osp.join(self.tmp_dir, 'user_conf.json')
         conf_dict = {
-            'local': {
-                'engine_type': 'builtin',
+            'builtin': {
+                'database': 'builtin',
+                'persistent': True,
+                'start_workers': default_engine_start_workers,
                 'matlab': {},
                 'spm': {
                     'spm12_standalone': {
@@ -37,25 +42,42 @@ class TestConfiguration(unittest.TestCase):
                         'directory': '/usr/local/spm8',
                         'standalone': False,
                         'version': '8',
-                    }}}}
+                    }}},
+            'databases': {
+                'builtin': default_builtin_database,
+
+            }}
         with open(user_file, 'w') as f:
             json.dump(conf_dict, f)
         app_config = ApplicationConfiguration('single_conf',
                                               user_file=user_file)
-        self.maxDiff = 2000
+        self.maxDiff = 2500
         self.assertEqual(
-            app_config.asdict(),
-            {'site': {'local': {'engine_type': 'builtin'}},
-             'app_name': 'single_conf',
-             'user': conf_dict,
-             'merged_config': conf_dict,
-             'user_file': user_file})
+            app_config.asdict(), {
+                'app_name': 'single_conf',
+                'site': {
+                    'builtin': {
+                        'database': 'builtin',
+                        'persistent': True,
+                        'start_workers': default_engine_start_workers,
+                    },
+                    'databases': {
+                        'builtin': expected_default_builtin_database,
+                    }
+                },
+                'user': conf_dict,
+                'merged_config': conf_dict,
+                'user_file': user_file
+            }
+        )
 
-    def test_config_assignment(self):
+    def test_config_as_dict(self):
 
         conf_dict = {
-            'local': {
-                'engine_type': 'builtin',
+            'builtin': {
+                'database': 'builtin',
+                'persistent': True,
+                'start_workers': default_engine_start_workers,
                 'matlab': {},
                 'spm': {
                     'spm12_standalone': {
@@ -63,34 +85,45 @@ class TestConfiguration(unittest.TestCase):
                         'standalone': True},
                     'spm8': {
                         'directory': '/usr/local/spm8',
-                        'version': '8',
                         'standalone': False,
-                    }},
+                        'version': '8',
+                    }}},
+            'databases': {
+                'builtin': default_builtin_database,
+
             }}
 
-        app_config = ApplicationConfiguration('single_conf2',
-                                              user_file=None)
-        app_config.user = conf_dict
-
-        # print(app_config.asdict())
+        app_config = ApplicationConfiguration('single_conf',
+                                              user=conf_dict)
         self.maxDiff = None
         self.assertEqual(
-            app_config.asdict(),
-            {'site': {'local': {'engine_type': 'builtin'}},
-             'app_name': 'single_conf2',
-             'user': conf_dict,
-             'merged_config': {'local': {'engine_type': 'builtin'}}})
+            app_config.asdict(), {
+                'app_name': 'single_conf',
+                'site': {
+                    'builtin': {
+                        'persistent': True,
+                        'database': 'builtin',
+                        'start_workers': default_engine_start_workers,
+                    },
+                    'databases': {
+                        'builtin': expected_default_builtin_database,
+                    }
+                },
+                'user': conf_dict,
+                'merged_config': conf_dict,
+            }
+        )
 
     def test_config_merge(self):
         user_conf_dict = {
-            'local': {
+            'builtin': {
                 'spm': {
                     'spm12_standalone': {
                         'directory': '/usr/local/spm12_standalone',
                         'standalone': True},
                     }}}
         site_conf_dict = {
-            'local': {
+            'builtin': {
                 'spm': {
                     'spm12_standalone': {
                         'directory': '/i2bm/local/spm12_standalone',
@@ -107,8 +140,10 @@ class TestConfiguration(unittest.TestCase):
                         'setup_script': '/i2bm/local/fsl/etc/fslconf/fsl.sh'
                     }}}}
         merged_conf_dict = {
-            'local': {
-                'engine_type': 'builtin',
+            'builtin': {
+                'database': 'builtin',
+                'persistent': True,
+                'start_workers': default_engine_start_workers,
                 'matlab': {},
                 'spm': {
                     'spm12_standalone': {
@@ -124,24 +159,18 @@ class TestConfiguration(unittest.TestCase):
                     'fsl5': {
                         'directory': '/i2bm/local/fsl',
                         'setup_script': '/i2bm/local/fsl/etc/fslconf/fsl.sh'
-                    }}}}
+                    }}
+            },
+            'databases': {
+                'builtin': expected_default_builtin_database,
+            },
+        }
 
-        app_config = ApplicationConfiguration('single_conf3',
-                                              user_file=undefined)
+        site_file = osp.join(self.tmp_dir, 'site_conf.json')
+        with open(site_file, 'w') as f:
+            json.dump(site_conf_dict, f)
+        app_config = ApplicationConfiguration('single_conf',
+                                              site_file=site_file,
+                                              user=user_conf_dict)
         app_config.site = site_conf_dict
-        app_config.user = user_conf_dict
-        app_config.merge_configs()
-        # print('merged:', app_config.merged_config.asdict())
         self.assertEqual(app_config.merged_config.asdict(), merged_conf_dict)
-
-
-def test():
-    """ Function to execute unitest
-    """
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestConfiguration)
-    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
-    return runtime.wasSuccessful()
-
-
-if __name__ == "__main__":
-    print("RETURNCODE: ", test())

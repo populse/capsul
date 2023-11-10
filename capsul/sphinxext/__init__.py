@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''
 Extension to sphinx to document Capsul processes
 
@@ -28,7 +27,7 @@ It can be automatically run when building sphinx docs (inside the sphinx-build p
     subprocess.check_output(cmd)
 
 
-The documentation will include all pipelines and processes in the module to be documented (including Nipype interfaces), and will be built from the processes documentation: docstrings, and parameters descriptions (``desc`` property of processes traits), as in the processes :meth:`~capsul.process.process.Process.get_help` method. An ``index.rst`` file will be created for each sub-module of the main one, and contain links to pipelines and processes docs there.
+The documentation will include all pipelines and processes in the module to be documented (including Nipype interfaces), and will be built from the processes documentation: docstrings, and parameters descriptions (``doc`` metadata of processes fields), as in the processes :meth:`~capsul.process.process.Process.get_help` method. An ``index.rst`` file will be created for each sub-module of the main one, and contain links to pipelines and processes docs there.
 
 Then within the sphinx docs sources (``index.rst`` for instance, or any other sphinx source file), you can include them:
 

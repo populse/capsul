@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import unittest
 from soma.controller import File
 from capsul.api import Process, executable
@@ -122,17 +121,7 @@ class TestPipeline(unittest.TestCase):
         self.assertEqual(workflow_repr, "way11->way12")
 
 
-def test():
-    """ Function to execute unitest
-    """
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestPipeline)
-    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
-    return runtime.wasSuccessful()
-
-
 if __name__ == "__main__":
-    print("RETURNCODE: ", test())
-
     if '-v' in sys.argv[1:]:
         from soma.qt_gui.qt_backend import QtGui
         from capsul.qt_gui.widgets import PipelineDeveloperView

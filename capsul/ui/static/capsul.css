@@ -1,0 +1,40 @@
+table {
+    font-family:sans-serif;
+    border-collapse:separate;
+    border-spacing:.25em 1em;
+}
+
+th, td {
+    padding:.25em .5em;
+    text-align:left;
+    &:nth-child(2) {
+      text-align:right;
+    }
+}
+
+th {
+    background-color:rgb(196, 196, 196);
+    color:rgb(0, 0, 0);
+}
+
+tbody tr:nth-child(odd) td {
+    background-color:rgb(238, 255, 242);
+}
+
+thead tr,
+  tbody tr:nth-child(even) td {
+    background-color:rgb(210, 245, 218);
+}
+
+/* Remove bullets and margin for lists inside
+   jobs element.
+ */
+.jobs > li, ul {
+    list-style-type: none;
+    margin-top:  0;
+    margin-bottom: 0;
+}
+
+summary[status]::before {
+    content: attr(status) ' ';
+}

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from capsul.api import Process
 import os
 from soma.controller import File, Directory, undefined, Literal
@@ -10,12 +8,12 @@ class SPMsn3dToAims(Process):
         super(SPMsn3dToAims, self).__init__(**kwargs)
         self.name = 'ConvertSPMnormalizationToAIMS'
 
-        self.add_field("read", File, read=True, allowed_extensions=['.mat'], write=False)
-        self.add_field("write", File, write=True, allowed_extensions=['.trm'], read=True)
+        self.add_field("read", File, read=True, extensions=['.mat'], write=False)
+        self.add_field("write", File, write=True, extensions=['.trm'], read=True)
         self.add_field("target", Literal['MNI template','unspecified template','normalized_volume in AIMS orientation'])
         self.target = 'MNI template'
-        self.add_field("source_volume", File, read=True, allowed_extensions=['.nii', '.img', '.hdr'], optional=True, write=False)
-        self.add_field("normalized_volume", File, read=True, allowed_extensions=['.nii', '.img', '.hdr'], optional=True, write=False)
+        self.add_field("source_volume", File, read=True, extensions=['.nii', '.img', '.hdr'], optional=True, write=False)
+        self.add_field("normalized_volume", File, read=True, extensions=['.nii', '.img', '.hdr'], optional=True, dataset=None, write=False)
         self.add_field("removeSource", bool)
         self.removeSource = False
 

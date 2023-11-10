@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''
 Miscellaneous pipeline handling utility functions
 
@@ -28,10 +27,6 @@ Functions
 -----------------------------------
 :func:`set_pipeline_state_from_dict`
 ------------------------------------
-:func:`get_output_directories`
-------------------------------
-:func:`create_output_directories`
----------------------------------
 :func:`save_pipeline`
 ---------------------
 :func:`load_pipeline_parameters`
@@ -53,11 +48,9 @@ from populse_db import json_encode, json_decode
 
 # Capsul import
 from capsul.application import executable
-from capsul.pipeline.pipeline import Pipeline, Process, Switch, \
-     CustomPipeline
+from capsul.pipeline.pipeline import Pipeline, Process, Switch
 from capsul.pipeline.process_iteration import ProcessIteration
 from soma.controller import Controller, undefined, Any
-from pydantic import ValidationError
 import dataclasses
 
 
@@ -585,14 +578,14 @@ def disable_runtime_steps_with_existing_outputs(pipeline):
         step = field.name
         if not getattr(steps, step):
             continue  # already inactive
-        for node_name in steps.metadata(field)['nodes']:
+        for node_name in field.nodes:
             node = pipeline.nodes[node_name]
             if not node.enabled or not node.activated:
                 continue  # node not active anyway
             process = node
             for param in node.plugs:
                 pfield = process.field(param)
-                if process.metadata(pfield).get('write', False) \
+                if pfield.metadata().get('write', False) \
                         and pfield.is_path():
                     value = getattr(process, param, undefined)
                     if value is not None and value is not undefined \
@@ -602,7 +595,7 @@ def disable_runtime_steps_with_existing_outputs(pipeline):
                         disable = True
                         for t in process.fields():
                             n = t.name
-                            if not process.metadata(t).get('write', False) \
+                            if not t.metadata().get('write', False) \
                                     and t.is_path():
                                 v = getattr(process, n, undefined)
                                 if v == value:
@@ -660,8 +653,7 @@ def nodes_with_existing_outputs(pipeline, exclude_inactive=True,
         for field in steps.fields():
             step = field.name
             if not getattr(steps, step, undefined):
-                disabled_nodes.update(steps.metadata(field).get('nodes',
-                                                                set()))
+                disabled_nodes.update(field.nodes)
 
     # nodes = pipeline.nodes.items()
     nodes = list(pipeline.nodes.items())
@@ -732,8 +724,7 @@ def nodes_with_missing_inputs(pipeline, recursive=True):
         step = field.name
         if not getattr(steps, step, undefined):
             disabled_nodes.update(
-                [pipeline.nodes[node_name]
-                 for node_name in steps.metadata(field).get('nodes', set())])
+                [pipeline.nodes[node_name] for node_name in field.nodes])
 
     # nodes = pipeline.nodes.items()
     nodes = list(pipeline.nodes.items())
@@ -1113,68 +1104,6 @@ def set_pipeline_state_from_dict(pipeline, state_dict):
                       for node_name, sub_dict in sub_nodes.items()]
 
 
-def get_output_directories(process):
-    '''
-    Get output directories for a process, pipeline, or node
-
-    Returns
-    -------
-    dirs: dict
-        organized directories list: a dict with recursive nodes mapping.
-        In each element, the "directories" key holds a directories names set,
-        and "nodes" is a dict with sub-nodes (node_name, dict mapping,
-        organized the same way)
-    flat_dirs: set
-        set of all directories in the pipeline, as a flat set.
-    '''
-    all_dirs = set()
-    root_dirs = {}
-    nodes = [(process, '', root_dirs)]
-    disabled_nodes = set()
-    if isinstance(process, Pipeline):
-        disabled_nodes = process.disabled_pipeline_steps_nodes()
-
-    while nodes:
-        node, node_name, dirs = nodes.pop(0)
-        plugs = getattr(node, 'plugs', None)
-        if plugs is None:
-            plugs = [field.name for field in node.fields()]
-        process = node
-        dirs_set = set()
-        dirs['directories'] = dirs_set
-        for param_name in plugs:
-            field = process.field(param_name)
-            if process.metadata(field).get('write', False) \
-                    and field.is_path():
-                value = getattr(process, param_name, undefined)
-                if value is not None and value is not undefined:
-                    directory = os.path.dirname(value)
-                    if directory not in ('', '.'):
-                        all_dirs.add(directory)
-                        dirs_set.add(directory)
-        sub_nodes = getattr(process, 'nodes', None)
-        if sub_nodes:
-            # TODO: handle disabled steps
-            sub_dict = {}
-            dirs['nodes'] = sub_dict
-            for node_name, node in sub_nodes.items():
-                if node_name != '' and node.activated and node.enabled \
-                        and not node in disabled_nodes:
-                    sub_node_dict = {}
-                    sub_dict[node_name] = sub_node_dict
-                    nodes.append((node, node_name, sub_node_dict))
-    return root_dirs, all_dirs
-
-
-def create_output_directories(process):
-    '''
-    Create output directories for a process, pipeline or node.
-    '''
-    for directory in get_output_directories(process)[1]:
-        if not os.path.exists(directory):
-            os.makedirs(directory)
-
-
 def save_pipeline(pipeline, filename):
     '''
     Save the pipeline either in JSON or .py source file
@@ -1297,11 +1226,9 @@ def is_node_enabled(pipeline, node_name=None, node=None):
     p = pipeline
     for name in names:
         steps = getattr(p, 'pipeline_steps', Controller())
-        disabled_nodes = set()
         for field in steps.fields():
             step = field.name
-            if not getattr(steps, step, undefined) \
-                    and name in steps.metadata(field).get('nodes', set()):
+            if not getattr(steps, step, undefined) and name in field.nodes:
                 return False
         p = p.nodes[name]
 
@@ -1338,7 +1265,14 @@ from soma.controller import File, Directory, undefined, Literal
                 imp_str = t_str.rsplit('.', 1)[0]
                 if imp_str not in imports:
                     imports.add(imp_str)
-                    f.write('import %s\n' % imp_str)
+                    # hack for pydantic v2: use v1
+                    if imp_str == 'pydantic':
+                        f.write('try:\n'
+                                '    import pydantic.v1 as pydantic\n'
+                                'except ImportError:\n'
+                                '    import pydantic\n')
+                    else:
+                        f.write('import %s\n' % imp_str)
 
         f.write('''
 
@@ -1526,3 +1460,108 @@ def write_fake_pipeline(pipeline, module_name, dirname, sleep_time=0):
         save_pipeline(pipeline, filename)
 
     del sys.path[0]
+
+
+def topological_sort_nodes(nodes):
+    ''' Sort nodes topologically according to their links.
+    All linked nodes must be in the nodes list: if switched or pipelines are
+    removed, the sort will be broken.
+
+    In the output list, pipeline nodes will appear twice, in tuples:
+
+    (pipeline, 0) is the position of the input plugs of the pipeline
+
+    (pipeline, 1) is the position of the output plugs of the pipeline
+
+    nodes inside the pipeline will logically be between both.
+    '''
+    nsort = []
+    done = set()
+    todo = list(nodes)
+    while todo:
+        node = todo.pop(0)
+        if node in done:
+            continue
+
+        i = -1
+        cont = False
+        for plug in node.plugs.values():
+            if not plug.output:
+                for ld in plug.links_from:
+                    n = ld[2]
+                    n0 = n
+                    if isinstance(n, Pipeline):
+                        if not ld[3].output:
+                            n = (n, 0)  # begin of pipeline
+                        else:
+                            n = (n, 1)  # end of pipeline
+                    if n in done:
+                        ni = nsort.index(n)  # WARNING: expensive search
+                        if ni > i:
+                            i = ni
+                    else:
+                        todo.insert(0, n0)
+                        cont = True
+                        break
+                if cont:
+                    break
+        if cont:
+            continue
+
+        # print('insert', node.full_name, ':', i+1)
+        # if i >= 0:
+            # print('    after', nsort[i].full_name if not isinstance(nsort[i], tuple) else (nsort[i][0].full_name, nsort[i][1]) )
+        if isinstance(node, Pipeline):
+            nsort.insert(i+1, (node, 0))
+            nsort.insert(i+2, (node, 1))
+            done.add((node, 0))
+            done.add((node, 1))
+        else:
+            nsort.insert(i+1, node)
+        done.add(node)
+    return nsort
+
+
+def propagate_meta(executable, nodes=None):
+    ''' Propagate metadata from processes output plugs to downstream
+    switches and upper level pipelines plugs, recursively in topological order.
+
+    If ``nodes`` is provided, it should be the nodes list already in
+    topological order. It may be passed if reused in order to avoid
+    calling :func:`topological_sort_nodes` several times.
+    '''
+    if isinstance(executable, ProcessIteration):
+        if isinstance(executable.process, Pipeline):
+            propagate_meta(executable.process)
+        for pname in executable.iterative_parameters:
+            f = executable.process.field(pname)
+            fo = executable.field(pname)
+            # copy field metadata
+            for k, v in f.metadata().items():
+                setattr(fo, k, v)
+        return
+
+    if nodes is None:
+        nodes = topological_sort_nodes(
+            executable.all_nodes())
+    for node in nodes:
+        if isinstance(node, Switch):
+            node.propagate_fields_metadata()
+        if isinstance(node, tuple):
+            if node[1] == 0:
+                # pipeline inputs
+                continue
+            node = node[0]
+        if isinstance(node, ProcessIteration):
+            propagate_meta(node)
+        for pname, plug in node.plugs.items():
+            if plug.output:
+                f = node.field(pname)
+                for ld in plug.links_to:
+                    n = ld[2]
+                    p = ld[1]
+                    fo = n.field(p)
+                    if fo.is_output():
+                        # copy field metadata
+                        for k, v in f.metadata().items():
+                            setattr(fo, k, v)

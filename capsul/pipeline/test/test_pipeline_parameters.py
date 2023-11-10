@@ -1,16 +1,16 @@
-# -*- coding: utf-8 -*-
-
 import os
+import os.path as osp
 import json
 import shutil
 import unittest
 import tempfile
-from datetime import date, time, datetime
+from datetime import time, datetime
 
 from populse_db import json_encode
 
 from capsul.api import Process, Capsul
-from capsul.pipeline.pipeline_tools import save_pipeline_parameters, load_pipeline_parameters
+from capsul.pipeline.pipeline_tools import (save_pipeline_parameters,
+                                            load_pipeline_parameters)
 from soma.controller import File
 
 
@@ -26,6 +26,7 @@ def load_pipeline_dictionary(filename):
 
 
 class TestInt(Process):
+    __test__ = False
 
     def __init__(self, definition):
         super().__init__(definition)
@@ -39,6 +40,7 @@ class TestInt(Process):
 
 
 class TestFloat(Process):
+    __test__ = False
 
     def __init__(self, definition):
         super().__init__(definition)
@@ -52,6 +54,7 @@ class TestFloat(Process):
 
 
 class TestString(Process):
+    __test__ = False
 
     def __init__(self, definition):
         super().__init__(definition)
@@ -65,6 +68,7 @@ class TestString(Process):
 
 
 class TestFile(Process):
+    __test__ = False
 
     def __init__(self, definition):
         super().__init__(definition)
@@ -78,6 +82,7 @@ class TestFile(Process):
 
 
 class TestListInt(Process):
+    __test__ = False
 
     def __init__(self, definition):
         super().__init__(definition)
@@ -94,6 +99,7 @@ class TestListInt(Process):
 
 
 class TestListFloat(Process):
+    __test__ = False
 
     def __init__(self, definition):
         super().__init__(definition)
@@ -110,6 +116,7 @@ class TestListFloat(Process):
 
 
 class TestListString(Process):
+    __test__ = False
 
     def __init__(self, definition):
         super().__init__(definition)
@@ -126,6 +133,7 @@ class TestListString(Process):
 
 
 class TestListFile(Process):
+    __test__ = False
 
     def __init__(self, definition):
         super().__init__(definition)
@@ -139,6 +147,7 @@ class TestListFile(Process):
 
 
 class TestListList(Process):
+    __test__ = False
 
     def __init__(self, definition):
         super().__init__(definition)
@@ -155,6 +164,7 @@ class TestListList(Process):
 
 
 class TestDateTime(Process):
+    __test__ = False
 
     def __init__(self, definition):
         super().__init__(definition)
@@ -165,7 +175,6 @@ class TestDateTime(Process):
 
     def execute(self, context):
         self.out = [self.in_1, self.in_2]
-
 
 
 class TestPipelineMethods(unittest.TestCase):
@@ -179,8 +188,10 @@ class TestPipelineMethods(unittest.TestCase):
         Creates a temporary folder containing the json file that will be used for the test
         """
 
-        self.temp_folder = tempfile.mkdtemp(prefix='capsul_test_pipeline_parameters_')
+        self.temp_folder = tempfile.mkdtemp(
+            prefix='capsul_test_pipeline_parameters_')
         self.path = os.path.join(self.temp_folder, "test.json")
+        self.capsul = Capsul(database_path='')
 
     def tearDown(self):
         """
@@ -189,17 +200,16 @@ class TestPipelineMethods(unittest.TestCase):
         """
 
         shutil.rmtree(self.temp_folder)
-        Capsul.delete_singleton()
 
     def test_int(self):
         def create_pipeline():
-            pipeline =  Capsul.custom_pipeline()
+            pipeline = Capsul.custom_pipeline()
             pipeline.add_process("node_1", TestInt)
             pipeline.export_parameter("node_1", "in_1", "in_1")
             pipeline.export_parameter("node_1", "in_2", "in_2")
             pipeline.export_parameter("node_1", "out", "out")
             return pipeline
-        
+
         in_1 = 2
         in_2 = 4
         out = 6
@@ -208,7 +218,7 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1.in_1 = in_1
         pipeline1.in_2 = in_2
 
-        with Capsul().engine() as ce:
+        with self.capsul.engine() as ce:
             ce.run(pipeline1, timeout=5)
         save_pipeline_parameters(self.path, pipeline1)
 
@@ -246,7 +256,7 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1.in_1 = 2.0
         pipeline1.in_2 = 4.0
 
-        with Capsul().engine() as ce:
+        with self.capsul.engine() as ce:
             ce.run(pipeline1, timeout=5)
 
         in_1 = 2.0
@@ -257,7 +267,7 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1.in_1 = in_1
         pipeline1.in_2 = in_2
 
-        with Capsul().engine() as ce:
+        with self.capsul.engine() as ce:
             ce.run(pipeline1, timeout=5)
 
         save_pipeline_parameters(self.path, pipeline1)
@@ -300,7 +310,7 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1.in_1 = in_1
         pipeline1.in_2 = in_2
 
-        with Capsul().engine() as ce:
+        with self.capsul.engine() as ce:
             ce.run(pipeline1, timeout=5)
 
         save_pipeline_parameters(self.path, pipeline1)
@@ -343,7 +353,7 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1.in_1 = in_1
         pipeline1.in_2 = in_2
 
-        with Capsul().engine() as ce:
+        with self.capsul.engine() as ce:
             ce.run(pipeline1, timeout=5)
 
         save_pipeline_parameters(self.path, pipeline1)
@@ -390,7 +400,7 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1.in_1 = in_1
         pipeline1.in_2 = in_2
 
-        with Capsul().engine() as ce:
+        with self.capsul.engine() as ce:
             ce.run(pipeline1, timeout=5)
 
         save_pipeline_parameters(self.path, pipeline1)
@@ -457,7 +467,7 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1.in_1 = in_1
         pipeline1.in_2 = in_2
 
-        with Capsul().engine() as ce:
+        with self.capsul.engine() as ce:
             ce.run(pipeline1, timeout=5)
 
         save_pipeline_parameters(self.path, pipeline1)
@@ -524,7 +534,7 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1.in_1 = in_1
         pipeline1.in_2 = in_2
 
-        with Capsul().engine() as ce:
+        with self.capsul.engine() as ce:
             ce.run(pipeline1, timeout=5)
 
         save_pipeline_parameters(self.path, pipeline1)
@@ -591,7 +601,7 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1.in_1 = in_1
         pipeline1.in_2 = in_2
 
-        with Capsul().engine() as ce:
+        with self.capsul.engine() as ce:
             ce.run(pipeline1, timeout=5)
 
         save_pipeline_parameters(self.path, pipeline1)
@@ -658,7 +668,7 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1.in_1 = in_1
         pipeline1.in_2 = in_2
 
-        with Capsul().engine() as ce:
+        with self.capsul.engine() as ce:
             ce.run(pipeline1, timeout=5)
 
         save_pipeline_parameters(self.path, pipeline1)
@@ -725,8 +735,9 @@ class TestPipelineMethods(unittest.TestCase):
         pipeline1.in_1 = in_1
         pipeline1.in_2 = in_2
 
-        with Capsul().engine() as ce:
+        with self.capsul.engine() as ce:
             ce.run(pipeline1, timeout=5)
+        pipeline1.out
 
         save_pipeline_parameters(self.path, pipeline1)
 

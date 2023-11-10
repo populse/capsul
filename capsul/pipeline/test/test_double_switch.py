@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
 import unittest
-import os
-import sys
 from capsul.api import Process, executable
 from capsul.api import Pipeline
 
@@ -38,27 +35,37 @@ class DoubleSwitchPipeline1(Pipeline):
         self.add_process("node4",
             "capsul.pipeline.test.test_double_switch.DummyProcess")
 
-        # Create Switches
-        self.add_switch("switch1", ["one", "two"],
-                        ["switch_image1", "switch_image2"],
-                        make_optional=("switch_image1", ))
-        self.add_switch("switch2", ["one", "two"],
-                        ["switch_image"])
+
+        self.create_switch("switch1",
+            options={
+                "one": {
+                    "switch_image1": "node1.output_image",
+                    "switch_image2": "node3.output_image",
+                },
+                "two": {
+                    "switch_image1": "node2.output_image",
+                    "switch_image2": "node4.output_image",
+                }
+            },
+            make_optional=("switch_image1",)
+        )
+
+        self.create_switch("switch2",
+            options={
+                "one": {
+                    "switch_image": "node1.output_image"
+                },
+                "two": {
+                    "switch_image": "switch1.switch_image1"
+                }
+            }
+        )
 
         # Link input
         self.export_parameter("node1", "input_image", "input_image1")
         self.export_parameter("node2", "input_image", "input_image2")
         self.export_parameter("node3", "input_image", "input_image3")
         self.export_parameter("node4", "input_image", "input_image4")
-
-        # Links
-        self.add_link("node1.output_image->switch1.one_switch_switch_image1")
-        self.add_link("node2.output_image->switch1.two_switch_switch_image1")
-        self.add_link("node3.output_image->switch1.one_switch_switch_image2")
-        self.add_link("node4.output_image->switch1.two_switch_switch_image2")
-
-        self.add_link("node1.output_image->switch2.one_switch_switch_image")
-        self.add_link("switch1.switch_image1->switch2.two_switch_switch_image")
 
         # Outputs
         self.export_parameter("switch1", "switch_image2",
@@ -82,46 +89,33 @@ class TestDoubleSwitchPipeline(unittest.TestCase):
     def setUp(self):
         self.pipeline = executable(DoubleSwitchPipeline1)
 
-    def test_way2(self):
+    def test_double_switch_way2(self):
         self.pipeline.switch1 = "one"
         self.pipeline.switch2 = "two"
         self.assertEqual(self.pipeline.nodes["switch1"].activated, True)
 
-    def test_way1(self):
+    def test_double_switch_way1(self):
         self.pipeline.switch1 = "one"
         self.pipeline.switch2 = "one"
         self.assertEqual(self.pipeline.nodes["switch1"].activated, True)
 
 
-
-def test():
-    """ Function to execute unitest
-    """
-    suite = unittest.TestLoader().loadTestsFromTestCase(
-        TestDoubleSwitchPipeline)
-    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
-    return runtime.wasSuccessful()
-
-
 if __name__ == "__main__":
-    print("RETURNCODE: ", test())
+    import sys
+    from soma.qt_gui import qt_backend
+    qt_backend.set_qt_backend(compatible_qt5=True)
+    from soma.qt_gui.qt_backend import QtGui
+    from capsul.qt_gui.widgets import PipelineDeveloperView
 
-    if '-v' in sys.argv[1:]:
-        import sys
-        from soma.qt_gui import qt_backend
-        qt_backend.set_qt_backend(compatible_qt5=True)
-        from soma.qt_gui.qt_backend import QtGui
-        from capsul.qt_gui.widgets import PipelineDeveloperView
+    app = QtGui.QApplication.instance()
+    if not app:
+        app = QtGui.QApplication(sys.argv)
+    pipeline = executable(DoubleSwitchPipeline1)
+    pipeline.switch1 = "one"
+    pipeline.switch2 = "one"
+    view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True,
+                                    allow_open_controller=True)
+    view1.show()
 
-        app = QtGui.QApplication.instance()
-        if not app:
-            app = QtGui.QApplication(sys.argv)
-        pipeline = executable(DoubleSwitchPipeline1)
-        pipeline.switch1 = "one"
-        pipeline.switch2 = "one"
-        view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True,
-                                       allow_open_controller=True)
-        view1.show()
-
-        app.exec_()
-        del view1
+    app.exec_()
+    del view1

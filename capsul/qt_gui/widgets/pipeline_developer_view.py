@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''
 A Pipeline structure viewer widget, which displays pipeline nodes as boxes and links as lines, and provides pipeline editor features.
 
@@ -589,8 +588,8 @@ class NodeGWidget(QtGui.QGraphicsItem):
         self.sizer.hmin = h
         self.changeSize(w, h + margin)
         self.sizer.setPos(w, h + margin)
-        
-        
+
+
 
     def _colored_text_item(self, label, text=None, margin=2):
         labelc = self._get_label(label, False)
@@ -1097,25 +1096,25 @@ class NodeGWidget(QtGui.QGraphicsItem):
         #         rect.setWidth(brect.width())
         #         self.box_title.setRect(rect)
         #         self.box.setRect(self.boundingRect())
-        
+
         ################a dd by Irmage OM #############################################
         try :
             dim = self.scene().dim.get(self.box.name)
             if isinstance(dim, Qt.QPointF):
                 dim=(dim.x(),dim.y())
-            
+
             self.updateSize(dim[0],dim[1])
-#             self.scene().dim[self.box.name] = (dim[0],dim[1]) 
+#             self.scene().dim[self.box.name] = (dim[0],dim[1])
 #             print("update_node : self.scene().dim ",dim)
 
         except Exception:
             dim = (self.box.boundingRect().size().width(), self.box.boundingRect().size().height())
             self.updateSize(dim[0],dim[1])
-#             self.scene().dim[self.box.name] = (dim[0],dim[1]) 
+#             self.scene().dim[self.box.name] = (dim[0],dim[1])
 #             print("update_node : boundingRect()")
         ##############################################################################
 
-        
+
     def contentsRect(self):
         brect = QtCore.QRectF(0, 0, 0, 0)
         first = True
@@ -1582,11 +1581,11 @@ class PipelineScene(QtGui.QGraphicsScene):
             if not isinstance(pos, Qt.QPointF):
                 pos = Qt.QPointF(pos[0], pos[1])
             gnode.setPos(pos)
-        
+
         self.gnodes[name] = gnode
 #         gnode.update_node()
-        
-        
+
+
          #repositioning 'inputs' node
         if name == 'inputs':
             pos_left_most=(0,0)
@@ -1597,8 +1596,8 @@ class PipelineScene(QtGui.QGraphicsScene):
             xl = pos_left_most[0]-(2*self.gnodes[name].boundingRect().size().width())
             yl = pos_left_most[1]
             self.gnodes[name].setPos(xl,yl)
-#             gnode.update_node()    
-             
+#             gnode.update_node()
+
         #repositioning 'outputs' node
         if name == 'outputs':
             pos_right_most=(0,0)
@@ -2706,7 +2705,7 @@ class PipelineDeveloperView(QGraphicsView):
                     pos[i] = j
                 else:
                     pos[i] = QtCore.QPointF(*j)
-        
+
         ############### add by Irmage OM #######################
         if hasattr(pipeline, 'node_dimension'):
             for i, j in pipeline.node_dimension.items():
@@ -2714,9 +2713,9 @@ class PipelineDeveloperView(QGraphicsView):
                     dim[i] = (j.x(), j.y())
                 else:
                     dim[i] = j
-                    
+
 #         print("_set_pipeline : ",pos," ; ",dim)
-        #######################################################            
+        #######################################################
         self.release_pipeline()
         self.scene.set_pipeline(pipeline)
         self.scene.pos = pos
@@ -2729,11 +2728,11 @@ class PipelineDeveloperView(QGraphicsView):
                     pipeline.scene_scale_factor, pipeline.scene_scale_factor)
 
             self.reset_initial_nodes_positions()
-        
+
         ################" add by Irmage #############################################
         self.fitInView(self.sceneRect(), QtCore.Qt.KeepAspectRatio)
         #############################################################################
-        
+
 
     def set_pipeline(self, pipeline):
         '''
@@ -2743,11 +2742,13 @@ class PipelineDeveloperView(QGraphicsView):
         self._set_pipeline(pipeline)
         if pipeline is not None:
             # Setup callback to update view when pipeline state is modified
-            pipeline.selection_changed.add(self._reset_pipeline)
-            pipeline.on_fields_change.add(self._reset_pipeline)
+            pipeline.selection_changed.add(proxy_method(self,
+                                                        '_reset_pipeline'))
+            pipeline.on_fields_change.add(proxy_method(self,
+                                                       '_reset_pipeline'))
             if hasattr(pipeline, 'pipeline_steps'):
                 pipeline.pipeline_steps.on_attribute_change.add(
-                    self._reset_pipeline)
+                    proxy_method(self, '_reset_pipeline'))
 
     def release_pipeline(self, delete=False):
         '''
@@ -2763,9 +2764,11 @@ class PipelineDeveloperView(QGraphicsView):
         if pipeline is not None:
             if hasattr(pipeline, 'pipeline_steps'):
                 pipeline.pipeline_steps.on_attribute_change.remove(
-                    self._reset_pipeline)
-            pipeline.selection_changed.remove(self._reset_pipeline)
-            pipeline.on_fields_change.remove(self._reset_pipeline)
+                    proxy_method(self, '_reset_pipeline'))
+            pipeline.selection_changed.remove(proxy_method(self,
+                                                           '_reset_pipeline'))
+            pipeline.on_fields_change.remove(proxy_method(self,
+                                                          '_reset_pipeline'))
         self.setScene(None)
         if self.scene:
             # force destruction of scene internals now that the Qt object
@@ -2835,13 +2838,29 @@ class PipelineDeveloperView(QGraphicsView):
         '''
         Zoom the view in, applying a 1.2 zoom factor
         '''
-        self.scale(1.2, 1.2)
+        scf = 1.2
+        self.scale(scf, scf)
+        cur_pos = self.mapFromGlobal(Qt.QCursor.pos())
+        c_pos = Qt.QPointF(self.width() / 2, self.height() / 2)
+        p = (cur_pos - c_pos) * (scf - 1.)
+        self.horizontalScrollBar().setValue(
+            self.horizontalScrollBar().value() + int(p.x()))
+        self.verticalScrollBar().setValue(
+            self.verticalScrollBar().value() + int(p.y()))
 
     def zoom_out(self):
         '''
         Zoom the view out, applying a 1/1.2 zool factor
         '''
-        self.scale(1.0 / 1.2, 1.0 / 1.2)
+        scf = 1. / 1.2
+        self.scale(scf, scf)
+        cur_pos = self.mapFromGlobal(Qt.QCursor.pos())
+        c_pos = Qt.QPointF(self.width() / 2, self.height() / 2)
+        p = (cur_pos - c_pos) * (scf - 1.)
+        self.horizontalScrollBar().setValue(
+            self.horizontalScrollBar().value() + int(p.x()))
+        self.verticalScrollBar().setValue(
+            self.verticalScrollBar().value() + int(p.y()))
 
     def edition_enabled(self):
         '''
@@ -3069,13 +3088,6 @@ class PipelineDeveloperView(QGraphicsView):
         if node_name in ('inputs', 'outputs'):
             node_name = ''
         process = self.scene.pipeline.nodes[node_name]
-        # force instantiating a completion engine (since
-        # AttributedProcessWidget does not force it)
-        if hasattr(process, 'get_capsul_engine'):  # exclude custom nodes
-            engine = process.get_capsul_engine()
-            from capsul.attributes.completion_engine \
-                import ProcessCompletionEngine
-            ce = ProcessCompletionEngine.get_completion_engine(process)
 
         cwidget = AttributedProcessWidget(
             process, enable_attr_from_filename=True, enable_load_buttons=True,
@@ -3656,7 +3668,7 @@ class PipelineDeveloperView(QGraphicsView):
             return
 
 #         ############## add by Irmage OM ###################
-#         dim = getattr(scene.pipeline, 'node_dimension') 
+#         dim = getattr(scene.pipeline, 'node_dimension')
 #         if dim is not None:
 #             scene.dim = dim
 #             print()
@@ -4909,10 +4921,10 @@ class PipelineDeveloperView(QGraphicsView):
         """
 
         def hinted_tuple_hook(obj):
-            
+
             if '__tuple__' in obj:
                 return tuple(obj['items'])
-            
+
             else:
                 return obj
 
@@ -4930,14 +4942,14 @@ class PipelineDeveloperView(QGraphicsView):
                 raise KeyError('No "pipeline_parameters" key found in {0}.'.format(filename))
 
             for field_name, field_value in dic["pipeline_parameters"].items():
-                
+
                 if field_name not in [
                     field.name for field in self.scene.pipeline.fields()]:
                     print('No "{0}" parameter in pipeline.'.format(field_name))
-                    
+
                 try:
                     setattr(self.scene.pipeline, field_name, field_value)
-                    
+
                 except dataclasses.ValidationError:
                     print("Error for the plug {0}".format(field_name))
 

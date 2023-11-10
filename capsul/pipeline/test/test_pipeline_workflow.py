@@ -1,9 +1,5 @@
-# -*- coding: utf-8 -*-
-
 import unittest
-import os
 import os.path as osp
-import sys
 from soma.controller import File
 from capsul.api import Capsul, Process, Pipeline
 from capsul.execution_context import CapsulWorkflow
@@ -150,68 +146,66 @@ class DummyPipelineIterSimple(Pipeline):
 class TestPipelineWorkflow(unittest.TestCase):
 
     def setUp(self):
-        self.pipeline = Capsul.executable(DummyPipeline)
+        self.capsul = Capsul(database_path='')
+        self.pipeline = self.capsul.executable(DummyPipeline)
         self.tmpdir = tempfile.mkdtemp()
         self.pipeline.input = osp.join(self.tmpdir, 'file_in.nii')
-        self.pipeline.output1 = osp.join(self.tmpdir, '/tmp/file_out1.nii')
-        self.pipeline.output2 = osp.join(self.tmpdir, '/tmp/file_out2.nii')
-        self.pipeline.output3 = osp.join(self.tmpdir, '/tmp/file_out3.nii')
+        self.pipeline.output1 = osp.join(self.tmpdir, 'file_out1.nii')
+        self.pipeline.output2 = osp.join(self.tmpdir, 'file_out2.nii')
+        self.pipeline.output3 = osp.join(self.tmpdir, 'file_out3.nii')
 
     def tearDown(self):
         try:
             shutil.rmtree(self.tmpdir)
         except Exception:
             pass
-        Capsul.delete_singleton()
-
-    @unittest.skip('reimplementation expected for capsul v3')
-    def test_requirements(self):
-        engine = self.study_config.engine
-        with engine.settings as session:
-            session.remove_config('spm', 'global', 'spm12-standalone')
-        self.pipeline.enable_all_pipeline_steps()
-        with self.assertRaises(ValueError):
-            wf = pipeline_workflow.workflow_from_pipeline(
-                self.pipeline, study_config=self.study_config)
-
 
     def test_full_wf(self):
         self.pipeline.enable_all_pipeline_steps()
-        wf = CapsulWorkflow(self.pipeline)
+        wf = CapsulWorkflow(self.pipeline, create_output_dirs=False)
         # 4 jobs
         self.assertEqual(len(wf.jobs), 4)
         # 3 deps
-        self.assertEqual(sum(len(job['wait_for']) for job in wf.jobs.values()), 3)
-
+        self.assertEqual(sum(len(job['wait_for']) for job in wf.jobs.values()),
+                         3)
+        wf = CapsulWorkflow(self.pipeline, create_output_dirs=True)
+        # 5 jobs with the directories creation
+        self.assertEqual(len(wf.jobs), 5)
+        # 4 deps + create outputs for 3 nodes (node2, node3, node4)
+        self.assertEqual(sum(len(job['wait_for']) for job in wf.jobs.values()),
+                         7)
 
     def test_partial_wf1(self):
         self.pipeline.enable_all_pipeline_steps()
         self.pipeline.pipeline_steps.step3 = False
-        wf = CapsulWorkflow(self.pipeline)
+        wf = CapsulWorkflow(self.pipeline, create_output_dirs=False)
         self.assertEqual(len(wf.jobs), 3)
-        self.assertEqual(sum(len(job['wait_for']) for job in wf.jobs.values()), 2)
+        self.assertEqual(sum(len(job['wait_for'])
+                             for job in wf.jobs.values()), 2)
 
     def test_partial_wf2(self):
         self.pipeline.enable_all_pipeline_steps()
         self.pipeline.pipeline_steps.step2 = False
-        wf = CapsulWorkflow(self.pipeline)
+        wf = CapsulWorkflow(self.pipeline, create_output_dirs=False)
         self.assertEqual(len(wf.jobs), 3)
-        self.assertEqual(sum(len(job['wait_for']) for job in wf.jobs.values()), 0)
+        self.assertEqual(sum(len(job['wait_for'])
+                             for job in wf.jobs.values()), 0)
 
     def test_partial_wf3_fail(self):
         self.pipeline.enable_all_pipeline_steps()
         self.pipeline.pipeline_steps.step1 = False
-        wf = CapsulWorkflow(self.pipeline)
+        wf = CapsulWorkflow(self.pipeline, create_output_dirs=False)
         self.assertEqual(len(wf.jobs), 3)
-        self.assertEqual(sum(len(job['wait_for']) for job in wf.jobs.values()), 2)
+        self.assertEqual(sum(len(job['wait_for'])
+                             for job in wf.jobs.values()), 2)
 
     def test_wf_run(self):
         pipeline = self.pipeline
         pipeline.enable_all_pipeline_steps()
-        
+
         with open(pipeline.input, 'w') as f:
             print('MAIN INPUT', file=f)
-        with Capsul().engine() as engine:
+        with self.capsul.engine() as engine:
             engine.run(pipeline)
 
         self.assertTrue(osp.exists(pipeline.output1))
@@ -223,7 +217,7 @@ class TestPipelineWorkflow(unittest.TestCase):
                 text = f.read()
                 self.assertEqual(len(text.split('\n')), lens[o])
 
-    def test_iter_workflow_without_temp(self):
+    def test_iter_without_temp(self):
         pipeline = Capsul.executable(DummyPipelineIterSimple)
         self.assertTrue(pipeline is not None)
         niter = 2
@@ -233,17 +227,17 @@ class TestPipelineWorkflow(unittest.TestCase):
         pipeline.intermediate = [osp.join(self.tmpdir, 'file_out1'),
                                  osp.join(self.tmpdir, 'file_out2')]
 
-        wf = CapsulWorkflow(pipeline)
-        njobs = niter + 1  # 1 after 
+        wf = CapsulWorkflow(pipeline, create_output_dirs=False)
+        njobs = niter + 1  # 1 after
         self.assertEqual(len(wf.jobs), njobs)
 
         for i, filein in enumerate(pipeline.input):
             with open(filein, 'w') as f:
                 print('MAIN INPUT %d' % i, file=f)
-        with Capsul().engine() as engine:
+        with self.capsul.engine() as engine:
             status = engine.run(pipeline)
 
-        self.assertEqual(status['status'], 'ended')
+        self.assertEqual(status, 'ended')
         self.assertTrue(osp.exists(pipeline.output))
         olen = 12
         with open(pipeline.output) as f:
@@ -252,6 +246,7 @@ class TestPipelineWorkflow(unittest.TestCase):
 
     def test_iter_workflow(self):
         pipeline = Capsul.executable(DummyPipelineIter)
+
         self.assertTrue(pipeline is not None)
         niter = 2
         pipeline.input = [osp.join(self.tmpdir, 'file_in%d' % i)
@@ -260,7 +255,7 @@ class TestPipelineWorkflow(unittest.TestCase):
         pipeline.output2 = osp.join(self.tmpdir, 'file_out2')
         pipeline.output3 = osp.join(self.tmpdir, 'file_out3')
 
-        wf = CapsulWorkflow(pipeline)
+        wf = CapsulWorkflow(pipeline, create_output_dirs=False)
         njobs = 4*niter + 3  # 3 after
         self.assertEqual(len(wf.jobs), njobs)
 
@@ -268,10 +263,10 @@ class TestPipelineWorkflow(unittest.TestCase):
             with open(filein, 'w') as f:
                 print('MAIN INPUT %d' % i, file=f)
 
-        with Capsul().engine() as engine:
+        with self.capsul.engine() as engine:
             status = engine.run(pipeline)
 
-        self.assertEqual(status['status'], 'ended')
+        self.assertEqual(status, 'ended')
         self.assertTrue(osp.exists(pipeline.output1))
         self.assertTrue(osp.exists(pipeline.output2))
         self.assertTrue(osp.exists(pipeline.output3))
@@ -282,57 +277,43 @@ class TestPipelineWorkflow(unittest.TestCase):
                 self.assertEqual(len(text.split('\n')), lens[o])
 
 
-def test():
-    """ Function to execute unitest
-    """
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestPipelineWorkflow)
-    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
-    return runtime.wasSuccessful()
-
-
 if __name__ == "__main__":
-    verbose = False
-    if len(sys.argv) >= 2 and sys.argv[1] in ('-v', '--verbose'):
-        verbose = True
+    import sys
+    from soma.qt_gui import qt_backend
+    from soma.qt_gui.qt_backend import QtGui
+    from capsul.qt_gui.widgets import PipelineDeveloperView
 
-    print("RETURNCODE: ", test())
+    app = QtGui.QApplication.instance()
+    if not app:
+        app = QtGui.QApplication(sys.argv)
+    pipeline = Capsul.executable(DummyPipeline)
+    pipeline.input = '/tmp/file_in.nii'
+    pipeline.output1 = '/tmp/file_out1.nii'
+    pipeline.output2 = '/tmp/file_out2.nii'
+    pipeline.output3 = '/tmp/file_out3.nii'
+    view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True,
+                                    allow_open_controller=True)
+    view1.show()
 
-    if verbose:
-        import sys
-        from soma.qt_gui import qt_backend
-        # qt_backend.set_qt_backend('PyQt4')
-        from soma.qt_gui.qt_backend import QtGui
-        from capsul.qt_gui.widgets import PipelineDeveloperView
+    pipeline2 = Capsul.executable(DummyPipelineIterSimple)
+    pipeline2.input = ['/tmp/file_in1.nii', '/tmp/file_in2.nii']
+    pipeline2.output = '/tmp/file_out.nii'
+    pipeline2.intermediate = ['/tmp/file_out1',
+                                '/tmp/file_out2']
+    view2 = PipelineDeveloperView(pipeline2, show_sub_pipelines=True,
+                                    allow_open_controller=True)
+    view2.show()
 
-        app = QtGui.QApplication.instance()
-        if not app:
-            app = QtGui.QApplication(sys.argv)
-        pipeline = DummyPipeline()
-        pipeline.input = '/tmp/file_in.nii'
-        pipeline.output1 = '/tmp/file_out1.nii'
-        pipeline.output2 = '/tmp/file_out2.nii'
-        pipeline.output3 = '/tmp/file_out3.nii'
-        view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True,
-                                       allow_open_controller=True)
-        view1.show()
+    pipeline3 = Capsul.executable(DummyPipelineIter)
+    pipeline3.input = ['/tmp/file_in1.nii', '/tmp/file_in2.nii']
+    pipeline3.output1 = '/tmp/file_out1.nii'
+    pipeline3.output2 = '/tmp/file_out2.nii'
+    pipeline3.output3 = '/tmp/file_out3.nii'
+    view3 = PipelineDeveloperView(pipeline3, show_sub_pipelines=True,
+                                    allow_open_controller=True)
+    view3.show()
 
-        pipeline2 = DummyPipelineIterSimple()
-        pipeline2.input = ['/tmp/file_in1.nii', '/tmp/file_in2.nii']
-        pipeline2.output = '/tmp/file_out.nii'
-        pipeline2.intermediate = ['/tmp/file_out1',
-                                  '/tmp/file_out2']
-        view2 = PipelineDeveloperView(pipeline2, show_sub_pipelines=True,
-                                       allow_open_controller=True)
-        view2.show()
-
-        pipeline3 = DummyPipelineIter()
-        pipeline3.input = ['/tmp/file_in1.nii', '/tmp/file_in2.nii']
-        pipeline3.output1 = '/tmp/file_out1.nii'
-        pipeline3.output2 = '/tmp/file_out2.nii'
-        pipeline3.output3 = '/tmp/file_out3.nii'
-        view3 = PipelineDeveloperView(pipeline3, show_sub_pipelines=True,
-                                       allow_open_controller=True)
-        view3.show()
-
-        app.exec_()
-        del view1
+    app.exec_()
+    del view1
+    del view2
+    del view3

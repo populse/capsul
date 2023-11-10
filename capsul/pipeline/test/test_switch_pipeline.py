@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
-
 import sys
 import unittest
 import os
 from capsul.api import Process, executable
-from capsul.api import Pipeline
+from capsul.api import Pipeline, CapsulWorkflow
+from soma.api import DictWithProxy
 from soma.controller import undefined
 
 
@@ -43,17 +42,19 @@ class SwitchPipeline(Pipeline):
         self.add_process("way22",
              "capsul.pipeline.test.test_switch_pipeline.DummyProcess")
 
-        # Create Switch
-        self.add_switch("switch", ["one", "two", "none"],
-                        ["switch_image", "switch_output", ])
-
-        # Link input
-        self.export_parameter("node", "input_image")
-        self.export_parameter("node", "other_input")
+        self.create_switch("switch",
+            options = {
+                "one": {
+                    "switch_image": "way1.output_image",
+                    "switch_output": "way1.other_output"},
+                "two": {
+                    "switch_image": "way22.output_image",
+                    "switch_output": "way22.other_output"},
+                "none": {
+                    "switch_image": "node.output_image",
+                    "switch_output": "node.other_output"}})
 
         # Links
-        self.add_link("node.output_image->switch.none_switch_switch_image")
-        self.add_link("node.other_output->switch.none_switch_switch_output")
         self.add_link("node.output_image->way1.input_image")
         self.add_link("node.other_output->way1.other_input")
         self.add_link("node.output_image->way21.input_image")
@@ -62,11 +63,6 @@ class SwitchPipeline(Pipeline):
         self.add_link("way21.output_image->way22.input_image")
         self.add_link("way21.other_output->way22.other_input")
 
-        self.add_link("way1.output_image->switch.one_switch_switch_image")
-        self.add_link("way1.other_output->switch.one_switch_switch_output")
-
-        self.add_link("way22.output_image->switch.two_switch_switch_image")
-        self.add_link("way22.other_output->switch.two_switch_switch_output")
 
         # Outputs
         self.export_parameter("node", "other_output",
@@ -171,46 +167,20 @@ class TestSwitchPipeline(unittest.TestCase):
                 is_weak = is_weak or wl
         self.assertFalse(is_weak)
 
-    @unittest.skip('reimplementation expected for capsul v3')
-    def test_parameter_propagation(self):
-        self.pipeline.switch = "one"
-        key = "test"
-        self.pipeline.input_image = key
-        # Test first level
-        self.assertEqual(self.pipeline.nodes["node"].input_image, key)
-        # Test second level
-        self.pipeline.nodes["node"].execute(None)
-        self.assertEqual(self.pipeline.nodes["way1"].input_image, key)
-        self.pipeline.switch = "two"
-        self.assertEqual(self.pipeline.nodes["way21"].input_image, key)
-
-
-def test():
-    """ Function to execute unitest
-    """
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestSwitchPipeline)
-    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
-    return runtime.wasSuccessful()
-
 
 if __name__ == "__main__":
-    print("RETURNCODE: ", test())
+    from soma.qt_gui import qt_backend
+    from soma.qt_gui.qt_backend import QtGui
+    from capsul.qt_gui.widgets import PipelineDeveloperView
 
-    if '-v' in sys.argv:
-        import sys
-        from soma.qt_gui import qt_backend
-        from soma.qt_gui.qt_backend import QtGui
-        from capsul.qt_gui.widgets import PipelineDeveloperView
-
-        app = QtGui.QApplication.instance()
-        if not app:
-            app = QtGui.QApplication(sys.argv)
-        pipeline = executable(SwitchPipeline)
-        pipeline.switch = "one"
-        pipeline.input_image = 'test'
-        pipeline.nodes["node"].execute(None)
-        view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True,
-                                       allow_open_controller=True)
-        view1.show()
-        app.exec_()
-        del view1
+    app = QtGui.QApplication.instance()
+    if not app:
+        app = QtGui.QApplication(sys.argv)
+    pipeline = executable(SwitchPipeline)
+    # pipeline.switch = "two"
+    # pipeline.input_image = 'test'
+    view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True,
+                                    allow_open_controller=True)
+    view1.show()
+    app.exec_()
+    del view1

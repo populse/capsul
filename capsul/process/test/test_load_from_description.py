@@ -1,7 +1,9 @@
-# -*- coding: utf-8 -*-
 import unittest
 import os
+import os.path as osp
 from typing import List, Tuple
+import tempfile
+import shutil
 
 from soma.controller import field, Literal, File, Directory
 
@@ -12,7 +14,7 @@ def a_function_to_wrap(
     fname: field(type_=File, doc='test'),
     directory: field(type_=Directory, doc='test'),
     value: field(type_=float, doc='test'),
-    enum: field(type_=str, doc='test'), 
+    enum: field(type_=str, doc='test'),
     list_of_str: field(type_=List[str], doc='test')
 ) -> field(type_=str, doc='test'):
     """
@@ -39,7 +41,7 @@ def to_warp_func(
 # @xml_process('''
 # <process>
 #     <input name="input_image" type="file" doc="Path of a NIFTI-1 image file."/>
-#     <input name="method" type="enum" values="['gt', 'ge', 'lt', 'le']" 
+#     <input name="method" type="enum" values="['gt', 'ge', 'lt', 'le']"
 #      doc="Mehod for thresolding."/>
 #     <input name="threshold" type="float" doc="Threshold value."/>
 #     <return name="output_image" type="file" doc="Name of the output image."/>
@@ -68,6 +70,7 @@ def threshold(
 # def mask(input_image, mask, output_location=None):
 #      pass
 
+
 # temp replacement:
 def mask(
     input_image: field(type_=File, doc='Path of a NIFTI-1 image file.'),
@@ -77,24 +80,39 @@ def mask(
 
     pass
 
+
 def cat(
     value1: str,
-    value2: str, 
+    value2: str,
     value3: str
 ) -> field(type_=str, desc='Concatenation of non empty input values.'):
     return '_'.join(i for i in (value1, value2, value3) if i)
 
-def join(value1 : str, value2 : str, value3 : str) -> list[str]:
-     return [i for i in (value1, value2, value3) if i] 
+
+def join(value1: str, value2: str, value3: str) -> list[str]:
+    return [i for i in (value1, value2, value3) if i]
 
 
 class TestLoadFromDescription(unittest.TestCase):
     """ Class to test function to process loading mechanism.
     """
+
+    def tearDown(self):
+        if hasattr(self, 'temp_files'):
+            for filename in self.temp_files:
+                try:
+                    if osp.isdir(filename):
+                        shutil.rmtree(filename)
+                    else:
+                        os.unlink(filename)
+                except OSError:
+                    pass
+
     def test_process_warpping(self):
         """ Method to test the function to process on the fly warpping.
         """
-        capsul = Capsul()
+        capsul = Capsul(database_path='')
+
         process = capsul.executable(
             'capsul.process.test.test_load_from_description.to_warp_func')
         self.assertTrue(isinstance(process, Process))
@@ -112,19 +130,17 @@ class TestLoadFromDescription(unittest.TestCase):
         with capsul.engine() as ce:
             ce.run(process, timeout=5)
         self.assertEqual(process.result, (1, 'done'))
-        Capsul.delete_singleton()
 
-    #@unittest.skip('reimplementation expected for capsul v3')
     def test_pipeline_warpping(self):
         """ Method to test the xml description to pipeline on the fly warpping.
         """
-        pipeline_file = os.path.join(os.path.dirname(__file__), 'pipeline.json')
-        capsul = Capsul()
+        pipeline_file = os.path.join(os.path.dirname(__file__),
+                                     'pipeline.json')
+        capsul = Capsul(database_path='')
         pipeline = capsul.executable(pipeline_file)
         self.assertTrue(isinstance(pipeline, Pipeline))
         for node_name in ["", "p1", "p2"]:
             self.assertTrue(node_name in pipeline.nodes)
-        Capsul.delete_singleton()
 
 #     def test_pipeline_writing(self):
 #         """ Method to test the xml description saving and reloading
@@ -168,7 +184,7 @@ class TestLoadFromDescription(unittest.TestCase):
 #         shutil.rmtree(tmpdir)
 
     def test_return_string(self):
-        capsul = Capsul()
+        capsul = Capsul(database_path='')
         process = capsul.executable(
             'capsul.process.test.test_load_from_description.cat',
             value1='a',
@@ -182,31 +198,31 @@ class TestLoadFromDescription(unittest.TestCase):
                 value2 = 'v',
                 value3 = '')
             self.assertEqual(process.result, 'v')
-        Capsul.delete_singleton()
-        
+
     def test_return_list(self):
-        capsul = Capsul()
+        capsul = Capsul(database_path='')
         process = capsul.executable(
             'capsul.process.test.test_load_from_description.join')
         with capsul.engine() as capsul_engine:
             capsul_engine.run(process, timeout=5,
-                value1='a', value2='b', value3='c')
+                              value1='a', value2='b', value3='c')
             self.assertEqual(process.result, ['a', 'b', 'c'])
             capsul_engine.run(process, timeout=5,
-                value1='', value2='v', value3='')
+                              value1='', value2='v', value3='')
             self.assertEqual(process.result, ['v'])
-        Capsul.delete_singleton()
 
-        
+
 class TestProcessWrap(unittest.TestCase):
     """ Class to test the function used to wrap a function to a process
     """
+
     def setUp(self):
         """ In the setup construct set some process input parameters.
         """
         # Get the wrapped test process process
         self.process = executable(
-            'capsul.process.test.test_load_from_description.a_function_to_wrap')
+            'capsul.process.test.test_load_from_description.a_function_to_wrap'
+        )
 
         # Set some input parameters
         self.process.fname = 'fname'
@@ -215,17 +231,27 @@ class TestProcessWrap(unittest.TestCase):
         self.process.enum = 'choice1'
         self.process.list_of_str = ['a_string']
 
+    def tearDown(self):
+        if hasattr(self, 'temp_files'):
+            for filename in self.temp_files:
+                try:
+                    if osp.isdir(filename):
+                        shutil.rmtree(filename)
+                    else:
+                        os.unlink(filename)
+                except OSError:
+                    pass
+
     def test_process_wrap(self):
         """ Method to test if the process has been wrapped properly.
         """
         # Execute the process
-        capsul = Capsul()
+        capsul = Capsul(database_path='')
         with capsul.engine() as ce:
             ce.run(self.process, timeout=5)
             self.assertEqual(
                 self.process.result,
                 "ALL FUNCTION PARAMETERS::\n\nfnamedirectory1.2choice1['a_string']")
-        Capsul.delete_singleton()
 
 
 if __name__ == "__main__":

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from capsul.api import Process
 import os
 from soma.controller import File, Directory, undefined, Literal
@@ -10,16 +8,16 @@ class normalization_t1_spm8_reinit(Process):
         super(normalization_t1_spm8_reinit, self).__init__(**kwargs)
         self.name = 'normalization_t1_spm8_reinit'
 
-        self.add_field("anatomy_data", File, read=True, allowed_extensions=['.nii', '.img', '.hdr'], write=False)
-        self.add_field("anatomical_template", File, read=True, allowed_extensions=['.nii', '.mnc', '.img', '.hdr'], optional=True, write=False)
+        self.add_field("anatomy_data", File, read=True, extensions=['.nii', '.img', '.hdr'], write=False)
+        self.add_field("anatomical_template", File, read=True, extensions=['.nii', '.mnc', '.img', '.hdr'], optional=True, dataset='shared', write=False)
         self.add_field("voxel_size", Literal['[1 1 1]'])
         self.voxel_size = '[1 1 1]'
         self.add_field("cutoff_option", int)
         self.cutoff_option = 25
         self.add_field("nbiteration", int)
         self.nbiteration = 16
-        self.add_field("transformations_informations", File, write=True, allowed_extensions=['.mat'], read=True)
-        self.add_field("normalized_anatomy_data", File, write=True, allowed_extensions=['.nii', '.img', '.hdr'], read=True)
+        self.add_field("transformations_informations", File, write=True, extensions=['.mat'], read=True)
+        self.add_field("normalized_anatomy_data", File, write=True, extensions=['.nii', '.img', '.hdr'], read=True)
         self.add_field("allow_retry_initialization", bool)
         self.allow_retry_initialization = True
         self.add_field("init_translation_origin", Literal[0,1])

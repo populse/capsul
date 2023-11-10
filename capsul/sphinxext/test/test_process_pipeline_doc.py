@@ -1,11 +1,9 @@
-# -*- coding: utf-8 -*-
 import unittest
 
 # Capsul import
 from capsul.api import Process
 from capsul.api import Pipeline
-#@unittest.skip('reimplementation expected for capsul v3')
-#from capsul.sphinxext.pipelinedocgen import PipelineHelpWriter
+from capsul.sphinxext.pipelinedocgen import PipelineHelpWriter
 
 from soma.controller import File, field
 
@@ -13,12 +11,12 @@ class MyProcess(Process):
     """ My dummy process.
     """
     # Some inputs
-    input_image = field(type_=File, optional=False, desc="an image.")
-    input_float = field(type_=float, optional=True, desc="a float.")
+    input_image: field(type_=File, optional=False, doc="an image.")
+    input_float: field(type_=float, optional=True, doc="a float.")
 
     # Some outputs
-    output_image = field(type_=File, optional=False, write=True, desc="an output image.")
-    output_float = field(type_=float, optional=True, output=True, desc=None)
+    output_image: field(type_=File, optional=False, write=True, doc="an output image.")
+    output_float: field(type_=float, optional=True, output=True)
 
 
 class MyPipeline(Pipeline):
@@ -40,22 +38,25 @@ class MyPipeline(Pipeline):
             "capsul.sphinxext.test.test_process_pipeline_doc.MyProcess")
 
         # Create Switch
-        self.add_switch("switch", ["one", "two"],
-                        ["image", "float", ])
+        self.create_switch("switch", {
+            "one": {
+                "image": "way1.output_image",
+                "float": "way1.output_float",
+            },
+            "two": {
+                "image": "way2.output_image",
+                "float": "way2.output_float",
+            }
+        })
 
         # Link input
         self.export_parameter("way1", "input_image")
         self.export_parameter("way1", "input_float")
 
-        # Link way1
-        self.add_link("way1.output_image->switch.one_switch_image")
-        self.add_link("way1.output_float->switch.one_switch_float")
 
         # Link way2
         self.add_link("input_image->way2.input_image")
         self.add_link("input_float->way2.input_float")
-        self.add_link("way2.output_image->switch.two_switch_image")
-        self.add_link("way2.output_float->switch.two_switch_float")
 
         # Link node
         self.add_link("switch.image->node.input_image")
@@ -85,7 +86,6 @@ class TestSphinxExt(unittest.TestCase):
         self.pipeline_id = ("capsul.sphinxext.test.test_process_pipeline_doc."
                             "MyPipeline")
 
-    @unittest.skip('reimplementation expected for capsul v3')
     def test_process_doc(self):
         """ Method to test the process rst documentation.
         """
@@ -94,7 +94,6 @@ class TestSphinxExt(unittest.TestCase):
         rstdoc = docwriter.write_api_docs(returnrst=True)
         self.assertTrue(self.process_id in rstdoc)
 
-    @unittest.skip('reimplementation expected for capsul v3')
     def test_pipeline_doc(self):
         """ Method to test the pipeline rst documentation.
         """
@@ -102,15 +101,3 @@ class TestSphinxExt(unittest.TestCase):
         docwriter = PipelineHelpWriter([self.pipeline_id])
         rstdoc = docwriter.write_api_docs(returnrst=True)
         self.assertTrue(self.pipeline_id in rstdoc)
-
-
-def test():
-    """ Function to execute unitest
-    """
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestSphinxExt)
-    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
-    return runtime.wasSuccessful()
-
-
-if __name__ == "__main__":
-    test() 

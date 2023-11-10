@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''
 Pipeline exportation function as a python source code file.
 
@@ -60,7 +59,9 @@ def save_py_pipeline(pipeline, py_file):
             else:
                 classname = process.__class__.__name__
         procname = '.'.join((mod, classname))
+        print('reinstantiate/reload:', procname)
         proc_copy = executable(procname)
+        print('reloaded:', procname)
         make_opt = []
         for field in proc_copy.fields():
             fname = field.name
@@ -213,13 +214,23 @@ def save_py_pipeline(pipeline, py_file):
               % (name, procname, process_iter.iterative_parameters),
               file=pyf)
 
-    def _write_switch(switch, pyf, name, enabled):
+    def _write_switch(switch, pyf, name):
+        options = {}
+        for option_name in switch._switch_values:
+            option_content = {}
+            for output in switch._outputs:
+                link_from = None
+                for node, plug_name in switch.pipeline.get_linked_items(switch, option_name, in_sub_pipelines=False, activated_only=True):
+                    link_from = f'{node.name}.{plug_name}'
+                    break
+                if link_from is not None:
+                    option_content[output] = link_from
+            options[option_name] = option_content
+
         inputs_set = set()
         inputs = []
         outputs = []
         optional = []
-        opt_in = []
-        options = ''
         for plug_name, plug in switch.plugs.items():
             if plug.output:
                 outputs.append(plug_name)
@@ -231,24 +242,14 @@ def save_py_pipeline(pipeline, py_file):
                         and name_parts[0] not in inputs_set:
                     inputs_set.add(name_parts[0])
                     inputs.append(name_parts[0])
-                    if plug.optional:
-                        opt_in.append(name_parts[0])
         optional_p = ''
         if len(optional) != 0:
             optional_p = ', make_optional=%s' % repr(optional)
-        opt_inputs = getattr(switch, '_optional_input_nodes', None)
-        if opt_inputs:
-            opt_inputs = [i[1] for i in opt_inputs if i[0] in inputs]
-            if opt_inputs == inputs:
-                opt_inputs = True
-            options += ', opt_nodes=%s' % repr(opt_inputs)
-        value_p = ''
-        if switch.switch != inputs[0]:
-            value_p = ', switch_value=%s' % repr(switch.switch)
-        print('        self.add_switch("%s", %s, %s%s%s%s, export_switch=False)'
-              % (name, repr(inputs), repr(outputs), optional_p, value_p,
-                 options),
-              file=pyf)
+
+        #print(f'        self.create_switch({repr(name)}, {repr(options)}, switch_value={repr(switch.switch)}, export_switch=False)', file=pyf)
+        print(f'        self.add_switch({repr(name)}, {repr(inputs)}, '
+              f'{repr(outputs)}{optional_p}, export_switch=False)', file=pyf)
+
 
     def _write_processes(pipeline, pyf):
         print('        # nodes', file=pyf)
@@ -264,7 +265,7 @@ def save_py_pipeline(pipeline, py_file):
                 nodes.append((node_name, node))
         for node_name, node in proc_nodes + nodes:
             if isinstance(node, Switch):
-                _write_switch(node, pyf, node_name, node.enabled)
+                _write_switch(node, pyf, node_name)
             elif isinstance(node, Process) \
                     and isinstance(node, ProcessIteration):
                 _write_iteration(node, pyf, node_name, node.enabled)
@@ -379,8 +380,8 @@ def save_py_pipeline(pipeline, py_file):
         if hasattr(pipeline, "scene_scale_factor"):
             print('        self.scene_scale_factor = %s'
                   % repr(pipeline.scene_scale_factor), file=pyf)
-            
-    ########### add by Irmage OM #########################       
+
+    ########### add by Irmage OM #########################
     def _write_nodes_dimensions(pipeline, pyf):
         node_dimension = getattr(pipeline, "node_dimension", None)
         if node_dimension:
@@ -392,7 +393,7 @@ def save_py_pipeline(pipeline, py_file):
                 print('            "%s": %s,' % (node_name, repr(dim)),
                       file=pyf)
             print('        }', file=pyf)
-    ######################################################  
+    ######################################################
 
     def _write_doc(pipeline, pyf):
         if hasattr(pipeline, "__doc__"):

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import sys
 import unittest
 import os
@@ -7,35 +5,14 @@ from pathlib import Path
 import tempfile
 import shutil
 
-from soma.controller import undefined, File, field
+from soma.controller import File, field
 
 # Capsul import
 from capsul.api import Process, Pipeline, Capsul
 from capsul.execution_context import CapsulWorkflow
-from capsul.pipeline import pipeline_workflow
-from soma_workflow import configuration as swconfig
 
 debug = False
 
-def setUpModule():
-    global old_home
-    global temp_home_dir
-    # Run tests with a temporary HOME directory so that they are isolated from
-    # the user's environment
-    temp_home_dir = None
-    old_home = os.environ.get('HOME')
-    try:
-        temp_home_dir = tempfile.mkdtemp('', prefix='soma_workflow')
-        os.environ['HOME'] = temp_home_dir
-        swconfig.change_soma_workflow_directory(temp_home_dir)
-    except BaseException:  # clean up in case of interruption
-        if old_home is None:
-            del os.environ['HOME']
-        else:
-            os.environ['HOME'] = old_home
-        if temp_home_dir:
-            shutil.rmtree(temp_home_dir)
-        raise
 
 def setUpModule():
     global old_home
@@ -48,7 +25,6 @@ def setUpModule():
         app_name = 'test_iterative_process'
         temp_home_dir = Path(tempfile.mkdtemp(prefix=f'capsul_{app_name}_'))
         os.environ['HOME'] = str(temp_home_dir)
-        capsul = Capsul(app_name)    
     except BaseException:  # clean up in case of interruption
         if old_home is None:
             del os.environ['HOME']
@@ -65,7 +41,6 @@ def tearDownModule():
     else:
         os.environ['HOME'] = old_home
     shutil.rmtree(temp_home_dir)
-    Capsul.delete_singleton()
 
 
 class DummyProcess(Process):
@@ -180,12 +155,13 @@ class MyBigPipeline(Pipeline):
 class TestPipeline(unittest.TestCase):
     """ Class to test a pipeline with an iterative node
     """
+
     def setUp(self):
         """ In the setup construct the pipeline and set some input parameters.
         """
-        self.directory = tempfile.mkdtemp(prefix="capsul_test")
+        self.directory = tempfile.mkdtemp(prefix="capsul_test_itproc_")
 
-        self.capsul = Capsul()
+        self.capsul = Capsul('test_iterative_process', database_path='')
 
         # Construct the pipeline
         self.pipeline = self.capsul.executable(MyPipeline)
@@ -214,9 +190,8 @@ class TestPipeline(unittest.TestCase):
             print('directory %s not removed.' % self.directory)
         else:
             shutil.rmtree(self.directory)
-        Capsul.delete_singleton()
         self.capsul = None
-        
+
     def test_iterative_pipeline_connection(self):
         """ Test if an iterative process works correctly
         """
@@ -226,16 +201,16 @@ class TestPipeline(unittest.TestCase):
                 fobj.write("input: %s\n" % f)
 
         # Test the output connection
-        with Capsul().engine() as engine:
+        with self.capsul.engine() as engine:
             engine.run(self.pipeline, timeout=5)
 
         self.assertIn("toto-5.0-3.0",
-                        [os.path.basename(f)
-                        for f in self.pipeline.output_image])
+                      [os.path.basename(f)
+                       for f in self.pipeline.output_image])
         self.assertIn("tutu-5.0-1.0",
-                        [os.path.basename(f)
-                        for f in self.pipeline.output_image])
-        self.assertEqual(self.pipeline.other_output, 
+                      [os.path.basename(f)
+                       for f in self.pipeline.output_image])
+        self.assertEqual(self.pipeline.other_output,
                          [self.pipeline.other_input,
                           self.pipeline.other_input])
 
@@ -244,17 +219,19 @@ class TestPipeline(unittest.TestCase):
             os.path.join(self.directory, 'toto_out'),
             os.path.join(self.directory, 'tutu_out')]
         self.small_pipeline.other_output = [1., 2.]
-        workflow = CapsulWorkflow(self.small_pipeline)
+        workflow = CapsulWorkflow(self.small_pipeline,
+                                  create_output_dirs=False)
         #expect 2 + 2 (iter)  jobs
         self.assertEqual(len(workflow.jobs), 4)
         # expect 4 dependencies:
         # init -> iterative jobs (2)
         # iterative jobs -> end (2)
-        self.assertEqual(sum(len(job['wait_for']) for job in workflow.jobs.values()), 4)
+        self.assertEqual(sum(len(job['wait_for'])
+                             for job in workflow.jobs.values()), 4)
 
     def test_iterative_big_pipeline_workflow(self):
-        self.big_pipeline.files_to_create = [["toto", "tutu"],
-                                         ["tata", "titi", "tete"]]
+        self.big_pipeline.files_to_create = [
+            ["toto", "tutu"], ["tata", "titi", "tete"]]
         self.big_pipeline.dynamic_parameter = [[1, 2], [3, 4, 5]]
         self.big_pipeline.other_input = 5
         self.big_pipeline.output_image = [
@@ -264,7 +241,7 @@ class TestPipeline(unittest.TestCase):
              os.path.join(self.directory, 'titi_out'),
              os.path.join(self.directory, 'tete_out')]]
         self.big_pipeline.other_output = [[1.1, 2.1], [3.1, 4.1, 5.1]]
-        workflow = CapsulWorkflow(self.big_pipeline)
+        workflow = CapsulWorkflow(self.big_pipeline, create_output_dirs=False)
         # expect:
         #  outer iteration 1: init + 2 iterative jobs + end
         #  outer iteration 2: init + 3 iterative jobs + end
@@ -274,16 +251,19 @@ class TestPipeline(unittest.TestCase):
         for job in workflow.jobs.values():
             if not job['process']['definition'].endswith('.DummyProcess'):
                 continue
-            param_dict = workflow.parameters
+            param_dict = workflow.parameters_dict
             for i in job['parameters_location']:
                 if i.isnumeric():
                     i = int(i)
                 param_dict = param_dict[i]
-            self.assertEqual(param_dict["other_input"], 5)
-            subject = param_dict['input_image']
+            proxy = param_dict["other_input"]
+            value = workflow.parameters_values[proxy[1]]
+            self.assertEqual(value, 5)
+            proxy = param_dict['input_image']
+            subject = workflow.parameters_values[proxy[1]]
             subjects.add(subject)
             self.assertIn(subject,
-                            ["toto", "tutu", "tata", "titi", "tete"])
+                          ["toto", "tutu", "tata", "titi", "tete"])
         self.assertEqual(subjects,
                          set(["toto", "tutu", "tata", "titi", "tete"]))
 
@@ -297,7 +277,7 @@ class TestPipeline(unittest.TestCase):
         with self.capsul.engine() as c:
             c.run(self.small_pipeline, timeout=5)
         for ifname, fname in zip(self.small_pipeline.files_to_create,
-                                  self.small_pipeline.output_image):
+                                 self.small_pipeline.output_image):
             with open(fname) as f:
                 content = f.read()
             self.assertEqual(content, "file: %s\n" % ifname)
@@ -320,7 +300,7 @@ if __name__ == "__main__":
     pipeline2.scene_scale_factor = 0.5
 
     view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True,
-                                    allow_open_controller=True)
+                                  allow_open_controller=True)
     view1.add_embedded_subpipeline('iterative')
     view1.auto_dot_node_positions()
     view1.show()

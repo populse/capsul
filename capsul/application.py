@@ -1,11 +1,11 @@
-# -*- coding: utf-8 -*-
 import dataclasses
 import importlib
 import importlib.resources
+import inspect
 import json
+import os
 from pathlib import Path
 import types
-import inspect
 import sys
 
 from soma.controller import field, Controller
@@ -51,12 +51,16 @@ def _is_nipype_interface_subclass(obj):
     return issubclass(obj, NipypeInterface)
 
 
-class Capsul(Singleton):
-    '''User entry point to Capsul features. 
+class Capsul:
+    '''User entry point to Capsul features.
     This objects reads Capsul configuration in site and user environments.
-    It allows configuration customization and instanciation of a 
+    It allows configuration customization and instanciation of a
     CapsulEngine instance to reach an execution environment.
-    
+
+    If database_path is given, it replaces
+    self.config['databases']['builtin'].path after all site and user
+    configuration is read.
+
     Example:
 
         from capsul.api import Capsul
@@ -65,13 +69,45 @@ class Capsul(Singleton):
         with capsul.engine() as capsul_engine:
             capsul_engine.run(e)
 
-    '''    
+    '''
 
-    def __singleton_init__(self, app_name='capsul', site_file=None):
+    def __init__(self, app_name='capsul', user_file=undefined,
+                 site_file=undefined,
+                 database_path=None):
+        if user_file is undefined:
+            user_file = os.environ.get('CAPSUL_USER_CONFIG')
+            if user_file is None:
+                for user_file in ('~/.config/capsul/capsul_user.json',
+                                  '~/.config/capsul/capsul_user.py'):
+                    user_file = os.path.expanduser(user_file)
+                    if os.path.exists(user_file):
+                        break
+                else:
+                    user_file = None
+            elif not user_file:
+                user_file = None
+        if site_file is undefined:
+            site_file = os.environ.get('CAPSUL_SITE_CONFIG')
+            if site_file is None:
+                for site_file in (os.path.expandvars('$CASA_CONF/capsul_site.json'),
+                                  os.path.expandvars('$CASA_CONF/capsul_site.py'),
+                                  '/etc/capsul/capsul_site.json',
+                                  '/etc/capsul/capsul_site.py'):
+                    if os.path.exists(site_file):
+                        break
+                else:
+                    site_file = None
+            elif not site_file:
+                site_file = None
         if isinstance(site_file, Path):
             site_file=str(site_file)
-        c = ApplicationConfiguration(app_name=app_name, site_file=site_file)
+        if isinstance(user_file, Path):
+            user_file=str(user_file)
+        self.label = app_name
+        c = ApplicationConfiguration(app_name=app_name, user_file=user_file, site_file=site_file)
         self.config = c.merged_config
+        if database_path is not None:
+            self.config.databases['builtin']['path'] = database_path
 
     @staticmethod
     def is_executable(item):
@@ -96,42 +132,25 @@ class Capsul(Singleton):
         '''
         return executable(definition, **kwargs)
 
-    def engine(self, name='local'):
-        ''' Get a :class:`~capsul.engine.CapsulEngine` instance
-        '''
-        # get engine type from config
-        resource_config = getattr(self.config, name, None)
-        if resource_config is None:
-            raise ValueError(f'resource "{name}" is not configured.')
-        engine_type = resource_config.engine_type
-        if engine_type == 'builtin':
-            engine_type = 'local'
-        try:
-            engine_mod = importlib.import_module(
-                f'capsul.engine.{engine_type}')
-        except ImportError:
-            raise ValueError(f'engine type {engine_type} is not known.')
+    def engines(self):
+        for field in self.config.fields():  # noqa: F402
+            if field.name != 'databases':
+                yield self.engine(field.name)
 
+    def engine(self, name='builtin', update_database=False):
+        ''' Get a :class:`~capsul.engine.Engine` instance
+        '''
         from .engine import Engine
 
-        # find en Engine subclass in the module
-        engines = []
-        for k, v in engine_mod.__dict__.items():
-            if isinstance(v, type) and v is not Engine \
-                    and issubclass(v, Engine):
-                engines.append((k, v))
-        if len(engines) == 0:
-            raise ValueError(
-                f'No Engine defined in module {engine_mod.__name__}')
-        if len(engines) > 1:
-            raise ValueError(
-                f'Several Engines are defined in module {engine_mod.__name__}'
-                f': {[e[1].__name__ for e in engines]}')
+        # get engine type from config
+        engine_config = getattr(self.config, name, None)
+        if engine_config is None:
+            raise ValueError(f'engine "{name}" is not configured.')
+        return Engine(name, engine_config, databases_config=self.config.databases,
+                      update_database=update_database)
 
-        engine_class = engines[0][1]
-        return engine_class(name, resource_config)
-
-    def dataset(self, path):
+    @staticmethod
+    def dataset(path):
         ''' Get a :class:`~.dataset.DataSet` instance associated with the given path
 
         Parameters
@@ -147,7 +166,7 @@ class Capsul(Singleton):
 
     @classmethod
     def executable_iteration(cls, executable,
-            non_iterative_plugs=None, 
+            non_iterative_plugs=None,
             iterative_plugs=None):
             """ Create a ProcessIteration to run several times (in parallel
             if possible) the same executable with different parameters.
@@ -178,7 +197,7 @@ class Capsul(Singleton):
                                 if field.name not in forbidden]
 
             iterative_process = ProcessIteration(
-                    definition=f'{process.definition}[]', 
+                    definition=f'{process.definition}[]',
                     process=process,
                     iterative_parameters=iterative_plugs)
             return iterative_process
@@ -191,7 +210,7 @@ def executable(definition, **kwargs):
       - A dictionary containing the JSON serialization of a process.
         A new instance is created by desierializing this dictionary.
       - A process instance.
-    '''        
+    '''
     result = None
     item = None
     if isinstance(definition, dict):
@@ -304,8 +323,8 @@ def executable(definition, **kwargs):
         for name, value in kwargs.items():
             setattr(result, name, value)
         return result
-    raise ValueError(f'Invalid executable definition: {definition}') 
-    
+    raise ValueError(f'Invalid executable definition: {definition}')
+
 def find_executables(module):
     ''' Look for "executables" (:class:`~.process.node.Node` classes) in the
     given module
@@ -355,7 +374,7 @@ def executable_from_python(definition, item):
             raise ValueError(f'Cannot find annotation description to make function {item} a process')
 
     else:
-        raise ValueError(f'Cannot create an executable from {item}')           
+        raise ValueError(f'Cannot create an executable from {item}')
 
     return result
 
@@ -376,7 +395,7 @@ def executable_from_json(definition, json_executable):
         if definition is not None:
             result.definition = definition
     elif type == 'custom_pipeline':
-        result = CustomPipeline(definition=definition, 
+        result = CustomPipeline(definition=definition,
                                 json_executable=process_definition)
     elif type == 'iterative_process':
         result = ProcessIteration(

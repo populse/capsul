@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''
 Utility class for iterated nodes in a pipeline. This is mainly internal infrastructure, which a normal programmer should not have to bother about.
 A pipeline programmer will not instantiate :class:`ProcessIteration` directly, but rather use the :class:`~capsul.pipeline.pipeline.Pipeline` method :meth:`~capsul.pipeline.pipeline.Pipeline.add_iterative_process`.
@@ -12,13 +11,19 @@ Classes
 from soma.controller import undefined
 
 from capsul.process.process import Process
+import capsul.pipeline.pipeline
+
+
+class IndependentExecutables:
+    def __init__(self):
+        self.executables = []
 
 
 class ProcessIteration(Process):
 
     _doc_path = 'api/pipeline.html#processiteration'
 
-    def __init__(self, definition, process, iterative_parameters, 
+    def __init__(self, definition, process, iterative_parameters,
                  context_name=None):
         # Avoid circular import
         from capsul.api import executable
@@ -64,6 +69,10 @@ class ProcessIteration(Process):
 
         self.metadata_schema = getattr(self.process, 'metadata_schema', {})
 
+    @property
+    def label(self):
+        return self.process.name + f'[{self.iteration_size()}]'
+
     def change_iterative_plug(self, parameter, iterative=None):
         '''
         Change a parameter to be iterative (or non-iterative)
@@ -87,7 +96,6 @@ class ProcessIteration(Process):
         if iterative is None:
             iterative = not is_iterative
 
-        field = self.process.field(parameter)
         if iterative:
             # switch to iterative
             self.regular_parameters.remove(parameter)
@@ -110,18 +118,20 @@ class ProcessIteration(Process):
             if value is undefined:
                 continue
             psize = len(value)
+            if psize == 0:
+                continue
             if size is None:
                 size = psize
             else:
                 if size != psize:
                     # size 1 is an exception to the rule: it will be
                     # "broadcast" (numpy sense) to other lists sizes
-                    if size == 1:
-                       size = psize
-                    elif psize != 1:
-                        raise ValueError('Iterative parameter values must be lists of the same size: %s' % ','.join('%s=%d' % (n, len(getattr(self,n))) for n in self.iterative_parameters))
+                    if size == 1 or psize == 1:
+                       size = max(size, psize)
+                    else:
+                        raise ValueError('Iterative parameter values must be lists of the same size: %s' % '\n'.join('%s=%s' % (n, len(getattr(self,n))) for n in self.iterative_parameters if getattr(self,n) is not undefined))
         return size
-    
+
     def iterate_over_process_parmeters(self):
         size = self.iteration_size()
         if size is None:
@@ -129,10 +139,13 @@ class ProcessIteration(Process):
         for iteration_index in range(size):
             self.select_iteration_index(iteration_index)
             yield self.process
-    
+
     def select_iteration_index(self, iteration_index):
+        if isinstance(self.process, capsul.pipeline.pipeline.Pipeline):
+            self.process.delay_update_nodes_and_plugs_activation()
         for parameter in self.regular_parameters:
-            setattr(self.process, parameter, getattr(self, parameter, undefined))
+            value = getattr(self, parameter, undefined)
+            setattr(self.process, parameter, value)
         for parameter in self.iterative_parameters:
             values = getattr(self, parameter, undefined)
             if values is not undefined and len(values) != 0:
@@ -143,6 +156,8 @@ class ProcessIteration(Process):
             else:
                 value = undefined
             setattr(self.process, parameter, value)
+        if isinstance(self.process, capsul.pipeline.pipeline.Pipeline):
+            self.process.restore_update_nodes_and_plugs_activation()
 
     def json(self, include_parameters=True):
         result = {
@@ -158,3 +173,16 @@ class ProcessIteration(Process):
         if include_parameters:
             result['parameters'] = super(Process,self).json()
         return result
+
+    def get_linked_items(self, node, plug_name=None, in_sub_pipelines=True,
+                         activated_only=True, process_only=True, direction=None,
+                         in_outer_pipelines=False):
+        if isinstance(self.process, capsul.pipeline.pipeline.Pipeline):
+            yield from  self.process.get_linked_items(
+                node=node,
+                plug_name=plug_name,
+                in_sub_pipelines=in_sub_pipelines,
+                activated_only=activated_only,
+                process_only=process_only,
+                direction=direction,
+                in_outer_pipelines=in_outer_pipelines)

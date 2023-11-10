@@ -1,15 +1,29 @@
-# -*- coding: utf-8 -*-
-
+import importlib
 import json
+import multiprocessing
 import os
 import sys
-import importlib
 
 from soma.controller import (Controller, field,
                              OpenKeyDictController, File)
 from soma.undefined import undefined
 
 from ..dataset import Dataset
+
+
+default_builtin_database = {
+    'type': 'sqlite',
+    'path': '$HOME/.config/{app_name}/database.sqlite',
+}
+default_builtin_database = {
+    'type': 'redis+socket',
+    'path': '$HOME/.config/{app_name}/database.redis',
+}
+
+default_engine_start_workers = {
+    'type': 'builtin',
+    'count': max(1, int(multiprocessing.cpu_count()/4)),
+}
 
 def full_module_name(module_name):
     '''
@@ -141,7 +155,12 @@ class EngineConfiguration(Controller):
     dataset: OpenKeyDictController[Dataset]
     config_modules: list[str]
     python_modules: list[str]
-    engine_type: str = 'builtin'
+
+    database: str = 'builtin'
+    persistent: bool = True
+
+    start_workers: field(type_=dict,
+                         default_factory=lambda: default_engine_start_workers)
 
     def add_module(self, module_name, allow_existing=False):
         ''' Loads a modle and adds it in the engine configuration.
@@ -185,7 +204,7 @@ class EngineConfiguration(Controller):
         if python_modules:
             for module_name in python_modules:
                 __import__(module_name)
-        
+
         # Load config modules
         config_modules = conf_dict.get('config_modules')
         if config_modules:
@@ -207,35 +226,67 @@ class ConfigurationLayer(OpenKeyDictController[EngineConfiguration]):
 
     A ConfigurationLayer contains sub-configs corresponding to computing
     resources, which are keys in this :class:`Controller`. A "default" config
-    resource could be named "local".
+    resource could be named "builtin".
     '''
 
-    def __init__(self):
+    def __init__(self, conf_dict=None):
         super().__init__()
+        self.add_builtin_fields()
+        if conf_dict is not None:
+            self.import_dict(conf_dict)
+
+    def add_builtin_fields(self):
+        self.add_field('databases', dict[str, dict],
+                       default_factory=lambda: {'builtin': {}})
         self.add_field(
-            'local', EngineConfiguration, default_factory=EngineConfiguration,
-            doc='Default local computing resource config. Elements are config '
-            'modules which should be registered in the application (spm, fsl, '
-            '...)')
+            'builtin', EngineConfiguration,
+            default_factory=EngineConfiguration,
+            doc='Default builtin computing resource config. Elements are '
+                'config modules which should be registered in the application '
+                '(spm, fsl, ...)')
+
+    def import_dict(self, d, clear=False):
+        if clear:
+            super().import_dict({}, clear=True)
+            self.add_builtin_fields()
+        builtin = self.databases['builtin']
+        super().import_dict(d, clear=False)
+        # self.databases.setdefault('builtin', builtin)
+        # merge builtins rather than reset the former value
+        builtin.update(self.databases.get('builtin', {}))
+        self.databases['builtin'] = builtin
 
     def load(self, filename):
         ''' Load configuration from a JSON or YAML file
         '''
-        with open(filename) as f:
-            if filename.endswith('.yaml'):
-                # YAML support is optional, yaml module may not
-                # be installed
-                import yaml
+        if filename.endswith('.py'):
+            context = {}
+            with open(filename) as f:
+                exec(f.read(), context, context)
+            conf = None
+            for n in ('config', 'configuration', 'conf'):
+                conf = context.get(n)
+                if conf:
+                    break
+            if not conf:
+                raise RuntimeError(
+                    f'No valid configuration found in "{filename}"')
+        elif filename.endswith('.yaml'):
+            # YAML support is optional, yaml module may not
+            # be installed
+            import yaml
+            with open(filename) as f:
                 conf = yaml.safe_load(f)
-            else:
+        else:
+            with open(filename) as f:
                 conf = json.load(f)
         self.import_dict(conf)
 
     def add_field(self, name, *args, **kwargs):
         if 'doc' not in kwargs:
             kwargs = dict(kwargs)
-            if name == 'local':
-                kwargs['doc'] = 'Default local computing resource config. ' \
+            if name == 'builtin':
+                kwargs['doc'] = 'Default builtin computing resource config. ' \
                     'Elements are config modules which should be registered ' \
                     'in the application (spm, fsl, ...)'
             else:
@@ -291,7 +342,7 @@ class ApplicationConfiguration(Controller):
         app_config = ApplicationConfiguration(
             'my_app_name', site_file='/usr/local/etc/my_app_name.json')
         user_conf_dict = {
-            'local': {
+            'builtin': {
                 'spm': {
                     'spm12_standalone': {
                         'directory': '/usr/local/spm12_standalone',
@@ -313,9 +364,9 @@ class ApplicationConfiguration(Controller):
     In each configuration (``user``, ``site``,, ``merged_config``):
 
     * The first level, "environment" corresponds to a "computing resource"
-      name. The default (and always existing) is "local" and means the local
-      computer configuration. Additional configs may be added to store settings
-      for remote computing resources.
+      name. The default (and always existing) is "builtin" and is using the local
+      computer configuration without parallelism. Additional configs may be added
+      to store settings for remote computing resources.
 
     * the second level corresponds to configuration modules. Each module has to
       be known in the Capsul config system, and is accessed as a module. The
@@ -345,23 +396,23 @@ class ApplicationConfiguration(Controller):
     which allows a complete control and validation at every level, contrarily
     to a ``dict[str, ModuleConfiguration]`` for instance.
     '''
-    site_file: File = field(doc='site configuration file')
-    site: ConfigurationLayer = field(
+    site_file: field(type_=File, doc='site configuration file')
+    site: field(type_=ConfigurationLayer,
         default_factory=ConfigurationLayer,
         doc='Site-wise configuration, set by the software admin or installer. '
         'Elements represent computing resources configs.')
-    user_file: File = field(doc='user configuration file')
-    user: ConfigurationLayer = field(
+    user_file: field(type_=File, doc='user configuration file')
+    user: field(type_=ConfigurationLayer,
         default_factory=ConfigurationLayer,
         doc='Personal user config: overrides or completes the site config. '
         'Elements represent computing resources configs.')
-    app_name: str = field(default='capsul', doc='Application name')
-    
+    app_name: field(type_=str, default='capsul', doc='Application name')
+
     # read-only modified by merge
-    merged_config: ConfigurationLayer = field(
+    merged_config: field(type_=ConfigurationLayer,
         default_factory=ConfigurationLayer, user_level=2)
-    
-    def __init__(self, app_name, user_file=undefined, site_file=None):
+
+    def __init__(self, app_name, user_file=undefined, site_file=None, user=None):
         '''
         Parameters
         ----------
@@ -371,6 +422,9 @@ class ApplicationConfiguration(Controller):
             file name for the user config file. If `̀`undefined`` (the default), it
             will be looked for in ``~/.config/{app_name}.json``. If
             ``None``, then no user config will be loaded.
+        user: dict
+            dict containing user configuration. It is an error to give both user_file
+            and user.
         site_file: str
             file name for the site config file. If `̀`None`` (the default), then
             no config will be loaded.
@@ -379,20 +433,40 @@ class ApplicationConfiguration(Controller):
         super().__init__()
 
         self.app_name = app_name
+        builtin_db = default_builtin_database.copy()
+        builtin_db['path'] = os.path.expandvars(builtin_db['path']).format(app_name=app_name)
+        d = os.path.dirname(builtin_db['path'])
+        if not os.path.exists(d):
+            os.makedirs(d)
+        self.site.databases = {'builtin': builtin_db}
 
         if site_file is not None:
             self.site_file = site_file
             self.site.load(site_file)
 
         if user_file is undefined:
-            user_file = os.path.expanduser(f'~/.config/{app_name}.json')
-            if not os.path.exists(user_file):
+            if user:
                 user_file = None
+            else:
+                user_file = os.path.expanduser(f'~/.config/{app_name}.json')
+                if not os.path.exists(user_file):
+                    user_file = None
+        if user and user_file is not None:
+            raise ValueError('ApplicationConfiguration does not accept both '
+                             'user_file and user parameters.')
+        if user_file is undefined:
+            if user:
+                user_file = None
+            else:
+                user_file = os.path.expanduser(f'~/.config/{app_name}.json')
+                if not os.path.exists(user_file):
+                    user_file = None
+        if user:
+            self.user.import_dict(user)
         if user_file is not None:
             self.user_file = user_file
             self.user.load(user_file)
         self.merge_configs()
-    
 
     def merge_configs(self):
         ''' Merge site and user configs into the ``merged_config``
@@ -418,7 +492,3 @@ class ApplicationConfiguration(Controller):
                 continue
             modules.append('.'.join((mod_base, p[:-3])))
         return sorted(modules)
-
-
-
-    

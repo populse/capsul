@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import unittest
 import os
 import sys
@@ -11,6 +9,7 @@ from capsul.api import Capsul
 from capsul.api import Process
 from capsul.api import Pipeline
 import shutil
+
 
 class DummyProcess1(Process):
     def __init__(self, definition):
@@ -30,6 +29,7 @@ class DummyProcess1(Process):
                 f.write(g.read())
             f.write('This is an output file\n')
 
+
 class DummyProcess2(Process):
     def __init__(self, definition):
         super().__init__(definition)
@@ -42,11 +42,12 @@ class DummyProcess2(Process):
 
     def execute(self, context):
         base, ext = os.path.splitext(self.input)
-        new_output = f'{base}_bis{ext}' 
+        new_output = f'{base}_bis{ext}'
         self.outputs = [self.input, new_output]
         with open(new_output, 'w') as f:
             with open(self.input) as g:
                 f.write(g.read() + 'And a second output file\n')
+
 
 class DummyProcess2alt(Process):
     def __init__(self, definition):
@@ -66,6 +67,7 @@ class DummyProcess2alt(Process):
             with open(self.input) as g:
                 f.write(g.read() + 'And another output file\n')
 
+
 class DummyProcess3(Process):
     def __init__(self, definition):
         super().__init__(definition)
@@ -81,6 +83,7 @@ class DummyProcess3(Process):
             for in_filename in self.input:
                 with open(in_filename) as g:
                     f.write(g.read())
+
 
 class DummyProcess3alt(Process):
     def __init__(self, definition):
@@ -101,6 +104,7 @@ class DummyProcess3alt(Process):
                     with open(in_filename) as g:
                         f.write(g.read())
 
+
 class DummyPipeline(Pipeline):
 
     def pipeline_definition(self):
@@ -114,15 +118,20 @@ class DummyPipeline(Pipeline):
         self.add_process(
             'node2alt',
             'capsul.pipeline.test.test_proc_with_outputs.DummyProcess2alt')
-        self.add_switch('node2_switch', ['node2', 'node2alt'], ['files'])
+        self.create_switch('node2_switch', {
+            'node2': {
+                'files': 'node2.outputs'
+            },
+            'node2alt': {
+                'files': 'node2alt.outputs'
+            }
+        })
         self.add_process(
             'node3',
             'capsul.pipeline.test.test_proc_with_outputs.DummyProcess3')
         # Links
         self.add_link('node1.output->node2.input')
         self.add_link('node1.output->node2alt.input')
-        self.add_link('node2.outputs->node2_switch.node2_switch_files')
-        self.add_link('node2alt.outputs->node2_switch.node2alt_switch_files')
         self.add_link('node2_switch.files->node3.input')
 
         self.node_position = {
@@ -133,6 +142,7 @@ class DummyPipeline(Pipeline):
             'node2alt': (303.38348967435616, 124.69369999999998),
             'node3': (709.7284896743562, 124.69369999999998),
             'outputs': (868.9687193487123, 128.69369999999998)}
+
 
 class DummyPipeline2(Pipeline):
 
@@ -158,6 +168,7 @@ class DummyPipeline2(Pipeline):
             'node3': (709.7284896743562, 124.69369999999998),
             'outputs': (868.9687193487123, 128.69369999999998)}
 
+
 class PipelineWithSubpipeline(Pipeline):
 
     def pipeline_definition(self):
@@ -172,6 +183,7 @@ class PipelineWithSubpipeline(Pipeline):
             'capsul.pipeline.test.test_proc_with_outputs.DummyProcess1')
         self.add_link("node1.output->pipeline1.input")
         self.add_link("pipeline1.output->node2.input")
+
 
 class PipelineWithIteration(Pipeline):
 
@@ -190,35 +202,6 @@ class PipelineWithIteration(Pipeline):
         self.add_link("pipeline_a.output->node_b.input")
 
 
-# def setUpModule():
-#     global old_home
-#     global temp_home_dir
-#     # Run tests with a temporary HOME directory so that they are isolated from
-#     # the user's environment
-#     temp_home_dir = None
-#     old_home = os.environ.get('HOME')
-#     try:
-#         temp_home_dir = tempfile.mkdtemp('', prefix='soma_workflow')
-#         os.environ['HOME'] = temp_home_dir
-#         swconfig.change_soma_workflow_directory(temp_home_dir)
-#     except BaseException:  # clean up in case of interruption
-#         if old_home is None:
-#             del os.environ['HOME']
-#         else:
-#             os.environ['HOME'] = old_home
-#         if temp_home_dir:
-#             shutil.rmtree(temp_home_dir)
-#         raise
-
-
-# def tearDownModule():
-#     if old_home is None:
-#         del os.environ['HOME']
-#     else:
-#         os.environ['HOME'] = old_home
-#     shutil.rmtree(temp_home_dir)
-
-
 class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
 
     def setUp(self):
@@ -232,7 +215,7 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
         with open(self.pipeline.input, 'w') as f:
             print('Initial file content.', file=f)
         self.pipeline.output = tmpout
-        self.capsul = Capsul()
+        self.capsul = Capsul(database_path='')
 
     def tearDown(self):
         if '--keep-tmp' not in sys.argv[1:]:
@@ -240,7 +223,6 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
                 shutil.rmtree(self.tmpdir)
         elif os.path.exists(self.tmpdir):
             print('leaving temp dir:', self.tmpdir, file=sys.stderr)
-        self.capsul.delete_singleton()
 
     def test_direct_run(self):
         self.pipeline.node2_switch = 'node2'
@@ -298,7 +280,6 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
     def test_full_wf_switch(self):
         # change switch and re-run
         self.pipeline.node2_switch = 'node2alt'
-
 
         with self.capsul.engine() as ce:
             ce.run(self.pipeline, timeout=5)
@@ -413,15 +394,6 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
                          ])
 
 
-def test():
-    """ Function to execute unitest
-    """
-    suite = unittest.TestLoader().loadTestsFromTestCase(
-        TestPipelineContainingProcessWithOutputs)
-    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
-    return runtime.wasSuccessful()
-
-
 if __name__ == "__main__":
     verbose = False
     do_test = True
@@ -443,26 +415,26 @@ if __name__ == "__main__":
         pipeline.output = '/tmp/file_out3.nii'
         pipeline.node2_switch = 'node2alt'
         view1 = PipelineDeveloperView(pipeline, show_sub_pipelines=True,
-                                       allow_open_controller=True)
+                                      allow_open_controller=True)
         view1.show()
 
         pipeline2 = PipelineWithSubpipeline()
         pipeline2.input = '/tmp/file_in.nii'
         view2 = PipelineDeveloperView(pipeline2, show_sub_pipelines=True,
-                                       allow_open_controller=True)
+                                      allow_open_controller=True)
         view2.show()
 
         pipeline3 = PipelineWithIteration()
         pipeline3.input = '/tmp/file_in.nii'
         pipeline3.output = '/tmp/file_out4.nii'
         view3 = PipelineDeveloperView(pipeline3, show_sub_pipelines=True,
-                                       allow_open_controller=True)
+                                      allow_open_controller=True)
         view3.show()
 
         app.processEvents()
 
-    if do_test:
-        print("RETURNCODE: ", test())
+    #if do_test:
+        #print("RETURNCODE: ", test())
 
     if verbose:
         app.exec_()

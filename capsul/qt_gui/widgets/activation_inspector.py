@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''
 A tool to debug and inspect nodes activation / deactivation in a pipeline.
 
@@ -80,7 +79,7 @@ class ActivationInspectorApp(Application):
         self.controller_window = ControllerWidget(self.pipeline)
         self.activation_window = ActivationInspector(
             self.pipeline, ui_file, self.record_file,
-            developper_view=self.pipeline_window)
+            developer_view=self.pipeline_window)
         self.pipeline_window.show()
         self.activation_window.show()
         self.controller_window.show()
@@ -91,7 +90,7 @@ class ActivationInspector(QtGui.QWidget):
     """ A Widget to display the pipeline activation process step by step.
     """
     def __init__(self, pipeline, ui_file=None, record_file=None,
-                 developper_view=None, parent=None):
+                 developer_view=None, parent=None):
         """ Initialize the ActivationInspector class.
 
         Parameters
@@ -104,7 +103,7 @@ class ActivationInspector(QtGui.QWidget):
         record_file: str (optional)
             a file path where the activation steps are recorded.
             If not specified (None), it will create a temporary file.
-        developper_view: PipelineDeveloperView (optional)
+        developer_view: PipelineDeveloperView (optional)
             if specified it is possible to click on a plug to set a filter
             pattern and to update the pipeline activation accordingly.
         """
@@ -147,7 +146,7 @@ class ActivationInspector(QtGui.QWidget):
         # Store class parameters
         self.pipeline = pipeline
         self.record_file = record_file
-        self.developper_view = developper_view
+        self.developer_view = developer_view
 
         # Set the pipeline record file if folder exists
         if os.path.isdir(os.path.dirname(self.record_file)):
@@ -173,8 +172,8 @@ class ActivationInspector(QtGui.QWidget):
 
         # Dynamically select a filter rule by clicking on the pipeline view
         # plugs
-        if developper_view is not None:
-          developper_view.plug_clicked.connect(self.set_filter_pattern)
+        if developer_view is not None:
+          developer_view.plug_clicked.connect(self.set_filter_pattern)
 
     def show(self):
         """ Shows the widget and its child widgets.
@@ -205,7 +204,7 @@ class ActivationInspector(QtGui.QWidget):
                         type(self.ui), control_name))
 
     ###########################################################################
-    # Slots   
+    # Slots
     ###########################################################################
 
     def refresh_activation_from_record(self):
@@ -220,7 +219,7 @@ class ActivationInspector(QtGui.QWidget):
             if record_pipeline_id != str(self.pipeline.definition):
                 raise ValueError(
                     "'{0}' recorded activations for pipeline '{1}' but not for "
-                    "'{2}'".format(self.record_file, record_pipeline_id, 
+                    "'{2}'".format(self.record_file, record_pipeline_id,
                                    self.pipeline.definition))
 
             # Clear the list where the recorded activation is displayed
@@ -303,7 +302,7 @@ class ActivationInspector(QtGui.QWidget):
             next_activation_row += 1
 
         return 0
-        
+
     def find_previous(self):
         """ Backward search for a pattern in the activation list.
 
@@ -347,7 +346,7 @@ class ActivationInspector(QtGui.QWidget):
 
 if __name__ == "__main__":
     """ Command example:
-    >>> python activation_inspector.py -p funtk.connectivity.conn.Conn 
+    >>> python activation_inspector.py -p funtk.connectivity.conn.Conn
         -r ~/tmp/conn_activation.txt
     """
     # Create a tool we can control easily

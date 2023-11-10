@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from capsul.api import Process
 import os
 from soma.controller import File, Directory, undefined, Literal
@@ -10,12 +8,12 @@ class Normalization_FSL_reinit(Process):
         super(Normalization_FSL_reinit, self).__init__(**kwargs)
         self.name = 'NormalizeFSL'
 
-        self.add_field("anatomy_data", File, read=True, allowed_extensions=['.nii', '.nii.gz'], write=False)
-        self.add_field("anatomical_template", File, read=True, allowed_extensions=['.nii', '.nii.gz'], write=False)
+        self.add_field("anatomy_data", File, read=True, extensions=['.nii', '.nii.gz'], write=False)
+        self.add_field("anatomical_template", File, read=True, extensions=['.nii', '.nii.gz'], dataset='shared', write=False)
         self.add_field("Alignment", Literal['Already Virtually Aligned','Not Aligned but Same Orientation','Incorrectly Oriented'])
         self.Alignment = 'Not Aligned but Same Orientation'
-        self.add_field("transformation_matrix", File, write=True, allowed_extensions=['.mat'], read=True)
-        self.add_field("normalized_anatomy_data", File, write=True, allowed_extensions=['.nii.gz'], read=True)
+        self.add_field("transformation_matrix", File, write=True, extensions=['.mat'], read=True)
+        self.add_field("normalized_anatomy_data", File, write=True, extensions=['.nii.gz', '.nii'], read=True)
         self.add_field("cost_function", Literal['corratio','mutualinfo','normcorr','normmi','leastsq','labeldiff'])
         self.cost_function = 'corratio'
         self.add_field("search_cost_function", Literal['corratio','mutualinfo','normcorr','normmi','leastsq','labeldiff'])

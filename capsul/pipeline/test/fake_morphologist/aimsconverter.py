@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from capsul.api import Process
 import os
 from soma.controller import File, Directory, undefined, Literal
@@ -10,8 +8,8 @@ class AimsConverter(Process):
         super(AimsConverter, self).__init__(**kwargs)
         self.name = 'converter'
 
-        self.add_field("read", File, read=True, allowed_extensions=['.nii.gz', '.svs', '.bmp', '.dcm', '', '.i', '.v', '.fdf', '.mgh', '.mgz', '.gif', '.ima', '.dim', '.ndpi', '.vms', '.vmu', '.jpg', '.scn', '.mnc', '.nii', '.pbm', '.pgm', '.png', '.ppm', '.img', '.hdr', '.svslide', '.tiff', '.tif', '.vimg', '.vinfo', '.vhdr', '.bif', '.xbm', '.xpm', '.czi', '.mnc.gz'], write=False)
-        self.add_field("write", File, write=True, allowed_extensions=['.nii'], read=True, optional=False)
+        self.add_field("read", File, read=True, extensions=['.nii.gz', '.svs', '.bmp', '.dcm', '', '.i', '.v', '.fdf', '.mgh', '.mgz', '.gif', '.ima', '.dim', '.ndpi', '.vms', '.vmu', '.jpg', '.scn', '.mnc', '.nii', '.pbm', '.pgm', '.png', '.ppm', '.img', '.hdr', '.svslide', '.tiff', '.tif', '.vimg', '.vinfo', '.vhdr', '.bif', '.xbm', '.xpm', '.czi', '.mnc.gz'], write=False)
+        self.add_field("write", File, write=True, extensions=['.nii'], read=True, optional=False)
         self.add_field("preferredFormat", Literal[None,'gz compressed NIFTI-1 image','NIFTI-1 image','GIS image','MINC image','gz compressed MINC image','SPM image','ECAT v image','ECAT i image','JPEG image','GIF image','PNG image','BMP image','PBM image','PGM image','PPM image','XBM image','XPM image','TIFF image','TIFF(.tif) image','DICOM image','Directory','FDF image','VIDA image'], optional=True)
         self.add_field("removeSource", bool, optional=True)
         self.removeSource = False

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from capsul.api import Process
 import os
 from soma.controller import File, Directory, undefined, Literal
@@ -10,11 +8,10 @@ class Normalization_Baladin(Process):
         super(Normalization_Baladin, self).__init__(**kwargs)
         self.name = 'NormalizeBaladin'
 
-        self.add_field("anatomy_data", File, read=True, allowed_extensions=['.ima', '.dim'], write=False)
-        self.add_field("anatomical_template", File, read=True, allowed_extensions=['.ima', '.dim'], write=False)
-        self.anatomical_template = '/casa/host/build/share/brainvisa-share-5.1/anatomical_templates/MNI152_T1_1mm.nii.gz'
-        self.add_field("transformation_matrix", File, write=True, allowed_extensions=['.txt'], read=True)
-        self.add_field("normalized_anatomy_data", File, write=True, allowed_extensions=['.ima', '.dim', '.nii', '.nii.gz'], read=True)
+        self.add_field("anatomy_data", File, read=True, extensions=['.ima', '.dim'], write=False)
+        self.add_field("anatomical_template", File, read=True, extensions=['.ima', '.dim'], dataset='shared', write=False)
+        self.add_field("transformation_matrix", File, write=True, extensions=['.txt'], read=True)
+        self.add_field("normalized_anatomy_data", File, write=True, extensions=['.ima', '.dim', '.nii', '.nii.gz'], read=True)
 
     def execute(self, context):
         outputs = []

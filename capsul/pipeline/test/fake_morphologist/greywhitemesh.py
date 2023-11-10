@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from capsul.api import Process
 import os
 from soma.controller import File, Directory, undefined, Literal
@@ -10,8 +8,8 @@ class GreyWhiteMesh(Process):
         super(GreyWhiteMesh, self).__init__(**kwargs)
         self.name = 'GreyWhiteMesh'
 
-        self.add_field("hemi_cortex", File, read=True, allowed_extensions=['.nii.gz', '.svs', '.bmp', '.dcm', '', '.i', '.v', '.fdf', '.mgh', '.mgz', '.gif', '.ima', '.dim', '.ndpi', '.vms', '.vmu', '.jpg', '.scn', '.mnc', '.nii', '.pbm', '.pgm', '.png', '.ppm', '.img', '.hdr', '.svslide', '.tiff', '.tif', '.vimg', '.vinfo', '.vhdr', '.bif', '.xbm', '.xpm', '.czi', '.mnc.gz'], write=False)
-        self.add_field("white_mesh", File, write=True, allowed_extensions=['.gii', '.mesh', '.obj', '.ply', '.tri'], read=True)
+        self.add_field("hemi_cortex", File, read=True, extensions=['.nii.gz', '.svs', '.bmp', '.dcm', '', '.i', '.v', '.fdf', '.mgh', '.mgz', '.gif', '.ima', '.dim', '.ndpi', '.vms', '.vmu', '.jpg', '.scn', '.mnc', '.nii', '.pbm', '.pgm', '.png', '.ppm', '.img', '.hdr', '.svslide', '.tiff', '.tif', '.vimg', '.vinfo', '.vhdr', '.bif', '.xbm', '.xpm', '.czi', '.mnc.gz'], write=False)
+        self.add_field("white_mesh", File, write=True, extensions=['.gii', '.mesh', '.obj', '.ply', '.tri'], read=True)
 
     def execute(self, context):
         outputs = []

@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
 # System import
-from __future__ import absolute_import
 
 import os
 import os.path as osp
@@ -22,16 +20,52 @@ except ImportError:
     nipype = None
 
 
+class DeletingList(list):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # save access to modules for global destructor
+        # because they will not be accessible any longer in globals
+        self._os = os
+        self._shutil = shutil
+
+    def __del__(self):
+        for filename in self:
+            try:
+                if self._os.path.isdir(filename):
+                    self._shutil.rmtree(filename)
+                else:
+                    self._os.unlink(filename)
+            except OSError:
+                pass
+
+
+capsul_app = None
+temp_files = DeletingList()
+
+
+def get_capsul_app():
+    global capsul_app, temp_files
+
+    if capsul_app is None:
+        capsul_app = Capsul(database_path='')
+        tmp = tempfile.mkdtemp(prefix='capsul_test_nipype_')
+        temp_files.append(tmp)
+
+    return capsul_app
+
+
 def init_spm_config():
+    global capsul_app
+
     if nipype is None:
         return False
 
     spm_search_dirs = ['/host/usr/local/spm12-standalone',
-                        '/usr/local/spm12-standalone',
-                        '/i2bm/local/spm12-standalone']
+                       '/usr/local/spm12-standalone',
+                       '/i2bm/local/spm12-standalone']
     mcr_search_dirs = ['/host/usr/local/Matlab/mcr/v97',
-                        '/usr/local/Matlab/mcr/v97',
-                        '/i2bm/local/Matlab/mcr/v97']
+                       '/usr/local/Matlab/mcr/v97',
+                       '/i2bm/local/Matlab/mcr/v97']
 
     spm_dir = None
     for spm_dir in spm_search_dirs:
@@ -51,12 +85,12 @@ def init_spm_config():
     if not osp.isdir(mcr_dir):
         return False
 
-    Capsul.delete_singleton()
-    c = Capsul()
+    if capsul_app is None:
+        capsul_app = get_capsul_app()
 
     config = ApplicationConfiguration('capsul_test_nipype_spm')
     user_conf_dict = {
-        'local': {
+        'builtin': {
             'spm': {
                 'spm12_standalone': {
                     'directory': spm_dir,
@@ -76,10 +110,19 @@ def init_spm_config():
     config.user = user_conf_dict
     config.merge_configs()
 
-    c.config = config.merged_config
-    # print('local config:', c.config.asdict())
+    db_config = capsul_app.config.databases['builtin']
+    capsul_app.config = config.merged_config
+    capsul_app.config.databases['builtin'] = db_config
 
     return True
+
+
+def tearDownModule():
+    global capsul_app
+    global temp_files
+
+    temp_files = DeletingList()
+    capsul_app = None
 
 
 class TestNipypeWrap(unittest.TestCase):
@@ -96,7 +139,10 @@ class TestNipypeWrap(unittest.TestCase):
             # default is nifti
             self.output_extension = '.nii'
 
-    #@unittest.skip('reimplementation expected for capsul v3')
+    def tearDown(self):
+        global capsul_app
+        capsul_app = None
+
     @unittest.skipIf(nipype is None, 'nipype is not installed')
     def test_nipype_automatic_wrap(self):
         """ Method to test if the automatic nipype interfaces wrap work
@@ -107,7 +153,6 @@ class TestNipypeWrap(unittest.TestCase):
         self.assertTrue(isinstance(nipype_process, NipypeProcess))
         self.assertTrue(isinstance(nipype_process._nipype_interface, BET))
 
-    #@unittest.skip('reimplementation expected for capsul v3')
     @unittest.skipIf(nipype is None, 'nipype is not installed')
     def test_nipype_monkey_patching(self):
         """ Method to test the monkey patching used to work in user
@@ -128,14 +173,15 @@ class TestNipypeWrap(unittest.TestCase):
         # other tests will run and define a different Capsul object
         init_spm_config()
 
-        c = Capsul()
+        c = get_capsul_app()
 
         template_dirs = ['spm12_mcr/spm12/spm12',
                          'spm12_mcr/spm12',
                          'spm12']
         for template_dir_s in template_dirs:
             template_dir = osp.join(
-                c.config.local.spm.spm12_standalone.directory, template_dir_s)
+                c.config.builtin.spm.spm12_standalone.directory,
+                template_dir_s)
             if osp.isdir(template_dir):
                 break
         self.assertTrue(
@@ -170,19 +216,3 @@ class TestNipypeWrap(unittest.TestCase):
 
         finally:
             shutil.rmtree(tmp_dir)
-
-
-def tearDownModule():
-    Capsul.delete_singleton()
-
-
-def test():
-    """ Function to execute unitest
-    """
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestNipypeWrap)
-    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
-    return runtime.wasSuccessful()
-
-
-if __name__ == "__main__":
-    test()

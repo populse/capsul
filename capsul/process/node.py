@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''
 Node classes for CAPSUL process and pipeline elements
 
@@ -45,7 +44,7 @@ class Plug(Controller):
         the predecessor plugs of this plug
     """
     enabled : bool = True
-    activated : bool = False
+    activated : bool = True
     output : bool = False
     optional : bool = False
 
@@ -144,7 +143,7 @@ class Node(Controller):
         definition: str
             The definition string defines the Node subclass in order to
             serialize it for execution. In most cases it is the module + class
-            names ("caspul.pipeline.test.test_pipeline.MyPipeline" for
+            names ("capsul.pipeline.test.test_pipeline.MyPipeline" for
             instance).
 
             For a "locally defined" pipeline, we use the "custom_pipeline"
@@ -256,7 +255,7 @@ class Node(Controller):
 
     def set_pipeline(self, pipeline):
         from capsul.api import Pipeline
-        
+
         self._release_pipeline()
 
         if pipeline is None:

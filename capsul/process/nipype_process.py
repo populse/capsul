@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''
 Utilities to link Capsul and NiPype interfaces
 
@@ -16,7 +15,10 @@ import logging
 
 from .process import NipypeProcess
 import soma.controller as sc
-import pydantic
+try:
+    from pydantic import v1 as pydantic
+except ImportError:
+    import pydantic
 from functools import partial
 try:
     import traits.api as traits
@@ -428,6 +430,7 @@ t_f = {
     'Bool': (bool, None),
     'File': (sc.File, None),
     'List': (list, None),
+    'Tuple': (list, None),
     'Dict': (dict, None),
     'Directory': (sc.Directory, None),
     'TraitCompound': (sc.Union, None),

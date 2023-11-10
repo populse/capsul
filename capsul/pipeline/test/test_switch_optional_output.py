@@ -1,27 +1,19 @@
-# -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import absolute_import
-
 import unittest
-from traits.api import File, Float
-from capsul.api import Process
-from capsul.api import Pipeline
+from soma.controller import File
+from capsul.api import Capsul, Process, Pipeline, CapsulWorkflow
 
 
 class DummyProcess(Process):
     """ Dummy Test Process
     """
-    def __init__(self):
-        super(DummyProcess, self).__init__()
+    def __init__(self, definition):
+        super().__init__(definition)
 
         # inputs
-        self.add_trait("input_image", File(optional=False))
+        self.add_field("input_image", File)
 
         # outputs
-        self.add_trait("output_image", File(optional=True, output=True))
-
-    def __call__(self):
-        pass
+        self.add_field("output_image", File, optional=True, output=True)
 
 
 class MyPipeline(Pipeline):
@@ -36,12 +28,17 @@ class MyPipeline(Pipeline):
             "capsul.pipeline.test.test_switch_optional_output.DummyProcess")
         self.add_process("node3",
             "capsul.pipeline.test.test_switch_optional_output.DummyProcess")
-        self.add_switch("switch1", ["one", "two"], ["out"])
+        self.create_switch("switch1", {
+            "one": {
+                "out": "node1.output_image"
+            },
+            "two": {
+                "out": "node3.output_image"
+            }
+        })
 
         # Links
         self.add_link("node2.output_image->node3.input_image")
-        self.add_link("node1.output_image->switch1.one_switch_out")
-        self.add_link("node3.output_image->switch1.two_switch_out")
 
         # exports
         self.export_parameter("node1", "input_image", "input_image1")
@@ -57,33 +54,19 @@ class MyPipeline(Pipeline):
 
 
 class TestPipeline(unittest.TestCase):
+    def test_switch_optional_output_way1(self):
+        pipeline = Capsul.executable(MyPipeline)
+        workflow = CapsulWorkflow(pipeline)
+        self.assertEqual(len(workflow.jobs), 1)
 
-    def setUp(self):
-        self.pipeline = MyPipeline()
-
-    @unittest.skip('reimplementation expected for capsul v3')
-    def test_way1(self):
-        self.pipeline.workflow_ordered_nodes()
-        self.assertEqual(self.pipeline.workflow_repr, "node1")
-
-    @unittest.skip('reimplementation expected for capsul v3')
-    def test_way2(self):
-        self.pipeline.switch1 = 'two'
-        self.pipeline.workflow_ordered_nodes()
-        self.assertEqual(self.pipeline.workflow_repr, "node2->node3")
-
-
-def test():
-    """ Function to execute unitest
-    """
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestPipeline)
-    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
-    return runtime.wasSuccessful()
+    def test_switch_optional_output_way2(self):
+        pipeline = Capsul.executable(MyPipeline)
+        pipeline.switch1 = 'two'
+        workflow = CapsulWorkflow(pipeline)
+        self.assertEqual(len(workflow.jobs), 2)
 
 
 if __name__ == "__main__":
-    print("RETURNCODE: ", test())
-
     if 0:
         import sys
         from PyQt4 import QtGui

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from capsul.api import Process
 import os
 from soma.controller import File, Directory, undefined, Literal
@@ -10,13 +8,13 @@ class SulciLabellingANN(Process):
         super(SulciLabellingANN, self).__init__(**kwargs)
         self.name = 'recognition2000'
 
-        self.add_field("data_graph", File, read=True, allowed_extensions=['.arg', '.data'], write=False)
-        self.add_field("model", File, read=True, allowed_extensions=['.arg', '.data'], write=False)
-        self.model = '/casa/host/build/share/brainvisa-share-5.1/models/models_2008/discriminative_models/3.0/Lfolds_noroots/Lfolds_noroots.arg'
-        self.add_field("output_graph", File, write=True, allowed_extensions=['.arg', '.data'], read=True)
+        self.add_field("data_graph", File, read=True, extensions=['.arg', '.data'], write=False)
+        self.add_field("model", File, read=True, extensions=['.arg', '.data'], dataset='shared', write=False)
+        self.model = '/casa/host/build/share/brainvisa-share-5.2/models/models_2008/discriminative_models/3.0/Rfolds_noroots/Rfolds_noroots.arg'
+        self.add_field("output_graph", File, write=True, extensions=['.arg', '.data'], read=True)
         self.add_field("model_hint", Literal[0,1])
         self.model_hint = 0
-        self.add_field("energy_plot_file", File, write=True, allowed_extensions=['.nrj'], read=True)
+        self.add_field("energy_plot_file", File, write=True, extensions=['.nrj'], read=True)
         self.add_field("rate", float)
         self.rate = 0.98
         self.add_field("stopRate", float)

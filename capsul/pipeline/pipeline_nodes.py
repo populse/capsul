@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''
 Specialized Node subclasses for CAPSUL pipeline elements
 
@@ -109,7 +108,7 @@ class Switch(Node):
             default they are mandatory.
         output_types: sequence of types (optional)
             If given, this sequence should have the same size as outputs. It
-            will specify each switch output parameter type. 
+            will specify each switch output parameter type.
             Input parameters for each input block will also have this
             type.
         """
@@ -187,7 +186,8 @@ class Switch(Node):
         self.on_attribute_change.add(self._switch_changed, 'switch')
 
         # activate the switch first Process
-        self._switch_changed(self._switch_values[0], undefined)
+        if self._switch_values:
+            self._switch_changed(self._switch_values[0], undefined)
 
     def _switch_changed(self, new_selection, old_selection):
         """ Add an event to the switch attribute that enables us to select
@@ -200,6 +200,8 @@ class Switch(Node):
         new_selection: str (mandatory)
             the new option
         """
+        if new_selection is undefined:
+            return
         self.__block_output_propagation = True
         self.pipeline.delay_update_nodes_and_plugs_activation()
         # deactivate the plugs associated with the old option
@@ -236,6 +238,8 @@ class Switch(Node):
             out_field = self.field(output_plug_name)
             in_field = self.field(corresponding_input_plug_name)
             out_field.doc = in_field.metadata('doc', None)
+
+        self.propagate_fields_metadata()
 
         self.pipeline.restore_update_nodes_and_plugs_activation()
         self.__block_output_propagation = False
@@ -371,6 +375,26 @@ class Switch(Node):
                           for p in self.outputs]
         c.optional_params = [self.field(p).optional for p in self.inputs]
         return c
+
+    def propagate_fields_metadata(self):
+        ''' Propagate metadata from connected inputs (that is, outputs of
+        upstream processes) to outputs.
+        This is needed to get correct status (read/write) on output pipeline
+        plugs once the switch state is chosen.
+        '''
+        for output_plug_name in self._outputs:
+            # Get the associated input name
+            input_plug_name = f'{self.switch}_switch_{output_plug_name}'
+
+            if self.pipeline is not None:
+                f = self.field(output_plug_name)
+                for n, p in self.pipeline.get_linked_items(
+                        self, input_plug_name,
+                        direction='links_from'):
+                    # copy input field metadata
+                    for k, v in n.field(p).metadata().items():
+                        setattr(f, k, v)
+                    break
 
     @classmethod
     def build_node(cls, pipeline, name, conf_controller):

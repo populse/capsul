@@ -40,26 +40,26 @@ To run it, the following must be done:
 
 .. Building processes
 .. ##################
-.. 
-.. 
+..
+..
 .. Building pipelines
 .. ##################
-.. 
+..
 .. Python API
 .. ==========
-.. .. 
+.. ..
 .. Graphical display and edition
 .. =============================
-.. 
-.. 
+..
+..
 .. Configuration
 .. #############
-.. 
+..
 .. StudyConfig object, options, modules
 .. ====================================
-.. 
+..
 .. Data paths
-.. 
+..
 .. Execution options: Soma-Workflow
 
 
@@ -118,13 +118,13 @@ To get help about a process, its parameters, and available attributes to control
 
 .. Simple, sequential execution
 .. ============================
-.. 
+..
 .. Distributed execution
 .. =====================
-.. 
+..
 .. Running on-the-fly using StudyConfig
 .. ------------------------------------
-.. 
+..
 .. Generating and saving workflows
 .. -------------------------------
 
@@ -144,7 +144,7 @@ Documenting CAPSUL processes and pipelines with Sphinx
 
 Sphinx documentation can be built automatically for all Capsul processes. See :mod:`capsul.sphinxext`.
 
-Hints may be stored in process classes to point to the documentation. This doc may be accessed through the :class:`~capsul.qt_gui.widgets.pipeline_developper_view.PipelineDevelopperView` pipeline viewer (at least). Several mechanisms can be used to find the HTML documentation of a process or node:
+Hints may be stored in process classes to point to the documentation. This doc may be accessed through the :class:`~capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView` pipeline viewer (at least). Several mechanisms can be used to find the HTML documentation of a process or node:
 
 * a :class:`~capsul.process.process.Process` or :class:`~capsul.pipeline.pipeline_nodes.Node` class (or instance) may contain a ``_doc_path`` attribute. It points to the HTML document corresponding to the process documentation. The path may be absolute (``/path/to/file.html``), or an URL (``https://populse.github.io/capsul/api/pipeline.html#leaveoneoutnode``), or a relative URL. In the latter case the link is relative to to root of the project documentation, found via the process or node modules hierarchy. See below.
 

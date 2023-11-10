@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''
 GUI for pipeline file inputs/outputs checking
 

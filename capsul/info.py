@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from __future__ import absolute_import
 import os.path
 import sys
@@ -42,7 +41,7 @@ CLASSIFIERS = ["Development Status :: 5 - Production/Stable",
 description = "CAPSUL"
 long_description = """
 ========
-CAPSUL 
+CAPSUL
 ========
 
 [capsul] Collaborative Analysis Platform: Simple Unifying, Lean.
@@ -51,11 +50,11 @@ CAPSUL is a powerful tool to define and share processing pipelines.
 
 # Capsul dependencies
 SPHINX_MIN_VERSION = "1.0"
-SOMA_MIN_VERSION = "5.1.0"
+SOMA_MIN_VERSION = "6.0.0"
 
 # dependencies
 SOMA_WORKFLOW_MIN_VERSION = "2.9.0"
-POPULSE_DB_MIN_VERSION = "1.1.1"
+POPULSE_DB_MIN_VERSION = "3.0.0"
 PYDANTIC_MIN_VERSION = "1.9.0"
 NIBABEL_MIN_VERSION = "1.0"
 NETWORKX_MIN_VERSION = "1.0"
@@ -82,27 +81,29 @@ ISRELEASE = ""
 VERSION = __version__
 PROVIDES = ["capsul"]
 REQUIRES = [
-    "pydantic>={0}".format(PYDANTIC_MIN_VERSION),
-    # activate the following line after soma-base > 4.6.1 is released
-    #"soma-base[controller,subprocess]>={0}".format(SOMA_MIN_VERSION),
-    "soma-base>={0}".format(SOMA_MIN_VERSION),
-    "soma-workflow>={0}".format(SOMA_WORKFLOW_MIN_VERSION),
-    "populse-db>={0}".format(POPULSE_DB_MIN_VERSION),
+    "redis <4.5.0",
+    "pydantic >={0}".format(PYDANTIC_MIN_VERSION),
+    "soma-base >={0}".format(SOMA_MIN_VERSION),
+    "soma-workflow >={0}".format(SOMA_WORKFLOW_MIN_VERSION),
+    "populse-db >={0}".format(POPULSE_DB_MIN_VERSION),
     "PyYAML",
 ]
 EXTRA_REQUIRES = {
-    "doc": [
-        "sphinx>=1.0",
-        "numpy>={0}".format(NUMPY_MIN_VERSION),
+    "test": [
+        "pytest",
+        "jupyter"
     ],
-    "database": ["populse_db"],
+    "doc": [
+        "sphinx >=1.0",
+        "numpy >={0}".format(NUMPY_MIN_VERSION),
+    ],
     "nipype": [
-        "traits>={}".format(TRAITS_MIN_VERSION),
-        "numpy>={0}".format(NUMPY_MIN_VERSION),
-        "scipy>={0}".format(SCIPY_MIN_VERSION),
-        "nibabel>={0}".format(NIBABEL_MIN_VERSION),
-        "networkx>={0}".format(NETWORKX_MIN_VERSION),
-        "nipype=={0}".format(NIPYPE_VERSION),
+        "traits >={}".format(TRAITS_MIN_VERSION),
+        "numpy >={0}".format(NUMPY_MIN_VERSION),
+        "scipy >={0}".format(SCIPY_MIN_VERSION),
+        "nibabel >={0}".format(NIBABEL_MIN_VERSION),
+        "networkx >={0}".format(NETWORKX_MIN_VERSION),
+        "nipype =={0}".format(NIPYPE_VERSION),
     ],
 }
 

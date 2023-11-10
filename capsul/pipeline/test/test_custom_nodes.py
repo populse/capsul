@@ -1,18 +1,19 @@
-# -*- coding: utf-8 -*-
-
 import unittest
 from capsul.api import Process, Pipeline, executable
-from capsul.pipeline import pipeline_workflow
 from capsul.pipeline import python_export
+from capsul.execution_context import CapsulWorkflow
 from soma.controller import File
 import os
 import os.path as osp
 import tempfile
 import sys
 import shutil
+import json
 
 
 class TestProcess(Process):
+    __test__ = False
+
     def __init__(self, definition):
         super().__init__(definition)
         self.add_field('in1', File, output=False)
@@ -71,6 +72,7 @@ class TrainProcess2(Process):
             with open(self.in2) as f:
                 of.write(f.read())
 
+
 class CatFileProcess(Process):
     def __init__(self, definition):
         super().__init__(definition)
@@ -82,6 +84,7 @@ class CatFileProcess(Process):
             for fname in self.files:
                 with open(fname) as f:
                     of.write(f.read())
+
 
 class Pipeline1(Pipeline):
     def pipeline_definition(self):
@@ -110,7 +113,7 @@ class Pipeline1(Pipeline):
             'intermediate_output',
             'capsul.pipeline.custom_nodes.strcat_node.StrCatNode',
             parameters={'parameters': ['base', 'sep',
-                                      'subject', 'suffix'],
+                                       'subject', 'suffix'],
                         'concat_plug': 'out_file',
                         'outputs': ['base'],
                         'param_types': ['Directory', 'str',
@@ -497,8 +500,7 @@ class TestCustomNodes(unittest.TestCase):
         pipeline = executable(Pipeline1)
         pipeline.main_input = os.path.join(self.temp_dir, 'file')
         pipeline.output_directory = os.path.join(self.temp_dir, 'out_dir')
-        wf = pipeline_workflow.workflow_from_pipeline(pipeline,
-                                                      create_directories=False)
+        wf = CapsulWorkflow(pipeline, create_output_dirs=False)
         self.assertEqual(len(wf.jobs), 7)
         self.assertEqual(len(wf.dependencies), 6)
         self.assertEqual(
@@ -514,11 +516,10 @@ class TestCustomNodes(unittest.TestCase):
         pipeline2.output_directory = os.path.join(self.temp_dir, 'out_dir')
         pipeline2.test_output = os.path.join(self.temp_dir, 'out_dir',
                                              'outputs')
-        wf = pipeline_workflow.workflow_from_pipeline(pipeline2,
-                                                      create_directories=False)
-        import soma_workflow.client as swc
-        swc.Helper.serialize(os.path.join(self.temp_dir,
-                                          'custom_nodes.workflow'), wf)
+        wf = CapsulWorkflow(pipeline2, create_output_dirs=False)
+        with open(os.path.join(self.temp_dir, 'custom_nodes.workflow'), 'w') \
+                as f:
+            json.dump(wf, f)
         #print('workflow:')
         #print('jobs:', wf.jobs)
         #print('dependencies:', sorted([(x[0].name, x[1].name) for x in wf.dependencies]))
@@ -574,11 +575,10 @@ class TestCustomNodes(unittest.TestCase):
         pipeline.subjects = ['subject%d' % i for i in range(4)]
         pipeline.output_directory = os.path.join(self.temp_dir, 'out_dir')
         pipeline.fold = list(range(pipeline.nfolds))
-        wf = pipeline_workflow.workflow_from_pipeline(pipeline,
-                                                      create_directories=False)
-        import soma_workflow.client as swc
-        swc.Helper.serialize(os.path.join(self.temp_dir,
-                                          'custom_nodes.workflow'), wf)
+        wf = CapsulWorkflow(pipeline, create_output_dirs=False)
+        with open(os.path.join(self.temp_dir, 'custom_nodes.workflow'), 'w') \
+                as f:
+            json.dump(wf, f)
         #print('workflow:')
         #print('jobs:', wf.jobs)
         #print('n deps:', len(wf.dependencies))
@@ -648,17 +648,6 @@ class TestCustomNodes(unittest.TestCase):
         self.add_py_tmpfile(pyfname)
         python_export.save_py_pipeline(pipeline, pyfname)
         pipeline2 = executable(pyfname)
-        self._test_custom_nodes(pipeline)
-
-    @unittest.skip('XML is no longer supported')
-    def test_custom_nodes_xml_io(self):
-        pipeline = executable(Pipeline1)
-        xml_file = tempfile.mkstemp(suffix='_capsul.xml')
-        xmlfname = xml_file[1]
-        os.close(xml_file[0])
-        self.temp_files.append(xmlfname)
-        xml.save_xml_pipeline(pipeline, xmlfname)
-        pipeline2 = executable(xmlfname)
         self._test_custom_nodes(pipeline2)
 
     @unittest.skip('reimplementation expected for capsul v3')
@@ -672,17 +661,6 @@ class TestCustomNodes(unittest.TestCase):
         pipeline2 = executable(pyfname)
         self._test_loo_pipeline(pipeline2)
 
-    @unittest.skip('XML is no longer supported')
-    def test_loo_xml_io(self):
-        pipeline = executable(PipelineLOO)
-        xml_file = tempfile.mkstemp(suffix='_capsul.xml')
-        xmlfname = xml_file[1]
-        os.close(xml_file[0])
-        self.temp_files.append(xmlfname)
-        xml.save_xml_pipeline(pipeline, xmlfname)
-        pipeline2 = executable(xmlfname)
-        self._test_loo_pipeline(pipeline2)
-
     @unittest.skip('reimplementation expected for capsul v3')
     def test_mapreduce(self):
         pipeline = executable(PipelineMapReduce)
@@ -694,10 +672,9 @@ class TestCustomNodes(unittest.TestCase):
             pipeline.nodes['cat'].files,
             [os.path.join(pipeline.output_directory,
                           '%s_test_output' % pipeline.subjects[0]),
-            os.path.join(pipeline.output_directory,
+             os.path.join(pipeline.output_directory,
                           '%s_test_output' % pipeline.subjects[1])])
-        wf = pipeline_workflow.workflow_from_pipeline(pipeline,
-                                                      create_directories=False)
+        wf = CapsulWorkflow(pipeline, create_output_dirs=False)
         self.assertEqual(len(wf.jobs), 19)
         #print(sorted([(d[0].name, d[1].name) for d in wf.dependencies]))
         self.assertEqual(len(wf.dependencies), 28)
@@ -713,27 +690,8 @@ class TestCustomNodes(unittest.TestCase):
         pipeline2 = executable(pyfname)
         self._test_cv_pipeline(pipeline2)
 
-    @unittest.skip('XML is no longer supported')
-    def test_cv_xml_io(self):
-        pipeline = executable(PipelineCV)
-        xml_file = tempfile.mkstemp(suffix='_capsul.xml')
-        xmlfname = xml_file[1]
-        os.close(xml_file[0])
-        self.temp_files.append(xmlfname)
-        xml.save_xml_pipeline(pipeline, xmlfname)
-        pipeline2 = executable(xmlfname)
-        self._test_cv_pipeline(pipeline2)
-
-
-def test():
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestCustomNodes)
-    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
-    return runtime.wasSuccessful()
-
 
 if __name__ == '__main__':
-    print("RETURNCODE: ", test())
-
     if '-v' in sys.argv[1:] or '--verbose' in sys.argv[1:]:
         from soma.qt_gui.qt_backend import QtGui
         from capsul.qt_gui.widgets import PipelineDeveloperView
@@ -760,11 +718,10 @@ if __name__ == '__main__':
         pipeline2.output_directory = '/tmp/out_dir'
         pipeline2.nfolds = 4
         pipeline2.fold = list(range(pipeline2.nfolds))
-        #wf = pipeline_workflow.workflow_from_pipeline(pipeline2,
-                                                      #create_directories=False)
+        #wf = CapsulWorkflow(pipeline2, create_output_dirs=False)
         view2 = PipelineDeveloperView(pipeline2, allow_open_controller=True,
-                                       show_sub_pipelines=True,
-                                       enable_edition=True)
+                                      show_sub_pipelines=True,
+                                      enable_edition=True)
         view2.show()
 
         app.exec_()

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import unittest
 import os
 import json
@@ -78,7 +77,7 @@ class DummyProcess4_1(Process):
         self.add_field("output", str, optional=False, output=True)
 
     def execute(self):
-        self.output = '_'.join((self.input1, self.input2, self.input3, 
+        self.output = '_'.join((self.input1, self.input2, self.input3,
                                 self.input4))
 
 class SwitchPipeline(Pipeline):
@@ -93,20 +92,21 @@ class SwitchPipeline(Pipeline):
             "capsul.pipeline.test.test_switch_subpipeline.DummyProcess")
 
         # Create Switch
-        self.add_switch("switch", ["one", "two"],
-                        ["switch_image", ])
+        self.create_switch("switch", {
+            "one": {
+                "switch_image": "way1.output_image"
+            },
+            "two": {
+                "switch_image": "way2.output_image"
+            }
+        })
 
         # Link input
         self.export_parameter("way1", "input_image")
         self.export_parameter("way1", "other_input")
 
-        # Links
-        self.add_link("way1.output_image->switch.one_switch_switch_image")
-
         self.add_link("input_image->way2.input_image")
         self.add_link("other_input->way2.other_input")
-
-        self.add_link("way2.output_image->switch.two_switch_switch_image")
 
         # Outputs
         self.export_parameter("way1", "other_output",
@@ -216,7 +216,7 @@ class TestSwitchPipeline(unittest.TestCase):
         self.assertEqual(self.pipeline.compare_to_state(state),[])
 
     def test_switch_value(self):
-        state_one = self.load_state('test_switch_subpipeline_one')    
+        state_one = self.load_state('test_switch_subpipeline_one')
         state_two = self.load_state('test_switch_subpipeline_two')
         self.pipeline.which_way = 'two'
         self.assertEqual(self.pipeline.compare_to_state(state_two),[])
@@ -224,18 +224,7 @@ class TestSwitchPipeline(unittest.TestCase):
         self.assertEqual(self.pipeline.compare_to_state(state_one),[])
 
 
-def test():
-    """ Function to execute unitest
-    """
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestSwitchPipeline)
-    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
-    return runtime.wasSuccessful()
-
-
-
 if __name__ == "__main__":
-    print("RETURNCODE: ", test())
-
     if '-v' in sys.argv[1:]:
         def write_state():
             state_file_name = '/tmp/state.json'

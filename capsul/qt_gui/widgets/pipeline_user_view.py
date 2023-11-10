@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''
 A widget to visualize a pipeline as a simple workflow
 

@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
-
 from .configuration import ModuleConfiguration
-from soma.controller import Directory, undefined, File, field
 import os
 import os.path as osp
+import tempfile
 
 
 class NipypeConfiguration(ModuleConfiguration):
@@ -17,7 +15,8 @@ class NipypeConfiguration(ModuleConfiguration):
     @staticmethod
     def init_execution_context(execution_context):
         '''
-        Configure an execution context given a capsul_engine and some requirements.
+        Configure an execution context given a capsul_engine and some
+        requirements.
         '''
         NipypeConfiguration.configure_matlab(execution_context)
         NipypeConfiguration.configure_spm(execution_context)
@@ -63,26 +62,42 @@ class NipypeConfiguration(ModuleConfiguration):
                     if spm_exec:
                         mcr_directory = spm_exec[0]
                 if mcr_directory:
-                    spm.SPMCommand.set_mlab_paths(
-                        matlab_cmd=osp.join(
-                            spm_directory,
-                            'run_spm%s.sh' % spm_version) + ' ' + mcr_directory
-                                + ' script',
-                        use_mcr=True)
+                    # set_mlab_paths() writes a file "pyscript.m" in the
+                    # current directory.
+                    # This is bad but we cannot do anything about it. So let's
+                    # run it from a temp directory.
+                    cwd = os.getcwd()
+                    with tempfile.TemporaryDirectory() as tmpdir:
+                        os.chdir(tmpdir)
+                        spm.SPMCommand.set_mlab_paths(
+                            matlab_cmd=osp.join(
+                                spm_directory,
+                                'run_spm%s.sh' % spm_version) + ' '
+                                    + mcr_directory + ' script',
+                            use_mcr=True)
+                        os.chdir(cwd)
 
             else:
                 # Matlab spm version
 
                 from nipype.interfaces import matlab
 
-                matlab.MatlabCommand.set_default_paths(
-                    [spm_directory])  # + add_to_default_matlab_path)
-                mlab_conf = getattr(context, 'matlab', None)
-                matlab_cmd = ''
-                if mlab_conf and getattr(mlab_conf, 'executable', None):
-                    matlab_cmd = mlab_conf.executable
-                spm.SPMCommand.set_mlab_paths(matlab_cmd=matlab_cmd,
-                                              use_mcr=False)
+                # set_mlab_paths() writes a file "pyscript.m" in the current
+                # directory.
+                # This is bad but we cannot do anything about it. So let's run
+                # it from a temp directory.
+                cwd = os.getcwd()
+                with tempfile.TemporaryDirectory() as tmpdir:
+                    os.chdir(tmpdir)
+                    matlab.MatlabCommand.set_default_paths(
+                        [spm_directory])  # + add_to_default_matlab_path)
+                    mlab_conf = getattr(context, 'matlab', None)
+                    matlab_cmd = ''
+                    if mlab_conf and getattr(mlab_conf, 'executable', None):
+                        matlab_cmd = mlab_conf.executable
+                    spm.SPMCommand.set_mlab_paths(matlab_cmd=matlab_cmd,
+                                                  use_mcr=False)
+                    os.chdir(cwd)
 
     @staticmethod
     def configure_matlab(context):

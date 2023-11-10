@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from capsul.api import Pipeline
 from soma.controller import undefined
 
@@ -13,14 +11,14 @@ class BrainOrientation(Pipeline):
         self.nodes["Normalization"].nodes["NormalizeBaladin"].enabled = False
         self.nodes["Normalization"].nodes["NormalizeBaladin"].nodes["ReorientAnatomy"].enabled = False
         self.add_process("TalairachFromNormalization", "capsul.pipeline.test.fake_morphologist.talairachtransformationfromnormalization.TalairachTransformationFromNormalization")
-        self.add_switch("select_AC_PC_Or_Normalization", ['StandardACPC', 'Normalization'], ['commissure_coordinates', 'reoriented_t1mri', 'talairach_transformation'], make_optional=['talairach_transformation'], switch_value='Normalization', export_switch=False)
+        self.add_switch('select_AC_PC_Or_Normalization', ['StandardACPC', 'Normalization'], ['commissure_coordinates', 'reoriented_t1mri', 'talairach_transformation'], make_optional=['talairach_transformation'], export_switch=False)
 
         # links
         self.export_parameter("select_AC_PC_Or_Normalization", "switch", "select_AC_PC_Or_Normalization", is_optional=True)
         self.export_parameter("Normalization", "t1mri", "T1mri", is_optional=False)
         self.add_link("T1mri->StandardACPC.T1mri")
-        self.export_parameter("StandardACPC", "allow_flip_initial_MRI", is_optional=False)
-        self.add_link("allow_flip_initial_MRI->Normalization.allow_flip_initial_MRI")
+        self.export_parameter("Normalization", "allow_flip_initial_MRI", is_optional=False)
+        self.add_link("allow_flip_initial_MRI->StandardACPC.allow_flip_initial_MRI")
         self.export_parameter("StandardACPC", "Normalised", "StandardACPC_Normalised", is_optional=True)
         self.export_parameter("StandardACPC", "Anterior_Commissure", "StandardACPC_Anterior_Commissure", is_optional=True)
         self.export_parameter("StandardACPC", "Posterior_Commissure", "StandardACPC_Posterior_Commissure", is_optional=True)
@@ -58,8 +56,8 @@ class BrainOrientation(Pipeline):
         self.export_parameter("TalairachFromNormalization", "transform_chain_ACPC_to_Normalized", "TalairachFromNormalization_transform_chain_ACPC_to_Normalized", is_optional=True)
         self.add_link("StandardACPC.commissure_coordinates->select_AC_PC_Or_Normalization.StandardACPC_switch_commissure_coordinates")
         self.add_link("StandardACPC.reoriented_t1mri->select_AC_PC_Or_Normalization.StandardACPC_switch_reoriented_t1mri")
-        self.add_link("Normalization.transformation->TalairachFromNormalization.normalization_transformation")
         self.export_parameter("Normalization", "transformation", "normalization_transformation", weak_link=True, is_optional=True)
+        self.add_link("Normalization.transformation->TalairachFromNormalization.normalization_transformation")
         self.add_link("Normalization.reoriented_t1mri->select_AC_PC_Or_Normalization.Normalization_switch_reoriented_t1mri")
         self.add_link("Normalization.reoriented_t1mri->TalairachFromNormalization.t1mri")
         self.export_parameter("Normalization", "normalized", "Normalization_normalized", weak_link=True, is_optional=True)
@@ -130,6 +128,7 @@ class BrainOrientation(Pipeline):
         self.allow_flip_initial_MRI = False
         self.StandardACPC_Normalised = 'No'
         self.StandardACPC_remove_older_MNI_normalization = True
+        self.Normalization_select_Normalization_pipeline = 'NormalizeSPM'
         self.Normalization_init_translation_origin = 0
         self.Normalization_NormalizeFSL_alignment = 'Not Aligned but Same Orientation'
         self.Normalization_NormalizeFSL_set_transformation_in_source_volume = True
@@ -143,12 +142,11 @@ class BrainOrientation(Pipeline):
         self.Normalization_NormalizeSPM_nbiteration = 16
         self.Normalization_NormalizeSPM_ConvertSPMnormalizationToAIMS_target = 'MNI template'
         self.Normalization_NormalizeSPM_ConvertSPMnormalizationToAIMS_removeSource = False
-        self.Normalization_NormalizeBaladin_template = '/casa/host/build/share/brainvisa-share-5.1/anatomical_templates/MNI152_T1_1mm.nii.gz'
         self.Normalization_NormalizeBaladin_set_transformation_in_source_volume = True
-        self.Normalization_Normalization_AimsMIRegister_anatomical_template = '/casa/host/build/share/brainvisa-share-5.1/anatomical_templates/MNI152_T1_2mm.nii.gz'
-        self.Normalization_Normalization_AimsMIRegister_mni_to_acpc = '/casa/host/build/share/brainvisa-share-5.1/transformation/talairach_TO_spm_template_novoxels.trm'
+        self.Normalization_Normalization_AimsMIRegister_anatomical_template = '/casa/host/build/share/brainvisa-share-5.2/anatomical_templates/MNI152_T1_2mm.nii.gz'
+        self.Normalization_Normalization_AimsMIRegister_mni_to_acpc = '/casa/host/build/share/brainvisa-share-5.2/transformation/talairach_TO_spm_template_novoxels.trm'
         self.Normalization_Normalization_AimsMIRegister_smoothing = 1.0
-        self.TalairachFromNormalization_acpc_referential = '/casa/host/build/share/brainvisa-share-5.1/registration/Talairach-AC_PC-Anatomist.referential'
+        self.TalairachFromNormalization_acpc_referential = '/casa/host/build/share/brainvisa-share-5.2/registration/Talairach-AC_PC-Anatomist.referential'
 
         # nodes positions
         self.node_position = {

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from .configuration import ModuleConfiguration
 from soma.controller import Directory, undefined, File, field
 
@@ -51,10 +49,11 @@ class MatlabConfiguration(ModuleConfiguration):
                 return False
         return True
 
+
 def init_execution_context(execution_context):
     '''
     Configure an execution context given a capsul_engine and some requirements.
     '''
-    config =  execution_context.config['modules']['matlab']
+    config = execution_context.config['modules']['matlab']
     execution_context.matlab = MatlabConfiguration()
     execution_context.matlab.import_dict(config)

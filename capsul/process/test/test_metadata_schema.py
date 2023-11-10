@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import json
 import os
 from pathlib import Path
@@ -10,7 +8,7 @@ import unittest
 from soma.controller import File, field
 
 from capsul.api import Process, executable, Capsul
-from ...dataset import Dataset, MetadataSchema
+from ...dataset import MetadataSchema
 from capsul.dataset import ProcessSchema, ProcessMetadata
 
 
@@ -47,8 +45,8 @@ class CustomMetadataSchema(MetadataSchema):
     subject: str
     analysis: str
     group: str
-     
-    def _path_list(self):
+
+    def _path_list(self, unused_meta=None):
         items = []
         for field in self.fields():  # noqa: F402
             value = getattr(self, field.name, None)
@@ -76,13 +74,14 @@ class TestCompletion(unittest.TestCase):
     def setUp(self):
         global old_home
         global temp_home_dir
-        # Run tests with a temporary HOME directory so that they are isolated from
-        # the user's environment
+        # Run tests with a temporary HOME directory so that they are isolated
+        # from the user's environment
         temp_home_dir = None
         old_home = os.environ.get('HOME')
         try:
             app_name = 'test_metadata_schema'
-            temp_home_dir = Path(tempfile.mkdtemp(prefix=f'capsul_{app_name}_'))
+            temp_home_dir = Path(
+                tempfile.mkdtemp(prefix=f'capsul_{app_name}_'))
             os.environ['HOME'] = str(temp_home_dir)
             config = temp_home_dir / '.config'
             config.mkdir()
@@ -90,9 +89,16 @@ class TestCompletion(unittest.TestCase):
             input.mkdir()
             output = temp_home_dir / 'out'
             output.mkdir()
-            with (config / f'{app_name}.json').open('w') as f:
+            site_file = config / f'{app_name}.json'
+            with site_file.open('w') as f:
                 json.dump({
-                    'local': {
+                    'databases': {
+                        'builtin': {
+                            'path': str(temp_home_dir /
+                                        'capsul_engine_database.rdb'),
+                        },
+                    },
+                    'builtin': {
                         'python_modules': [
                             'capsul.process.test.test_metadata_schema'
                         ],
@@ -108,8 +114,8 @@ class TestCompletion(unittest.TestCase):
                         }
                     }
                 }, f)
-            Capsul.delete_singleton()
-            capsul = Capsul(app_name)
+            self.capsul = Capsul(app_name, site_file=site_file,
+                                 database_path='')
 
         except BaseException:  # clean up in case of interruption
             if old_home is None:
@@ -120,21 +126,20 @@ class TestCompletion(unittest.TestCase):
                 shutil.rmtree(temp_home_dir)
             raise
 
-
     def tearDown(self):
         if old_home is None:
             del os.environ['HOME']
         else:
             os.environ['HOME'] = old_home
+        self.capsul = None
         shutil.rmtree(temp_home_dir)
-        Capsul.delete_singleton()
 
     def test_completion(self):
         global temp_home_dir
-    
+
         process = executable(
             'capsul.process.test.test_metadata_schema.DummyProcess')
-        execution_context = Capsul().engine().execution_context(process)
+        execution_context = self.capsul.engine().execution_context(process)
 
         metadata = ProcessMetadata(process, execution_context)
 
@@ -152,10 +157,10 @@ class TestCompletion(unittest.TestCase):
 
 
     def test_iteration(self):
-        pipeline = Capsul().executable_iteration(
+        pipeline = self.capsul.executable_iteration(
             'capsul.process.test.test_metadata_schema.DummyProcess',
             iterative_plugs=['truc', 'bidule'])
-        execution_context = Capsul().engine().execution_context(pipeline)
+        execution_context = self.capsul.engine().execution_context(pipeline)
 
         metadata = ProcessMetadata(pipeline, execution_context)
 
@@ -178,45 +183,13 @@ class TestCompletion(unittest.TestCase):
                           f'{temp_home_dir}/out/DummyProcess_bidule_muppets_stalter',
                           f'{temp_home_dir}/out/DummyProcess_bidule_muppets_waldorf'])
 
-    @unittest.skip('Not working yet')
-    def test_list_completion(self):
-        process = executable(
-            'capsul.process.test.test_metadata_schema.DummyListProcess')
-        execution_context = Capsul().engine().execution_context(process)
-
-        metadata = ProcessMetadata(process, execution_context)
-
-        metadata.custom = [
-            {
-                'center': 'jojo',
-                'subject': 'barbapapa',
-                'group': 'cartoon',
-            },
-            {
-                'center': 'koko',
-                'subject': 'barbatruc',
-                'group': 'cartoon',
-            }]
-
-        metadata.generate_paths(process)
-        process.resolve_paths(execution_context)
-        self.assertEqual([os.path.normpath(p) for p in process.truc],
-                         [f'{temp_home_dir}/in/DummyListProcess_truc_jojo_barbapapa',
-                          f'{temp_home_dir}/in/DummyListProcess_truc_koko_barbatruc',])
-        self.assertEqual([os.path.normpath(p) for p in process.bidule],
-                         [f'{temp_home_dir}/in/DummyListProcess_bidule_jojo_barbapapa',
-                          f'{temp_home_dir}/in/DummyListProcess_bidule_koko_barbatruc']
-        )
-        self.assertEqual(os.path.normpath(process.result),
-                         f'{temp_home_dir}/out/DummyListProcess_result_cartoon')
-
-
     def test_run_iteraton(self):
 
-        pipeline = Capsul().executable_iteration(
+        pipeline = self.capsul.executable_iteration(
             'capsul.process.test.test_metadata_schema.DummyProcess',
             iterative_plugs=['truc', 'bidule'])
-        execution_context = Capsul().engine().execution_context(pipeline)
+        pipeline.f = 42
+        execution_context = self.capsul.engine().execution_context(pipeline)
         subjects = ['kermit', 'piggy', 'stalter', 'waldorf']
 
         metadata = ProcessMetadata(pipeline, execution_context)
@@ -233,16 +206,16 @@ class TestCompletion(unittest.TestCase):
         # create input files
         for s in subjects:
             with open(Path(execution_context.dataset.input.path) /
-                    f'DummyProcess_truc_muppets_{s}', 'w') as f:
+                      f'DummyProcess_truc_muppets_{s}', 'w') as f:
                 f.write(f'{s}\n')
 
         # run
-        with Capsul().engine() as engine:
+        with self.capsul.engine() as engine:
             engine.run(pipeline, timeout=5)
 
         # check outputs
         out_files = [Path(execution_context.dataset.output.path)
-            / f'DummyProcess_bidule_muppets_{s}' for s in subjects]
+                     / f'DummyProcess_bidule_muppets_{s}' for s in subjects]
         for s, out_file in zip(subjects, out_files):
             self.assertTrue(out_file.is_file())
             with open(out_file) as f:

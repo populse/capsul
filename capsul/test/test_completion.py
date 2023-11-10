@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import unittest
 import sys
 import os
@@ -8,7 +7,7 @@ import tempfile
 import json
 from pathlib import Path
 
-from soma.controller import undefined
+from soma.controller import undefined, File
 
 from capsul.dataset import ProcessMetadata, ProcessSchema
 from capsul.api import (Capsul, executable, Pipeline)
@@ -30,11 +29,11 @@ class HemiPipeline(Pipeline):
 
 
 class TestPipeline(Pipeline):
+    __test__ = False
 
     def pipeline_definition(self):
         self.add_process('nobias', 'capsul.test.test_tiny_morphologist.BiasCorrection')
 
-        self.add_switch('normalization', ['none', 'fakespm12', 'aims'], ['output'])
         self.add_process(
             'fakespm_normalization_12', 'capsul.test.test_tiny_morphologist.FakeSPMNormalization12')
         self.add_process('aims_normalization', 'capsul.test.test_tiny_morphologist.AimsNormalization')
@@ -42,14 +41,20 @@ class TestPipeline(Pipeline):
         self.add_process('left_hemi', 'capsul.test.test_completion.HemiPipeline')
         self.add_process('right_hemi', 'capsul.test.test_completion.HemiPipeline')
         self.nodes['right_hemi'].nodes['gw_segment'].side = 'right'
+        # self.create_switch('normalization', {
+        #     'none': {'output': 'nobias.output'},
+        #     'fakespm12': {'output': 'fakespm_normalization_12.output'},
+        #     'aims':{'output': 'aims_normalization.output'}
+        # })
 
+        self.add_switch('normalization', ['none', 'fakespm12', 'aims'], ['output'])
         self.add_link('nobias.output->normalization.none_switch_output')
+        self.add_link('fakespm_normalization_12.output->normalization.fakespm12_switch_output')
+        self.add_link('aims_normalization.output->normalization.aims_switch_output')
 
         self.add_link('nobias.output->fakespm_normalization_12.input')
-        self.add_link('fakespm_normalization_12.output->normalization.fakespm12_switch_output')
         self.export_parameter('fakespm_normalization_12', 'template')
         self.add_link('nobias.output->aims_normalization.input')
-        self.add_link('aims_normalization.output->normalization.aims_switch_output')
 
         self.export_parameter('nobias', 'output', 'nobias')
 
@@ -65,42 +70,43 @@ class TestPipeline(Pipeline):
         self.export_parameter('right_hemi', 'output', 'right_gw_mesh')
 
 
-class BiasCorrectionBrainVISA(
-        ProcessSchema, schema='brainvisa',
-        process='capsul.test.test_tiny_morphologist.BiasCorrection'):
-    output = {'prefix': 'nobias'}
-
-
-class FakeSPMNormalization12BrainVISA(
-        ProcessSchema, schema='brainvisa',
-        process='capsul.test.test_tiny_morphologist.FakeSPMNormalization12'):
-    output = {'prefix': 'normalized_fakespm12'}
-
-
 class TestPipelineBIDS(ProcessSchema, schema='bids',
                        process=TestPipeline):
+    __test__ = False
+
     _ = {
-        '*': {'process': 'test_pipeline'}
+        '*': {'pipeline': 'test_pipeline'}
     }
+
 
 class TestPipelineBrainVISA(ProcessSchema, schema='brainvisa',
                             process=TestPipeline):
+    __test__ = False
+
     _ = {
         '*': {'process': 'test_pipeline'},
-        'left*.*': {'side': 'L'},
-        'right*.*': {'side': 'R'},
     }
+    metadata_per_parameter = {
+        '*': {'unused': ['subject_only', 'sulci_graph_version',
+                         'sulci_recognition_session']},
+    }
+    _nodes = {
+        'nobias': {
+            'output': {'seg_directory': None},  #, 'prefix': 'nobias'},
+        },
+        'split': {
+            '*_output': {'seg_directory': 'plouf'},
+            'left_output':{'side': 'L', 'suffix': ''},
+            'right_output': {'side': 'R', 'suffix': ''},
+        }
+    }
+    right_gw_mesh = {'extension': 'gii', 'seg_directory': None, 'prefix': ''}
+    left_gw_mesh = {'extension': 'gii', 'seg_directory': None, 'prefix': ''}
+
 
 
 datasets = {
-    'input': 'input',
     'template': 'shared',
-    'nobias': 'output',
-    'normalized': 'output',
-    'left_gw_classif': 'output',
-    'left_gw_mesh': 'output',
-    'right_gw_classif': 'output',
-    'right_gw_mesh': 'output',
 }
 
 
@@ -115,9 +121,9 @@ class TestCompletion(unittest.TestCase):
 
         # Configuration base dictionary
         config = {
-            'local': {
+            'builtin': {
                 'config_modules': [
-                    'capsul.test.test_fake_morphologist',
+                    'capsul.test.test_tiny_morphologist',
                 ],
                 'dataset': {
                     'input': {
@@ -130,13 +136,13 @@ class TestCompletion(unittest.TestCase):
                     },
                     'shared': {
                         'path': str(self.brainvisa),
-                        'metadata_schema': 'shared',
+                        'metadata_schema': 'brainvisa_shared',
                     },
                 }
             }
         }
 
-        self.capsul = Capsul('test_fake_morphologist')
+        self.capsul = Capsul('test_fake_morphologist', database_path='')
         self.capsul.config.import_dict(config)
 
 
@@ -145,11 +151,12 @@ class TestCompletion(unittest.TestCase):
             if os.path.exists(self.tmp_dir):
                 shutil.rmtree(self.tmp_dir)
             del self.tmp_dir
-        Capsul.delete_singleton()
 
     def test_pipeline_completion(self):
 
         pipeline = executable('capsul.test.test_completion.TestPipeline')
+
+        assert(pipeline.field('normalized').type == File)
 
         engine = self.capsul.engine()
         execution_context = engine.execution_context(pipeline)
@@ -184,19 +191,19 @@ class TestCompletion(unittest.TestCase):
 
         expected = {
             'input': '!{dataset.input.path}/rawdata/sub-aleksander/ses-m0/anat/sub-aleksander_ses-m0_T1w.nii',
-            'template': '!{fakespm.directory}/template',
-            'nobias': '!{dataset.output.path}/whaterver/aleksander/test_pipeline/m0/default_analysis/nobias_aleksander.nii',
-            'normalized': '!{dataset.output.path}/whaterver/aleksander/test_pipeline/m0/default_analysis/nobias_aleksander.nii',
-            'left_gw_classif': '!{dataset.output.path}/whaterver/aleksander/test_pipeline/m0/default_analysis/segmentation/Lgrey_white_aleksander.nii',
-            'left_gw_mesh': '!{dataset.output.path}/whaterver/aleksander/test_pipeline/m0/default_analysis/Laleksander.nii',
-            'right_gw_classif': '!{dataset.output.path}/whaterver/aleksander/test_pipeline/m0/default_analysis/segmentation/Rgrey_white_aleksander.nii',
-            'right_gw_mesh': '!{dataset.output.path}/whaterver/aleksander/test_pipeline/m0/default_analysis/Raleksander.nii',
+            # 'template': '!{fakespm.directory}/template',
+            'template': '!{dataset.shared.path}',
+            'nobias': '!{dataset.output.path}/subjects/aleksander/test_pipeline/m0/default_analysis/nobias_aleksander.nii',
+            'normalized': '!{dataset.output.path}/subjects/aleksander/test_pipeline/m0/default_analysis/nobias_aleksander.nii',
+            'left_gw_classif': '!{dataset.output.path}/subjects/aleksander/test_pipeline/m0/default_analysis/segmentation/Lgrey_white_aleksander.nii',
+            'left_gw_mesh': '!{dataset.output.path}/subjects/aleksander/test_pipeline/m0/default_analysis/Laleksander.gii',
+            'right_gw_classif': '!{dataset.output.path}/subjects/aleksander/test_pipeline/m0/default_analysis/segmentation/Rgrey_white_aleksander.nii',
+            'right_gw_mesh': '!{dataset.output.path}/subjects/aleksander/test_pipeline/m0/default_analysis/Raleksander.gii',
         }
 
-        self.maxDiff = 2000
+        self.maxDiff = 3000
         self.assertEqual(params, expected)
 
-    @unittest.skip('not working yet')
     def test_iteration_completion(self):
 
         expected_completion = {
@@ -206,9 +213,9 @@ class TestCompletion(unittest.TestCase):
                 '!{dataset.input.path}/rawdata/sub-aleksander/ses-m0/anat/sub-aleksander_ses-m0_T1w.nii',
             ],
             'right_gw_classif': [
-                '!{dataset.output.path}/whaterver/aleksander/test_pipeline/m0/default_analysis/segmentation/Rgrey_white_aleksander.nii',
-                '!{dataset.output.path}/whaterver/aleksander/test_pipeline/m0/default_analysis/segmentation/Rgrey_white_aleksander.nii',
-                '!{dataset.output.path}/whaterver/aleksander/test_pipeline/m0/default_analysis/segmentation/Rgrey_white_aleksander.nii',
+                '!{dataset.output.path}/subjects/aleksander/test_pipeline/m0/default_analysis/segmentation/Rgrey_white_aleksander.nii',
+                '!{dataset.output.path}/subjects/aleksander/test_pipeline/m0/default_analysis/segmentation/Rgrey_white_aleksander.nii',
+                '!{dataset.output.path}/subjects/aleksander/test_pipeline/m0/default_analysis/segmentation/Rgrey_white_aleksander.nii',
             ],
         }
 
@@ -251,30 +258,19 @@ class TestCompletion(unittest.TestCase):
                              f'Differing value for parameter {name}')
 
 
-def test():
-    """ Function to execute unitest
-    """
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestCompletion)
-    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
-    return runtime.wasSuccessful()
-
-
 if __name__ == "__main__":
-    print("RETURNCODE: ", test())
-    if '-v' in sys.argv[1:]:
-        from soma.qt_gui.qt_backend import Qt
-        from capsul.qt_gui.widgets.pipeline_developer_view \
-            import PipelineDeveloperView
+    from soma.qt_gui.qt_backend import Qt
+    from capsul.qt_gui.widgets.pipeline_developer_view \
+        import PipelineDeveloperView
 
-        app = Qt.QApplication.instance()
-        if app is None:
-            app = Qt.QApplication([])
+    app = Qt.QApplication.instance()
+    if app is None:
+        app = Qt.QApplication([])
 
-        pipeline = executable('capsul.test.test_completion.TestPipeline')
-
-        pv = PipelineDeveloperView(
-            pipeline, allow_open_controller=True, enable_edition=True,
-            show_sub_pipelines=True)
-        pv.auto_dot_node_positions()
-        pv.show()
-        app.exec_()
+    pipeline = executable('capsul.test.test_completion.TestPipeline')
+    pv = PipelineDeveloperView(
+        pipeline, allow_open_controller=True, enable_edition=True,
+        show_sub_pipelines=True)
+    pv.auto_dot_node_positions()
+    pv.show()
+    app.exec_()

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 ''' Pipeline main class module
 
 Classes
@@ -10,20 +9,25 @@ Classes
 from copy import deepcopy
 import sys
 from collections import OrderedDict
-from capsul.pipeline.process_iteration import ProcessIteration
+from typing import Any
 
 from soma.undefined import undefined
+from soma.controller import field
 
-from capsul.process.process import Process, NipypeProcess
+from ..process.process import Process
 from .topological_sort import GraphNode
 from .topological_sort import Graph
+from .process_iteration import ProcessIteration
 from .pipeline_nodes import Switch
 
-from soma.controller import (Controller, 
+from soma.controller import (Controller,
                              Event,
                              Literal)
 from soma.sorted_dictionary import SortedDictionary
-from pydantic import ValidationError
+try:
+    from pydantic.v1 import ValidationError
+except ImportError:
+    from pydantic import ValidationError
 
 
 class Pipeline(Process):
@@ -44,11 +48,14 @@ class Pipeline(Process):
           def pipeline_definition(self):
               self.add_process('proc1', 'my_toolbox.my_process1')
               self.add_process('proc2', 'my_toolbox.my_process2')
-              self.add_switch('main_switch', ['in1', 'in2'], ['out1', 'out2'])
-              self.add_link('proc1.out1->main_switch.in1_switch_out1')
-              self.add_link('proc1.out2->main_switch.in1_switch_out2')
-              self.add_link('proc2.out1->main_switch.in2_switch_out1')
-              self.add_link('proc2.out1->main_switch.in2_switch_out2')
+              switch = self.create_switch('main_switch',
+                options={
+                    'in1': {
+                        'out1': 'proc1.out1',
+                        'out2' :'proc1.out2},
+                    'in2': {
+                        'out1':'proc2.out1',
+                        'out2':'proc2.out2}})
 
     After execution of :py:meth:`pipeline_definition`, the inner nodes
     parameters which are not connected will be automatically exported to the
@@ -169,7 +176,7 @@ class Pipeline(Process):
     _doc_path = 'api/pipeline.html#pipeline'
 
     selection_changed = Event()
-    
+
     # The default value for do_autoexport_nodes_parameters is stored in the
     # pipeline class. This makes it possible to change this default value
     # in derived classes (for instance in DynamicPipeline).
@@ -190,7 +197,7 @@ class Pipeline(Process):
         definition: str
             The definition string defines the Node subclass in order to
             serialize it for execution. In most cases it is the module + class
-            names ("caspul.pipeline.test.test_pipeline.MyPipeline" for
+            names ("capsul.pipeline.test.test_pipeline.MyPipeline" for
             instance).
 
             For a "locally defined" pipeline, we use the "custom_pipeline"
@@ -228,13 +235,13 @@ class Pipeline(Process):
             self.node_position = node_position.copy()
         else:
             self.node_position = {}
-        
+
         node_dimension = getattr(self,'node_dimension', None)
         if node_dimension:
             self.node_dimension = node_dimension.copy()
         else:
             self.node_dimension = {}
-            
+
         self.nodes[''] = self  # FIXME may cause memory leaks
         self.do_not_export = set()
         self._disable_update_nodes_and_plugs_activation = 1
@@ -253,9 +260,10 @@ class Pipeline(Process):
         # Refresh pipeline activation
         self._disable_update_nodes_and_plugs_activation -= 1
         self.update_nodes_and_plugs_activation()
-        super().__setattr__('enable_parameter_links', True)
         for k, v in kwargs.items():
             setattr(self, k, v)
+        super().__setattr__('enable_parameter_links', True)
+        self.dispatch_all_values()
 
     def pipeline_definition(self):
         """ Define pipeline structure, nodes, sub-pipelines, switches, and
@@ -334,18 +342,16 @@ class Pipeline(Process):
             self.add_process('method2', 'module2.Module2', skip_invalid=True)
             self.add_process('method3', 'module3.Module3', skip_invalid=True)
 
-            input_params = [n for n in ['method1', 'method2', 'method3']
-                            if n in self.nodes]
-            self.add_switch('select_method', input_params, 'output')
-
-            self.add_link('method1.input->select_method.method1_switch_output')
-            self.add_link('method2.input->select_method.method2_switch_output')
-            self.add_link('method3.input->select_method.method3_switch_output')
+            options = {}
+            for method in ()'method1', 'method2', 'method3'):
+                if method in self.nodes:
+                    options[method] = output=f'{method}.input'
+            self.create_switch('select_method', options)
 
         A last note about invalid nodes:
 
         When saving a pipeline (through the :class:`graphical editor
-        <capsul.qt_gui.widgets.pipeline_developper_view.PipelineDeveloperView>`
+        <capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView>`
         typically), missing nodes *will not be saved* because they are not
         actually in the pipeline. So be careful to save only pipelines with full
         features.
@@ -463,7 +469,7 @@ class Pipeline(Process):
             self._set_node_enabled, node_name)
         self.nodes_activation.remove_field(node_name)
 
-    def add_iterative_process(self, name, process, 
+    def add_iterative_process(self, name, process,
                               non_iterative_plugs=None, iterative_plugs=None,
                               do_not_export=None, make_optional=None,
                               **kwargs):
@@ -509,89 +515,124 @@ class Pipeline(Process):
 
         context_name = self._make_subprocess_context_name(name)
         iterative_process = ProcessIteration(
-                definition=f'{self.definition}#{name}', 
+                definition=f'{self.definition}#{name}',
                 process=process,
                 iterative_parameters=iterative_plugs,
                 context_name=context_name)
         self.add_process(
             name=name,
             process=iterative_process,
-            do_not_export=do_not_export, 
+            do_not_export=do_not_export,
             make_optional=make_optional,
             **kwargs)
         iterative_process.process.name = f'{name}.{iterative_process.process.name}'
 
-    
-    def add_switch(self, name, inputs, outputs, export_switch=True,
-                   make_optional=(), output_types=None, switch_value=None,
-                   opt_nodes=None):
+
+    def create_switch(self, name, options,
+                      export_switch=True,
+                      make_optional=None,
+                      switch_value=None):
         """ Add a switch node in the pipeline
 
         Parameters
         ----------
         name: str (mandatory)
             name for the switch node (has to be unique)
-        inputs: list of str (mandatory)
-            names for switch inputs.
-            Switch activation will select amongst them.
-            Inputs names will actually be a combination of input and output,
-            in the shape "input_switch_output".
-            This behaviour is needed when there are several outputs, and thus
-            several input groups.
-        outputs: list of str (mandatory)
-            names for outputs.
+        options: dict (mandatory)
+            Each key of this dictionary is a possible value for
+            the switch parameter. The corresponding dictionary value contains
+            all the links between other nodes plugs and switch outputs that are
+            activated when the value is selected. Theses links are given as
+            a dictionary whose items are (output, source) where output is the
+            name of an output parameter and source is a string containing a
+            node name and a parameter name separated by a dot (or just a
+            parameter name if the source is a parameter of the pipeline (i.e.
+            self)).
         export_switch: bool (optional)
             if True, export the switch trigger to the parent pipeline with
             ``name`` as parameter name
         make_optional: sequence (optional)
             list of optional outputs.
             These outputs will be made optional in the switch output. By
-            default they are mandatory.
-        output_types: sequence of types or field (optional)
-            If given, this sequence should have the same size as outputs. It
-            will specify each switch output parameter type. Input parameters 
-            for each input block will also have this type.
+            default the value is taken from the first connected source.
         switch_value: str (optional)
             Initial value of the switch parameter (one of the inputs names).
-            Defaults to 1st input.
-        opt_nodes: bool or list
-            tells that switch values are node names, and some of them may be
-            optional and missing. In such a case, missing nodes are not added
-            as inputs. If a list is passed, then it is a list of node names
-            which length should match the number of inputs, and which order
-            tells nodes related to inputs (in case inputs names are not
-            directly node names).
+            Defaults to fisrt possible switch value.
 
         Examples
         --------
-        >>> pipeline.add_switch('group_switch', ['in1', 'in2'],
-                                ['out1', 'out2'])
+        >>> pipeline.create_switch('group_switch', {
+              'first_choice': {
+                'out1': 'node1.out1',
+                'out2: ''node1.out2',
+              },
+              'second_choice': {
+                'out1': 'node2.out1',
+                'out2': 'node2.out2'
+              },
+            })
 
-        will create a switch with 4 inputs and 2 outputs:
-        inputs: "in1_switch_out1", "in2_switch_out1", "in1_switch_out2",
-        "in2_switch_out2"
-        outputs: "out1", "out2"
+
+        will create a switch allowing to "choose" two woutputs parameters from
+        either node1 or node2. This creates a node with 4 inputs and 2 outputs:
+        inputs: "first_choice_switch_out1", "first_choice_switch_out2",
+        "second_choice_switch_out1" and "second_choice_switch_out2"
+        outputs: "out1" and "out2"
 
         See Also
         --------
         capsul.pipeline.pipeline_nodes.Switch
+        """
+        inputs = []
+        outputs = []
+        output_types = []
+        links = []
+        for option_name, option_content in options.items():
+            inputs.append(option_name)
+            for output_name, input_node_and_plug in option_content.items():
+                l = input_node_and_plug.split('.')
+                if len(l) == 2:
+                    node_name, plug_name = l
+                    node = self.nodes.get(node_name)
+                    if not node:
+                        raise ValueError(f'Unknown node: {node_name}')
+                elif len(l) == 1:
+                    node = self
+                    plug_name = l[0]
+                else:
+                    raise ValueError(f'Invalid node parameter: {input_node_and_plug}')
+                plug = node.plugs.get(plug_name)
+                if plug is None:
+                    raise ValueError(f'Unknown parameter for node {node.name}: {plug_name}')
+                input_field = node.field(plug_name)
+                if output_name not in outputs:
+                    outputs.append(output_name)
+                    output_types.append(input_field.type)
+                links.append(f'{input_node_and_plug}->{name}.{option_name}_switch_{output_name}')
+        switch = self.add_switch(name, inputs, outputs,
+                                 output_types=output_types,
+                                 export_switch=export_switch,
+                                 switch_value=switch_value,
+                                 make_optional=make_optional or ())
+        for link in links:
+            self.add_link(link)
+
+        return switch
+
+
+    def add_switch(self, name, inputs, outputs, export_switch=True,
+                   make_optional=(), output_types=None, switch_value=None):
+        """ Obsolete. May create a non functionnal switch. Use create_switch()
+        instead.
         """
         # Check the unicity of the name we want to insert
         if name in self.nodes:
             raise ValueError("Pipeline cannot have two nodes with the same "
                              "name: {0}".format(name))
 
-        if opt_nodes:
-            if opt_nodes is True:
-                opt_nodes = inputs
-            opt_inputs = list(zip(inputs, opt_nodes))
-            # filter inputs
-            inputs = [i for i, n in opt_inputs if n in self.nodes]
         # Create the node
         node = Switch(self, name, inputs, outputs, make_optional=make_optional,
                       output_types=output_types)
-        if opt_nodes:
-            node._optional_input_nodes = opt_inputs
         self.nodes[name] = node
 
         # Export the switch controller to the pipeline node
@@ -865,6 +906,29 @@ class Pipeline(Process):
             dest_field.doc = source_field.metadata('doc')
             dest_node._switch_changed(getattr(dest_node, "switch", undefined),
                                       getattr(dest_node, "switch", undefined))
+            if dest_field.type is Any and source_field.type is not Any:
+                new_field = field(
+                    name=dest_field.name,
+                    type_=source_field.type,
+                    default=dest_field._dataclass_field.default,
+                    default_factory=dest_field._dataclass_field.default_factory,
+                    metadata=dest_field.metadata().copy(),
+                )
+                Controller.remove_field(dest_node, dest_field.name)
+                Controller.add_field(dest_node, dest_field.name, new_field)
+
+                output_field = dest_node.field(dest_field.name.split('_switch_')[-1])
+                if output_field.type is Any:
+                    new_field = field(
+                        name=output_field.name,
+                        type_=source_field.type,
+                        default=output_field._dataclass_field.default,
+                        default_factory=output_field._dataclass_field.default_factory,
+                        metadata=output_field.metadata().copy(),
+                    )
+                    Controller.remove_field(dest_node, output_field.name)
+                    Controller.add_field(dest_node, output_field.name, new_field)
+
 
         # Refresh pipeline activation
         self.update_nodes_and_plugs_activation()
@@ -957,7 +1021,7 @@ class Pipeline(Process):
 
         if node is None:
             raise ValueError(f'Invalid pipeline node name: {node_name}')
-        
+
         # Make a copy of the field
         source_field = node.field(plug_name)
 
@@ -972,12 +1036,11 @@ class Pipeline(Process):
                 f"Parameter '{plug_name}' of node '{node_name or 'pipeline'}' cannot be exported to pipeline "
                 f"parameter '{pipeline_parameter}'")
 
-
         # Now add the parameter to the pipeline
         if not self.field(pipeline_parameter):
             self.add_field(pipeline_parameter, source_field)
 
-        f= self.field(pipeline_parameter)
+        f = self.field(pipeline_parameter)
 
         # Set user enabled parameter only if specified
         # Important because this property is automatically set during
@@ -1021,7 +1084,7 @@ class Pipeline(Process):
         if node:
             node.enabled = is_enabled
 
-    def all_nodes(self):
+    def all_nodes(self, in_iterations=False):
         """ Iterate over all pipeline nodes including sub-pipeline nodes.
 
         Returns
@@ -1036,6 +1099,10 @@ class Pipeline(Process):
                 for sub_node in node.all_nodes():
                     if sub_node is not node:
                         yield sub_node
+            if (in_iterations and
+               isinstance(node, ProcessIteration) and
+               isinstance(node.process, Pipeline)):
+                yield from node.process.all_nodes(in_iterations=True)
 
     def _check_local_node_activation(self, node):
         """ Try to activate a node and its plugs according to its
@@ -1452,8 +1519,8 @@ class Pipeline(Process):
         # Create a graph and a list of graph node edges
         graph = self.workflow_graph(remove_disabled_steps)
 
-        
-        # Start the topologival sort
+
+        # Start the topological sort
         ordered_list = graph.topological_sort()
 
         def walk_workflow(wokflow, workflow_list):
@@ -1476,7 +1543,7 @@ class Pipeline(Process):
         workflow_list = []
         walk_workflow(ordered_list, workflow_list)
 
-        return workflow_list 
+        return workflow_list
 
     def find_empty_parameters(self):
         """ Find internal File/Directory parameters not exported to the main
@@ -1683,7 +1750,7 @@ class Pipeline(Process):
             (e.g. 'node "my_process" is missing')
         """
         result = []
-        
+
         def compare_dict(ref_dict, other_dict):
             for ref_key, ref_value in ref_dict.items():
                 if ref_key not in other_dict:
@@ -1749,11 +1816,11 @@ class Pipeline(Process):
                                 result.append('in plug "%s:%s": link to %s is'
                                               '%sweak' % (node_name, plug_name,
                                                           link_name, (' not'
-                                                          if weak_link else 
+                                                          if weak_link else
                                                           '')))
                     for link_name, weak_link in links_to_dict.items():
                         result.append('in plug "%s:%s": %slink to %s is new' %
-                            (node_name,plug_name, (' weak' if weak_link else 
+                            (node_name,plug_name, (' weak' if weak_link else
                             ''),link_name))
                     for nn, pn, n, p, weak_link in plug.links_from:
                         link_name = '%s:%s' % (n.full_name, pn)
@@ -1765,7 +1832,7 @@ class Pipeline(Process):
                             other_weak_link = links_from_dict.pop(link_name)
                             if weak_link != other_weak_link:
                                 result.append('in plug "%s:%s": link from %s '
-                                              'is%sweak' % (node_name, 
+                                              'is%sweak' % (node_name,
                                                             plug_name,
                                                             link_name,(' not'
                                                             if weak_link else
@@ -1825,7 +1892,7 @@ class Pipeline(Process):
         streams. They are different from pipelines in that steps are purely
         virtual groups, they do not have parameters.
 
-        Disabling a step acts differently as the pipeline node activation: 
+        Disabling a step acts differently as the pipeline node activation:
         other nodes are not inactivated according to their dependencies.
         Instead, those steps are not run.
 
@@ -1899,7 +1966,7 @@ class Pipeline(Process):
         for group, processes in \
                 self.processes_selection[selection_name].items():
             enabled = (group == selection_group)
-            for node_name in processes: 
+            for node_name in processes:
                 self.nodes[node_name].enabled = enabled
         self.restore_update_nodes_and_plugs_activation()
 
@@ -2164,84 +2231,157 @@ class Pipeline(Process):
                 and name in self.plugs:
             self.dispatch_value(self, name, value)
         return result
-    
+
     def dispatch_value(self, node, name, value):
+        ''' Propagate the value from a pipeline plug through links
+        '''
         for node, plug in self.dispatch_plugs(node, name):
-            setattr(node, plug, value)
-    
+            if getattr(node, plug, None) != value:
+                setattr(node, plug, value)
+
     def dispatch_plugs(self, node, name):
+        ''' generator through linked plugs
+        '''
         enable_parameter_links = self.enable_parameter_links
         self.enable_parameter_links = False
         done = {(node, name)}
-        stack = list(self.get_linked_items(node, 
-            name, 
+        stack = list(self.get_linked_items(
+            node,
+            name,
             in_sub_pipelines=False,
             activated_only=False,
-            process_only=False))
+            process_only=False,
+            direction=('links_from', 'links_to')))
         while stack:
             item = stack.pop()
             if item not in done:
                 node, plug = item
                 yield (node, plug)
                 done.add(item)
-                stack.extend(self.get_linked_items(node, 
-                    plug, 
+                stack.extend(self.get_linked_items(
+                    node,
+                    plug,
                     in_sub_pipelines=False,
                     activated_only=False,
-                    process_only=False))
+                    process_only=False,
+                    direction=('links_from', 'links_to')))
         self.enable_parameter_links = enable_parameter_links
 
+    def dispatch_all_values(self):
+        '''
+        '''
+        for f in self.user_fields():
+            name = f.name
+            value = getattr(self, name)
+            self.dispatch_value(self, name, value)
+
     def get_linked_items(self, node, plug_name=None, in_sub_pipelines=True,
-                         activated_only=True, process_only=True):
-        '''Return the real process(es) node and plug connected to the given plug.
+                         activated_only=True, process_only=True,
+                         direction=None, in_outer_pipelines=False):
+        ''' Return the real process(es) node and plug connected to the given
+        plug.
         Going through switches and inside subpipelines, ignoring nodes that are
         not activated.
         The result is a generator of pairs (node, plug_name).
+
+        direction may be a sting, 'links_from', 'links_to', or a tuple
+        ('links_from', 'links_to').
         '''
         if plug_name is None:
-            stack =[(node, plug) for plug in node.plugs]
+            stack = [(node, plug) for plug in node.plugs]
         else:
-            stack =[(node, plug_name)]
+            stack = [(node, plug_name)]
+        done = set()
+
         while stack:
-            node, plug_name = stack.pop(0)
+            current = stack.pop(0)
+            if current in done:
+                continue
+            done.add(current)
+            node, plug_name = current
             if activated_only and not node.activated:
                 continue
             plug = node.plugs.get(plug_name)
             if plug:
-                if plug.output ^ isinstance(node, Pipeline):
-                    direction = 'links_to'
-                else:
-                    direction = 'links_from'
-                for dest_plug_name, dest_node in (i[1:3] for i in getattr(plug, direction)):
-                    if dest_node is node or (activated_only
-                                             and not dest_node.activated):
-                        continue
-                    if isinstance(dest_node, Pipeline):
-                        if in_sub_pipelines:
-                            if dest_node is not self:
-                                for n, p in dest_node.get_linked_items(dest_node, dest_plug_name):
-                                    if n is not node:
-                                        yield (n, p)
-                        else:
-                            yield (dest_node, dest_plug_name)
-                    elif isinstance(dest_node, Switch):
-                        if dest_plug_name == 'switch':
-                            if not process_only:
-                                yield (dest_node, dest_plug_name)
-                        else:
-                            for input_plug_name, output_plug_name in dest_node.connections():
-                                if plug.output ^ isinstance(node, Pipeline):
-                                    if dest_plug_name == input_plug_name:
-                                        if not process_only:
-                                            yield (dest_node, output_plug_name)
-                                        stack.append((dest_node, output_plug_name))
-                                else:
-                                    if dest_plug_name == output_plug_name:
-                                        if not process_only:
-                                            yield (dest_node, input_plug_name)
-                                        stack.append((dest_node, input_plug_name))
+                if direction is not None:
+                    if isinstance(direction, (tuple, list)):
+                        directions = direction
                     else:
-                        yield (dest_node, dest_plug_name)
+                        directions = (direction,)
+                else:
+                    if isinstance(node, Pipeline):
+                        if in_outer_pipelines:
+                            directions = ('links_from', 'links_to')
+                        elif plug.output:
+                            directions = ('links_from',)
+                        else:
+                            directions = ('links_to',)
+                    elif plug.output:
+                        directions = ('links_to',)
+                    else:
+                        directions = ('links_from',)
+                for current_direction in directions:
+                    for dest_plug_name, dest_node in \
+                            (i[1:3] for i in getattr(plug, current_direction)):
+                        if dest_node is node \
+                                or (activated_only
+                                    and not dest_node.activated):
+                            continue
+                        if isinstance(dest_node, Pipeline):
+                            if ((in_sub_pipelines and dest_node is not self)
+                                    or in_outer_pipelines):
+                                for n, p in self.get_linked_items(
+                                        dest_node,
+                                        dest_plug_name,
+                                        activated_only=activated_only,
+                                        process_only=process_only,
+                                        in_sub_pipelines=in_sub_pipelines,
+                                        direction=current_direction,
+                                        in_outer_pipelines=in_outer_pipelines):
+                                    if n is not node:
+                                        if (n, p) not in done:
+                                            yield (n, p)
+                            if (dest_node, dest_plug_name) not in done:
+                                yield (dest_node, dest_plug_name)
+                        elif isinstance(dest_node, Switch):
+                            if dest_plug_name == 'switch':
+                                if not process_only:
+                                    if (dest_node, dest_plug_name) \
+                                            not in done:
+                                        yield (dest_node, dest_plug_name)
+                            else:
+                                if direction is None \
+                                        or (isinstance(direction,
+                                                       (tuple, list))
+                                            and len(direction) == 2):
+                                    # if bidirectional search only
+                                    stack.append((dest_node, dest_plug_name))
+                                for input_plug_name, output_plug_name \
+                                        in dest_node.connections():
+                                    if current_direction == 'links_to':
+                                        if dest_plug_name == input_plug_name:
+                                            if not process_only \
+                                                    and (dest_node,
+                                                         output_plug_name) \
+                                                        not in done:
+                                                yield (
+                                                    dest_node,
+                                                    output_plug_name)
+                                            stack.append((dest_node,
+                                                          output_plug_name))
+                                    else:
+                                        if dest_plug_name == output_plug_name:
+                                            if not process_only \
+                                                    and (dest_node,
+                                                         input_plug_name) \
+                                                        not in done:
+                                                yield (
+                                                    dest_node, input_plug_name)
+                                            stack.append((dest_node,
+                                                          input_plug_name))
+                        else:
+                            if (dest_node, dest_plug_name) not in done:
+                                yield (dest_node, dest_plug_name)
 
     def json(self, include_parameters=True):
         result = super().json(include_parameters=include_parameters)
@@ -2272,7 +2412,7 @@ class Pipeline(Process):
 class CustomPipeline(Pipeline):
     def __init__(self, definition='custom_pipeline', json_executable = {}):
         object.__setattr__(self, 'json_executable' , json_executable)
-        super().__init__(definition=definition, 
+        super().__init__(definition=definition,
                          autoexport_nodes_parameters=json_executable.get('export_parameters', True))
         for node_full_name, activations in self.json_executable.get('activations', {}).items():
             node = self
@@ -2280,7 +2420,7 @@ class CustomPipeline(Pipeline):
                 node = node.nodes[i]
             node.enabled = activations['enabled']
             node.activated = activations['activated']
-    
+
     def pipeline_definition(self):
         '''
         define the pipeline contents
@@ -2291,7 +2431,7 @@ class CustomPipeline(Pipeline):
         for name, ejson in self.json_executable.get('executables', {}).items():
             e = executable(ejson)
             self.add_process(name, e)
-        
+
         for sel_key, sel_group_def in self.json_executable.get(
                 'processes_selections', {}).items():
             sel_groups = sel_group_def.get("groups")
@@ -2300,7 +2440,7 @@ class CustomPipeline(Pipeline):
 
         all_links = [(i, False) for i in self.json_executable.get('links', [])]
         all_links += [(i, True) for i in self.json_executable.get('weak_links', [])]
-        
+
         for link_def, weak_link in all_links:
             if isinstance(link_def, (list, tuple)):
                 source, dest = link_def
@@ -2325,7 +2465,7 @@ class CustomPipeline(Pipeline):
                 self.export_parameter(node, plug, source,
                                          weak_link=weak_link)
                 exported_parameters.add(source)
-    
+
     def json(self, include_parameters=True):
         result = super().json(include_parameters=include_parameters)
         if self.definition == 'custom_pipeline':
@@ -2377,7 +2517,7 @@ class CustomPipeline(Pipeline):
                 raise NotImplementedError(f'Serialization of {type(node)} not implemented')
             if not node.enabled:
                 node_json['enabled'] = False
-        
+
         for node in self.all_nodes():
             if node is not self:
                 definition.setdefault('activations', {})[node.full_name] = {

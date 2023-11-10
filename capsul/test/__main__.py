@@ -1,48 +1,71 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import absolute_import
-
-from importlib import import_module
+import argparse
 import os
-import unittest
+from pathlib import Path
+import subprocess
+import sys
 
+parser = argparse.ArgumentParser(
+    prog='Test capsul module',
+    description='Run Capsul test suite')
+parser.add_argument('--html',
+                    action='store',
+                    default=None,
+                    metavar='DIRECTORY',
+                    help='Create tests and coverage HTML reports in given '
+                    'directory. Entrypoints are test.html and index.html')
+parser.add_argument('-v', '--verbose',
+                    action='count',
+                    default=0,
+                    help='Increase verbosity')
+parser.add_argument('-s',
+                    action='store_true',
+                    default=None,
+                    help='Do not capture stdout nor stderr')
+parser.add_argument('-x', '--exitfirst',
+                    action='store_true',
+                    help='Exit instantly on first error or failed test')
+parser.add_argument('-k',
+                    metavar='EXPRESSION',
+                    dest='keyword',
+                    default=None,
+                    action='store',
+                    help='Only run tests which match the given substring '
+                         'expression. An expression is a Python evaluatable '
+                         'expression where all names are substring-matched '
+                         'against test names and their parent classes. '
+                         "Example: -k 'test_method or test_other' matches "
+                         'all test functions and classes whose name contains '
+                         "'test_method' or 'test_other', while -k 'not "
+                         "test_method'vmatches those that don't contain "
+                         "'test_method' in their names. -k 'not test_method "
+                         "and not test_other' will eliminate the matches. "
+                         'Additionally keywords are matched to classes and '
+                        'functions containing extra names in their '
+                        "'extra_keyword_matches' set, as well as functions "
+                        'which have names assigned directly to them. The '
+                        'matching is case-insensitive.')
 
-def load_tests(loader, standard_tests, pattern):
-    """
-    Prepares the tests parameters
-
-    :param loader:
-
-    :param standard_tests:
-
-    :param pattern:
-
-    :return: A test suite
-    """
-    suite = unittest.TestSuite()
-    
-    base = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
-    for root, dirs, files in os.walk(base):
-        if '__init__.py' not in files:
-            continue
-        for f in files:
-            if f.startswith('test_') and f.endswith('.py'):
-                module_name = 'capsul.%s' % (root[len(base)+1:].replace(os.path.sep, '.') + '.' + f[:-3])   
-                try:
-                    module = import_module(module_name)
-                    import_error = None
-                except ImportError as e:
-                    module = None
-                    import_error = str(e)
-                if import_error:
-                    print('ERROR [%s]: %s' % (module_name, import_error))
-                else:
-                    for name in dir(module):
-                        item = getattr(module, name)
-                        if isinstance(item, type) and issubclass(item, unittest.TestCase):
-                            suite.addTests(loader.loadTestsFromTestCase(item))
-    return suite
-
-
-if __name__ == '__main__':
-    unittest.main()
+args = parser.parse_args()
+pytest_command = [sys.executable, '-m', 'pytest']
+if args.verbose:
+    pytest_command.append('-' + 'v' * args.verbose)
+if args.exitfirst:
+    pytest_command.append('-x')
+if args.keyword:
+    pytest_command += ['-k', args.keyword]
+if args.s:
+    pytest_command += ['-s']
+capsul_src = Path(__file__).parent.parent
+if args.html:
+    Path(args.html).mkdir(exist_ok=True)
+    pytest_command += ['--cov=capsul',
+                       '--html={}/tests.html'.format(args.html)]
+    coverage_command = [sys.executable, '-m', 'coverage', 'html', '-d', args.html]
+    env = os.environ.copy()
+    print(' '.join("'{}'".format(i) for i in pytest_command))
+    subprocess.check_call(pytest_command, env=env, cwd=capsul_src)
+    print(' '.join("'{}'".format(i) for i in coverage_command))
+    subprocess.check_call(coverage_command)
+else:
+    print(' '.join("'{}'".format(i) for i in pytest_command))
+    subprocess.check_call(pytest_command, cwd=capsul_src)

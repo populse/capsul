@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from capsul.api import Process
 import os
 from soma.controller import File, Directory, undefined, Literal
@@ -10,13 +8,13 @@ class sulcigraphmorphometrybysubject(Process):
         super(sulcigraphmorphometrybysubject, self).__init__(**kwargs)
         self.name = 'SulcalMorphometry'
 
-        self.add_field("left_sulci_graph", File, read=True, allowed_extensions=['.arg', '.data'], write=False)
-        self.add_field("right_sulci_graph", File, read=True, allowed_extensions=['.arg', '.data'], write=False)
-        self.add_field("sulci_file", File, read=True, allowed_extensions=['.json'], write=False)
-        self.sulci_file = '/casa/host/build/share/brainvisa-share-5.1/nomenclature/translation/sulci_default_list.json'
+        self.add_field("left_sulci_graph", File, read=True, extensions=['.arg', '.data'], write=False)
+        self.add_field("right_sulci_graph", File, read=True, extensions=['.arg', '.data'], write=False)
+        self.add_field("sulci_file", File, read=True, extensions=['.json'], dataset='shared', write=False)
+        self.sulci_file = '/casa/host/build/share/brainvisa-share-5.2/nomenclature/translation/sulci_default_list.json'
         self.add_field("use_attribute", Literal['label','name'])
         self.use_attribute = 'label'
-        self.add_field("sulcal_morpho_measures", File, write=True, allowed_extensions=['.csv'], read=True)
+        self.add_field("sulcal_morpho_measures", File, write=True, extensions=['.csv'], read=True)
 
     def execute(self, context):
         outputs = []

@@ -26,40 +26,66 @@ There is also a copy of the Morphologist "FOM" (file organization model), ``morp
 
 To use it:
 
-1. Set the FOM path in Capsul config, using either:
+1. Import the BrainVisa metadata module and initialize it::
+
+        from capsul.api import Capsul
+        from capsul.schemas.brainvisa import (declare_morpho_schemas,
+                                            morphologist_datasets)
+        from capsul.dataset import ProcessMetadata
+
+        morpho_module = 'capsul.pipeline.test.fake_morphologist'
+        # could be the real one instead:
+        # morpho_module = 'morphologist.capsul'
+
+        declare_morpho_schemas(morpho_module)
+
+
+2. Setup Capsul configuration::
+
+        capsul = Capsul()
+        config = capsul.config
+
+        config.import_dict({
+            'builtin': {
+                'config_modules': [
+                    'spm',
+                    'axon',
+                ],
+                'dataset': {
+                    'input': {
+                        'path': '/tmp/morpho-bids',
+                        'metadata_schema': 'bids',
+                    },
+                    'output': {
+                        'path': '/tmp/morpho-bv',
+                        'metadata_schema': 'brainvisa',
+                    },
+                    'shared': {
+                        'path': get_shared_path(),
+                        'metadata_schema': 'brainvisa_shared',
+                    },
+                },
+                'spm': {
+                    'spm12_standalone': {
+                        'directory': '/usr/local/spm12-standalone',
+                        'standalone': True,
+                        'version': '12',
+                    }
+                },
+                'matlab': {
+                    'matlab_mcr': {
+                        'mcr_directory': '/usr/local/spm12-standalone/mcr/v97',
+                    }
+                },
+            }
+        })
+
+
+3. Instantiate the pipeline, either:
 
     - in python::
 
-        from capsul.api import capsul_engine
-        import sys
-        import os
-
-        ce = capsul_engine()
-        ce.load_module('fom')
-        with ce.settings as s:
-            conf = s.config('fom', 'global')
-            conf.fom_path = [
-                os.path.join(
-                    os.path.dirname(sys.modules['capsul'].__file__),
-                    'pipeline', 'test', 'fake_morphologist', 'foms')
-            ] + conf.fom_path
-
-    - the configuration settings GUI, for instance in Populse-MIA:
-
-        - open the MIA preferences
-        - go to the ``Pipeline`` tab
-        - click on ``Edit Capsul config``
-        - open the ``fom`` tab
-        - in ``fom_path``, add an item and enter the path of Capsul sources,
-          plus ``capsul/pipeline/test/fake_morphologist/foms``
-        - click ``OK`` to validate
-        - click ``OK`` in the Mia preferences to validate
-
-2. Instantiate the pipeline, either:
-
-    - in python::
-
-        pipeline = ce.get_process_instance(
+        pipeline = capsul.executable(
             'capsul.pipeline.test.fake_morphologist.morphologist')
 
     - in MIA:
@@ -70,10 +96,23 @@ To use it:
         - select in the ``Pipeline`` menu in the tab, ``load pipeline``
         - in the pipeline definition / file edit line, type ``capsul.pipeline.test.fake_morphologist.morphologist``
 
-3. Completion should be available in the pipeline, and it should be able to run.
-  Running it is fast (every process just writes a few text lines in output files, just to check that it has run and has been able to create output files).
+4. Completion::
 
-  Notes about completion in Morphologist / Fake Morphologist:
+        execution_context = capsul.engine().execution_context(pipeline)
+        # (optional:) get metadata from an input t1mri path in the input BIDS
+        # database
+        input = '/tmp/morpho-bids/rawdata/sub-aleksander/ses-m0/anat/' \
+            'sub-aleksander_ses-m0_T1w.nii.gz'
+        input_metadata = execution_context.dataset['input'].schema.metadata(input)
 
-  - The completion uses the FOM system. It uses attributes which are available in the ``Attributes`` part of parameters controllers GUIs. 2 main attributes are required: ``center`` and ``subject``.
-  - If the importation step needs to be used (if the main input is not organised in a brainvisa / morphologist database), then the main ``t1mri`` input has to be filled manually. In controllers GUIs (in MIA for instance), you need to check the "show completion" box on the right at the beginning of non-attribute parameters, then to enter a value for the ``t1mri`` parameter (it's OK to use the MIA ``Filter`` button and select it in the Mia database).
+        metadata = ProcessMetadata(pipeline, execution_context,
+                                datasets=morphologist_datasets)
+        # set input metadata in the pipeline metadata set
+        metadata.bids = input_metadata
+        # run completion
+        metadata.generate_paths(pipeline)
+
+
+    Notes about completion in Morphologist / Fake Morphologist:
+
+    - If the main input is not organised in a BIDS / brainvisa / morphologist database, then the main ``t1mri`` input has to be filled manually. In controllers GUIs (in MIA for instance), you need to check the "show completion" box on the right at the beginning of non-attribute parameters, then to enter a value for the ``t1mri`` parameter (it's OK to use the MIA ``Filter`` button and select it in the Mia database).

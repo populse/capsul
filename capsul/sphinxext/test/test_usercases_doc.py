@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from __future__ import with_statement
 
 # System import
@@ -61,15 +60,3 @@ class TestUseCases(unittest.TestCase):
         self.assertTrue(
             "capsul.sphinxext.test.test_usercases_doc.pilot_dummy_test" in
             rstdoc)
-
-
-def test():
-    """ Function to execute unitest
-    """
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestUseCases)
-    runtime = unittest.TextTestRunner(verbosity=2).run(suite)
-    return runtime.wasSuccessful()
-
-
-if __name__ == "__main__":
-    test()

@@ -1,5 +1,4 @@
 #! /usr/bin/env python2
-# -*- coding: utf-8 -*-
 ##########################################################################
 # CAPSUL - Copyright (C) CEA, 2013
 # Distributed under the terms of the CeCILL-B license, as published by
@@ -11,7 +10,7 @@
 # System import
 import sys
 
-# Soma import 
+# Soma import
 from soma.qt_gui import qt_backend
 # TODO: add option to set backend before importing QtCore
 #qt_backend.set_qt_backend("PyQt4")
@@ -30,6 +29,6 @@ except Exception:
 
 # Start the qt interaction loop
 else:
-    QtCore.QObject.connect(app, QtCore.SIGNAL('lastWindowClosed()'), 
+    QtCore.QObject.connect(app, QtCore.SIGNAL('lastWindowClosed()'),
                            app, QtCore.SLOT('quit()'))
     sys.exit(app.exec_())

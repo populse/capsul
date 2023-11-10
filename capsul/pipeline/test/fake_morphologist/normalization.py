@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from capsul.api import Pipeline
 from soma.controller import undefined
 
@@ -14,17 +12,17 @@ class Normalization(Pipeline):
         self.nodes["NormalizeBaladin"].enabled = False
         self.nodes["NormalizeBaladin"].nodes["ReorientAnatomy"].enabled = False
         self.add_process("Normalization_AimsMIRegister", "capsul.pipeline.test.fake_morphologist.normalization_aimsmiregister.normalization_aimsmiregister")
-        self.add_switch("select_Normalization_pipeline", ['NormalizeFSL', 'NormalizeSPM', 'NormalizeBaladin', 'Normalization_AimsMIRegister'], ['transformation', 'normalized', 'reoriented_t1mri'], export_switch=False)
+        self.add_switch('select_Normalization_pipeline', ['NormalizeFSL', 'NormalizeSPM', 'NormalizeBaladin', 'Normalization_AimsMIRegister'], ['transformation', 'normalized', 'reoriented_t1mri'], export_switch=False)
 
         # links
         self.export_parameter("select_Normalization_pipeline", "switch", "select_Normalization_pipeline", is_optional=True)
-        self.export_parameter("Normalization_AimsMIRegister", "anatomy_data", "t1mri", is_optional=False)
-        self.add_link("t1mri->NormalizeFSL.t1mri")
+        self.export_parameter("select_Normalization_pipeline", "Normalization_AimsMIRegister_switch_reoriented_t1mri", "t1mri", is_optional=False)
         self.add_link("t1mri->NormalizeSPM.t1mri")
+        self.add_link("t1mri->NormalizeFSL.t1mri")
         self.add_link("t1mri->NormalizeBaladin.t1mri")
-        self.add_link("t1mri->select_Normalization_pipeline.Normalization_AimsMIRegister_switch_reoriented_t1mri")
-        self.export_parameter("NormalizeBaladin", "allow_flip_initial_MRI", is_optional=False)
-        self.add_link("allow_flip_initial_MRI->NormalizeSPM.allow_flip_initial_MRI")
+        self.add_link("t1mri->Normalization_AimsMIRegister.anatomy_data")
+        self.export_parameter("NormalizeSPM", "allow_flip_initial_MRI", is_optional=False)
+        self.add_link("allow_flip_initial_MRI->NormalizeBaladin.allow_flip_initial_MRI")
         self.add_link("allow_flip_initial_MRI->NormalizeFSL.allow_flip_initial_MRI")
         self.export_parameter("NormalizeFSL", "ReorientAnatomy_commissures_coordinates", "commissures_coordinates", is_optional=True)
         self.add_link("commissures_coordinates->NormalizeBaladin.ReorientAnatomy_commissures_coordinates")
@@ -56,8 +54,7 @@ class Normalization(Pipeline):
         self.add_link("NormalizeFSL.reoriented_t1mri->select_Normalization_pipeline.NormalizeFSL_switch_reoriented_t1mri")
         self.export_parameter("NormalizeFSL", "NormalizeFSL_transformation_matrix", "NormalizeFSL_NormalizeFSL_transformation_matrix", weak_link=True, is_optional=True)
         self.add_link("NormalizeFSL.NormalizeFSL_normalized_anatomy_data->select_Normalization_pipeline.NormalizeFSL_switch_normalized")
-        self.export_parameter("NormalizeSPM", "ReorientAnatomy_output_commissures_coordinates", "output_commissures_coordinates", is_optional=True)
-        self.add_link("NormalizeFSL.ReorientAnatomy_output_commissures_coordinates->output_commissures_coordinates")
+        self.export_parameter("NormalizeFSL", "ReorientAnatomy_output_commissures_coordinates", "output_commissures_coordinates", is_optional=True)
         self.add_link("NormalizeSPM.transformation->select_Normalization_pipeline.NormalizeSPM_switch_transformation")
         self.export_parameter("NormalizeSPM", "spm_transformation", "NormalizeSPM_spm_transformation", weak_link=True, is_optional=True)
         self.add_link("NormalizeSPM.normalized_t1mri->select_Normalization_pipeline.NormalizeSPM_switch_normalized")
@@ -115,6 +112,7 @@ class Normalization(Pipeline):
             "Normalization_AimsMIRegister_smoothing"))
 
         # default and initial values
+        self.select_Normalization_pipeline = 'NormalizeSPM'
         self.allow_flip_initial_MRI = False
         self.init_translation_origin = 0
         self.NormalizeFSL_alignment = 'Not Aligned but Same Orientation'
@@ -129,10 +127,9 @@ class Normalization(Pipeline):
         self.NormalizeSPM_nbiteration = 16
         self.NormalizeSPM_ConvertSPMnormalizationToAIMS_target = 'MNI template'
         self.NormalizeSPM_ConvertSPMnormalizationToAIMS_removeSource = False
-        self.NormalizeBaladin_template = '/casa/host/build/share/brainvisa-share-5.1/anatomical_templates/MNI152_T1_1mm.nii.gz'
         self.NormalizeBaladin_set_transformation_in_source_volume = True
-        self.Normalization_AimsMIRegister_anatomical_template = '/casa/host/build/share/brainvisa-share-5.1/anatomical_templates/MNI152_T1_2mm.nii.gz'
-        self.Normalization_AimsMIRegister_mni_to_acpc = '/casa/host/build/share/brainvisa-share-5.1/transformation/talairach_TO_spm_template_novoxels.trm'
+        self.Normalization_AimsMIRegister_anatomical_template = '/casa/host/build/share/brainvisa-share-5.2/anatomical_templates/MNI152_T1_2mm.nii.gz'
+        self.Normalization_AimsMIRegister_mni_to_acpc = '/casa/host/build/share/brainvisa-share-5.2/transformation/talairach_TO_spm_template_novoxels.trm'
         self.Normalization_AimsMIRegister_smoothing = 1.0
 
         # nodes positions
