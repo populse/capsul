@@ -38,6 +38,9 @@ run_parser.add_argument(
     help='use a non-persistent config: database and server will be disposed at'
     ' the end of the execution, accessing logs will not be possible '
     'afterwards')
+run_parser.add_argument(
+    '--print-report', action='store_true',
+    help='print the execution report before exiting')
 run_parser.add_argument('executable')
 
 help_parser = subparsers.add_parser('help', help='Get help about a command or a process')
@@ -115,16 +118,20 @@ elif options.subcommand == 'run':
             ce.wait(execution_id)
             ce.raise_for_status(execution_id)
             report = ce.execution_report(execution_id)
+            if options.print_report:
+                ce.print_execution_report(report, file=sys.stdout)
+
         finally:
             ce.dispose(execution_id)
     now = datetime.now()
-    for job in sorted(report['jobs'], key=lambda j: (j.get('start_time') if j.get('start_time') else now)):
-        stdout = job.get('stdout')
-        stderr = job.get('stderr')
-        if stdout:
-            print(stdout, end='')
-        if stderr:
-            print(stderr, end='')
+    if not options.print_report:
+        for job in sorted(report['jobs'], key=lambda j: (j.get('start_time') if j.get('start_time') else now)):
+            stdout = job.get('stdout')
+            stderr = job.get('stderr')
+            if stdout:
+                print(stdout, end='')
+            if stderr:
+                print(stderr, end='')
 
 
 elif options.subcommand == 'help':
