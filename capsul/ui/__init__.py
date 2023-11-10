@@ -6,7 +6,7 @@ from soma.web import WebBackend, json_exception, pyqtSlot
 class CapsulWebBackend(WebBackend):
     def __init__(self, capsul):
         super().__init__()
-        s = os.path.split(os.path.dirname(__file__)) + ('static',)
+        s = os.path.split(os.path.dirname(__file__)) + ("static",)
         self.static_path.append("/".join(s))
         self._capsul = capsul
 
@@ -14,7 +14,6 @@ class CapsulWebBackend(WebBackend):
     @json_exception
     def engines(self):
         return [engine.engine_status() for engine in self._capsul.engines()]
-
 
     @pyqtSlot(str, result=QVariant)
     @json_exception
@@ -25,12 +24,10 @@ class CapsulWebBackend(WebBackend):
             return {}
         return engine.engine_status()
 
-
     @pyqtSlot(str, result=QVariant)
     @json_exception
     def executions_summary(self, engine_label):
         return self._capsul.engine(engine_label).executions_summary()
-
 
     @pyqtSlot(str, str, result=QVariant)
     @json_exception

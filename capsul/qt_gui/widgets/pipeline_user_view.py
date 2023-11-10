@@ -1,11 +1,11 @@
-'''
+"""
 A widget to visualize a pipeline as a simple workflow
 
 Classes
 =======
 :class:`PipelineUserView`
 -------------------------
-'''
+"""
 
 from __future__ import print_function
 
@@ -20,13 +20,13 @@ from soma.qt_gui.qt_backend import QtGui
 
 
 class PipelineUserView(QtGui.QWidget):
-    """ A widget to visualize a pipeline as a simple workflow.
+    """A widget to visualize a pipeline as a simple workflow.
 
     Uses Graphviz `dot` tool.
     """
+
     def __init__(self, pipeline):
-        """ Initialize the WorkflowViewer class
-        """
+        """Initialize the WorkflowViewer class"""
         # Inheritance
         super(PipelineUserView, self).__init__()
 
@@ -37,7 +37,7 @@ class PipelineUserView(QtGui.QWidget):
         layout = QtGui.QVBoxLayout(self)
         self.label = QtGui.QLabel()
         layout.addWidget(self.label)
-        #self.setLayout(layout)
+        # self.setLayout(layout)
 
         self.update()
 
@@ -52,12 +52,12 @@ class PipelineUserView(QtGui.QWidget):
 
     def write(self, out=sys.stdout):
         graph = self.pipeline.workflow_graph()
-        out.write('digraph workflow {\n'.encode())
+        out.write("digraph workflow {\n".encode())
         ids = {}
         for n in graph._nodes:
             id = str(len(ids))
             ids[n] = id
             out.write(('  %s [label="%s"];\n' % (id, n)).encode())
         for n, v in graph._links:
-            out.write(('  %s -> %s;\n' % (ids[n], ids[v])).encode())
-        out.write('}\n'.encode())
+            out.write(("  %s -> %s;\n" % (ids[n], ids[v])).encode())
+        out.write("}\n".encode())

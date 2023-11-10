@@ -1,4 +1,4 @@
-''' Process main class and infrastructure
+""" Process main class and infrastructure
 
 Classes
 -------
@@ -11,7 +11,7 @@ Classes
 ++++++++++++++++++++++++
 :class:`NipypeProcess`
 ++++++++++++++++++++++
-'''
+"""
 
 import os
 import os.path as osp
@@ -31,7 +31,7 @@ from .node import Node
 
 
 class Process(Node):
-    """ A process is an atomic component that contains a processing.
+    """A process is an atomic component that contains a processing.
 
     A process is typically an object with typed parameters, and an execution
     function. Parameters are described using the
@@ -101,7 +101,7 @@ class Process(Node):
     """
 
     def __init__(self, definition, **kwargs):
-        '''
+        """
         Parameters
         ----------
         definition: str
@@ -122,10 +122,9 @@ class Process(Node):
 
             The :meth:`Capsul.executable <capsul.application.Capsul.executable>` function sets this string
             up when possible.
-        '''
+        """
         if definition is None:
-            raise TypeError(
-                'No definition string given to Process constructor')
+            raise TypeError("No definition string given to Process constructor")
         super().__init__(definition=definition, **kwargs)
         self._uuid = str(uuid4())
 
@@ -135,22 +134,21 @@ class Process(Node):
 
     @property
     def requirements(self):
-        return getattr(super(), 'requirements', {})
+        return getattr(super(), "requirements", {})
 
     @property
     def label(self):
         return self.name
 
     def json(self, include_parameters=True):
-        '''
-        '''
+        """ """
         result = {
-            'type': 'process',
-            'definition': self.definition,
-            'uuid': self.uuid,
+            "type": "process",
+            "definition": self.definition,
+            "uuid": self.uuid,
         }
         if include_parameters:
-            result['parameters'] = self.json_parameters()
+            result["parameters"] = self.json_parameters()
         return result
 
     def json_parameters(self):
@@ -171,44 +169,49 @@ class Process(Node):
         pass
 
     def get_missing_mandatory_parameters(self):
-        ''' Returns a list of parameters which are not optional, and which
+        """Returns a list of parameters which are not optional, and which
         value is Undefined or None, or an empty string for a file or
         Directory parameter.
-        '''
+        """
 
         missing = []
         for field in self.fields():
-            optional = field.metadata.get('optional', False)
+            optional = field.metadata.get("optional", False)
             if optional:
-                output = field.metadata.get('output', False)
+                output = field.metadata.get("output", False)
                 value = getattr(self, field.name, undefined)
                 if not output and value in (undefined, None):
                     missing.append(field.name)
         return missing
 
     def is_job(self):
-        ''' True if the node is actually a job in a workflow
-        '''
+        """True if the node is actually a job in a workflow"""
         return True
 
     def execute(self, context):
-        ''' Main execution method for a process.
+        """Main execution method for a process.
         Each Process subclass should overload this method to perform its actual
         job.
-        '''
-        raise NotImplementedError(f'The execute() method is not implemented for process {self.definition}')
+        """
+        raise NotImplementedError(
+            f"The execute() method is not implemented for process {self.definition}"
+        )
 
     def _resolve_path_value(self, value, execution_context, context_dict):
         if isinstance(value, list):
-            return [self._resolve_path_value(i, execution_context, context_dict) for i in value]
-        elif isinstance(value, str) and value.startswith('!'):
+            return [
+                self._resolve_path_value(i, execution_context, context_dict)
+                for i in value
+            ]
+        elif isinstance(value, str) and value.startswith("!"):
             if not context_dict:
-                context_dict.update((f.name, getattr(execution_context, f.name, None)) for f in execution_context.fields())
-                context_dict['executable'] = execution_context.executable
+                context_dict.update(
+                    (f.name, getattr(execution_context, f.name, None))
+                    for f in execution_context.fields()
+                )
+                context_dict["executable"] = execution_context.executable
             try:
-                value = eval(f"f'{value[1:]}'",
-                             context_dict,
-                             context_dict)
+                value = eval(f"f'{value[1:]}'", context_dict, context_dict)
             except NameError:
                 pass
         return value
@@ -219,10 +222,17 @@ class Process(Node):
             if field.path_type:
                 value = getattr(self, field.name, None)
                 if value:
-                    setattr(self, field.name, self._resolve_path_value(value, execution_context, context_dict))
+                    setattr(
+                        self,
+                        field.name,
+                        self._resolve_path_value(
+                            value, execution_context, context_dict
+                        ),
+                    )
+
     @staticmethod
     def _get_help_rst_table(data):
-        """ Create a rst formatted table.
+        """Create a rst formatted table.
         Parameters
         ----------
         data: list of list of str (mandatory)
@@ -239,30 +249,33 @@ class Process(Node):
                 # > set the parameter name in bold
                 if index == 0 and ":" in cell_row:
                     delimiter_index = cell_row.index(":")
-                    cell_row = ("**" + cell_row[:delimiter_index] + "**" +
-                                cell_row[delimiter_index:])
-                rsttable.append('    ' + cell_row)
+                    cell_row = (
+                        "**"
+                        + cell_row[:delimiter_index]
+                        + "**"
+                        + cell_row[delimiter_index:]
+                    )
+                rsttable.append("    " + cell_row)
             if len(table_row) == 1:
-                rsttable.append('')
+                rsttable.append("")
         return rsttable
-
 
     @staticmethod
     def get_field_help(field):
-        """ Generate a field string description of the form:
-            [field name: type (default value) field doc]
+        """Generate a field string description of the form:
+        [field name: type (default value) field doc]
         """
-        result = [f'{field.name}:  {field.type_str()}']
+        result = [f"{field.name}:  {field.type_str()}"]
         default = field.default_value()
         if default is not undefined:
-            result[0] += f' ({default}'
-        doc = getattr(field, 'doc', None)
+            result[0] += f" ({default}"
+        doc = getattr(field, "doc", None)
         if doc:
             result.append(doc)
         return result
 
     def get_help(self, returnhelp=False, use_labels=False):
-        """ Generate description of a process parameters.
+        """Generate description of a process parameters.
 
         Parameters
         ----------
@@ -279,14 +292,13 @@ class Process(Node):
         # Update the documentation with a description of the pipeline
         # when the xml to pipeline wrapper has been used
         if returnhelp and hasattr(self, "_pipeline_desc"):
-            str_desc = "".join(["    {0}".format(line)
-                                for line in self._pipeline_desc])
+            str_desc = "".join(["    {0}".format(line) for line in self._pipeline_desc])
             doctring += [
                 ".. hidden-code-block:: python",
                 "    :starthidden: True",
                 "",
                 str_desc,
-                ""
+                "",
             ]
 
         # Get the process docstring
@@ -298,8 +310,9 @@ class Process(Node):
         if hasattr(self, "_func_name") and hasattr(self, "_func_module"):
             doctring += [
                 "This process has been wrapped from {0}.{1}.".format(
-                    self._func_module, self._func_name),
-                ""
+                    self._func_module, self._func_name
+                ),
+                "",
             ]
             if returnhelp:
                 doctring += [
@@ -309,20 +322,25 @@ class Process(Node):
                     "    :toctree: ./",
                     "",
                     "    {0}".format(self._func_name),
-                    ""
+                    "",
                 ]
 
         # Append the input and output fields help
         if use_labels:
-            in_label = ['.. _%s.%s_inputs:\n\n' % (self.__module__, self.name)]
-            out_label = ['.. _%s.%s_outputs:\n\n'
-                         % (self.__module__, self.name)]
+            in_label = [".. _%s.%s_inputs:\n\n" % (self.__module__, self.name)]
+            out_label = [".. _%s.%s_outputs:\n\n" % (self.__module__, self.name)]
         else:
             in_label = []
             out_label = []
-        full_help = (doctring + in_label + self.get_input_help(returnhelp)
-                     + [""] + out_label
-                     + self.get_output_help(returnhelp) + [""])
+        full_help = (
+            doctring
+            + in_label
+            + self.get_input_help(returnhelp)
+            + [""]
+            + out_label
+            + self.get_output_help(returnhelp)
+            + [""]
+        )
         full_help = "\n".join(full_help)
 
         # Return the full process help
@@ -333,7 +351,7 @@ class Process(Node):
             print(full_help)
 
     def get_input_help(self, rst_formating=False):
-        """ Generate description for process input parameters.
+        """Generate description for process input parameters.
 
         Parameters
         ----------
@@ -352,8 +370,9 @@ class Process(Node):
         manhelpstr = ["[Mandatory]", ""]
 
         # Get all the mandatory input fields
-        mandatory_items = [i for i in self.user_fields()
-                           if not i.is_output() and not i.optional]
+        mandatory_items = [
+            i for i in self.user_fields() if not i.is_output() and not i.optional
+        ]
 
         # If we have mandatory inputs, get the corresponding string
         # descriptions
@@ -375,16 +394,18 @@ class Process(Node):
         opthelpstr = ["", "[Optional]", ""]
 
         # Get all optional input fields
-        optional_items = [field for field in self.user_fields()
-                          if not field.is_output() and field.optional]
+        optional_items = [
+            field
+            for field in self.user_fields()
+            if not field.is_output() and field.optional
+        ]
 
         # If we have optional inputs, get the corresponding string
         # descriptions
         data = []
         if optional_items:
             for field in optional_items:
-                data.append(
-                    self.get_field_help(field))
+                data.append(self.get_field_help(field))
 
         # If we want to format the output nicely (rst)
         if data != []:
@@ -403,7 +424,7 @@ class Process(Node):
         return helpstr
 
     def get_output_help(self, rst_formating=False):
-        """ Generate description for process output parameters.
+        """Generate description for process output parameters.
 
         Parameters
         ----------
@@ -419,9 +440,7 @@ class Process(Node):
         helpstr = ["Outputs", "~" * 7, ""]
 
         # Get all the process output fields, keep their order
-        items = [field
-                 for field in self.user_fields()
-                 if field.is_output()]
+        items = [field for field in self.user_fields() if field.is_output()]
 
         # If we have no output field, return no string description
         if not items:
@@ -431,8 +450,7 @@ class Process(Node):
         # descriptions
         data = []
         for field in items:
-            data.append(
-                self.get_field_help(field))
+            data.append(self.get_field_help(field))
 
         # If we want to format the output nicely (rst)
         if data != []:
@@ -446,7 +464,7 @@ class Process(Node):
 
 
 class FileCopyProcess(Process):
-    """ A specific process that copies all the input files.
+    """A specific process that copies all the input files.
 
     Attributes
     ----------
@@ -461,10 +479,18 @@ class FileCopyProcess(Process):
     _get_process_arguments
     _copy_input_files
     """
-    def __init__(self, definition, activate_copy=True, inputs_to_copy=None,
-                 inputs_to_clean=None, destination=None,
-                 inputs_to_symlink=None, use_temp_output_dir=False):
-        """ Initialize the FileCopyProcess class.
+
+    def __init__(
+        self,
+        definition,
+        activate_copy=True,
+        inputs_to_copy=None,
+        inputs_to_clean=None,
+        destination=None,
+        inputs_to_symlink=None,
+        use_temp_output_dir=False,
+    ):
+        """Initialize the FileCopyProcess class.
 
         Parameters
         ----------
@@ -501,47 +527,49 @@ class FileCopyProcess(Process):
             else:
                 self.inputs_to_symlink = inputs_to_symlink
             if inputs_to_copy is None:
-                self.inputs_to_copy = [f.name for f in self.user_fields()
-                                       if f.name not in self.inputs_to_symlink]
+                self.inputs_to_copy = [
+                    f.name
+                    for f in self.user_fields()
+                    if f.name not in self.inputs_to_symlink
+                ]
             else:
                 self.inputs_to_copy = inputs_to_copy
-                self.inputs_to_symlink = [k for k in self.inputs_to_symlink
-                                          if k not in self.inputs_to_copy]
+                self.inputs_to_symlink = [
+                    k for k in self.inputs_to_symlink if k not in self.inputs_to_copy
+                ]
             self.copied_inputs = None
             self.copied_files = None
         self.use_temp_output_dir = use_temp_output_dir
 
     def before_execute(self, context):
-        """ Method to copy files before executing the process.
-        """
-        #super(FileCopyProcess, self).before_execute(context)
+        """Method to copy files before executing the process."""
+        # super(FileCopyProcess, self).before_execute(context)
 
         if self.destination is None:
-            output_directory = getattr(self, 'output_directory', None)
-            if output_directory in (None, undefined, ''):
+            output_directory = getattr(self, "output_directory", None)
+            if output_directory in (None, undefined, ""):
                 output_directory = None
             if self.use_temp_output_dir:
-                workspace = tempfile.mkdtemp(dir=output_directory,
-                                             prefix=self.name)
+                workspace = tempfile.mkdtemp(dir=output_directory, prefix=self.name)
                 destdir = workspace
             else:
                 destdir = output_directory
         else:
             destdir = self.destination
         if not destdir:
-            raise ValueError('FileCopyProcess cannot be used without a '
-                             'destination directory')
+            raise ValueError(
+                "FileCopyProcess cannot be used without a " "destination directory"
+            )
         self._destination = destdir
         output_directory = self.destination
         if output_directory is None:
-            output_directory = getattr(self, 'output_directory', None)
-        if output_directory not in (None, undefined, ''):
+            output_directory = getattr(self, "output_directory", None)
+        if output_directory not in (None, undefined, ""):
             self._former_output_directory = output_directory
             self.output_directory = destdir
 
         # The copy option is activated
         if self.activate_copy:
-
             # Copy the desired items
             self._update_input_fields()
 
@@ -552,11 +580,11 @@ class FileCopyProcess(Process):
                 setattr(self, name, value)
 
     def after_execute(self, exec_result, context):
-        """ Method to clean-up temporary workspace after process
+        """Method to clean-up temporary workspace after process
         execution.
         """
-        #exec_result = super(FileCopyProcess, self).after_execute(
-            #exec_result, context)
+        # exec_result = super(FileCopyProcess, self).after_execute(
+        # exec_result, context)
         if self.use_temp_output_dir:
             self._move_outputs()
         # The copy option is activated
@@ -586,19 +614,19 @@ class FileCopyProcess(Process):
             if field.is_output():
                 outputs[name] = getattr(self, name, undefined)
         # 2. set again inputs to their initial values
-        if hasattr(self, '_recorded_params'):
+        if hasattr(self, "_recorded_params"):
             for name, value in self._recorded_params.items():
                 setattr(self, name, value)
         # 3. force output values using the recorded ones
         for name, value in outputs.items():
             setattr(self, name, value)
-        if hasattr(self, '_recorded_params'):
+        if hasattr(self, "_recorded_params"):
             del self._recorded_params
 
         return exec_result
 
     def _clean_workspace(self):
-        """ Removed some copied inputs that can be deleted at the end of the
+        """Removed some copied inputs that can be deleted at the end of the
         processing.
         """
         inputs_to_clean = self.inputs_to_clean
@@ -620,25 +648,29 @@ class FileCopyProcess(Process):
         for field in self.user_fields():
             param = field.name
             if field.is_output():
-                new_value = self._move_files(tmp_output, dst_output,
-                                             getattr(self, param, undefined),
-                                             moved_dict=moved_dict)
+                new_value = self._move_files(
+                    tmp_output,
+                    dst_output,
+                    getattr(self, param, undefined),
+                    moved_dict=moved_dict,
+                )
                 output_values[param] = new_value
                 setattr(self, param, new_value)
 
         shutil.rmtree(tmp_output)
         del self._destination
         self.destinaton = self._former_output_directory
-        if hasattr(self, 'output_directory'):
+        if hasattr(self, "output_directory"):
             self.output_directory = self._former_output_directory
         del self._former_output_directory
         return output_values
 
     def _move_files(self, src_directory, dst_directory, value, moved_dict={}):
         if isinstance(value, (list, tuple)):
-            new_value = [self._move_files(src_directory, dst_directory, item,
-                                          moved_dict)
-                         for item in value]
+            new_value = [
+                self._move_files(src_directory, dst_directory, item, moved_dict)
+                for item in value
+            ]
             if isinstance(value, tuple):
                 return tuple(new_value)
             return new_value
@@ -646,20 +678,19 @@ class FileCopyProcess(Process):
             new_value = {}
             for name, item in value.items():
                 new_value[name] = self._move_files(
-                    src_directory, dst_directory, item, moved_dict)
+                    src_directory, dst_directory, item, moved_dict
+                )
             return new_value
         elif isinstance(value, str):
             if value in moved_dict:
                 return moved_dict[value]
-            if os.path.dirname(value) == src_directory \
-                    and os.path.exists(value):
-                name = os.path.basename(value).split('.')[0]
-                matfnames = glob.glob(os.path.join(
-                    os.path.dirname(value), name + ".*"))
+            if os.path.dirname(value) == src_directory and os.path.exists(value):
+                name = os.path.basename(value).split(".")[0]
+                matfnames = glob.glob(os.path.join(os.path.dirname(value), name + ".*"))
                 todo = [x for x in matfnames if x != value]
                 dst = os.path.join(dst_directory, os.path.basename(value))
                 if os.path.exists(dst) or os.path.islink(dst):
-                    print('warning: file or directory %s exists' % dst)
+                    print("warning: file or directory %s exists" % dst)
                     if os.path.isdir(dst):
                         shutil.rmtree(dst)
                     else:
@@ -671,13 +702,12 @@ class FileCopyProcess(Process):
                     print(e, file=sys.stderr)
                 moved_dict[value] = dst
                 for item in todo:
-                    self._move_files(src_directory, dst_directory, item,
-                                     moved_dict)
+                    self._move_files(src_directory, dst_directory, item, moved_dict)
                 return dst
         return value
 
     def _rm_files(self, python_object):
-        """ Remove a set of copied files from the filesystem.
+        """Remove a set of copied files from the filesystem.
 
         Parameters
         ----------
@@ -696,26 +726,25 @@ class FileCopyProcess(Process):
 
         # Otherwise start the deletion if the object is a file
         else:
-            if (isinstance(python_object, str) and
-                    os.path.isfile(python_object)):
+            if isinstance(python_object, str) and os.path.isfile(python_object):
                 os.remove(python_object)
 
     def _update_input_fields(self, copy=True):
-        """ Update the process input fields: input files are copied.
-        """
+        """Update the process input fields: input files are copied."""
         # Get the new field values
         input_parameters, input_symlinks = self._get_process_arguments()
         self.copied_files = {}
-        self.copied_inputs \
-            = self._copy_input_files(input_parameters, False,
-                                     self.copied_files, copy=copy)
+        self.copied_inputs = self._copy_input_files(
+            input_parameters, False, self.copied_files, copy=copy
+        )
         self.copied_inputs.update(
-            self._copy_input_files(input_symlinks, True, self.copied_files,
-                                   copy=copy))
+            self._copy_input_files(input_symlinks, True, self.copied_files, copy=copy)
+        )
 
-    def _copy_input_files(self, python_object, use_symlink=True,
-                          files_list=None, copy=True):
-        """ Recursive method that copy the input process files.
+    def _copy_input_files(
+        self, python_object, use_symlink=True, files_list=None, copy=True
+    ):
+        """Recursive method that copy the input process files.
 
         Parameters
         ----------
@@ -738,7 +767,7 @@ class FileCopyProcess(Process):
         out: object
             the copied-file input object.
         """
-        if sys.platform.startswith('win') and sys.version_info[0] < 3:
+        if sys.platform.startswith("win") and sys.version_info[0] < 3:
             # on windows, no symlinks (in python2 at least).
             use_symlink = False
 
@@ -753,9 +782,9 @@ class FileCopyProcess(Process):
                         sub_files_list = files_list.setdefault(key, [])
                     else:
                         sub_files_list = files_list
-                    out[key] = self._copy_input_files(val, use_symlink,
-                                                      sub_files_list,
-                                                      copy=copy)
+                    out[key] = self._copy_input_files(
+                        val, use_symlink, sub_files_list, copy=copy
+                    )
 
         # Deal with tuple and list
         # Create an output list or tuple that will contain the copied file
@@ -764,8 +793,9 @@ class FileCopyProcess(Process):
             out = []
             for val in python_object:
                 if val is not undefined:
-                    out.append(self._copy_input_files(val, use_symlink,
-                                                      files_list, copy=copy))
+                    out.append(
+                        self._copy_input_files(val, use_symlink, files_list, copy=copy)
+                    )
             if isinstance(python_object, tuple):
                 out = tuple(out)
 
@@ -773,9 +803,11 @@ class FileCopyProcess(Process):
         # a file
         else:
             out = python_object
-            if (python_object is not undefined and
-                    isinstance(python_object, str) and
-                    os.path.isfile(python_object)):
+            if (
+                python_object is not undefined
+                and isinstance(python_object, str)
+                and os.path.isfile(python_object)
+            ):
                 destdir = self._destination
                 if not os.path.exists(destdir):
                     os.makedirs(destdir)
@@ -798,14 +830,14 @@ class FileCopyProcess(Process):
 
                     # Copy associated .mat/.json/.minf files
                     name = fname.rsplit(".", 1)[0]
-                    matfnames = glob.glob(os.path.join(
-                        os.path.dirname(python_object), name + ".*"))
+                    matfnames = glob.glob(
+                        os.path.join(os.path.dirname(python_object), name + ".*")
+                    )
                     for matfname in matfnames:
                         extrafname = os.path.basename(matfname)
                         extraout = os.path.join(destdir, extrafname)
                         if extraout != out:
-                            if os.path.exists(extraout) \
-                                    or os.path.islink(extraout):
+                            if os.path.exists(extraout) or os.path.islink(extraout):
                                 if os.path.isdir(extraout):
                                     shutil.rmtree(extraout)
                                 else:
@@ -820,7 +852,7 @@ class FileCopyProcess(Process):
         return out
 
     def _get_process_arguments(self):
-        """ Get the process arguments.
+        """Get the process arguments.
 
         Returns
         -------
@@ -856,15 +888,12 @@ class FileCopyProcess(Process):
 
 
 class NipypeProcess(FileCopyProcess):
-    """ Base class used to wrap nipype interfaces.
-    """
+    """Base class used to wrap nipype interfaces."""
 
     def __new__(cls, *args, **kwargs):
-
         def init_with_skip(self, *args, **kwargs):
-
             cls = self.__init__.cls
-            init_att = '__%s_np_init_done__' % cls.__name__
+            init_att = "__%s_np_init_done__" % cls.__name__
             if hasattr(self, init_att) and getattr(self, init_att):
                 # may be called twice, from within __new__ or from python
                 # internals
@@ -884,25 +913,25 @@ class NipypeProcess(FileCopyProcess):
         # stack[-2] may be nipype_factory
         if len(stack) >= 2:
             s2 = stack[-2]
-            if s2[2] == 'nipype_factory':
-                instance = super(NipypeProcess, cls).__new__(cls, *args,
-                                                            **kwargs)
-                setattr(instance, '__%s_np_init_done__' % cls.__name__, False)
+            if s2[2] == "nipype_factory":
+                instance = super(NipypeProcess, cls).__new__(cls, *args, **kwargs)
+                setattr(instance, "__%s_np_init_done__" % cls.__name__, False)
                 return instance
-        nipype_class = getattr(cls, '_nipype_class_type', None)
+        nipype_class = getattr(cls, "_nipype_class_type", None)
         nargs = args
         nkwargs = kwargs
         arg0 = None
         if nipype_class is not None:
             arg0 = nipype_class()
         else:
-            if 'nipype_class' in kwargs:
-                arg0 = kwargs['nipype_class']()
-                nkwargs = {k: v for k, v in kwargs if k != 'nipype_class'}
-            elif 'nipype_instance' in kwargs:
+            if "nipype_class" in kwargs:
+                arg0 = kwargs["nipype_class"]()
+                nkwargs = {k: v for k, v in kwargs if k != "nipype_class"}
+            elif "nipype_instance" in kwargs:
                 pass
             elif len(args) != 0:
                 import nipype.interfaces.base
+
                 if isinstance(args[0], nipype.interfaces.base.BaseInterface):
                     arg0 = args[0]
                     nargs = nargs[1:]
@@ -911,21 +940,26 @@ class NipypeProcess(FileCopyProcess):
                     nargs = args[1:]
         if arg0 is not None:
             from .nipype_process import nipype_factory
+
             instance = nipype_factory(arg0, base_class=cls, *nargs, **nkwargs)
             if cls != NipypeProcess:
                 # override direct nipype reference
-                instance.id = instance.__class__.__module__ + "." \
-                    + instance.name
+                instance.id = instance.__class__.__module__ + "." + instance.name
             instance.__postinit__(*nargs, **nkwargs)
         else:
             instance = super(NipypeProcess, cls).__new__(cls, *args, **kwargs)
-            setattr(instance, '__%s_np_init_done__' % cls.__name__, False)
+            setattr(instance, "__%s_np_init_done__" % cls.__name__, False)
         return instance
 
-
-    def __init__(self, definition, nipype_instance=None,
-                 use_temp_output_dir=None, *args, **kwargs):
-        """ Initialize the NipypeProcess class.
+    def __init__(
+        self,
+        definition,
+        nipype_instance=None,
+        use_temp_output_dir=None,
+        *args,
+        **kwargs,
+    ):
+        """Initialize the NipypeProcess class.
 
         NipypeProcess instance gets automatically an additional user field
         'output_directory'.
@@ -995,26 +1029,29 @@ class NipypeProcess(FileCopyProcess):
         _nipype_interface_name : str
             private attribute to store the nipye interface name
         """
-        if hasattr(self, '__NipypeProcess_np_init_done__') \
-                and self.__NipypeProcess_np_init_done__:
+        if (
+            hasattr(self, "__NipypeProcess_np_init_done__")
+            and self.__NipypeProcess_np_init_done__
+        ):
             # may be called twice, from within __new__ or from python internals
             return
 
         self.__NipypeProcess_np_init_done__ = True
-        #super(NipypeProcess, self).__init__(*args, **kwargs)
+        # super(NipypeProcess, self).__init__(*args, **kwargs)
 
         # Set some class attributes that characterize the nipype interface
         if nipype_instance is None:
             # probably called from a specialized subclass
-            np_class = getattr(self, '_nipype_class_type', None)
+            np_class = getattr(self, "_nipype_class_type", None)
             if np_class:
                 nipype_instance = np_class()
             else:
                 raise TypeError(
-                    'NipypeProcess.__init__ must either be called with a '
-                    'nipye interface instance as 1st argument, or from a '
-                    'specialized subclass providing the _nipype_class_type '
-                    'class attribute')
+                    "NipypeProcess.__init__ must either be called with a "
+                    "nipye interface instance as 1st argument, or from a "
+                    "specialized subclass providing the _nipype_class_type "
+                    "class attribute"
+                )
         self._nipype_interface = nipype_instance
         self._nipype_module = nipype_instance.__class__.__module__
         self._nipype_class = nipype_instance.__class__.__name__
@@ -1022,34 +1059,43 @@ class NipypeProcess(FileCopyProcess):
         if len(msplit) > 2:
             self._nipype_interface_name = msplit[2]
         else:
-            self._nipype_interface_name = 'custom'
+            self._nipype_interface_name = "custom"
 
         # Inheritance: activate input files copy for spm interfaces.
         if self._nipype_interface_name == "spm":
             # Copy only 'copyfile' nipype traits
-            inputs_to_copy = list(self._nipype_interface.inputs.traits(
-                copyfile=True).keys())
-            inputs_to_symlink = list(self._nipype_interface.inputs.traits(
-                copyfile=False).keys())
+            inputs_to_copy = list(
+                self._nipype_interface.inputs.traits(copyfile=True).keys()
+            )
+            inputs_to_symlink = list(
+                self._nipype_interface.inputs.traits(copyfile=False).keys()
+            )
             out_traits = self._nipype_interface.output_spec().traits()
-            inputs_to_clean = [x for x in inputs_to_copy
-                               if 'modified_%s' % x not in out_traits]
+            inputs_to_clean = [
+                x for x in inputs_to_copy if "modified_%s" % x not in out_traits
+            ]
             if use_temp_output_dir is None:
                 use_temp_output_dir = True
             super(NipypeProcess, self).__init__(
                 definition=definition,
-                activate_copy=True, inputs_to_copy=inputs_to_copy,
+                activate_copy=True,
+                inputs_to_copy=inputs_to_copy,
                 inputs_to_symlink=inputs_to_symlink,
                 inputs_to_clean=inputs_to_clean,
                 use_temp_output_dir=use_temp_output_dir,
-                *args, **kwargs)
+                *args,
+                **kwargs,
+            )
         else:
             if use_temp_output_dir is None:
                 use_temp_output_dir = False
             super(NipypeProcess, self).__init__(
-                  definition=definition,
-                  activate_copy=False, use_temp_output_dir=use_temp_output_dir,
-                  *args, **kwargs)
+                definition=definition,
+                activate_copy=False,
+                use_temp_output_dir=use_temp_output_dir,
+                *args,
+                **kwargs,
+            )
 
         # Replace the process name and identification attributes
         self.id = ".".join([self._nipype_module, self._nipype_class])
@@ -1057,38 +1103,35 @@ class NipypeProcess(FileCopyProcess):
 
         # Add a new field to store the processing output directory
         self.add_field(
-            "output_directory", Directory, default=undefined, read=True,
-            optional=True)
+            "output_directory", Directory, default=undefined, read=True, optional=True
+        )
 
         # Add a 'synchronize' nipype input trait that will be used to trigger
         # manually the output nipype/capsul fields sync.
         self.synchronize = sc.Event()
 
         # use the nipype doc for help
-        doc = getattr(nipype_instance, '__doc__')
+        doc = getattr(nipype_instance, "__doc__")
         if doc:
             self.__doc__ = doc
 
-
     def __postinit__(self, *args, **kwargs):
-        '''
+        """
         `__postinit__` allows to customize subclasses. the base `NipypeProcess`
         implementation does nothing, it is empty.
-        '''
+        """
         pass
-
 
     @property
     def requirements(self):
         result = super().requirements.copy()
-        result['nipype'] = {}
+        result["nipype"] = {}
         # require module for interface name (spm, fsl, etc)
         result[self._nipype_interface_name] = {}
         return result
 
-
     def set_output_directory(self, out_dir):
-        """ Set the process output directory.
+        """Set the process output directory.
 
         Parameters
         ----------
@@ -1098,7 +1141,7 @@ class NipypeProcess(FileCopyProcess):
         self.output_directory = out_dir
 
     def set_usedefault(self, parameter, value):
-        """ Set the value of the usedefault attribute on a given parameter.
+        """Set the value of the usedefault attribute on a given parameter.
 
         Parameters
         ----------
@@ -1116,7 +1159,7 @@ class NipypeProcess(FileCopyProcess):
         super().before_execute(context)
 
     def execute(self, context):
-        """ Method that do the processings when the instance is called.
+        """Method that do the processings when the instance is called.
 
         Returns
         -------
@@ -1127,17 +1170,19 @@ class NipypeProcess(FileCopyProcess):
             cwd = os.getcwd()
         except OSError:
             cwd = None
-        if getattr(self, 'output_directory', undefined) in (None, undefined):
-            raise ValueError('output_directory is not set but is mandatory '
-                             'to run a NipypeProcess')
+        if getattr(self, "output_directory", undefined) in (None, undefined):
+            raise ValueError(
+                "output_directory is not set but is mandatory " "to run a NipypeProcess"
+            )
         os.chdir(self.output_directory)
 
         self.synchronize.fire()
 
         # Force nipype update
         for trait_name in self._nipype_interface.inputs.traits().keys():
-            field_name = getattr(
-                self, '_nipype_trait_mapping', {}).get(trait_name, trait_name)
+            field_name = getattr(self, "_nipype_trait_mapping", {}).get(
+                trait_name, trait_name
+            )
             if field_name in self.user_fields():
                 old = getattr(self._nipype_interface.inputs, trait_name)
                 new = getattr(self, field_name)
@@ -1151,11 +1196,11 @@ class NipypeProcess(FileCopyProcess):
         # (create in cwd: cf nipype.interfaces.matlab.matlab l.181)
         if self._nipype_interface_name == "spm":
             mfile = os.path.join(
-                os.getcwd(),
-                self._nipype_interface.mlab.inputs.script_file)
+                os.getcwd(), self._nipype_interface.mlab.inputs.script_file
+            )
             destmfile = os.path.join(
-                self.output_directory,
-                self._nipype_interface.mlab.inputs.script_file)
+                self.output_directory, self._nipype_interface.mlab.inputs.script_file
+            )
             if os.path.isfile(mfile):
                 shutil.move(mfile, destmfile)
 
@@ -1163,17 +1208,16 @@ class NipypeProcess(FileCopyProcess):
         if cwd is not None:
             os.chdir(cwd)
 
-        #return results.__dict__
+        # return results.__dict__
         return None
 
     def after_execute(self, exec_result, context):
-        trait_map = getattr(self, '_nipype_trait_mapping', {})
-        script_tname = trait_map.get('spm_script_file', 'spm_script_file')
-        if getattr(self, script_tname, None) not in (None, undefined, ''):
+        trait_map = getattr(self, "_nipype_trait_mapping", {})
+        script_tname = trait_map.get("spm_script_file", "spm_script_file")
+        if getattr(self, script_tname, None) not in (None, undefined, ""):
             script_file = os.path.join(
-                self.output_directory,
-                self._nipype_interface.mlab.inputs.script_file)
+                self.output_directory, self._nipype_interface.mlab.inputs.script_file
+            )
             if os.path.exists(script_file):
                 shutil.move(script_file, getattr(self, script_tname))
-        return super(NipypeProcess,
-                     self).after_execute(exec_result, context)
+        return super(NipypeProcess, self).after_execute(exec_result, context)
