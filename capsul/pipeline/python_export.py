@@ -73,7 +73,9 @@ def save_py_pipeline(pipeline, py_file):
         if skip_invalid:
             node_options += ", skip_invalid=True"
         print(
-            '        self.add_process("{}", "{}"{})'.format(name, procname, node_options),
+            '        self.add_process("{}", "{}"{})'.format(
+                name, procname, node_options
+            ),
             file=pyf,
         )
 
@@ -177,9 +179,7 @@ def save_py_pipeline(pipeline, py_file):
         nodename = ".".join((mod, classname))
         if hasattr(node, "configured_controller"):
             c = node.configured_controller()
-            params = {
-                p: v for p, v in c.asdict().items() if v not in (None, undefined)
-            }
+            params = {p: v for p, v in c.asdict().items() if v not in (None, undefined)}
             print(
                 '        self.add_custom_node("%s", "%s", %s)'
                 % (name, nodename, get_repr_value(params)),
@@ -187,7 +187,8 @@ def save_py_pipeline(pipeline, py_file):
             )
         else:
             print(
-                '        self.add_custom_node("{}", "{}")'.format(name, nodename), file=pyf
+                '        self.add_custom_node("{}", "{}")'.format(name, nodename),
+                file=pyf,
             )
         # optional plugs
         for plug_name, plug in node.plugs.items():
@@ -459,9 +460,7 @@ def save_py_pipeline(pipeline, py_file):
                     for i in notepos:
                         if (
                             splitdoc[i + 2].find(
-                                "* Type '{}.help()'".format(
-                                    pipeline.__class__.__name__
-                                )
+                                "* Type '{}.help()'".format(pipeline.__class__.__name__)
                             )
                             != -1
                         ):

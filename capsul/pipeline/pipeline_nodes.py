@@ -146,10 +146,7 @@ class Switch(Node):
         flat_inputs = []
         for switch_name in inputs:
             flat_inputs.extend(
-                [
-                    "{}_switch_{}".format(switch_name, plug_name)
-                    for plug_name in outputs
-                ]
+                ["{}_switch_{}".format(switch_name, plug_name) for plug_name in outputs]
             )
         node_inputs = [
             dict(name="switch"),

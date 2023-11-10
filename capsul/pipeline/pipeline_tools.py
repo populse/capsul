@@ -344,7 +344,9 @@ def dot_graph_from_pipeline(
         if use_nodes_pos:
             pos = nodes_pos.get(id)
             if pos is not None:
-                node_props.update({"pos": "{:f},{:f}".format(pos[0] * scale, -pos[1] * scale)})
+                node_props.update(
+                    {"pos": "{:f},{:f}".format(pos[0] * scale, -pos[1] * scale)}
+                )
         size = nodes_sizes.get(id)
         if size is not None:
             node_props.update(
@@ -463,7 +465,9 @@ def dot_graph_from_workflow(
         if use_nodes_pos:
             pos = pipeline.node_position.get(n)
             if pos is not None:
-                node_props.update({"pos": "{:f},{:f}".format(pos[0] * scale, -pos[1] * scale)})
+                node_props.update(
+                    {"pos": "{:f},{:f}".format(pos[0] * scale, -pos[1] * scale)}
+                )
         size = nodes_sizes.get(n)
         if size is not None:
             node_props.update(
@@ -1262,7 +1266,9 @@ def find_node(pipeline, node):
             if sn is not n and isinstance(sn, Pipeline):
                 pipelines.append((sn, names + [sk]))
 
-    raise KeyError("Node {} not found in the pipeline {}".format(node.name, pipeline.name))
+    raise KeyError(
+        "Node {} not found in the pipeline {}".format(node.name, pipeline.name)
+    )
 
 
 def nodes_full_names(executable):
@@ -1392,9 +1398,13 @@ class %s(Process):
                 meta["optional"] = True
             meta_str = ""
             if meta:
-                meta_str = ", ".join("{}={}".format(k, repr(v)) for k, v in meta.items())
+                meta_str = ", ".join(
+                    "{}={}".format(k, repr(v)) for k, v in meta.items()
+                )
                 meta_str = ", " + meta_str
-            f.write('        self.add_field("{}", {}{})\n'.format(name, t_str, meta_str))
+            f.write(
+                '        self.add_field("{}", {}{})\n'.format(name, t_str, meta_str)
+            )
             if value is not undefined:
                 f.write("        self.{} = {}\n".format(name, repr(value)))
 

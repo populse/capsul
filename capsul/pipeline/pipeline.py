@@ -399,8 +399,7 @@ class Pipeline(Process):
         # Check the unicity of the name we want to insert
         if name in self.nodes:
             raise ValueError(
-                "Pipeline cannot have two nodes with the "
-                "same name : {}".format(name)
+                "Pipeline cannot have two nodes with the " "same name : {}".format(name)
             )
 
         if skip_invalid:
@@ -976,9 +975,7 @@ class Pipeline(Process):
         if dest_plug.output and dest_node is not self:
             raise ValueError("Cannot link to an output plug: {}".format(link))
         if not dest_plug.output and dest_node is self:
-            raise ValueError(
-                "Cannot link to a pipeline input " "plug: {}".format(link)
-            )
+            raise ValueError("Cannot link to a pipeline input " "plug: {}".format(link))
 
         # Propagate the plug value from source to destination
         value = getattr(source_node, source_plug_name, None)
@@ -2313,9 +2310,7 @@ class Pipeline(Process):
         A pipeline will return a list of unique configuration values.
         """
         # start with pipeline-level requirements
-        conf = super().check_requirements(
-            environment, message_list=message_list
-        )
+        conf = super().check_requirements(environment, message_list=message_list)
         if conf is None:
             return None
         confs = []
