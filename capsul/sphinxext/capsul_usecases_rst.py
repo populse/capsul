@@ -21,22 +21,32 @@ import logging
 # Get the module name passed in argument
 default_output_dir = os.path.join("source", "generated")
 parser = OptionParser(usage="usage: %prog -i <inputmodule>'")
-parser.add_option("-i", "--imodule",
-                  action="store",
-                  dest="module",
-                  default=None,
-                  help="the name of the module we want to document.")
-parser.add_option("-v", "--verbose",
-                  action="store_true", dest="verbose", default=False,
-                  help="set the logging level to DEBUG.")
-parser.add_option("-o", "--outdir",
-                  action="store",
-                  dest="outdir",
-                  default=default_output_dir,
-                  help="output base directory. Docs will be generated in "
-                  "sub-directories there, named by their module names. "
-                  "default: {0}".format(
-                      default_output_dir))
+parser.add_option(
+    "-i",
+    "--imodule",
+    action="store",
+    dest="module",
+    default=None,
+    help="the name of the module we want to document.",
+)
+parser.add_option(
+    "-v",
+    "--verbose",
+    action="store_true",
+    dest="verbose",
+    default=False,
+    help="set the logging level to DEBUG.",
+)
+parser.add_option(
+    "-o",
+    "--outdir",
+    action="store",
+    dest="outdir",
+    default=default_output_dir,
+    help="output base directory. Docs will be generated in "
+    "sub-directories there, named by their module names. "
+    "default: {0}".format(default_output_dir),
+)
 (options, args) = parser.parse_args()
 if options.module is None:
     parser.error("Wrong number of arguments.")
@@ -46,13 +56,13 @@ logger = logging.getLogger(__file__)
 if options.verbose:
     logging.basicConfig(
         level=logging.DEBUG,
-        format="{0}::%(asctime)s::%(levelname)s::%(message)s".format(
-            logger.name))
+        format="{0}::%(asctime)s::%(levelname)s::%(message)s".format(logger.name),
+    )
 else:
     logging.basicConfig(
         level=logging.INFO,
-        format="{0}::%(asctime)s::%(levelname)s::%(message)s".format(
-            logger.name))
+        format="{0}::%(asctime)s::%(levelname)s::%(message)s".format(logger.name),
+    )
 
 base_outdir = options.outdir
 
@@ -98,10 +108,15 @@ for module_name, pilots in sorted_pilots.items():
     # The file format doesn't matter since we will make an include but prevent
     # Sphinx to convert such files
     docwriter.write_index(
-        outdir, "index",
+        outdir,
+        "index",
         relative_to=os.path.join(base_outdir, module_name),
-        rst_extension=".txt")
+        rst_extension=".txt",
+    )
 
     # Just print a summary
-    logger.info("'{0}' files written for module '{1}'.".format(
-        len(docwriter.written_usecases), module_name))
+    logger.info(
+        "'{0}' files written for module '{1}'.".format(
+            len(docwriter.written_usecases), module_name
+        )
+    )

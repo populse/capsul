@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-'''
+"""
 Utility class for iterated nodes in a pipeline. This is mainly internal infrastructure, which a normal programmer should not have to bother about.
 A pipeline programmer will not instantiate :class:`ProcessIteration` directly, but rather use the :class:`~capsul.pipeline.pipeline.Pipeline` method :meth:`~capsul.pipeline.pipeline.Pipeline.add_iterative_process`.
 
@@ -7,7 +7,7 @@ Classes
 =======
 :class:`ProcessIteration`
 -------------------------
-'''
+"""
 
 from soma.controller import undefined
 
@@ -22,10 +22,9 @@ class IndependentExecutables:
 
 class ProcessIteration(Process):
 
-    _doc_path = 'api/pipeline.html#processiteration'
+    _doc_path = "api/pipeline.html#processiteration"
 
-    def __init__(self, definition, process, iterative_parameters, 
-                 context_name=None):
+    def __init__(self, definition, process, iterative_parameters, context_name=None):
         # Avoid circular import
         from capsul.api import executable
 
@@ -40,9 +39,11 @@ class ProcessIteration(Process):
         inputs = []
         for parameter in self.iterative_parameters:
             if self.process.field(parameter) is None:
-                raise ValueError('Cannot iterate on parameter %s '
-                  'that is not a parameter of process %s'
-                  % (parameter, self.process.id))
+                raise ValueError(
+                    "Cannot iterate on parameter %s "
+                    "that is not a parameter of process %s"
+                    % (parameter, self.process.id)
+                )
             if not self.process.field(parameter).is_output():
                 inputs.append(parameter)
 
@@ -68,14 +69,14 @@ class ProcessIteration(Process):
             # generate plug with input parameter and identifier name
             self._add_plug(parameter)
 
-        self.metadata_schema = getattr(self.process, 'metadata_schema', {})
-    
+        self.metadata_schema = getattr(self.process, "metadata_schema", {})
+
     @property
     def label(self):
-        return self.process.name + f'[{self.iteration_size()}]'
-    
+        return self.process.name + f"[{self.iteration_size()}]"
+
     def change_iterative_plug(self, parameter, iterative=None):
-        '''
+        """
         Change a parameter to be iterative (or non-iterative)
 
         Parameters
@@ -85,15 +86,16 @@ class ProcessIteration(Process):
         iterative: bool or None
             if None, the iterative state will be toggled. If True or False, the
             parameter state will be set accordingly.
-        '''
+        """
         if self.process.field(parameter) is None:
-            raise ValueError('Cannot iterate on parameter %s '
-              'that is not a parameter of process %s'
-              % (parameter, self.process.id))
+            raise ValueError(
+                "Cannot iterate on parameter %s "
+                "that is not a parameter of process %s" % (parameter, self.process.id)
+            )
 
         is_iterative = parameter in self.iterative_parameters
         if is_iterative == iterative:
-            return # nothing to be done
+            return  # nothing to be done
         if iterative is None:
             iterative = not is_iterative
 
@@ -128,11 +130,18 @@ class ProcessIteration(Process):
                     # size 1 is an exception to the rule: it will be
                     # "broadcast" (numpy sense) to other lists sizes
                     if size == 1 or psize == 1:
-                       size = max(size, psize)
+                        size = max(size, psize)
                     else:
-                        raise ValueError('Iterative parameter values must be lists of the same size: %s' % '\n'.join('%s=%s' % (n, len(getattr(self,n))) for n in self.iterative_parameters if getattr(self,n) is not undefined))
+                        raise ValueError(
+                            "Iterative parameter values must be lists of the same size: %s"
+                            % "\n".join(
+                                "%s=%s" % (n, len(getattr(self, n)))
+                                for n in self.iterative_parameters
+                                if getattr(self, n) is not undefined
+                            )
+                        )
         return size
-    
+
     def iterate_over_process_parmeters(self):
         size = self.iteration_size()
         if size is None:
@@ -140,7 +149,7 @@ class ProcessIteration(Process):
         for iteration_index in range(size):
             self.select_iteration_index(iteration_index)
             yield self.process
-    
+
     def select_iteration_index(self, iteration_index):
         if isinstance(self.process, capsul.pipeline.pipeline.Pipeline):
             self.process.delay_update_nodes_and_plugs_activation()
@@ -162,28 +171,36 @@ class ProcessIteration(Process):
 
     def json(self, include_parameters=True):
         result = {
-            'type': 'iterative_process',
-            'definition': {
-                'definition': self.definition,
-                'process': self.process.json(include_parameters=False),
-                'iterative_parameters': list(self.iterative_parameters),
-                'context_name': getattr(self.process, 'context_name', None),
+            "type": "iterative_process",
+            "definition": {
+                "definition": self.definition,
+                "process": self.process.json(include_parameters=False),
+                "iterative_parameters": list(self.iterative_parameters),
+                "context_name": getattr(self.process, "context_name", None),
             },
-            'uuid': self.uuid,
+            "uuid": self.uuid,
         }
         if include_parameters:
-            result['parameters'] = super(Process,self).json()
+            result["parameters"] = super(Process, self).json()
         return result
-    
-    def get_linked_items(self, node, plug_name=None, in_sub_pipelines=True,
-                         activated_only=True, process_only=True, direction=None,
-                         in_outer_pipelines=False):
+
+    def get_linked_items(
+        self,
+        node,
+        plug_name=None,
+        in_sub_pipelines=True,
+        activated_only=True,
+        process_only=True,
+        direction=None,
+        in_outer_pipelines=False,
+    ):
         if isinstance(self.process, capsul.pipeline.pipeline.Pipeline):
-            yield from  self.process.get_linked_items(
+            yield from self.process.get_linked_items(
                 node=node,
                 plug_name=plug_name,
                 in_sub_pipelines=in_sub_pipelines,
                 activated_only=activated_only,
                 process_only=process_only,
                 direction=direction,
-                in_outer_pipelines=in_outer_pipelines)
+                in_outer_pipelines=in_outer_pipelines,
+            )

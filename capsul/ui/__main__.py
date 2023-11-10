@@ -16,7 +16,8 @@ def web_server_gui():
 
     class Handler(SomaHTTPHandler, **handler_kwargs):
         pass
-    httpd = http.server.HTTPServer(('', 8080), Handler)
+
+    httpd = http.server.HTTPServer(("", 8080), Handler)
     httpd.serve_forever()
 
 
@@ -24,16 +25,14 @@ def qt_web_gui():
     import sys
     from soma.qt_gui.qt_backend import Qt
     from soma.web import SomaBrowserWidget
-    
-    s = os.path.split(os.path.dirname(__file__)) + ('static',)
+
+    s = os.path.split(os.path.dirname(__file__)) + ("static",)
     starting_url = f'file://{"/".join(s)}/dashboard.html'
     app = Qt.QApplication(sys.argv)
-    w = SomaBrowserWidget(
-        starting_url=starting_url,
-        **handler_kwargs
-    )
+    w = SomaBrowserWidget(starting_url=starting_url, **handler_kwargs)
     w.showMaximized()
     app.exec_()
+
 
 qt_web_gui()
 # web_server_gui()

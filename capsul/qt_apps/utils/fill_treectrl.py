@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-'''
+"""
 Functions
 =========
 :func:`fill_treectrl`
@@ -8,10 +8,11 @@ Functions
 ----------------------
 :func:`search_in_menu`
 ----------------------
-'''
+"""
 
 from __future__ import absolute_import
 import six
+
 # Soma import
 from soma.qt_gui.qt_backend import QtGui
 
@@ -20,7 +21,7 @@ font = QtGui.QFont("", 9, QtGui.QFont.Bold)
 
 
 def fill_treectrl(treectrl, menu, match=""):
-    """ Fill a tree control with the different menu items.
+    """Fill a tree control with the different menu items.
 
     This procedure is able to filter the menu items.
     Loadable pipelines appear in bold in the tree control.
@@ -43,7 +44,7 @@ def fill_treectrl(treectrl, menu, match=""):
 
 
 def add_tree_nodes(parent_item, menu, match, parent_module=""):
-    """ Add the menu to tree control if match in current module name or
+    """Add the menu to tree control if match in current module name or
     child modules.
 
     The match is insensitive to the cast.
@@ -64,13 +65,17 @@ def add_tree_nodes(parent_item, menu, match, parent_module=""):
     for module_name, child_modules in six.iteritems(menu):
 
         # Filtering: check if we need to add this module in the tree
-        if (match == "" or match in module_name.lower() or
-            search_in_menu(child_modules, match)):
+        if (
+            match == ""
+            or match in module_name.lower()
+            or search_in_menu(child_modules, match)
+        ):
 
             # Add the module name to the tree control
             if isinstance(child_modules, dict):
                 tree_item = QtGui.QTreeWidgetItem(
-                    parent_item, [module_name, "None", "None"])
+                    parent_item, [module_name, "None", "None"]
+                )
                 if parent_module:
                     current_module = parent_module + "." + module_name
                 else:
@@ -78,13 +83,13 @@ def add_tree_nodes(parent_item, menu, match, parent_module=""):
                 add_tree_nodes(tree_item, child_modules, match, current_module)
             else:
                 tree_item = QtGui.QTreeWidgetItem(
-                    parent_item,
-                    [module_name, parent_module, child_modules[0]])
+                    parent_item, [module_name, parent_module, child_modules[0]]
+                )
                 tree_item.setFont(0, font)
 
 
 def search_in_menu(menu, match):
-    """ Recursive search in tree.
+    """Recursive search in tree.
 
     The search procedure is insensitive to the cast.
 
@@ -117,8 +122,10 @@ def search_in_menu(menu, match):
 
         # Recursive search
         is_included = (
-            is_included or match in module_name.lower() or
-            search_in_menu(child_modules, match))
+            is_included
+            or match in module_name.lower()
+            or search_in_menu(child_modules, match)
+        )
 
         # Stop criteria
         if is_included:

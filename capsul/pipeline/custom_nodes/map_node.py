@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-'''
+"""
 :class:`MapNode`
 ------------------------
-'''
+"""
 
 
 from __future__ import absolute_import
@@ -11,7 +11,7 @@ from soma.controller import Controller, File, undefined, field, type_from_str
 
 
 class MapNode(Node):
-    '''
+    """
     This node converts lists into series of single items. Typically an
     input named ``inputs`` is a list of items. The node will separate items and
     output each of them as an output parameter. The i-th item will be output as
@@ -32,32 +32,41 @@ class MapNode(Node):
       Each pattern will be used to replace items from the corresponding input
       in the same order. Thus ``input_names``  and ``output_names`` should be
       the same length.
-    '''
+    """
 
-    _doc_path = 'api/pipeline.html#mapnode'
+    _doc_path = "api/pipeline.html#mapnode"
 
-    def __init__(self, pipeline, name, input_names=['inputs'],
-                 output_names=['output_%d'], input_types=None):
+    def __init__(
+        self,
+        pipeline,
+        name,
+        input_names=["inputs"],
+        output_names=["output_%d"],
+        input_types=None,
+    ):
         in_fields = []
-        out_fields = [{'name': 'lengths', 'optional': True}]
+        out_fields = [{"name": "lengths", "optional": True}]
 
         if input_types:
             ptypes = input_types
         else:
             ptypes = [File] * len(input_names)
-        self.input_types  = ptypes
+        self.input_types = ptypes
 
         for tr in input_names:
-            in_fields.append({'name': tr, 'optional': False})
-        super(MapNode, self).__init__(None, pipeline, name, in_fields,
-                                      out_fields)
+            in_fields.append({"name": tr, "optional": False})
+        super(MapNode, self).__init__(None, pipeline, name, in_fields, out_fields)
 
         for tr, ptype in zip(input_names, ptypes):
             self.add_field(tr, list[ptype], output=False, default_factory=list)
-        self.add_field('lengths',
-                       list[int], output=True, optional=True,
-                       default_factory=list,
-                       doc='lists lengths')
+        self.add_field(
+            "lengths",
+            list[int],
+            output=True,
+            optional=True,
+            default_factory=list,
+            doc="lists lengths",
+        )
         self.input_names = input_names
         self.output_names = output_names
         self.lengths = [0] * len(input_names)
@@ -95,7 +104,8 @@ class MapNode(Node):
             self.add_field(pname, ptype)
             plug = self.plugs[pname]
             plug.on_attribute_change.add(
-                self.pipeline.update_nodes_and_plugs_activation, "enabled")
+                self.pipeline.update_nodes_and_plugs_activation, "enabled"
+            )
         for i, val in enumerate(value):
             setattr(self, output % i, val)
         # update lengths
@@ -117,12 +127,12 @@ class MapNode(Node):
     @classmethod
     def configure_controller(cls):
         c = Controller()
-        c.add_field('input_types', list[str], default_factory=list)
-        c.add_field('input_names', list[str], default_factory=list)
-        c.add_field('output_names', list[str], default_factory=list)
-        c.input_names = ['inputs']
-        c.output_names = ['output_%d']
-        c.input_types = ['File']
+        c.add_field("input_types", list[str], default_factory=list)
+        c.add_field("input_names", list[str], default_factory=list)
+        c.add_field("output_names", list[str], default_factory=list)
+        c.input_names = ["inputs"]
+        c.output_names = ["output_%d"]
+        c.input_types = ["File"]
         return c
 
     @classmethod
@@ -130,19 +140,30 @@ class MapNode(Node):
         t = []
         for ptype in conf_controller.input_types:
             t.append(type_from_str(ptype))
-        node = MapNode(pipeline, name, conf_controller.input_names,
-                       conf_controller.output_names, input_types=t)
+        node = MapNode(
+            pipeline,
+            name,
+            conf_controller.input_names,
+            conf_controller.output_names,
+            input_types=t,
+        )
         return node
 
     def params_to_command(self):
-        return ['custom_job']
+        return ["custom_job"]
 
-    def build_job(self, name=None, referenced_input_files=[],
-                  referenced_output_files=[], param_dict=None):
+    def build_job(
+        self,
+        name=None,
+        referenced_input_files=[],
+        referenced_output_files=[],
+        param_dict=None,
+    ):
         from soma_workflow.custom_jobs import MapJob
+
         param_dict = dict(param_dict)
-        param_dict['input_names'] = self.input_names
-        param_dict['output_names'] = self.output_names
+        param_dict["input_names"] = self.input_names
+        param_dict["output_names"] = self.output_names
         for index, pname in enumerate(self.input_names):
             value = getattr(self, pname, undefined)
             param_dict[pname] = value
@@ -151,8 +172,10 @@ class MapNode(Node):
                 for i in range(len(value)):
                     opname = output_name % i
                     param_dict[opname] = getattr(self, opname)
-        job = MapJob(name=name,
-                     referenced_input_files=referenced_input_files,
-                     referenced_output_files=referenced_output_files,
-                     param_dict=param_dict)
+        job = MapJob(
+            name=name,
+            referenced_input_files=referenced_input_files,
+            referenced_output_files=referenced_output_files,
+            param_dict=param_dict,
+        )
         return job

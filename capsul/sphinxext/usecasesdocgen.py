@@ -21,10 +21,10 @@ logger = logging.getLogger(__file__)
 
 
 class UseCasesHelperWriter(object):
-    """ A basic class to convert the pilot codes to rst use cases
-    """
+    """A basic class to convert the pilot codes to rst use cases"""
+
     def __init__(self, pilots, rst_extension=".rst"):
-        """ Initialize the UseCasesHelper class
+        """Initialize the UseCasesHelper class
 
         Parameters
         ----------
@@ -37,7 +37,7 @@ class UseCasesHelperWriter(object):
         self.rst_extension = rst_extension
 
     def getsource(self, function):
-        """ Method that returns the source code of a function
+        """Method that returns the source code of a function
 
         Parameters
         ----------
@@ -52,7 +52,7 @@ class UseCasesHelperWriter(object):
         return inspect.getsource(function)
 
     def generate_usecases_doc(self, src_code, module_name):
-        """ Make autodoc documentation of pilots
+        """Make autodoc documentation of pilots
 
         Parameters
         ----------
@@ -80,8 +80,7 @@ class UseCasesHelperWriter(object):
         is_header = True
         full_code = "# The full use case code: {0}\n".format(module_name)
         for code_item in pilot_tree:
-            if (isinstance(code_item, ast.Expr) and
-                    isinstance(code_item.value, ast.Str)):
+            if isinstance(code_item, ast.Expr) and isinstance(code_item.value, ast.Str):
                 # Find End code line
                 code_value = lines[line_start_code:line_end_code]
                 for line_index in range(line_end_code, nb_lines):
@@ -134,7 +133,7 @@ class UseCasesHelperWriter(object):
         return ad
 
     def write_usecases_docs(self, outdir=None, returnrst=False):
-        """ Generate Use Cases reST files.
+        """Generate Use Cases reST files.
 
         Parameters
         ----------
@@ -148,8 +147,9 @@ class UseCasesHelperWriter(object):
         # Check output directory
         if returnrst is False:
             if not isinstance(outdir, six.string_types):
-                raise Exception("If 'returnrst' is False, need a valid output "
-                                "directory.")
+                raise Exception(
+                    "If 'returnrst' is False, need a valid output " "directory."
+                )
             if not os.path.exists(outdir):
                 os.makedirs(outdir)
         else:
@@ -160,8 +160,11 @@ class UseCasesHelperWriter(object):
         for pilot in self.pilots:
 
             # Information message
-            logger.info("Processing pilot '{0}' in module '{1}'...".format(
-                pilot.__name__, pilot.__module__))
+            logger.info(
+                "Processing pilot '{0}' in module '{1}'...".format(
+                    pilot.__name__, pilot.__module__
+                )
+            )
 
             # Generate reST
             uid = pilot.__module__ + "." + pilot.__name__
@@ -189,9 +192,10 @@ class UseCasesHelperWriter(object):
         if returnrst is True:
             return rstdoc
 
-    def write_index(self, outdir, froot="index", relative_to=None,
-                    rst_extension=".rst"):
-        """ Make a reST API index file from written files
+    def write_index(
+        self, outdir, froot="index", relative_to=None, rst_extension=".rst"
+    ):
+        """Make a reST API index file from written files
 
         Parameters
         ----------
@@ -209,7 +213,7 @@ class UseCasesHelperWriter(object):
             Extension for reST files, default '.rst'
         """
         if self.written_usecases is None:
-            raise ValueError('No modules written')
+            raise ValueError("No modules written")
         # Get full filename path
         path = os.path.join(outdir, froot + rst_extension)
         # Path written into index is relative to rootpath
@@ -224,8 +228,7 @@ class UseCasesHelperWriter(object):
 
         table = ["<!-- Block section -->"]
         table.append("<table border='1' class='docutils' style='width:100%'>")
-        table.append("<colgroup><col width='25%'/><col width='75%'/>"
-                     "</colgroup>")
+        table.append("<colgroup><col width='25%'/><col width='75%'/>" "</colgroup>")
         table.append("<tbody valign='top'>")
 
         for title_str, f in self.written_usecases:
@@ -237,7 +240,8 @@ class UseCasesHelperWriter(object):
             table.append("<tr class='row-odd'>")
             table.append(
                 "<td><a class='reference internal' href='{0}'>"
-                "<em>{1}</em></a></td>\n".format(ref, relative_uid))
+                "<em>{1}</em></a></td>\n".format(ref, relative_uid)
+            )
             table.append("<td>{0}</td>".format(title_str))
             table.append("</tr>")
 

@@ -1,47 +1,46 @@
 # -*- coding: utf-8 -*-
-'''
+"""
 :class:`StrConvNode`
 --------------------------------
-'''
+"""
 
 from capsul.process.node import Node
 from soma.controller import Controller, Any, undefined, type_from_str
 
 
 class StrConvNode(Node):
-    '''
+    """
     This "inert" node converts the input into a string.
 
-    '''
+    """
 
-    _doc_path = 'api/pipeline.html#strconvnode'
+    _doc_path = "api/pipeline.html#strconvnode"
 
     def __init__(self, pipeline, name, input_type=None):
-        in_fieldsl = ['input']
-        out_fieldsl = ['output']
+        in_fieldsl = ["input"]
+        out_fieldsl = ["output"]
         in_fields = []
         out_fields = []
         for tr in in_fieldsl:
-            in_fields.append({'name': tr, 'optional': True})
+            in_fields.append({"name": tr, "optional": True})
         for tr in out_fieldsl:
-            out_fields.append({'name': tr, 'optional': True})
-        super(StrConvNode, self).__init__(
-            None, pipeline, name, in_fields, out_fields)
+            out_fields.append({"name": tr, "optional": True})
+        super(StrConvNode, self).__init__(None, pipeline, name, in_fields, out_fields)
         if input_type:
             ptype = input_type
         else:
             ptype = Any
 
-        self.add_field('input', ptype, output=False)
+        self.add_field("input", ptype, output=False)
         is_output = True  # not a choice for now.
-        self.add_field('output', str, output=is_output)
+        self.add_field("output", str, output=is_output)
         self.input = 0
-        self.filter_callback(0, 0, 'input')
+        self.filter_callback(0, 0, "input")
 
         self.set_callbacks()
 
     def set_callbacks(self, update_callback=None):
-        inputs = ['input']
+        inputs = ["input"]
         if update_callback is None:
             update_callback = self.filter_callback
         for name in inputs:
@@ -52,13 +51,13 @@ class StrConvNode(Node):
 
     def configured_controller(self):
         c = self.configure_controller()
-        c.param_type = self.field('input').type_str()
+        c.param_type = self.field("input").type_str()
         return c
 
     @classmethod
     def configure_controller(cls):
         c = Controller()
-        c.add_field('param_type', str, default='Any')
+        c.add_field("param_type", str, default="Any")
         return c
 
     @classmethod
@@ -77,9 +76,9 @@ class StrConvNode(Node):
             return []
         plug = self.plugs[plug_name]
         if plug.output:
-            connected_plug_name = 'input'
+            connected_plug_name = "input"
         else:
-            connected_plug_name = 'output'
+            connected_plug_name = "output"
         connected_plug = self.plugs[connected_plug_name]
         if plug.output:
             links = connected_plug.links_from

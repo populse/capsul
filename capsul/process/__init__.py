@@ -1,3 +1,3 @@
 # -*- coding: utf-8 -*-
-''' capsul.process module
-'''
+""" capsul.process module
+"""

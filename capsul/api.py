@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-'''
+"""
 The high-level capsul.api module pre-imports the main objects from several sub-modules:
 
 Classes
@@ -20,11 +20,14 @@ Functions
 * :func:`~capsul.debug.debug`
 * :func:`~capsul.application.executable`
 
-'''
+"""
 
 from .debug import debug
-from .process.process import (Process, NipypeProcess,
-                                    FileCopyProcess,)
+from .process.process import (
+    Process,
+    NipypeProcess,
+    FileCopyProcess,
+)
 from .pipeline.pipeline import Pipeline
 from .pipeline.pipeline_nodes import Plug
 from .pipeline.pipeline_nodes import Node

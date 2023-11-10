@@ -4,27 +4,56 @@ from collections import OrderedDict
 
 
 class test_pipeline(Pipeline):
-
     def pipeline_definition(self):
         # nodes
-        self.add_process("threshold_gt_1", "capsul.process.test.test_load_from_description.threshold", make_optional=['method', 'threshold'])
+        self.add_process(
+            "threshold_gt_1",
+            "capsul.process.test.test_load_from_description.threshold",
+            make_optional=["method", "threshold"],
+        )
         self.nodes["threshold_gt_1"].threshold = 1.0
-        self.add_process("threshold_gt_10", "capsul.process.test.test_load_from_description.threshold", make_optional=['method', 'threshold'])
+        self.add_process(
+            "threshold_gt_10",
+            "capsul.process.test.test_load_from_description.threshold",
+            make_optional=["method", "threshold"],
+        )
         self.nodes["threshold_gt_10"].threshold = 10.0
-        self.add_process("threshold_gt_100", "capsul.process.test.test_load_from_description.threshold", make_optional=['method', 'threshold'])
+        self.add_process(
+            "threshold_gt_100",
+            "capsul.process.test.test_load_from_description.threshold",
+            make_optional=["method", "threshold"],
+        )
         self.nodes["threshold_gt_100"].threshold = 100.0
-        self.add_process("threshold_lt_1", "capsul.process.test.test_load_from_description.threshold", make_optional=['method', 'threshold'])
-        self.nodes["threshold_lt_1"].method = 'lt'
+        self.add_process(
+            "threshold_lt_1",
+            "capsul.process.test.test_load_from_description.threshold",
+            make_optional=["method", "threshold"],
+        )
+        self.nodes["threshold_lt_1"].method = "lt"
         self.nodes["threshold_lt_1"].threshold = 1.0
-        self.add_process("threshold_lt_10", "capsul.process.test.test_load_from_description.threshold", make_optional=['method', 'threshold'])
-        self.nodes["threshold_lt_10"].method = 'lt'
+        self.add_process(
+            "threshold_lt_10",
+            "capsul.process.test.test_load_from_description.threshold",
+            make_optional=["method", "threshold"],
+        )
+        self.nodes["threshold_lt_10"].method = "lt"
         self.nodes["threshold_lt_10"].threshold = 10.0
-        self.add_process("threshold_lt_100", "capsul.process.test.test_load_from_description.threshold", make_optional=['method', 'threshold'])
-        self.nodes["threshold_lt_100"].method = 'lt'
+        self.add_process(
+            "threshold_lt_100",
+            "capsul.process.test.test_load_from_description.threshold",
+            make_optional=["method", "threshold"],
+        )
+        self.nodes["threshold_lt_100"].method = "lt"
         self.nodes["threshold_lt_100"].threshold = 100.0
-        self.add_process("mask_1", "capsul.process.test.test_load_from_description.mask")
-        self.add_process("mask_10", "capsul.process.test.test_load_from_description.mask")
-        self.add_process("mask_100", "capsul.process.test.test_load_from_description.mask")
+        self.add_process(
+            "mask_1", "capsul.process.test.test_load_from_description.mask"
+        )
+        self.add_process(
+            "mask_10", "capsul.process.test.test_load_from_description.mask"
+        )
+        self.add_process(
+            "mask_100", "capsul.process.test.test_load_from_description.mask"
+        )
 
         # links
         self.export_parameter("threshold_lt_1", "input_image")
@@ -47,7 +76,21 @@ class test_pipeline(Pipeline):
         self.export_parameter("mask_100", "output_image", "output_100")
 
         # processes selection
-        self.add_processes_selection("select_method", OrderedDict([('greater than', ['threshold_gt_1', 'threshold_gt_10', 'threshold_gt_100']), ('lower than', ['threshold_lt_1', 'threshold_lt_10', 'threshold_lt_100'])]))
+        self.add_processes_selection(
+            "select_method",
+            OrderedDict(
+                [
+                    (
+                        "greater than",
+                        ["threshold_gt_1", "threshold_gt_10", "threshold_gt_100"],
+                    ),
+                    (
+                        "lower than",
+                        ["threshold_lt_1", "threshold_lt_10", "threshold_lt_100"],
+                    ),
+                ]
+            ),
+        )
 
         # nodes positions
         self.node_position = {
