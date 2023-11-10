@@ -4,15 +4,15 @@ from capsul.api import executable
 
 
 class PipelineHelpWriter:
-    """ Class for automatic generation of pipeline API documentations
+    """Class for automatic generation of pipeline API documentations
     in Sphinx-parsable reST format.
     """
 
     # Only separating first two levels
-    rst_section_levels = ['*', '=', '-', '~', '^']
+    rst_section_levels = ["*", "=", "-", "~", "^"]
 
     def __init__(self, pipelines, rst_extension=".rst", short_names={}):
-        """ Initialize package for parsing
+        """Initialize package for parsing
 
         Parameters
         ----------
@@ -28,7 +28,7 @@ class PipelineHelpWriter:
         self.short_names = short_names
 
     def generate_api_doc(self, pipeline, schema):
-        """ Make autodoc documentation for a pipeline python module
+        """Make autodoc documentation for a pipeline python module
 
         Parameters
         ----------
@@ -70,12 +70,15 @@ class PipelineHelpWriter:
         ad += "\n.. _{0}\n\n".format(label)
 
         chap_title = pipeline
-        ad += (chap_title + "\n" +
-               self.rst_section_levels[1] * len(chap_title) + "\n\n")
+        ad += chap_title + "\n" + self.rst_section_levels[1] * len(chap_title) + "\n\n"
 
         # Add a subtitle
-        ad += (pipeline_name + "\n" +
-               self.rst_section_levels[2] * len(pipeline_name) + "\n\n")
+        ad += (
+            pipeline_name
+            + "\n"
+            + self.rst_section_levels[2] * len(pipeline_name)
+            + "\n\n"
+        )
 
         # Then add the trait description
         # It will generate two sections: input and output
@@ -84,8 +87,7 @@ class PipelineHelpWriter:
         # Add schema if generated
         if schema:
             schama_title = "Pipeline schema"
-            ad += ("\n" + schama_title + "\n" +
-                   "~" * len(schama_title) + "\n\n")
+            ad += "\n" + schama_title + "\n" + "~" * len(schama_title) + "\n\n"
             ad += ".. image:: {0}\n".format(schema)
             ad += "    :height: 400px\n"
             ad += "    :align: center\n\n"
@@ -93,7 +95,7 @@ class PipelineHelpWriter:
         return ad, title
 
     def write_api_docs(self, outdir=None, returnrst=False):
-        """ Generate API reST files.
+        """Generate API reST files.
 
         Parameters
         ----------
@@ -111,8 +113,9 @@ class PipelineHelpWriter:
         # Check output directory
         if returnrst is False:
             if not isinstance(outdir, str):
-                raise Exception("If 'returnrst' is False, need a valid output "
-                                "directory.")
+                raise Exception(
+                    "If 'returnrst' is False, need a valid output " "directory."
+                )
             if not os.path.exists(outdir):
                 os.makedirs(outdir)
         else:
@@ -121,12 +124,10 @@ class PipelineHelpWriter:
         # Generate reST API
         written_modules = []
         for pipeline in self.pipelines:
-
             pipeline_short = self.get_short_name(pipeline)
             # Check if an image representation of the pipeline exists
             if returnrst is False:
-                schema = os.path.join(os.pardir, "schema",
-                                      pipeline_short + ".png")
+                schema = os.path.join(os.pardir, "schema", pipeline_short + ".png")
                 if not os.path.isfile(os.path.join(outdir, schema)):
                     schema = None
             else:
@@ -139,8 +140,7 @@ class PipelineHelpWriter:
 
             # Write to file
             if returnrst is False:
-                outfile = os.path.join(outdir,
-                                       pipeline_short + self.rst_extension)
+                outfile = os.path.join(outdir, pipeline_short + self.rst_extension)
                 fileobj = open(outfile, "wt")
                 fileobj.write(api_str)
                 fileobj.close()
@@ -166,17 +166,18 @@ class PipelineHelpWriter:
             return short_name
         # look for a shorter name for the longest module prefix
         modules = name.split(".")
-        for i in range(len(modules)-1, 0, -1):
-            path = '.'.join(modules[:i])
+        for i in range(len(modules) - 1, 0, -1):
+            path = ".".join(modules[:i])
             short_path = self.short_names.get(path)
             if short_path:
-                return '.'.join([short_path] + modules[i+1:])
+                return ".".join([short_path] + modules[i + 1 :])
         # not found
         return name
 
-    def write_index(self, outdir, froot="index", relative_to=None,
-                    rst_extension=".rst"):
-        """ Make a reST API index file from the list of written files
+    def write_index(
+        self, outdir, froot="index", relative_to=None, rst_extension=".rst"
+    ):
+        """Make a reST API index file from the list of written files
 
         Parameters
         ----------
@@ -195,7 +196,7 @@ class PipelineHelpWriter:
         """
         # Check if some modules have been written
         if self.written_modules is None:
-            raise ValueError('No modules written')
+            raise ValueError("No modules written")
 
         # Get full index filename path
         path = os.path.join(outdir, froot + rst_extension)
@@ -205,7 +206,7 @@ class PipelineHelpWriter:
             relpath = outdir.replace(relative_to + os.path.sep, "")
         else:
             relpath = outdir
-        print('relpath:', relpath)
+        print("relpath:", relpath)
 
         # Edit the index file
         idx = open(path, "wt")
@@ -221,22 +222,22 @@ class PipelineHelpWriter:
         # Table definition
         table = ["<!-- Block section -->"]
         table.append("<table border='1' class='docutils' style='width:100%'>")
-        table.append("<colgroup><col width='25%'/><col width='75%'/>"
-                     "</colgroup>")
+        table.append("<colgroup><col width='25%'/><col width='75%'/>" "</colgroup>")
         table.append("<tbody valign='top'>")
 
         # Add all modules
         for title_str, f in self.written_modules:
             pipeline_short = self.get_short_name(f)
-            print('title_str:', title_str, ', f:', f)
+            print("title_str:", title_str, ", f:", f)
             relative_pipeline = ".".join(f.split(".")[2:])
-            print('relative_pipeline:', relative_pipeline)
+            print("relative_pipeline:", relative_pipeline)
             ref = os.path.join(relpath, pipeline_short + ".html")
-            print('ref:', ref)
+            print("ref:", ref)
             table.append("<tr class='row-odd'>")
             table.append(
                 "<td><a class='reference internal' href='{0}'>"
-                "<em>{1}</em></a></td>\n".format(ref, relative_pipeline))
+                "<em>{1}</em></a></td>\n".format(ref, relative_pipeline)
+            )
             table.append("<td>{0}</td>".format(title_str))
             table.append("</tr>")
 
@@ -251,10 +252,16 @@ class PipelineHelpWriter:
         # Close the file
         idx.close()
 
-    def write_main_index(self, outdir, module_name, root_module_name,
-                         froot="index", rst_extension=".rst",
-                         have_usecases=True):
-        """ Make a reST API index file for the module
+    def write_main_index(
+        self,
+        outdir,
+        module_name,
+        root_module_name,
+        froot="index",
+        rst_extension=".rst",
+        have_usecases=True,
+    ):
+        """Make a reST API index file for the module
 
         Parameters
         ----------
@@ -285,8 +292,7 @@ class PipelineHelpWriter:
 
         # Generate a title
         chap_title = " ".join([x.capitalize() for x in module_name.split("_")])
-        w(chap_title + "\n" +
-          self.rst_section_levels[0] * len(chap_title) + "\n\n")
+        w(chap_title + "\n" + self.rst_section_levels[0] * len(chap_title) + "\n\n")
 
         # Generate a markup
         label = module_name
@@ -294,10 +300,8 @@ class PipelineHelpWriter:
 
         # Page use cases
         # # Generate a title
-        chap_title = ":mod:`{0}.{1}`: User Guide".format(
-            root_module_name, module_name)
-        w(chap_title + "\n" +
-          self.rst_section_levels[1] * len(chap_title) + "\n\n")
+        chap_title = ":mod:`{0}.{1}`: User Guide".format(root_module_name, module_name)
+        w(chap_title + "\n" + self.rst_section_levels[1] * len(chap_title) + "\n\n")
 
         if have_usecases:
             # # Generate a markup
@@ -310,31 +314,28 @@ class PipelineHelpWriter:
 
         # API page
         # # Generate a title
-        chap_title = ":mod:`{0}.{1}`: API".format(
-            root_module_name, module_name)
-        w(chap_title + "\n" +
-          self.rst_section_levels[1] * len(chap_title) + "\n\n")
+        chap_title = ":mod:`{0}.{1}`: API".format(root_module_name, module_name)
+        w(chap_title + "\n" + self.rst_section_levels[1] * len(chap_title) + "\n\n")
         # # Generate a markup
         label = module_name + "_api"
         w(".. _{0}:\n\n".format(label))
         # # Some text description
-        w("The API of functions and classes, as given by the "
-          "docstrings.")
+        w("The API of functions and classes, as given by the " "docstrings.")
         if have_usecases:
-            w(" For the *user guide* see the {0}_ug_ "
-              "section for further details.\n\n".format(module_name))
+            w(
+                " For the *user guide* see the {0}_ug_ "
+                "section for further details.\n\n".format(module_name)
+            )
         else:
             w("\n\n")
         # # Include pipeline and buildingblock indexes
         # ## Pipeline
         chap_title = "Pipelines"
-        w(chap_title + "\n" +
-          self.rst_section_levels[2] * len(chap_title) + "\n\n")
+        w(chap_title + "\n" + self.rst_section_levels[2] * len(chap_title) + "\n\n")
         w(".. include:: pipeline/index%s\n\n" % rst_extension)
         # ## Buildingblocks
         chap_title = "Buildingblocks"
-        w(chap_title + "\n" +
-          self.rst_section_levels[2] * len(chap_title) + "\n\n")
+        w(chap_title + "\n" + self.rst_section_levels[2] * len(chap_title) + "\n\n")
         w(".. include:: process/index%s\n\n" % rst_extension)
 
         # Close file
