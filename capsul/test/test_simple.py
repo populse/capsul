@@ -80,6 +80,14 @@ class SimplePipelineTests(unittest.TestCase):
             ce.run(p)
         assert p.process_has_run
 
+    def test_pipeline_loading_from_json_file(self):
+        p = capsul.api.executable('capsul.test.simple_pipeline_with_output')
+        p.output_file = 'output.txt'
+        with Capsul().engine() as ce:
+            ce.run(p)
+        with open('output.txt') as f:
+            assert f.read() == 'ProcessWithOutputFile has run!\n'
+
     def test_intermediate_temporary_file(self):
         p = capsul.api.executable({
             "type": "custom_pipeline",
