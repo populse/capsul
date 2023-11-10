@@ -16,7 +16,7 @@ import logging
 import traceback
 
 
-class LayoutHelperWriter(object):
+class LayoutHelperWriter:
     """ A basic class to create sphinx layout and associated index.
     """
     def __init__(self, module_names, root_module_name, rst_extension=".rst"):

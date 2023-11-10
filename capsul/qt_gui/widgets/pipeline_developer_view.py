@@ -104,7 +104,7 @@ LIGHT_ANTHRACITE_1 = QtGui.QColor.fromRgbF(0.25, 0.25, 0.25)
 # -----------------------------------------------------------------------------
 
 
-class ColorType(object):
+class ColorType:
     def __init__(self):
         pass
 
@@ -415,7 +415,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
         self._create_label_marks()
 
     def _get_label(self, label, register=True):
-        class Label(object):
+        class Label:
             def __init__(self, label, color):
                 self.text = label
                 self.color = color

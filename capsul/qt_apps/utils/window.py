@@ -13,7 +13,7 @@ from soma.qt_gui import qt_backend
 from capsul.qt_apps.resources.icones import *
 
 
-class MyQUiLoader(object):
+class MyQUiLoader:
     """Base window class based on ui file description."""
 
     def __init__(self, uifile):
