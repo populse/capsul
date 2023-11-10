@@ -42,7 +42,6 @@ class MyPipeline(Pipeline):
     """Simple Pipeline to test the Switch Node"""
 
     def pipeline_definition(self):
-
         if self.definition is None:
             self.definition = "capsul.pipeline.test.test_pipeline.MyPipeline"
 
@@ -73,7 +72,6 @@ class MyPipeline(Pipeline):
 
 
 class TestPipeline(unittest.TestCase):
-
     debug = False
 
     def setUp(self):

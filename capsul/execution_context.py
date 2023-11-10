@@ -390,7 +390,6 @@ class CapsulWorkflow(Controller):
                         in_sub_pipelines=False,
                         direction=("links_from", "links_to"),
                     ):
-
                         second = nodes_dict.get(dest_node.name, {}).get(dest_plug_name)
                         # if debug: print('dest:', dest_node.name, dest_plug_name, dest_node.pipeline.name, node.pipeline.name)
                         if dest_node.pipeline is not node.pipeline:

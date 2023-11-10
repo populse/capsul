@@ -30,7 +30,6 @@ class SwitchPipeline(Pipeline):
     """Simple Pipeline to test the Switch Node"""
 
     def pipeline_definition(self):
-
         # Create processes
         self.add_process(
             "node", "capsul.pipeline.test.test_switch_pipeline.DummyProcess"

@@ -197,7 +197,6 @@ class TestCompletion(unittest.TestCase):
         )
 
     def test_run_iteraton(self):
-
         pipeline = self.capsul.executable_iteration(
             "capsul.process.test.test_metadata_schema.DummyProcess",
             iterative_plugs=["truc", "bidule"],

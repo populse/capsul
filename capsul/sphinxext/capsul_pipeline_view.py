@@ -92,7 +92,6 @@ for pipeline in pipelines:
 
 # Generate a png representation of each pipeline.
 for module_name, module_pipelines in sorted_pipelines.items():
-
     # this docwriter is juste used to manage short names
     docwriter = PipelineHelpWriter([], short_names=short_names)
 
@@ -105,7 +104,6 @@ for module_name, module_pipelines in sorted_pipelines.items():
 
     # Go through all pipeline
     for module_pipeline in module_pipelines:
-
         # Get pipeline instance
         pipeline_instance = Capsul.executable(module_pipeline)
 

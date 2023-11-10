@@ -33,7 +33,6 @@ class MyPipeline(Pipeline):
     """Simple Pipeline"""
 
     def pipeline_definition(self):
-
         # Create processes
         self.add_process(
             "node1", "capsul.pipeline.test.test_pipeline_with_temp.DummyProcess"
@@ -71,7 +70,6 @@ class MyIterativePipeline(Pipeline):
     """Simple Pipeline with iteration and temporary output"""
 
     def pipeline_definition(self):
-
         # Create processes
         self.add_iterative_process(
             "node1",

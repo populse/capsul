@@ -69,7 +69,6 @@ class ViewerWidget(QtGui.QWidget):
         # are specified -> corresponding process have run)
         is_viewer_active = True
         for plug_name, plug in viewer_node.plugs.items():
-
             if plug_name in ["nodes_activation", "selection_changed"]:
                 continue
 
@@ -81,7 +80,6 @@ class ViewerWidget(QtGui.QWidget):
                 source_plug,
                 weak_link,
             ) in plug.links_from:
-
                 # Get the source plug value and source field
                 source_plug_value = getattr(source_node, source_plug_name, undefined)
                 source_field = source_node.field(source_plug_name)
@@ -93,7 +91,6 @@ class ViewerWidget(QtGui.QWidget):
                     break
                 # 2) if the plug is a file, the file exists
                 if source_field.is_file() and not os.path.isfile(source_plug_value):
-
                     is_viewer_active = False
                     break
 

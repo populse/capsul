@@ -229,7 +229,6 @@ class Graph(object):
 
 
 if __name__ == "__main__":
-
     """A toy example:
     slip -> chaussettes -> chemise -> veste -> pantalon -> ceinture ->
     chaussures -> cravate

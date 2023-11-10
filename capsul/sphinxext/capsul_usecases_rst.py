@@ -94,7 +94,6 @@ for module_name, pilots in pilots.items():
 
 # Generate use cases reST
 for module_name, pilots in sorted_pilots.items():
-
     # Where the documentation will be written: a relative path from the
     # makefile
     outdir = os.path.join(base_outdir, module_name, "use_cases")

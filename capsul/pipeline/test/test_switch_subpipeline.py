@@ -89,7 +89,6 @@ class SwitchPipeline(Pipeline):
     """Simple Pipeline to test the Switch Node"""
 
     def pipeline_definition(self):
-
         # Create processes
         self.add_process(
             "way1", "capsul.pipeline.test.test_switch_subpipeline.DummyProcess"
@@ -146,7 +145,6 @@ class MultipleConnectionsPipeline(Pipeline):
     """Simple Pipeline to test one input connected to several processes"""
 
     def pipeline_definition(self):
-
         # Create processes
         self.add_process(
             "process1", "capsul.pipeline.test.test_switch_subpipeline.DummyProcess1_1"

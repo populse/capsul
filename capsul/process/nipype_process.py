@@ -169,7 +169,6 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
         # a process instance input trait is modified or when the dedicated
         # 'synchronize' trait value is modified
         if name in input_fields or name in ("synchronize", "output_directory"):
-
             # Try to set all the process instance output traits values from
             # the nipype autocompleted traits values
             try:
@@ -202,7 +201,6 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
 
             # Synchronize traits: check file existence
             for out_name, out_value in nipype_outputs.items():
-
                 pname = trait_map.get(out_name, out_name)
 
                 try:
@@ -397,7 +395,6 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
 
     # > output traits
     for trait_name, trait in nipype_instance.output_spec().items():
-
         field_name = out_params[trait_name]
         if process_instance.field(field_name) is not None:
             field_name = "nipype_" + field_name

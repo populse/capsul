@@ -198,7 +198,6 @@ class TestNipypeWrap(unittest.TestCase):
         tmp_dir = tempfile.mkdtemp(prefix="capsul_nipype_wrap_test")
 
         try:
-
             p = c.executable("nipype.interfaces.spm.preprocess.Smooth")
 
             p.in_files = [t1_template]

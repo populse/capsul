@@ -171,7 +171,6 @@ class TestCompletion(unittest.TestCase):
             del self.tmp_dir
 
     def test_pipeline_completion(self):
-
         pipeline = executable("capsul.test.test_completion.TestPipeline")
 
         assert pipeline.field("normalized").type == File
@@ -242,7 +241,6 @@ class TestCompletion(unittest.TestCase):
         self.assertEqual(params, expected)
 
     def test_iteration_completion(self):
-
         expected_completion = {
             "input": [
                 "!{dataset.input.path}/rawdata/sub-aleksander/ses-m0/anat/sub-aleksander_ses-m0_T1w.nii",

@@ -29,7 +29,7 @@ class LinkToBlock(BaseAdmonition):
     def run(self):
         # Construct an empty node
         new_content = ViewList()
-        ref = u":ref:`{0} <{1}>`".format(
+        ref = ":ref:`{0} <{1}>`".format(
             self.options.get("label", "Link To"), "".join(self.arguments)
         )
         new_content.append(ref, source=self.content)

@@ -477,7 +477,6 @@ class BrainVISASchema(MetadataSchema):
 
 
 class MorphologistBIDSSchema(BrainVISASchema):
-
     schema_name = "morphologist_bids"
 
     folder: Literal["sourcedata", "rawdata", "derivative"]

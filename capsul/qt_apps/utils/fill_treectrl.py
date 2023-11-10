@@ -62,14 +62,12 @@ def add_tree_nodes(parent_item, menu, match, parent_module=""):
     """
     # Go through the current module sub modules
     for module_name, child_modules in six.iteritems(menu):
-
         # Filtering: check if we need to add this module in the tree
         if (
             match == ""
             or match in module_name.lower()
             or search_in_menu(child_modules, match)
         ):
-
             # Add the module name to the tree control
             if isinstance(child_modules, dict):
                 tree_item = QtGui.QTreeWidgetItem(
@@ -114,7 +112,6 @@ def search_in_menu(menu, match):
 
     # Go through the current module sub modules
     for module_name, child_modules in six.iteritems(menu):
-
         # Stop criteria
         if isinstance(child_modules, list):
             return is_included or match in module_name.lower()

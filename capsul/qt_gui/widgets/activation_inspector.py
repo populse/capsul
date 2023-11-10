@@ -193,10 +193,8 @@ class ActivationInspector(QtGui.QWidget):
 
         # Got through the class dynamic controls
         for control_type, control_item in six.iteritems(self.controls):
-
             # Get the dynamic control name
             for control_name in control_item:
-
                 # Try to set the control value to the ui class parameter
                 try:
                     value = self.ui.findChild(control_type, control_name)
@@ -214,7 +212,6 @@ class ActivationInspector(QtGui.QWidget):
         """Method to display pipeline activation steps from the recorded file."""
         # Open the last recorded activation file
         with open(self.record_file) as openrecord:
-
             # Get the header of the file that contains the pipeline identifier
             # of the recorded activation
             record_pipeline_id = openrecord.readline().strip()
@@ -239,7 +236,6 @@ class ActivationInspector(QtGui.QWidget):
             # > Go through all the activation steps
             parser = re.compile(r"(\d+)([+-=])([^:]*)(:([a-zA-Z_0-9]+))?")
             for activation_step in openrecord.readlines():
-
                 # > Parse the line
                 iteration, activation, node, x, plug = parser.match(
                     activation_step.strip()
@@ -273,7 +269,6 @@ class ActivationInspector(QtGui.QWidget):
 
         # Update the pipeline activation to meet the current selection
         for node in self.pipeline.all_nodes():
-
             # Restore the plugs and nodes activations
             node_name = node.full_name
             for plug_name, plug in six.iteritems(node.plugs):

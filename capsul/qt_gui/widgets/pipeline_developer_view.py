@@ -1407,7 +1407,6 @@ class NodeGWidget(QtGui.QGraphicsItem):
             event.accept()
 
     def keyPressEvent(self, event):
-
         super(NodeGWidget, self).keyPressEvent(event)
 
         if event.key() == QtCore.Qt.Key_Up:
@@ -1568,7 +1567,6 @@ class Link(QtGui.QGraphicsPathItem):
         return QtGui.QGraphicsPathItem.focusOutEvent(self, event)
 
     def keyPressEvent(self, event):
-
         if event.key() == QtCore.Qt.Key_Delete:
             self.scene()._link_keydelete_clicked(self)
             event.accept()
@@ -1886,7 +1884,6 @@ class PipelineScene(QtGui.QGraphicsScene):
             self._remove_link(source_dest)
 
     def set_pipeline(self, pipeline):
-
         self.pipeline = pipeline
 
         self.labels = []
@@ -2578,7 +2575,6 @@ class PipelineScene(QtGui.QGraphicsScene):
         self.node_keydelete_clicked.emit(node.name)
 
     def typeLink(self, name_node, name_plug):
-
         if name_node in ("inputs", "outputs"):
             proc = self.pipeline
             splug = self.pipeline.plugs[name_plug]
@@ -3985,7 +3981,6 @@ class PipelineDeveloperView(QGraphicsView):
         pprint(posdict)
 
     def del_node(self, node_name=None):
-
         pipeline = self.scene.pipeline
 
         if not node_name:
@@ -4843,7 +4838,6 @@ class PipelineDeveloperView(QGraphicsView):
                     )
 
     def _node_clicked_ctrl(self, name, process):
-
         for source_dest, glink in self.scene.glinks.items():
             glink.fonced_viewer(False)
             #             print("source-dest ",source_dest)
@@ -4882,7 +4876,6 @@ class PipelineDeveloperView(QGraphicsView):
         self.scene.update_pipeline()
 
     def _plug_right_clicked(self, name):
-
         for node_name, gnode in self.scene.gnodes.items():
             if node_name in "inputs":
                 self.inputYet = True
@@ -5021,7 +5014,6 @@ class PipelineDeveloperView(QGraphicsView):
         node.field(name).forbid_completion = not checked
 
     def _remove_plug(self):
-
         if self._temp_plug_name[0] in ("inputs", "outputs"):
             # print 'remove plug:', self._temp_plug_name[1]
             # print('#' * 50)
@@ -5238,7 +5230,6 @@ class PipelineDeveloperView(QGraphicsView):
         """
 
         def hinted_tuple_hook(obj):
-
             if "__tuple__" in obj:
                 return tuple(obj["items"])
 
@@ -5261,7 +5252,6 @@ class PipelineDeveloperView(QGraphicsView):
                 )
 
             for field_name, field_value in dic["pipeline_parameters"].items():
-
                 if field_name not in [
                     field.name for field in self.scene.pipeline.fields()
                 ]:
@@ -5284,7 +5274,6 @@ class PipelineDeveloperView(QGraphicsView):
         class MultiDimensionalArrayEncoder(json.JSONEncoder):
             def encode(self, obj):
                 def hint_tuples(item):
-
                     if isinstance(item, tuple):
                         return {
                             "__tuple__": True,

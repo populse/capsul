@@ -305,7 +305,6 @@ class Pipeline(Process):
                         or not self.nodes[node_name].field(parameter_name).optional
                     )
                 ):
-
                     self.export_parameter(node_name, parameter_name)
 
     def _make_subprocess_context_name(self, name):
@@ -1547,7 +1546,6 @@ class Pipeline(Process):
                 dest_plug,
                 weak_link,
             ) in plug.links_to:
-
                 # Ignore the link if it is pointing to a node in a
                 # sub-pipeline or in the parent pipeline
                 if pipeline.nodes.get(dest_node_name) is not dest_node:
@@ -1555,7 +1553,6 @@ class Pipeline(Process):
 
                 # Plug need to be activated
                 if dest_node.activated:
-
                     # If plug links to an inert node (switch...), we need to
                     # address the node plugs
                     if isinstance(dest_node, Process):
@@ -1609,7 +1606,6 @@ class Pipeline(Process):
 
         # Add activated Process nodes in the graph
         for node_name, node in self.nodes.items():
-
             # Do not consider the pipeline node
             if node_name == "":
                 continue
@@ -1620,7 +1616,6 @@ class Pipeline(Process):
                 and isinstance(node, Process)
                 and (not remove_disabled_steps or node not in disabled_nodes)
             ):
-
                 # If a Pipeline is found: the meta graph node parameter
                 # contains a sub Graph
                 if isinstance(node, Pipeline):
@@ -1636,7 +1631,6 @@ class Pipeline(Process):
 
                 # Add node edges
                 for plug_name, plug in node.plugs.items():
-
                     # Consider only active pipeline node plugs
                     if plug.activated:
                         insert(
@@ -1674,7 +1668,6 @@ class Pipeline(Process):
             """Recursive function to go through pipelines' graphs"""
             # Go through all the workflows
             for sub_workflow in wokflow:
-
                 # If we have already a flatten graph structure just add it
                 if isinstance(sub_workflow[1], list):
                     workflow_list.extend(sub_workflow[1])
@@ -2369,7 +2362,6 @@ class Pipeline(Process):
             raise ValueError("Node name already in pipeline")
 
         else:
-
             node = self.nodes[old_node_name]
 
             # Removing links of the selected node and copy

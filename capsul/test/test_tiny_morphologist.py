@@ -55,7 +55,6 @@ class BiasCorrectionBIDS(ProcessSchema, schema="bids", process=BiasCorrection):
 class BiasCorrectionBrainVISA(
     ProcessSchema, schema="brainvisa", process=BiasCorrection
 ):
-
     metadata_per_parameter = {
         "*": {
             "unused": [
@@ -99,7 +98,6 @@ class FakeSPMNormalization12BIDS(
 class FakeSPMNormalization12BrainVISA(
     ProcessSchema, schema="brainvisa", process=FakeSPMNormalization12
 ):
-
     metadata_per_parameter = {
         "*": {
             "unused": [
@@ -126,7 +124,6 @@ class FakeSPMNormalization8BIDS(
 class FakeSPMNormalization8BrainVISA(
     ProcessSchema, schema="brainvisa", process=FakeSPMNormalization8
 ):
-
     metadata_per_parameter = {
         "*": {
             "unused": [
@@ -161,7 +158,6 @@ class AimsNormalizationBIDS(ProcessSchema, schema="bids", process=AimsNormalizat
 class AimsNormalizationBrainVISA(
     ProcessSchema, schema="brainvisa", process=AimsNormalization
 ):
-
     metadata_per_parameter = {
         "*": {
             "unused": [

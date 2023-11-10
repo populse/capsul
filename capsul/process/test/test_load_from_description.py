@@ -49,6 +49,7 @@ def to_warp_func(
 # def threshold(input_image, output_image, method='gt', threshold=0):
 #      pass
 
+
 # temp replacement:
 def threshold(
     input_image: field(type_=File, doc="Path of a NIFTI-1 image file."),
@@ -60,7 +61,6 @@ def threshold(
     ),
     threshold: field(type_=float, default=0),
 ):
-
     pass
 
 
@@ -81,7 +81,6 @@ def mask(
     mask: field(type_=File, doc="Path of mask binary image."),
     output_image: field(type_=File, write=True, doc="Output file name."),
 ):
-
     pass
 
 

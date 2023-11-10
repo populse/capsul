@@ -18,7 +18,6 @@ class ComplexPipeline(Pipeline):
     """Pipeline to test complex constructions behaviours"""
 
     def pipeline_definition(self):
-
         # Create processes
         self.add_process("first_pipeline", "capsul.process.test.test_pipeline")
         self.add_process(

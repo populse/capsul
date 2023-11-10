@@ -184,7 +184,6 @@ def lists2dict(list_of_pipeline_description, url, d):
     """
     # Go through all pipeline descriptions
     for l in list_of_pipeline_description:
-
         # Reach a leaf (a pipeline)
         if len(l) == 1:
             d.setdefault(l[0], []).append(url or "")

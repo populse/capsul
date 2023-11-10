@@ -30,7 +30,6 @@ class TestConfiguration(unittest.TestCase):
             del self.tmp_dir
 
     def test_single_configuration(self):
-
         user_file = osp.join(self.tmp_dir, "user_conf.json")
         conf_dict = {
             "builtin": {
@@ -79,7 +78,6 @@ class TestConfiguration(unittest.TestCase):
         )
 
     def test_config_as_dict(self):
-
         conf_dict = {
             "builtin": {
                 "database": "builtin",
