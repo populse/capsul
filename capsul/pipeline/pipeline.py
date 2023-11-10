@@ -1298,6 +1298,8 @@ class Pipeline(Process):
         """
 
         def check_plug_activation(plug, links):
+            if not links:
+                return True
             # After the following for loop, plug_activated can have three
             # values:
             #  True  if there is a non weak link connected to an
@@ -1327,6 +1329,7 @@ class Pipeline(Process):
         plugs_deactivated = []
         # If node has already been  deactivated there is nothing to do
         if node.activated:
+            # Deactivate node if it has no output
             deactivate_node = bool(
                 [plug for plug in node.plugs.values() if plug.output]
             )
@@ -1428,7 +1431,10 @@ class Pipeline(Process):
         for node in self.all_nodes():
             node.activated = False
             for plug_name, plug in node.plugs.items():
-                plug.activated = False
+                if not plug.links_to and not plug.links_from:
+                    plug.activated = True
+                else:
+                    plug.activated = False
 
         # Forward activation : try to activate nodes (and their input plugs)
         # and propagate activations neighbours of activated plugs
