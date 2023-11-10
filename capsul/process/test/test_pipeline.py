@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from capsul.api import Pipeline
 from collections import OrderedDict
 

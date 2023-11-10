@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from capsul.dataset import ProcessSchema, MetadataSchema, Append, SchemaMapping
 from soma.controller import undefined
 import importlib

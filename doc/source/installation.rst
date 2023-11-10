@@ -6,15 +6,15 @@
 =====================
 
 .. This tutorial will walk you through the process of intalling CAPSUL.
-.. 
+..
 ..   * :ref:`Install an official release <install_release>`. This
 ..     is the best approach for users who want a stable version.
-.. 
+..
 ..   * :ref:`Install the latest development version
 ..     <install_development>`. This is best for users who want to contribute
 ..     to the project.
-.. 
-.. 
+..
+..
 .. .. _install_release:
 
 Installing with BrainVISA
@@ -53,9 +53,9 @@ Install system-wide
 
 .. code-block:: shell
 
-   sudo apt-get install python-pip # On Ubuntu 16.04, use python3-pip for Python 3 
+   sudo apt-get install python-pip # On Ubuntu 16.04, use python3-pip for Python 3
    sudo pip install capsul # On Ubuntu 16.04, use pip3 for Python 3
-    
+
 **From source**
 
 .. code-block:: shell
@@ -74,9 +74,9 @@ Install user-wide
 
 .. code-block:: shell
 
-   sudo apt-get install python-pip # On Ubuntu 16.04, use python3-pip for Python 3 
+   sudo apt-get install python-pip # On Ubuntu 16.04, use python3-pip for Python 3
    pip install --user capsul # On Ubuntu 16.04, use pip3 for Python 3
-    
+
 **From source**
 
 .. code-block:: shell
@@ -98,7 +98,7 @@ Install with virtualenv
    sudo apt-get install python3-venv
    python3 -m venv /tmp/venv # Choose your installation directory instead of /tmp/venv
    /tmp/venv/bin/pip install capsul
-    
+
 **For Python 2**
 
 .. code-block:: shell

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''
 Build graph with dependencies from a pipeline
 

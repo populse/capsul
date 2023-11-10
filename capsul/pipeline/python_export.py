@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''
 Pipeline exportation function as a python source code file.
 
@@ -381,8 +380,8 @@ def save_py_pipeline(pipeline, py_file):
         if hasattr(pipeline, "scene_scale_factor"):
             print('        self.scene_scale_factor = %s'
                   % repr(pipeline.scene_scale_factor), file=pyf)
-            
-    ########### add by Irmage OM #########################       
+
+    ########### add by Irmage OM #########################
     def _write_nodes_dimensions(pipeline, pyf):
         node_dimension = getattr(pipeline, "node_dimension", None)
         if node_dimension:
@@ -394,7 +393,7 @@ def save_py_pipeline(pipeline, py_file):
                 print('            "%s": %s,' % (node_name, repr(dim)),
                       file=pyf)
             print('        }', file=pyf)
-    ######################################################  
+    ######################################################
 
     def _write_doc(pipeline, pyf):
         if hasattr(pipeline, "__doc__"):

@@ -16,11 +16,11 @@
         <tbody id="details_table">
         </tbody>
     </table>
-    
+
     <h2>Jobs</h2>
     <div id="jobs">
     </div>
-    
+
     <h2>Parameters values</h2>
     <div id="parameters_values">
     </div>
@@ -29,7 +29,7 @@
   const urlParams = new URLSearchParams(window.location.search);
   var engine_label = urlParams.get("engine_label");
   var execution_id = urlParams.get("execution_id");
-  
+
   var web_backend = new WebBackend('http://localhost:8080/backend');
 
   function set_execution_report(report) {
@@ -55,12 +55,29 @@
     }
 
     let details_table = document.getElementById('details_table');
+    let div = document.createElement("div");
+    let dis_dis = '';
+    let stp_dis = '';
+    if( report['ongoing'].length )
+        dis_dis = ' disabled="true"';
+    else
+        stp_dis = ' disabled="true"';
+    div.innerHTML = '<button name="Stop" ' + stp_dis
+          + 'onClick="stop_execution(\''
+          + report['execution_id'] + '\')">❌ Stop</button> '
+          + '<button ' + dis_dis + 'onClick="restart_execution(\''
+          + report['execution_id']
+          + '\')">↺ Restart</button> '
+          + '<button ' + dis_dis + 'onClick="dispose_execution(\''
+          + report['execution_id']
+          + '\')">🗑 Dispose</button><br/>'
+    details_table.appendChild(div);
     let tr = document.createElement("tr");
     tr.innerHTML = '<tr><th>Status</th><td>' + status_icon + ' ' + status + '</td><tr>';
     details_table.appendChild(tr);
     for ( const i of ['waiting', 'ready', 'ongoing', 'done', 'failed']) {
         tr = document.createElement('tr');
-        tr.innerHTML= '<th>' + i + 
+        tr.innerHTML= '<th>' + i +
           '</th><td>' + job_status_icon[i] + ' ' + report[i].length + '</td>';
         details_table.appendChild(tr);    let status_icon;
     if ( report['failed'].length )
@@ -115,6 +132,13 @@
                 parent_element.appendChild(details);
                 let e = document.createElement('summary');
                 e.innerText = path[path.length -1];
+                if( report.ongoing.includes(job.uuid) ) {
+                    e.innerText += ' ';
+                    btn = document.createElement('button');
+                    btn.innerText = '❌';
+                    btn.setAttribute('onclick', 'stop_job(\'' + job.uuid + '\')');
+                    e.appendChild(btn);
+                }
                 details.appendChild(e);
                 path_element = document.createElement('ul');
                 path_element.setAttribute('id', id);
@@ -150,7 +174,7 @@
         let ul = document.createElement('ul');
         const stdout = job.stdout || ''
         const stderr = job.stderr || '';
-        ul.innerHTML = 
+        ul.innerHTML =
             '<li><strong>process: </strong>' + job.process.definition + '</li>' +
             '<li><strong>path: </strong>' + path.join('.') + '</li>' +
             '<li><strong>job uuid: </strong>' + job.uuid + '</li>' +
@@ -199,13 +223,30 @@
             }
             summary.setAttribute('status', status);
         }
-      }    
+      }
 
   }
-  
+
   window.addEventListener("backend_ready", async (event) => {
       const execution_report = await web_backend.call('execution_report', engine_label, execution_id);
       set_execution_report(execution_report);
     });
+
+  function stop_execution(execution_id) {
+    console.log('STOP:', execution_id);
+  }
+
+  function restart_execution(execution_id) {
+    console.log('RESTART:', execution_id);
+  }
+
+  function dispose_execution(execution_id) {
+    console.log('DISPOSE:', execution_id);
+  }
+
+  function stop_job(job_id) {
+    console.log('STOP job:', job_id);
+  }
+
   </script>
 </html>

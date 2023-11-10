@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import importlib
 import json
 import multiprocessing
@@ -494,7 +492,3 @@ class ApplicationConfiguration(Controller):
                 continue
             modules.append('.'.join((mod_base, p[:-3])))
         return sorted(modules)
-
-
-
-    

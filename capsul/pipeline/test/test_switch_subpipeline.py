@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import unittest
 import os
 import json
@@ -78,7 +77,7 @@ class DummyProcess4_1(Process):
         self.add_field("output", str, optional=False, output=True)
 
     def execute(self):
-        self.output = '_'.join((self.input1, self.input2, self.input3, 
+        self.output = '_'.join((self.input1, self.input2, self.input3,
                                 self.input4))
 
 class SwitchPipeline(Pipeline):
@@ -217,7 +216,7 @@ class TestSwitchPipeline(unittest.TestCase):
         self.assertEqual(self.pipeline.compare_to_state(state),[])
 
     def test_switch_value(self):
-        state_one = self.load_state('test_switch_subpipeline_one')    
+        state_one = self.load_state('test_switch_subpipeline_one')
         state_two = self.load_state('test_switch_subpipeline_two')
         self.pipeline.which_way = 'two'
         self.assertEqual(self.pipeline.compare_to_state(state_two),[])

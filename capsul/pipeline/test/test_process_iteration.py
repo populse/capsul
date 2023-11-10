@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # System import
 
 import sys
@@ -36,7 +35,7 @@ class ProcessSlice(Process):
         file_size = os.stat(self.output_image).st_size
         if self.slice_number >= int(file_size/2):
             raise ValueError('Due to output file size, slice_number cannot '
-                'be more than %d but %d was given' % (int(file_size/2), 
+                'be more than %d but %d was given' % (int(file_size/2),
                 self.slice_number))
         with open(self.output_image, 'r+b') as f:
             f.seek(self.slice_number*2, 0)
@@ -65,7 +64,7 @@ class MyPipeline(Pipeline):
         self.export_parameter('write_output', 'output_image')
 
         # Create an iterative processe
-        self.add_iterative_process('process_slices', 
+        self.add_iterative_process('process_slices',
             ProcessSlice,
             iterative_plugs = ['slice_number'])
 

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import argparse
 from datetime import datetime
 import json
@@ -134,7 +133,7 @@ elif options.subcommand == 'run':
             if stderr:
                 print(stderr, end='')
 
-            
+
 elif options.subcommand == 'help':
     if options.command_or_executable in ('configure',
                                          'run',

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''
 The high-level capsul.api module pre-imports the main objects from several sub-modules:
 

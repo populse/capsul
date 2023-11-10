@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import unittest
 import os
 import os.path as osp
@@ -15,7 +14,7 @@ def a_function_to_wrap(
     fname: field(type_=File, doc='test'),
     directory: field(type_=Directory, doc='test'),
     value: field(type_=float, doc='test'),
-    enum: field(type_=str, doc='test'), 
+    enum: field(type_=str, doc='test'),
     list_of_str: field(type_=List[str], doc='test')
 ) -> field(type_=str, doc='test'):
     """
@@ -42,7 +41,7 @@ def to_warp_func(
 # @xml_process('''
 # <process>
 #     <input name="input_image" type="file" doc="Path of a NIFTI-1 image file."/>
-#     <input name="method" type="enum" values="['gt', 'ge', 'lt', 'le']" 
+#     <input name="method" type="enum" values="['gt', 'ge', 'lt', 'le']"
 #      doc="Mehod for thresolding."/>
 #     <input name="threshold" type="float" doc="Threshold value."/>
 #     <return name="output_image" type="file" doc="Name of the output image."/>

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''
 Utilities to link Capsul and NiPype interfaces
 
@@ -431,6 +430,7 @@ t_f = {
     'Bool': (bool, None),
     'File': (sc.File, None),
     'List': (list, None),
+    'Tuple': (list, None),
     'Dict': (dict, None),
     'Directory': (sc.Directory, None),
     'TraitCompound': (sc.Union, None),

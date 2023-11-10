@@ -16,10 +16,11 @@
       <tbody  id="status_table">
       </tbody>
   </table>
-  
+
   <h2>Executions</h2>
   <table>
       <thead>
+        <th></th> <!-- selction -->
         <th>Label</th>
         <th>Status</th>
         <th>Waiting</th>
@@ -27,6 +28,7 @@
         <th>Ongoing</th>
         <th>Done</th>
         <th>Failed</th>
+        <th>Actions</th>
       </thead>
       <tbody id="executions_table">
       </tbody>
@@ -50,7 +52,7 @@
         status_table.appendChild(tr);
       }
     }
-  
+
     function set_executions_summary(executions_summary) {
       let status_table = document.getElementById("executions_table");
       for (const e of executions_summary) {
@@ -64,20 +66,51 @@
         else
             status_icon = '✅';
           let tr = document.createElement("tr");
-        tr.innerHTML = '<tr><td><a href="execution.html?engine_label=' +
+
+        let dis_dis = '';
+        let stp_dis = '';
+        if( e['ongoing'] )
+          dis_dis = ' disabled="true"';
+        else
+          stp_dis = ' disabled="true"';
+
+        tr.innerHTML = '<tr><td><input type="checkbox"/></td><td><a href="execution.html?engine_label=' +
           e['engine_label'] + '&execution_id=' + e['execution_id'] + '">' + status_icon + ' ' + e['label'] +
-          '</td><td>' + e['status'] + '</td><td>' + e['waiting'] + '</td><td>' +
-          e['ready'] + '</td><td>' + e['ongoing'] + '</td><td>' + e['done'] +
-          '</td><td>' + e['failed'] + '</td></tr>';
+          '</td><td>' + e['status'] + '</td><td>' + e['waiting']
+          + '</td><td>' +
+          e['ready'] + '</td><td>' + e['ongoing'] + '</td><td>' + e['done']
+          + '</td><td>' + e['failed'] + '</td>'
+          + '<td><button ' + stp_dis + 'onClick="stop_execution(\''
+          + e['execution_id']
+          + '\')">❌ Stop</button> '
+          + '<button ' + dis_dis + 'onClick="restart_execution(\''
+          + e['execution_id']
+          + '\')">↺ Restart</button> '
+          + '<button ' + dis_dis + 'onClick="dispose_execution(\''
+          + e['execution_id']
+          + '\')">🗑 Dispose</button>'
+          + '</td></tr>';
         status_table.appendChild(tr);
       }
     }
-  
+
     window.addEventListener("backend_ready", async (event) => {
       const engine_status = await web_backend.call('engine_status', engine_label);
       set_engine_status(engine_status);
       const executions_summary = await web_backend.call('executions_summary', engine_label);
       set_executions_summary(executions_summary);
     });
+
+    function stop_execution(execution_id) {
+      console.log('STOP:', execution_id);
+    }
+
+    function restart_execution(execution_id) {
+      console.log('RESTART:', execution_id);
+    }
+
+    function dispose_execution(execution_id) {
+      console.log('DISPOSE:', execution_id);
+    }
   </script>
 </html>

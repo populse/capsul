@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import unittest
 import os.path as osp
 from soma.controller import File

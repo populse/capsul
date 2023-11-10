@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''
 Node classes for CAPSUL process and pipeline elements
 
@@ -256,7 +255,7 @@ class Node(Controller):
 
     def set_pipeline(self, pipeline):
         from capsul.api import Pipeline
-        
+
         self._release_pipeline()
 
         if pipeline is None:

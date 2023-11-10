@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from .configuration import ModuleConfiguration
 import os
 import os.path as osp

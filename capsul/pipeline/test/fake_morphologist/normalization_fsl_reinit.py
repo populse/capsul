@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from capsul.api import Process
 import os
 from soma.controller import File, Directory, undefined, Literal
