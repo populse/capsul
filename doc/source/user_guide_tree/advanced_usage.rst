@@ -8,7 +8,7 @@ Parameters completion
 Completion in Capsul v3
 =======================
 
-This is not a doc yet, I write down thnigs that I seem to understand at the time I read them in the code.
+This is not a doc yet, I write down things that I seem to understand at the time I read them in the code.
 
 Process parameters completion for filenames is working using attributes (or "metadata" assigned to a process or to its parameters. For instance a given data organization may organize data by study, center, subject, ... These study, center, subject elements can be seen as attributes.
 
@@ -49,7 +49,7 @@ It defines metadata for a given schema name (like ``shared``), and the way to bu
 
 If a process uses several datasets with different schemas for different parameters (for instance input, output, shared datasets), several :class:`~capsul.dataset.ProcessSchema` subclasses may be declared for the same process class.
 
-As the used shema is specified in the :class:`~capsul.dataset.ProcessSchema` subclass declaration, several subclasses may be declared for the same process parameters with different schemas. The schema selection will be done, for each dataset, at the time of data selection.
+As the used schema is specified in the :class:`~capsul.dataset.ProcessSchema` subclass declaration, several subclasses may be declared for the same process parameters with different schemas. The schema selection will be done, for each dataset, at the time of data selection.
 
 * set this in the Capsul config::
 

@@ -399,7 +399,7 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
         if process_instance.field(field_name) is not None:
             field_name = "nipype_" + field_name
 
-        # Relax nipye exists trait contrain
+        # Relax nipye exists trait constraint
         relax_exists_constraint(trait)
 
         # Clone the nipype trait
@@ -561,7 +561,7 @@ def relax_exists_constraint(trait):
     trait: trait
         a trait that will be relaxed from the exist constraint
     """
-    # If we have a single trait, just modify the 'exists' contrain
+    # If we have a single trait, just modify the 'exists' constraint
     # if specified
     if hasattr(trait.handler, "exists"):
         trait.handler.exists = False

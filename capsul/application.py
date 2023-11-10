@@ -55,7 +55,7 @@ def _is_nipype_interface_subclass(obj):
 class Capsul:
     """User entry point to Capsul features.
     This objects reads Capsul configuration in site and user environments.
-    It allows configuration customization and instanciation of a
+    It allows configuration customization and instantiation of a
     CapsulEngine instance to reach an execution environment.
 
     If database_path is given, it replaces
@@ -255,13 +255,13 @@ def executable(definition, **kwargs):
         except ImportError as e:
             raise TypeError(
                 f"Class {definition} cannot be used to create a Process "
-                "beacause its module cannot be imported : {e}"
+                "because its module cannot be imported : {e}"
             )
         cls = getattr(module, object_name, None)
         if cls is not definition:
             raise TypeError(
                 f"Class {definition} cannot be used to create a Process "
-                f"beacause variable {object_name} of module {module_name} "
+                f"because variable {object_name} of module {module_name} "
                 f"contains {cls}"
             )
         result = definition(definition=f"{module_name}.{object_name}")

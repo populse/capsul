@@ -143,7 +143,7 @@ class Pipeline(Process):
     Attributes
     ----------
     nodes: dict {node_name: node}
-        a dictionary containing the pipline nodes and where the pipeline node
+        a dictionary containing the pipeline nodes and where the pipeline node
         name is ''
 
     """
@@ -574,7 +574,7 @@ class Pipeline(Process):
             Each key of this dictionary is a possible value for
             the switch parameter. The corresponding dictionary value contains
             all the links between other nodes plugs and switch outputs that are
-            activated when the value is selected. Theses links are given as
+            activated when the value is selected. These links are given as
             a dictionary whose items are (output, source) where output is the
             name of an output parameter and source is a string containing a
             node name and a parameter name separated by a dot (or just a
@@ -589,7 +589,7 @@ class Pipeline(Process):
             default the value is taken from the first connected source.
         switch_value: str (optional)
             Initial value of the switch parameter (one of the inputs names).
-            Defaults to fisrt possible switch value.
+            Defaults to first possible switch value.
 
         Examples
         --------
@@ -669,7 +669,7 @@ class Pipeline(Process):
         output_types=None,
         switch_value=None,
     ):
-        """Obsolete. May create a non functionnal switch. Use create_switch()
+        """Obsolete. May create a non functional switch. Use create_switch()
         instead.
         """
         # Check the unicity of the name we want to insert
@@ -2144,7 +2144,7 @@ class Pipeline(Process):
                 "logical order regarding the workflow streams. They are "
                 "different from sub-pipelines in that steps are purely "
                 "virtual groups, they do not have parameters. To activate "
-                "or diasable a step, just do:\n"
+                "or disable a step, just do:\n"
                 "pipeline.steps.my_step = False\n"
                 "\n"
                 "To get the nodes list in a step:\n"
@@ -2527,7 +2527,7 @@ class Pipeline(Process):
         not activated.
         The result is a generator of pairs (node, plug_name).
 
-        direction may be a sting, 'links_from', 'links_to', or a tuple
+        direction may be a string, 'links_from', 'links_to', or a tuple
         ('links_from', 'links_to').
         """
         if plug_name is None:

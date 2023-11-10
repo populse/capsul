@@ -41,7 +41,7 @@ def to_warp_func(
 # <process>
 #     <input name="input_image" type="file" doc="Path of a NIFTI-1 image file."/>
 #     <input name="method" type="enum" values="['gt', 'ge', 'lt', 'le']"
-#      doc="Mehod for thresolding."/>
+#      doc="Method for thresolding."/>
 #     <input name="threshold" type="float" doc="Threshold value."/>
 #     <return name="output_image" type="file" doc="Name of the output image."/>
 # </process>
@@ -57,7 +57,7 @@ def threshold(
     method: field(
         type_=Literal["gt", "ge", "lt", "le"],
         default="gt",
-        doc="Mehod for thresolding.",
+        doc="Method for thresolding.",
     ),
     threshold: field(type_=float, default=0),
 ):
@@ -108,8 +108,8 @@ class TestLoadFromDescription(unittest.TestCase):
                 except OSError:
                     pass
 
-    def test_process_warpping(self):
-        """Method to test the function to process on the fly warpping."""
+    def test_process_warping(self):
+        """Method to test the function to process on the fly warping."""
         capsul = Capsul(database_path="")
 
         process = capsul.executable(
@@ -131,8 +131,8 @@ class TestLoadFromDescription(unittest.TestCase):
             ce.run(process, timeout=5)
         self.assertEqual(process.result, (1, "done"))
 
-    def test_pipeline_warpping(self):
-        """Method to test the xml description to pipeline on the fly warpping."""
+    def test_pipeline_warping(self):
+        """Method to test the xml description to pipeline on the fly warping."""
         pipeline_file = os.path.join(os.path.dirname(__file__), "pipeline.json")
         capsul = Capsul(database_path="")
         pipeline = capsul.executable(pipeline_file)

@@ -24,7 +24,7 @@ The simplest is to use a [casa-distro](https://github.com/brainvisa/casa-distro>
       singularity run -B capsul3:/casa/setup casa-dev-5.3-6.sif distro=opensource
 ```
 
-* change the `bv_maker.cfg` file for a ligher one, which switches to the expected branches:
+* change the `bv_maker.cfg` file for a lighter one, which switches to the expected branches:
 ```
       cat > capsul3/conf/bv_maker.cfg << EOF
       [ source \$CASA_SRC ]

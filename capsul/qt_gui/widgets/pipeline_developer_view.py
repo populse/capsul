@@ -2276,7 +2276,7 @@ class PipelineScene(QtGui.QGraphicsScene):
 
         Parameters
         ----------
-        source_dest: tupe (2 tuples of 2 strings)
+        source_dest: tuple (2 tuples of 2 strings)
             link description:
             ((source_node, source_param), (dest_node, dest_param))
         """
@@ -3741,7 +3741,7 @@ class PipelineDeveloperView(QGraphicsView):
         setattr(self.scene.pipeline.pipeline_steps, step_name, state)
 
     def disable_preceding_steps(self, step_name, dummy):
-        # don't know why we get this additionall dummy parameter (False)
+        # don't know why we get this additional dummy parameter (False)
         steps = self.scene.pipeline.pipeline_steps
         for field in steps.fields():
             step = field.name

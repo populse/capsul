@@ -499,7 +499,7 @@ class ExecutionDatabase:
 
     def persistent(self, engine_id):
         """
-        Return wether an engine is persistent or not.
+        Return whether an engine is persistent or not.
         """
         raise NotImplementedError
 
@@ -512,7 +512,7 @@ class ExecutionDatabase:
     def dispose_engine(self, engine_id):
         """
         Tell Capsul that this engine will not be used anymore by any client.
-        The ressource it uses must be freed as soon as possible. If no
+        The resource it uses must be freed as soon as possible. If no
         execution is running, engine is destroyed. Otherwise, workers will
         process ongoing executions and cleanup when done.
         """

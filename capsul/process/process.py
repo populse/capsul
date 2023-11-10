@@ -156,7 +156,7 @@ class Process(Node):
 
     def before_execute(self, context):
         """This method is called by CapsulEngine before calling
-        execute(). By default it does nothing but can be overriden
+        execute(). By default it does nothing but can be overridden
         in derived classes.
         """
         pass
@@ -594,7 +594,7 @@ class FileCopyProcess(Process):
 
         # restore initial values, keeping outputs
         # The situation here is that:
-        # * output_directory should drive "final" output valules
+        # * output_directory should drive "final" output values
         # * we may have been using a temporary output directory, thus output
         #   values are already set to this temp dir, not the final one.
         #   (at least when use_temp_output_dir is set).
@@ -659,7 +659,7 @@ class FileCopyProcess(Process):
 
         shutil.rmtree(tmp_output)
         del self._destination
-        self.destinaton = self._former_output_directory
+        self.destination = self._former_output_directory
         if hasattr(self, "output_directory"):
             self.output_directory = self._former_output_directory
         del self._former_output_directory
