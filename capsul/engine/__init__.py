@@ -72,7 +72,7 @@ def execution_context(engine_label, engine_config, executable):
             print(valid_module_configs)
             raise RuntimeError(
                 f'Execution environment "{engine_label}" has '
-                f"{len(valid_configs)} possible configurations for "
+                f"{len(valid_module_configs)} possible configurations for "
                 f"module {module_name}"
             )
         # get the single remaining config
