@@ -1,6 +1,8 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.1.0
+    rev: v4.5.0
     hooks:
     -   id: check-added-large-files
     -   id: check-case-conflict
@@ -17,8 +19,12 @@ repos:
         exclude: \.min\.js$
     -   id: fix-byte-order-marker
     -   id: fix-encoding-pragma
-    #-   id: trailing-whitespace  # not ready yet
-
+    -   id: trailing-whitespace
+-   repo: https://github.com/psf/black
+    rev: 23.11.0
+    hooks:
+      - id: black
+        exclude: doc
 -   repo: https://github.com/PyCQA/flake8
     rev: 4.0.1
     hooks:
