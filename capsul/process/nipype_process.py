@@ -120,10 +120,25 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
         value = replace_Undef(value)
 
         if name.startswith("nipype_"):
-            setattr(process_instance._nipype_interface.inputs, name[7:], value)
-
+            field_name = name[7:]
         else:
-            setattr(process_instance._nipype_interface.inputs, name, value)
+            field_name = name
+        if isinstance(value, tuple):
+            # Check item types inside the tuple
+            f = process_instance.field(field_name)
+            subtypes = f.subtypes()
+            if subtypes:
+                for i in range(len(subtypes)):
+                    if i < len(value):
+                        subtype = subtypes[i]
+                        if (
+                            isinstance(subtype, type)
+                            and issubclass(subtype, tuple)
+                            and not issubclass(value[i], tuple)
+                        ):
+                            value[i] = tuple(value[i])
+
+        setattr(process_instance._nipype_interface.inputs, field_name, value)
 
     def _replace_dir(value, directory):
         """Replace directory in filename(s) in value.
@@ -513,8 +528,8 @@ def parse_trait(trait):
         sub_traits = handler.handlers
     elif handler.has_items:
         sub_traits = handler.inner_traits()
-    elif hasattr(trait, "types"):
-        sub_traits = trait.types
+    if not sub_traits and hasattr(handler, "types"):
+        sub_traits = handler.types
     if sub_traits:
         tree["children"] = [parse_trait(t) for t in sub_traits]
 
