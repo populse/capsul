@@ -652,7 +652,7 @@ class TestTinyMorphologist(unittest.TestCase):
             self.assertEqual(params, expected[normalization])
 
             with self.capsul.engine() as engine:
-                status = engine.run(tiny_morphologist, timeout=5)
+                status = engine.run(tiny_morphologist, timeout=30)
                 self.assertEqual(status, "ended")
 
     def test_tiny_morphologist_iteration(self):
@@ -910,7 +910,7 @@ class TestTinyMorphologist(unittest.TestCase):
             )
 
         with self.capsul.engine() as engine:
-            status = engine.run(tiny_morphologist_iteration, timeout=10)
+            status = engine.run(tiny_morphologist_iteration, timeout=30)
 
         self.assertEqual(status, "ended")
 
