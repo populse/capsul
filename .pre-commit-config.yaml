@@ -32,11 +32,10 @@ repos:
 #    -   id: ruff
 #        exclude: '^doc/'
 -   repo: https://github.com/PyCQA/flake8
-    rev: 4.0.1
+    rev: 5.0.4
     hooks:
     -   id: flake8
-        name: flake8 under python3
-        language_version: python3
+        name: flake8
         exclude: ^(doc/source|capsul)/sphinxext/
         args:
         - --ignore=F722,F821
