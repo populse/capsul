@@ -513,6 +513,8 @@ def parse_trait(trait):
         sub_traits = handler.handlers
     elif handler.has_items:
         sub_traits = handler.inner_traits()
+    elif hasattr(trait, "types"):
+        sub_traits = trait.types
     if sub_traits:
         tree["children"] = [parse_trait(t) for t in sub_traits]
 
