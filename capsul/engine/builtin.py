@@ -23,7 +23,7 @@ class PollingThread(threading.Thread):
         self.current_execution = None
         self.current_job = None
         self.job_pid = None
-        self.poll_interval = 5.
+        self.poll_interval = 5.0
         self.stop_poll_interval = 0.1
 
     def run(self):
@@ -35,11 +35,11 @@ class PollingThread(threading.Thread):
                 execution_id = self.current_execution
                 job_id = self.current_job
                 job_pid = self.job_pid
-            if job_id is not None and execution_id is not None \
-                    and job_pid is not None:
+            if job_id is not None and execution_id is not None and job_pid is not None:
                 # poll the database
                 kill_job = self.database.job_kill_requested(
-                    engine_id, execution_id, job_id)
+                    engine_id, execution_id, job_id
+                )
                 if kill_job:
                     os.kill(job_pid, signal.SIGTERM)
                     os.kill(job_pid, signal.SIGKILL)

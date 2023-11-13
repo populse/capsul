@@ -14,7 +14,13 @@ from .database import engine_database
 
 
 def run_job(
-    database, engine_id, execution_id, job_uuid, same_python=False, debug=False, set_pid_function=None
+    database,
+    engine_id,
+    execution_id,
+    job_uuid,
+    same_python=False,
+    debug=False,
+    set_pid_function=None,
 ):
     if same_python:
         stdout = io.StringIO()
@@ -35,8 +41,7 @@ def run_job(
             env["CAPSUL_DEBUG"] = "1"
 
         proc = subprocess.Popen(
-            [sys.executable, "-m", "capsul.run", engine_id, execution_id,
-             job_uuid],
+            [sys.executable, "-m", "capsul.run", engine_id, execution_id, job_uuid],
             env=env,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,

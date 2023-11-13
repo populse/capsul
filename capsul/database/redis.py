@@ -715,24 +715,23 @@ class RedisExecutionDatabase(ExecutionDatabase):
         return job
 
     def kill_jobs(self, engine_id, execution_id, job_ids):
-        """ Request killing of jobs
-        """
+        """Request killing of jobs"""
         # we just set a flag to 1 associated with the jobs to be killed.
         # Workers will poll for it while jobs are running, and react
         # accordingly.
         # TODO:
         # - atomicity: ensure jobs still exist and are running
         # - skip or error if a job is not running
-        key = f'capsul:{engine_id}:{execution_id}'
+        key = f"capsul:{engine_id}:{execution_id}"
         if job_ids is None:
-            job_ids = self.redis.hget(f'capsul:{engine_id}:{execution_id}',
-                                      'ongoing')
+            job_ids = self.redis.hget(f"capsul:{engine_id}:{execution_id}", "ongoing")
         for job_id in job_ids:
-            self.redis.hset(key, f'kill_job:{job_id}', 1)
+            self.redis.hset(key, f"kill_job:{job_id}", 1)
 
     def job_kill_requested(self, engine_id, execution_id, job_id):
-        return self.redis.hget(f'capsul:{engine_id}:{execution_id}',
-                               f'kill_job:{job_id}')
+        return self.redis.hget(
+            f"capsul:{engine_id}:{execution_id}", f"kill_job:{job_id}"
+        )
 
     def execution_report_json(self, engine_id, execution_id):
         (
@@ -781,10 +780,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
 
     def dispose(self, engine_id, execution_id, bypass_persistence=False):
         keys = [f"capsul:{engine_id}", f"capsul:{engine_id}:{execution_id}"]
-        args = [
-            execution_id,
-            int(bool(bypass_persistence))
-        ]
+        args = [execution_id, int(bool(bypass_persistence))]
         self._dispose(keys=keys, args=args)
 
     def check_shutdown(self):
