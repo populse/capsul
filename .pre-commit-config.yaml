@@ -1,6 +1,6 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
-exclude: '^capsul/sphinxext/resources/numpy_ext/'
+exclude: '^(doc/source|capsul)/sphinxext/'
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
@@ -25,7 +25,6 @@ repos:
     rev: 23.11.0
     hooks:
       - id: black
-        exclude: '^doc/'
 #-   repo: https://github.com/astral-sh/ruff-pre-commit
 #    rev: v0.1.5
 #    hooks:
@@ -36,6 +35,5 @@ repos:
     hooks:
     -   id: flake8
         name: flake8
-        exclude: ^(doc/source|capsul)/sphinxext/
         args:
         - --ignore=F722,F821
