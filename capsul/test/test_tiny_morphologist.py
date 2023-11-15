@@ -235,7 +235,6 @@ class ProcessHemisphereBrainVISA(
 class TinyMorphologist(Pipeline):
     def pipeline_definition(self):
         self.add_process("nobias", BiasCorrection)
-
         self.add_process("fakespm_normalization_12", FakeSPMNormalization12)
         self.add_process("fakespm_normalization_8", FakeSPMNormalization8)
         self.add_process("aims_normalization", AimsNormalization)
