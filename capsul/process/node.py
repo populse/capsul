@@ -13,6 +13,7 @@ import typing
 from typing import Literal, List
 
 from soma.controller import Controller, field
+from soma.controller.field import WritableField
 from soma.undefined import undefined
 from soma.sorted_dictionary import SortedDictionary
 from soma.utils.functiontools import SomaPartial
@@ -416,6 +417,8 @@ class Node(Controller):
             kwargs["optional"] = True
         try:
             # overload to add the plug
+            kwargs["field_type"] = WritableField
+            kwargs["class_field"] = False
             super().add_field(name, type_, default=default, metadata=metadata, **kwargs)
         finally:
             self.enable_notification = enable_notif

@@ -59,9 +59,7 @@ def save_py_pipeline(pipeline, py_file):
             else:
                 classname = process.__class__.__name__
         procname = ".".join((mod, classname))
-        print("reinstantiate/reload:", procname)
         proc_copy = executable(procname)
-        print("reloaded:", procname)
         make_opt = []
         for field in proc_copy.fields():
             fname = field.name

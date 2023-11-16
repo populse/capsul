@@ -177,7 +177,6 @@ class Engine:
             for i in range(start_count):
                 workers_command = self.database.workers_command(self.engine_id)
                 try:
-                    print("workers_command:", workers_command)
                     subprocess.run(
                         workers_command,
                         capture_output=False,
@@ -344,7 +343,6 @@ class Engine:
         """Remove the given execution from the database and the associated
         resources (temporary files etc.)
         """
-        print("Dispose:", self.engine_id, args, kwargs)
         self.database.dispose(self.engine_id, *args, **kwargs)
 
     def run(self, executable, timeout=None, print_report=False, debug=False, **kwargs):

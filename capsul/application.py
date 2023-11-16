@@ -355,6 +355,8 @@ def executable(definition, **kwargs):
                         result = executable_from_json(definition, json_executable)
 
     if result is not None:
+        for f in result.fields():
+            wf = result.writable_field(f)
         for name, value in kwargs.items():
             setattr(result, name, value)
         return result
