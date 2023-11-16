@@ -222,7 +222,15 @@ def declare_morpho_schemas(morpho_module):
     sulcilabellingspammarkov = importlib.import_module(
         "{}.sulcilabellingspammarkov".format(axon_module)
     )
-    sulcideeplabeling = importlib.import_module(cnn_module)
+    try:
+        sulcideeplabeling = importlib.import_module(cnn_module)
+    except Exception:
+        if cnn_module.startswith("deepsulci"):
+            # fallback to fake
+            cnn_module = "capsul.pipeline.test.fake_morphologist.sulcideeplabeling"
+            sulcideeplabeling = importlib.import_module(cnn_module)
+        else:
+            raise
     brainvolumes = importlib.import_module("{}.brainvolumes".format(axon_module))
     morpho_report = importlib.import_module("{}.morpho_report".format(axon_module))
     sulcigraphmorphometrybysubject = importlib.import_module(
