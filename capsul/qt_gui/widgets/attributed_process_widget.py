@@ -50,7 +50,7 @@ class AttributedProcessWidget(QtGui.QWidget):
             user_level, and will only be visible if the ControllerWidget
             userl_evel is more than (or equal) the field level.
         """
-        super(AttributedProcessWidget, self).__init__()
+        super().__init__()
         self.setLayout(QtGui.QVBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
         if exec_meta is None:

@@ -320,7 +320,7 @@ class Switch(Node):
 
     def __setstate__(self, state):
         self.__block_output_propagation = True
-        super(Switch, self).__setstate__(state)
+        super().__setstate__(state)
 
     def get_connections_through(self, plug_name, single=False):
         if not self.activated or not self.enabled:

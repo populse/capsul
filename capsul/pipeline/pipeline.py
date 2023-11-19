@@ -217,8 +217,8 @@ class Pipeline(Process):
             raise TypeError("No definition string given to Pipeline constructor")
 
         # Inheritance
-        super(Pipeline, self).__init__(**kwargs)
-        super(Pipeline, self).add_field(
+        super().__init__(**kwargs)
+        super().add_field(
             "nodes_activation", Controller, hidden=self.hide_nodes_activation
         )
 
@@ -2319,9 +2319,7 @@ class Pipeline(Process):
         A pipeline will return a list of unique configuration values.
         """
         # start with pipeline-level requirements
-        conf = super(Pipeline, self).check_requirements(
-            environment, message_list=message_list
-        )
+        conf = super().check_requirements(environment, message_list=message_list)
         if conf is None:
             return None
         confs = []

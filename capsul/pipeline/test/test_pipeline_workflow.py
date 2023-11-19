@@ -11,7 +11,7 @@ class DummyProcess(Process):
     """Dummy Test Process"""
 
     def __init__(self, definition):
-        super(DummyProcess, self).__init__(definition)
+        super().__init__(definition)
 
         # inputs
         self.add_field("input", File, optional=False)
@@ -36,7 +36,7 @@ class DummyProcessSPM(DummyProcess):
 
 class DummyListProcess(Process):
     def __init__(self, definition):
-        super(DummyListProcess, self).__init__(definition)
+        super().__init__(definition)
 
         # inputs
         self.add_field("inputs", list[File], optional=False)

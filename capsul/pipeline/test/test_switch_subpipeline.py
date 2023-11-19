@@ -10,9 +10,7 @@ class DummyProcess(Process):
     """Dummy Test Process"""
 
     def __init__(self, definition=None):
-        super(DummyProcess, self).__init__(
-            "capsul.pipeline.test.test_switch_subpipeline.DummyProcess"
-        )
+        super().__init__("capsul.pipeline.test.test_switch_subpipeline.DummyProcess")
 
         # inputs
         self.add_field("input_image", str, optional=False)
@@ -31,9 +29,7 @@ class DummyProcess1_1(Process):
     """Dummy Test Process with 1 input and one output"""
 
     def __init__(self, definition=None):
-        super(DummyProcess1_1, self).__init__(
-            "capsul.pipeline.test.test_switch_subpipeline.DummyProcess1_1"
-        )
+        super().__init__("capsul.pipeline.test.test_switch_subpipeline.DummyProcess1_1")
 
         # inputs
         self.add_field("input", str, optional=False)
@@ -49,9 +45,7 @@ class DummyProcess2_1(Process):
     """Dummy Test Process with 2 inputs and one output"""
 
     def __init__(self, definition=None):
-        super(DummyProcess2_1, self).__init__(
-            "capsul.pipeline.test.test_switch_subpipeline.DummyProcess2_1"
-        )
+        super().__init__("capsul.pipeline.test.test_switch_subpipeline.DummyProcess2_1")
 
         # inputs
         self.add_field("input1", str, optional=False)
@@ -68,9 +62,7 @@ class DummyProcess4_1(Process):
     """Dummy Test Process with 4 inputs and one output"""
 
     def __init__(self, definition=None):
-        super(DummyProcess4_1, self).__init__(
-            "capsul.pipeline.test.test_switch_subpipeline.DummyProcess4_1"
-        )
+        super().__init__("capsul.pipeline.test.test_switch_subpipeline.DummyProcess4_1")
 
         # inputs
         self.add_field("input1", str, optional=False)

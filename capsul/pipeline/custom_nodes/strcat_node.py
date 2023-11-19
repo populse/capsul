@@ -61,9 +61,7 @@ class StrCatNode(Node):
             node_inputs.append(
                 {"name": concat_plug, "optional": concat_plug in make_optional}
             )
-        super(StrCatNode, self).__init__(
-            None, pipeline, name, node_inputs, node_outputs
-        )
+        super().__init__(None, pipeline, name, node_inputs, node_outputs)
         self._concat_sequence = params
         self._concat_plug = concat_plug
         self.add_parameters(param_types)

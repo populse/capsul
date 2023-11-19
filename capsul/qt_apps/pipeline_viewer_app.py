@@ -31,7 +31,7 @@ class PipelineViewerApp(Application):
     def __init__(self, *args, **kwargs):
         """Method to initialize the PipelineViewerApp class."""
         # Inhetritance
-        super(PipelineViewerApp, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # Initialize the application
         self.window = None

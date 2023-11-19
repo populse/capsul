@@ -51,7 +51,7 @@ class ReduceNode(Node):
 
         for tr in output_names:
             out_fields.append({"name": tr, "optional": False})
-        super(ReduceNode, self).__init__(None, pipeline, name, in_fields, out_fields)
+        super().__init__(None, pipeline, name, in_fields, out_fields)
 
         for tr, ptype in zip(output_names, ptypes):
             self.add_field(

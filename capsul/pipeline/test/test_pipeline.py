@@ -20,7 +20,7 @@ class DummyProcess(Process):
     def __init__(self, definition=None):
         if definition is None:
             definition = "capsul.pipeline.test.test_pipeline.DummyProcess"
-        super(DummyProcess, self).__init__(definition)
+        super().__init__(definition)
 
         # inputs
         self.add_field("input_image", File, optional=False)

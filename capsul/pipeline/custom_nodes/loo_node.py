@@ -46,9 +46,7 @@ class LeaveOneOutNode(Node):
             in_fields.append({"name": tr, "optional": True})
         for tr in out_fieldsl:
             out_fields.append({"name": tr, "optional": True})
-        super(LeaveOneOutNode, self).__init__(
-            None, pipeline, name, in_fields, out_fields
-        )
+        super().__init__(None, pipeline, name, in_fields, out_fields)
         if input_type:
             ptype = input_type
         else:
