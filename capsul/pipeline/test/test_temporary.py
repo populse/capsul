@@ -6,7 +6,6 @@ import tempfile
 from soma.controller import File, field
 from capsul.api import Process, Pipeline, Capsul
 import shutil
-from six.moves import zip
 
 
 class DummyProcess1(Process):
