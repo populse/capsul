@@ -279,7 +279,7 @@ class TestPipeline(unittest.TestCase):
             subject = workflow.parameters_values[proxy[1]]
             subjects.add(subject)
             self.assertIn(subject, ["toto", "tutu", "tata", "titi", "tete"])
-        self.assertEqual(subjects, set(["toto", "tutu", "tata", "titi", "tete"]))
+        self.assertEqual(subjects, {"toto", "tutu", "tata", "titi", "tete"})
 
     def test_iterative_pipeline_workflow_run(self):
         self.small_pipeline.output_image = [

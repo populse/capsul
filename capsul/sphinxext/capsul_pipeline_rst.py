@@ -124,7 +124,7 @@ for modules, sorted_dict in (
 ):
     # From the modules full path 'm1.m2.pipeline/process' get the module
     # name 'm2'
-    module_names = set([x.split(".")[1] for x in modules])
+    module_names = {x.split(".")[1] for x in modules}
 
     # Sort each item according to its module name.
     # The result is a dict of the form 'd[m2] = [pipeline/process1, ...]'.

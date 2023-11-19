@@ -47,16 +47,14 @@ class SettingsEditor(Qt.QDialog):
         self.tab_wid.clear()
         self.module_tabs = {}
         resource = self.resource_combo.currentText()
-        non_modules = set(
-            [
-                "dataset",
-                "config_modules",
-                "python_modules",
-                "database",
-                "persistent",
-                "start_workers",
-            ]
-        )
+        non_modules = {
+            "dataset",
+            "config_modules",
+            "python_modules",
+            "database",
+            "persistent",
+            "start_workers",
+        }
         mod_map = [
             f.name
             for f in getattr(self.config, resource).fields()

@@ -83,7 +83,7 @@ pilots = load_pilots(module_path, module_path, options.module)
 
 # Sort all the pilots
 # > from the pilots full path 'm1.m2.pipeline' get the module name 'm2'
-module_names = set([x.split(".")[1] for x in pilots])
+module_names = {x.split(".")[1] for x in pilots}
 # > sort each pilot according to its module name.
 # > the result is a dict of the form 'd[m2] = [pilot1, ...]'
 sorted_pilots = {}

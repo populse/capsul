@@ -275,12 +275,10 @@ class PipelineCVFold(Pipeline):
         self.add_iterative_process(
             "test_it",
             "capsul.pipeline.test.test_custom_nodes.CVtest",
-            non_iterative_plugs=set(
-                [
-                    "model",
-                    "base",
-                ]
-            ),
+            non_iterative_plugs={
+                "model",
+                "base",
+            },
             make_optional=["out1"],
         )
         self.add_custom_node(
