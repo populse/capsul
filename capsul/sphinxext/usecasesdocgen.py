@@ -11,8 +11,6 @@ import inspect
 import ast
 import os
 import logging
-import six
-from six.moves import range
 
 # Define logger
 logger = logging.getLogger(__file__)
@@ -144,7 +142,7 @@ class UseCasesHelperWriter:
         """
         # Check output directory
         if returnrst is False:
-            if not isinstance(outdir, six.string_types):
+            if not isinstance(outdir, str):
                 raise Exception(
                     "If 'returnrst' is False, need a valid output " "directory."
                 )

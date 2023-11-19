@@ -9,7 +9,6 @@
 # System import
 import os
 import sys
-import six
 from docutils.core import publish_parts
 import logging
 import traceback
@@ -201,7 +200,7 @@ class LayoutHelperWriter:
         # Edit the template
         with open(layout_file) as open_file:
             s = "".join(open_file.readlines())
-            for key, value in six.iteritems(layout_info):
+            for key, value in layout_info.items():
                 s = s.replace("%({0})s".format(key), value)
             w(s)
 
@@ -250,7 +249,7 @@ class LayoutHelperWriter:
         # Edit the template
         with open(layout_file) as open_file:
             s = "".join(open_file.readlines())
-            for key, value in six.iteritems(layout_info):
+            for key, value in layout_info.items():
                 s = s.replace("%({0})s".format(key), value)
             w(s)
 

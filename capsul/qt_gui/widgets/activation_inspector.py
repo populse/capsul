@@ -13,7 +13,6 @@ import os
 import re
 import logging
 import tempfile
-import six
 
 # Define the logger
 logger = logging.getLogger(__name__)
@@ -192,7 +191,7 @@ class ActivationInspector(QtGui.QWidget):
         error_message = "{0} has no attribute '{1}'"
 
         # Got through the class dynamic controls
-        for control_type, control_item in six.iteritems(self.controls):
+        for control_type, control_item in self.controls.items():
             # Get the dynamic control name
             for control_name in control_item:
                 # Try to set the control value to the ui class parameter
@@ -271,7 +270,7 @@ class ActivationInspector(QtGui.QWidget):
         for node in self.pipeline.all_nodes():
             # Restore the plugs and nodes activations
             node_name = node.full_name
-            for plug_name, plug in six.iteritems(node.plugs):
+            for plug_name, plug in node.plugs.items():
                 plug.activated = activations.get(
                     "{0}:{1}".format(node_name, plug_name), False
                 )
