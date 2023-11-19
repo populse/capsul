@@ -31,7 +31,7 @@ class CapsulLinkDebuggerView(QtGui.QWidget):
     VALUE = 4
 
     def __init__(self, pipeline, ui_file=None, record_file=None, parent=None):
-        super(CapsulLinkDebuggerView, self).__init__(parent)
+        super().__init__(parent)
 
         # load the user interface window
         if ui_file is None:

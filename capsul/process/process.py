@@ -152,7 +152,7 @@ class Process(Node):
         return result
 
     def json_parameters(self):
-        return super(Process, self).json()
+        return super().json()
 
     def before_execute(self, context):
         """This method is called by CapsulEngine before calling
@@ -543,7 +543,7 @@ class FileCopyProcess(Process):
 
     def before_execute(self, context):
         """Method to copy files before executing the process."""
-        # super(FileCopyProcess, self).before_execute(context)
+        # super().before_execute(context)
 
         if self.destination is None:
             output_directory = getattr(self, "output_directory", None)
@@ -583,7 +583,7 @@ class FileCopyProcess(Process):
         """Method to clean-up temporary workspace after process
         execution.
         """
-        # exec_result = super(FileCopyProcess, self).after_execute(
+        # exec_result = super().after_execute(
         # exec_result, context)
         if self.use_temp_output_dir:
             self._move_outputs()
@@ -914,7 +914,7 @@ class NipypeProcess(FileCopyProcess):
         if len(stack) >= 2:
             s2 = stack[-2]
             if s2[2] == "nipype_factory":
-                instance = super(NipypeProcess, cls).__new__(cls, *args, **kwargs)
+                instance = super().__new__(cls, *args, **kwargs)
                 setattr(instance, "__%s_np_init_done__" % cls.__name__, False)
                 return instance
         nipype_class = getattr(cls, "_nipype_class_type", None)
@@ -947,7 +947,7 @@ class NipypeProcess(FileCopyProcess):
                 instance.id = instance.__class__.__module__ + "." + instance.name
             instance.__postinit__(*nargs, **nkwargs)
         else:
-            instance = super(NipypeProcess, cls).__new__(cls, *args, **kwargs)
+            instance = super().__new__(cls, *args, **kwargs)
             setattr(instance, "__%s_np_init_done__" % cls.__name__, False)
         return instance
 
@@ -1037,7 +1037,7 @@ class NipypeProcess(FileCopyProcess):
             return
 
         self.__NipypeProcess_np_init_done__ = True
-        # super(NipypeProcess, self).__init__(*args, **kwargs)
+        # super().__init__(*args, **kwargs)
 
         # Set some class attributes that characterize the nipype interface
         if nipype_instance is None:
@@ -1076,7 +1076,7 @@ class NipypeProcess(FileCopyProcess):
             ]
             if use_temp_output_dir is None:
                 use_temp_output_dir = True
-            super(NipypeProcess, self).__init__(
+            super().__init__(
                 definition=definition,
                 activate_copy=True,
                 inputs_to_copy=inputs_to_copy,
@@ -1089,7 +1089,7 @@ class NipypeProcess(FileCopyProcess):
         else:
             if use_temp_output_dir is None:
                 use_temp_output_dir = False
-            super(NipypeProcess, self).__init__(
+            super().__init__(
                 definition=definition,
                 activate_copy=False,
                 use_temp_output_dir=use_temp_output_dir,
@@ -1220,4 +1220,4 @@ class NipypeProcess(FileCopyProcess):
             )
             if os.path.exists(script_file):
                 shutil.move(script_file, getattr(self, script_tname))
-        return super(NipypeProcess, self).after_execute(exec_result, context)
+        return super().after_execute(exec_result, context)

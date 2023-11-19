@@ -135,7 +135,7 @@ class Plug(Qt.QGraphicsPolygonItem):
     def __init__(
         self, color, name, height, width, activated=True, optional=False, parent=None
     ):
-        super(Plug, self).__init__(parent)
+        super().__init__(parent)
         self.name = name
         #         self.color = self._color(activated, optional)
         self.color = color
@@ -198,7 +198,7 @@ class Plug(Qt.QGraphicsPolygonItem):
         return self.mapToParent(point)
 
     def mousePressEvent(self, event):
-        super(Plug, self).mousePressEvent(event)
+        super().mousePressEvent(event)
         if event.button() == QtCore.Qt.LeftButton:
             self.scene().plug_clicked.emit(self.name)
             event.accept()
@@ -214,7 +214,7 @@ class EmbeddedSubPipelineItem(Qt.QGraphicsProxyWidget):
     """
 
     def __init__(self, sub_pipeline_wid):
-        super(EmbeddedSubPipelineItem, self).__init__()
+        super().__init__()
         old_height = sub_pipeline_wid.sizeHint().height()
         sizegrip = QtGui.QSizeGrip(None)
         new_height = old_height + sub_pipeline_wid.horizontalScrollBar().height()
@@ -226,7 +226,7 @@ class EmbeddedSubPipelineItem(Qt.QGraphicsProxyWidget):
 
 class boxItem(QtGui.QGraphicsRectItem):
     def __init__(self, parent=None):
-        super(boxItem, self).__init__(parent)
+        super().__init__(parent)
         #         self.setFlags(self.ItemIsFocusable)
         self.penBox = 0
         self.name = ""
@@ -244,7 +244,7 @@ class boxItem(QtGui.QGraphicsRectItem):
             self.scene()._node_keydelete_clicked(self)
             event.accept()
         else:
-            super(boxItem, self).keyPressEvent(event)
+            super().keyPressEvent(event)
 
 
 class NodeGWidget(QtGui.QGraphicsItem):
@@ -263,7 +263,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
         show_opt_outputs=True,
         userlevel=0,
     ):
-        super(NodeGWidget, self).__init__(parent)
+        super().__init__(parent)
 
         self.infoActived = QtGui.QGraphicsTextItem("", self)
         self.colType = ColorType()
@@ -350,7 +350,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
     def __del__(self):
         # print('NodeGWidget.__del__')
         self._release()
-        # super(NodeGWidget, self).__del__()
+        # super().__del__()
 
     @property
     def userlevel(self):
@@ -1384,7 +1384,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
         if isinstance(item, Plug):
             item.mousePressEvent(event)
             return
-        super(NodeGWidget, self).mousePressEvent(event)
+        super().mousePressEvent(event)
         process = get_ref(self.process)
         if event.button() == QtCore.Qt.RightButton and process is not None:
             self.scene().node_right_clicked.emit(self.name, process)
@@ -1407,7 +1407,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
             event.accept()
 
     def keyPressEvent(self, event):
-        super(NodeGWidget, self).keyPressEvent(event)
+        super().keyPressEvent(event)
 
         if event.key() == QtCore.Qt.Key_Up:
             self.setPos(self.x(), self.y() - 1)
@@ -1426,7 +1426,7 @@ class HandleItem(QtGui.QGraphicsRectItem):
     """A handle that can be moved by the mouse"""
 
     def __init__(self, parent=None):
-        super(HandleItem, self).__init__(Qt.QRectF(-10.0, -10.0, 10.0, 10.0), parent)
+        super().__init__(Qt.QRectF(-10.0, -10.0, 10.0, 10.0), parent)
         #         self.setRect(Qt.QRectF(-4.0,-4.0,4.0,4.0))
         self.posChangeCallbacks = []
         self.setPen(QtGui.QPen(QtCore.Qt.NoPen))
@@ -1466,7 +1466,7 @@ class HandleItem(QtGui.QGraphicsRectItem):
             return value
         # Call superclass method:
 
-        return super(HandleItem, self).itemChange(change, value)
+        return super().itemChange(change, value)
 
     def mouseReleaseEvent(self, mouseEvent):
         self.setSelected(False)
@@ -1476,7 +1476,7 @@ class HandleItem(QtGui.QGraphicsRectItem):
 
 class Link(QtGui.QGraphicsPathItem):
     def __init__(self, origin, target, active, weak, color, parent=None):
-        super(Link, self).__init__(parent)
+        super().__init__(parent)
 
         self._set_pen(active, weak, color)
 
@@ -1553,7 +1553,7 @@ class Link(QtGui.QGraphicsPathItem):
             # self: the scene has to help us.
             self.scene()._link_right_clicked(self)
         else:
-            super(Link, self).mousePressEvent(event)
+            super().mousePressEvent(event)
         event.accept()
 
     def focusInEvent(self, event):
@@ -1571,7 +1571,7 @@ class Link(QtGui.QGraphicsPathItem):
             self.scene()._link_keydelete_clicked(self)
             event.accept()
         else:
-            super(Link, self).keyPressEvent(event)
+            super().keyPressEvent(event)
 
 
 class PipelineScene(QtGui.QGraphicsScene):
@@ -1600,7 +1600,7 @@ class PipelineScene(QtGui.QGraphicsScene):
     node_keydelete_clicked = QtCore.Signal(str)
 
     def __init__(self, parent=None, userlevel=0):
-        super(PipelineScene, self).__init__(parent)
+        super().__init__(parent)
 
         self.gnodes = {}
         self.glinks = {}
@@ -2248,7 +2248,7 @@ class PipelineScene(QtGui.QGraphicsScene):
         return self._enable_edition
 
     def keyPressEvent(self, event):
-        super(PipelineScene, self).keyPressEvent(event)
+        super().keyPressEvent(event)
         if not event.isAccepted():
             if event.key() == QtCore.Qt.Key_P:
                 # print position of boxes
@@ -2486,7 +2486,7 @@ class PipelineScene(QtGui.QGraphicsScene):
         """
         if self.logical_view:
             event.setAccepted(False)
-            super(PipelineScene, self).helpEvent(event)
+            super().helpEvent(event)
             return
         item = self.itemAt(event.scenePos(), Qt.QTransform())
         if isinstance(item, Link):
@@ -2526,7 +2526,7 @@ class PipelineScene(QtGui.QGraphicsScene):
             # secondarily helpEvent() is protected.
             event.setAccepted(False)
 
-        super(PipelineScene, self).helpEvent(event)
+        super().helpEvent(event)
 
     def remove_node(self, node_name):
         print(self.gnodes)
@@ -2705,7 +2705,7 @@ class PipelineDeveloperView(QGraphicsView):
         """A specialized QLineEdit with completion for process name"""
 
         def __init__(self, parent=None, class_type_check=is_executable):
-            super(PipelineDeveloperView.ProcessNameEdit, self).__init__(parent)
+            super().__init__(parent)
             self.compl = QtGui.QCompleter([])
             self.setCompleter(self.compl)
             self.textEdited.connect(self.on_text_edited)
@@ -2851,7 +2851,7 @@ class PipelineDeveloperView(QGraphicsView):
             specified, then edition will be activated anyway.
         """
 
-        super(PipelineDeveloperView, self).__init__(parent)
+        super().__init__(parent)
 
         # self.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignLeft)
         self.setAlignment(QtCore.Qt.AlignCenter)
@@ -2886,7 +2886,7 @@ class PipelineDeveloperView(QGraphicsView):
     def __del__(self):
         # print('PipelineDeveloperView.__del__')
         self.release_pipeline(delete=True)
-        # super(PipelineDeveloperView, self).__del__()
+        # super().__del__()
 
     @property
     def userlevel(self):
@@ -3151,10 +3151,10 @@ class PipelineDeveloperView(QGraphicsView):
                     self.zoom_in()
                 event.accept()
         if not done:
-            super(PipelineDeveloperView, self).wheelEvent(event)
+            super().wheelEvent(event)
 
     def mousePressEvent(self, event):
-        super(PipelineDeveloperView, self).mousePressEvent(event)
+        super().mousePressEvent(event)
         if not event.isAccepted():
             if event.button() == QtCore.Qt.RightButton:
                 self.open_background_menu()
@@ -3179,7 +3179,7 @@ class PipelineDeveloperView(QGraphicsView):
                 print("source to destination types are not compatible")
                 print(e)
 
-        super(PipelineDeveloperView, self).mouseReleaseEvent(event)
+        super().mouseReleaseEvent(event)
         self.scene.update()
 
     def mouseMoveEvent(self, event):
@@ -3197,7 +3197,7 @@ class PipelineDeveloperView(QGraphicsView):
             self._move_grab_link(event)
             event.accept()
         else:
-            super(PipelineDeveloperView, self).mouseMoveEvent(event)
+            super().mouseMoveEvent(event)
 
     def dragEnterEvent(self, event):
         """Event handler when the mouse enters the widget.
@@ -3314,7 +3314,7 @@ class PipelineDeveloperView(QGraphicsView):
         if hasattr(self, "_graphics_item"):
             return self._graphics_item.scene().views()[0].window()
         else:
-            return super(PipelineDeveloperView, self).window()
+            return super().window()
 
     def onOpenProcessController(self, node_name, process):
         """Event to open a sub-process/sub-pipeline controller"""
@@ -4222,7 +4222,7 @@ class PipelineDeveloperView(QGraphicsView):
         def __init__(
             self, display_str="process module/name", class_type_check=is_executable
         ):
-            super(PipelineDeveloperView.ProcessModuleInput, self).__init__()
+            super().__init__()
             self.setWindowTitle("%s:" % display_str)
             layout = QtGui.QGridLayout(self)
             layout.addWidget(QtGui.QLabel("module/process:"), 0, 0)
@@ -4378,7 +4378,7 @@ class PipelineDeveloperView(QGraphicsView):
 
     class IterativeProcessInput(ProcessModuleInput):
         def __init__(self, engine):
-            super(PipelineDeveloperView.IterativeProcessInput, self).__init__()
+            super().__init__()
             # hlay = Qt.QHBoxLayout()
             # self.layout().addLayout(hlay)
             lay = self.layout()
@@ -4449,7 +4449,7 @@ class PipelineDeveloperView(QGraphicsView):
 
         class SwitchInput(QtGui.QDialog):
             def __init__(self):
-                super(SwitchInput, self).__init__()
+                super().__init__()
                 self.setWindowTitle("switch parameters/name:")
                 layout = QtGui.QGridLayout(self)
                 layout.addWidget(QtGui.QLabel("inputs:"), 0, 0)
@@ -4490,7 +4490,7 @@ class PipelineDeveloperView(QGraphicsView):
 
     #     class SwitchInput(QtGui.QDialog):
     #         def __init__(self):
-    #             super(SwitchInput, self).__init__()
+    #             super().__init__()
     #             self.setWindowTitle('switch parameters/name:')
     #             layout = QtGui.QGridLayout(self)
     #             layout.addWidget(QtGui.QLabel('input:'), 0, 0)
@@ -4731,14 +4731,14 @@ class PipelineDeveloperView(QGraphicsView):
 
         class DocBrowser(QWebEngineView):
             def __init__(self, pview, *args, **kwargs):
-                super(DocBrowser, self).__init__(*args, **kwargs)
+                super().__init__(*args, **kwargs)
                 self.setAttribute(Qt.Qt.WA_DeleteOnClose)
                 self.pview = pview
 
             def closeEvent(self, event):
                 self.pview.doc_browser = None
                 event.accept()
-                super(DocBrowser, self).closeEvent(event)
+                super().closeEvent(event)
 
         doc_browser = DocBrowser(pv)  # QWebEngineView()
         pv.doc_browser = doc_browser
@@ -4948,7 +4948,7 @@ class PipelineDeveloperView(QGraphicsView):
 
     class _PlugEdit(QtGui.QDialog):
         def __init__(self, show_weak=True, parent=None):
-            super(PipelineDeveloperView._PlugEdit, self).__init__(parent)
+            super().__init__(parent)
             layout = QtGui.QVBoxLayout(self)
             hlay1 = QtGui.QHBoxLayout()
             layout.addLayout(hlay1)
@@ -5102,7 +5102,7 @@ class PipelineDeveloperView(QGraphicsView):
     def load_pipeline(self, filename="", load_pipeline=True):
         class LoadProcessUi(Qt.QDialog):
             def __init__(self, parent=None, old_filename=""):
-                super(LoadProcessUi, self).__init__(parent)
+                super().__init__(parent)
                 self.old_filename = old_filename
                 lay = Qt.QVBoxLayout()
                 self.setLayout(lay)
@@ -5291,9 +5291,7 @@ class PipelineDeveloperView(QGraphicsView):
                     else:
                         return item
 
-                return super(MultiDimensionalArrayEncoder, self).encode(
-                    hint_tuples(obj)
-                )
+                return super().encode(hint_tuples(obj))
 
         pipeline = self.scene.pipeline
 

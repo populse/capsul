@@ -7,9 +7,7 @@ class DummyProcess(Process):
     """Dummy Test Process"""
 
     def __init__(self, definition=None):
-        super(DummyProcess, self).__init__(
-            "capsul.pipeline.test.test_double_switch.DummyProcess"
-        )
+        super().__init__("capsul.pipeline.test.test_double_switch.DummyProcess")
 
         # inputs
         self.add_field("input_image", str, optional=False)

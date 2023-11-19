@@ -52,7 +52,7 @@ class ActivationInspectorApp(Application):
             a file where the pipeline activation steps are stored.
         """
         # Inhetritance
-        super(ActivationInspectorApp, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # Load the pipeline
         self.pipeline = executable(pipeline_path)

@@ -16,7 +16,7 @@ class DummyProcess(Process):
     f: float = field(output=False)
 
     def __init__(self, definition):
-        super(DummyProcess, self).__init__(definition)
+        super().__init__(definition)
         self.add_field("truc", type_=File, write=False)
         self.add_field("bidule", type_=File, write=True)
 
