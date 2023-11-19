@@ -9,7 +9,6 @@ Functions
 ----------------------
 """
 
-from __future__ import absolute_import
 
 # Soma import
 from soma.qt_gui.qt_backend import QtGui

@@ -32,7 +32,6 @@ Written by Anthony 'el Scopz' Scopatz, January 2012.
 Released under the WTFPL (http://sam.zoy.org/wtfpl/).
 """
 
-from __future__ import absolute_import
 from docutils import nodes
 from docutils.parsers.rst import directives
 from sphinx.directives.code import CodeBlock
