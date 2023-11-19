@@ -4,7 +4,6 @@
 """
 
 
-from __future__ import absolute_import
 from capsul.process.node import Node, Plug
 from soma.controller import Controller, File, undefined, field, type_from_str
 
