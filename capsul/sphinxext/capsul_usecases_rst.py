@@ -8,7 +8,6 @@
 
 """Script to auto-generate use cases rst documentation.
 """
-from __future__ import print_function
 
 # System import
 from __future__ import absolute_import

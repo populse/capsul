@@ -3,7 +3,6 @@
 -------------------
 """
 
-from __future__ import absolute_import
 from capsul.process.node import Node
 from soma.controller import Controller, Any, type_from_str
 
