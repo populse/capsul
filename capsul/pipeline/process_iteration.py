@@ -133,7 +133,7 @@ class ProcessIteration(Process):
                         raise ValueError(
                             "Iterative parameter values must be lists of the same size: %s"
                             % "\n".join(
-                                "%s=%s" % (n, len(getattr(self, n)))
+                                f"{n}={len(getattr(self, n))}"
                                 for n in self.iterative_parameters
                                 if getattr(self, n) is not undefined
                             )

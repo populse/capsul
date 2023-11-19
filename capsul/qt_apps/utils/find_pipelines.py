@@ -49,7 +49,7 @@ def find_pipelines_from_description(module_name, url=None):
     try:
         __import__(module_name)
     except ImportError:
-        logger.error("Can't load module {0}".format(module_name))
+        logger.error("Can't load module %s", module_name)
         return {}, []
 
     # Get the module path
@@ -57,7 +57,7 @@ def find_pipelines_from_description(module_name, url=None):
     module_path = module.__path__[0]
 
     # Build the expected pipeline description file
-    description_file = os.path.join(module_path, "{0}.capsul".format(module_name))
+    description_file = os.path.join(module_path, f"{module_name}.capsul")
 
     # Load the description file
     if os.path.isfile(description_file):
@@ -98,7 +98,7 @@ def find_pipeline_and_process(module_name):
     try:
         __import__(module_name)
     except ImportError:
-        logger.error("Can't load module {0}".format(module_name))
+        logger.error(f"Can't load module {module_name}")
         return {}, []
 
     # Get the module path
@@ -112,7 +112,7 @@ def find_pipeline_and_process(module_name):
     sub_modules = find_packages(where=module_path, exclude=("doc",))
     sub_modules = [module_name + "." + x for x in sub_modules]
     sub_modules.insert(0, module_name)
-    logger.debug("Modules found with setuptools: '{0}'.".format(sub_modules))
+    logger.debug(f"Modules found with setuptools: '{sub_modules}'.")
 
     # Shift
     shift = len(module_name.split("."))
@@ -137,7 +137,7 @@ def find_pipeline_and_process(module_name):
             except ImportError:
                 exc_info = sys.exc_info()
                 logger.error("".join(traceback.format_exception(*exc_info)))
-                logger.error("Can't load module " "{0}".format(sub_sub_module_name))
+                logger.error(f"Can't load module {sub_sub_module_name}")
                 continue
 
             # Get the module

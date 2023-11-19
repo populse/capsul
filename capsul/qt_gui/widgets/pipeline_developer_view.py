@@ -377,7 +377,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
         if self.sub_pipeline is None:
             return self.name
         else:
-            return "[{0}]".format(self.name)
+            return f"[{self.name}]"
 
     def update_parameters(self):
         self._update_param_timer.start(20)
@@ -2926,8 +2926,7 @@ class PipelineDeveloperView(QGraphicsView):
                 )  # add by Irmage OM
             else:
                 raise Exception(
-                    "Expect a Pipeline or a Process, not a "
-                    "'{0}'.".format(repr(pipeline))
+                    f"Expect a Pipeline or a Process, not a '{pipeline!r}'."
                 )
         return pipeline
 
@@ -5248,20 +5247,20 @@ class PipelineDeveloperView(QGraphicsView):
 
             if "pipeline_parameters" not in list(dic.keys()):
                 raise KeyError(
-                    'No "pipeline_parameters" key found in {0}.'.format(filename)
+                    f'No "pipeline_parameters" key found in {filename}.'
                 )
 
             for field_name, field_value in dic["pipeline_parameters"].items():
                 if field_name not in [
                     field.name for field in self.scene.pipeline.fields()
                 ]:
-                    print('No "{0}" parameter in pipeline.'.format(field_name))
+                    print(f'No "{field_name}" parameter in pipeline.')
 
                 try:
                     setattr(self.scene.pipeline, field_name, field_value)
 
                 except dataclasses.ValidationError:
-                    print("Error for the plug {0}".format(field_name))
+                    print(f"Error for the plug {field_name}")
 
             self.scene.pipeline.update_nodes_and_plugs_activation()
 
@@ -5310,7 +5309,7 @@ class PipelineDeveloperView(QGraphicsView):
             msg.setIcon(QMessageBox.Warning)
             msg.setText(
                 'The parameters must be saved in the ".json" format, '
-                'not the "{0}" format'.format(os.path.splitext(filename)[1])
+                f'not the "{os.path.splitext(filename)[1]}" format'
             )
             msg.setWindowTitle("Warning")
             msg.setStandardButtons(QMessageBox.Ok)

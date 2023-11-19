@@ -172,55 +172,55 @@ def declare_morpho_schemas(morpho_module):
     """
 
     axon_module = morpho_module
-    cnn_module = "{}.sulcideeplabeling".format(morpho_module)
+    cnn_module = f"{morpho_module}.sulcideeplabeling"
     if morpho_module.startswith("morphologist."):
-        axon_module = "{}.axon".format(morpho_module)
+        axon_module = f"{morpho_module}.axon"
         cnn_module = "deepsulci.sulci_labeling.capsul.labeling"
 
-    morphologist = importlib.import_module("{}.morphologist".format(morpho_module))
+    morphologist = importlib.import_module(f"{morpho_module}.morphologist")
     normalization_t1_spm12_reinit = importlib.import_module(
-        "{}.normalization_t1_spm12_reinit".format(axon_module)
+        f"{axon_module}.normalization_t1_spm12_reinit"
     )
     normalization_t1_spm8_reinit = importlib.import_module(
-        "{}.normalization_t1_spm8_reinit".format(axon_module)
+        f"{axon_module}.normalization_t1_spm8_reinit"
     )
     normalization_aimsmiregister = importlib.import_module(
-        "{}.normalization_aimsmiregister".format(axon_module)
+        f"{axon_module}.normalization_aimsmiregister"
     )
     normalization_fsl_reinit = importlib.import_module(
-        "{}.normalization_fsl_reinit".format(axon_module)
+        f"{axon_module}.normalization_fsl_reinit"
     )
     t1biascorrection = importlib.import_module(
-        "{}.t1biascorrection".format(axon_module)
+        f"{axon_module}.t1biascorrection"
     )
-    histoanalysis = importlib.import_module("{}.histoanalysis".format(axon_module))
+    histoanalysis = importlib.import_module(f"{axon_module}.histoanalysis")
     brainsegmentation = importlib.import_module(
-        "{}.brainsegmentation".format(axon_module)
+        f"{axon_module}.brainsegmentation"
     )
-    skullstripping = importlib.import_module("{}.skullstripping".format(axon_module))
-    scalpmesh = importlib.import_module("{}.scalpmesh".format(axon_module))
-    splitbrain = importlib.import_module("{}.splitbrain".format(axon_module))
+    skullstripping = importlib.import_module(f"{axon_module}.skullstripping")
+    scalpmesh = importlib.import_module(f"{axon_module}.scalpmesh")
+    splitbrain = importlib.import_module(f"{axon_module}.splitbrain")
     greywhiteclassificationhemi = importlib.import_module(
-        "{}.greywhiteclassificationhemi".format(axon_module)
+        f"{axon_module}.greywhiteclassificationhemi"
     )
     greywhitetopology = importlib.import_module(
-        "{}.greywhitetopology".format(axon_module)
+        f"{axon_module}.greywhitetopology"
     )
-    greywhitemesh = importlib.import_module("{}.greywhitemesh".format(axon_module))
-    pialmesh = importlib.import_module("{}.pialmesh".format(axon_module))
-    sulciskeleton = importlib.import_module("{}.sulciskeleton".format(axon_module))
-    sulcigraph = importlib.import_module("{}.sulcigraph".format(axon_module))
+    greywhitemesh = importlib.import_module(f"{axon_module}.greywhitemesh")
+    pialmesh = importlib.import_module(f"{axon_module}.pialmesh")
+    sulciskeleton = importlib.import_module(f"{axon_module}.sulciskeleton")
+    sulcigraph = importlib.import_module(f"{axon_module}.sulcigraph")
     sulcilabellingann = importlib.import_module(
-        "{}.sulcilabellingann".format(axon_module)
+        f"{axon_module}.sulcilabellingann"
     )
     sulcilabellingspamglobal = importlib.import_module(
-        "{}.sulcilabellingspamglobal".format(axon_module)
+        f"{axon_module}.sulcilabellingspamglobal"
     )
     sulcilabellingspamlocal = importlib.import_module(
-        "{}.sulcilabellingspamlocal".format(axon_module)
+        f"{axon_module}.sulcilabellingspamlocal"
     )
     sulcilabellingspammarkov = importlib.import_module(
-        "{}.sulcilabellingspammarkov".format(axon_module)
+        f"{axon_module}.sulcilabellingspammarkov"
     )
     try:
         sulcideeplabeling = importlib.import_module(cnn_module)
@@ -231,10 +231,10 @@ def declare_morpho_schemas(morpho_module):
             sulcideeplabeling = importlib.import_module(cnn_module)
         else:
             raise
-    brainvolumes = importlib.import_module("{}.brainvolumes".format(axon_module))
-    morpho_report = importlib.import_module("{}.morpho_report".format(axon_module))
+    brainvolumes = importlib.import_module(f"{axon_module}.brainvolumes")
+    morpho_report = importlib.import_module(f"{axon_module}.morpho_report")
     sulcigraphmorphometrybysubject = importlib.import_module(
-        "{}.sulcigraphmorphometrybysubject".format(axon_module)
+        f"{axon_module}.sulcigraphmorphometrybysubject"
     )
 
     # patch processes to setup their requirements and schemas

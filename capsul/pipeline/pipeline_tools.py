@@ -524,13 +524,13 @@ def save_dot_graph(dot_graph, filename, **kwargs):
         )
         if len(props) != 0:
             attstr = " " + attstr
-        fileobj.write('  %s [label="%s" style="filled"%s];\n' % (id, node, attstr))
+        fileobj.write(f'  {id} [label="{node}" style="filled"{attstr}];\n')
     for edge, descr in dot_graph[1].items():
         props = descr[0]
         attstr = " ".join(
             ["=".join([aname, _str_repr(val)]) for aname, val in props.items()]
         )
-        fileobj.write('  "%s" -> "%s" [%s];\n' % (edge[0], edge[1], attstr))
+        fileobj.write(f'  "{edge[0]}" -> "{edge[1]}" [{attstr}];\n')
     fileobj.write("}\n")
 
 
@@ -734,7 +734,7 @@ def nodes_with_existing_outputs(
         process = node
         if recursive and isinstance(process, Pipeline):
             nodes += [
-                ("%s.%s" % (node_name, new_name), new_node)
+                (f"{node_name}.{new_name}", new_node)
                 for new_name, new_node in process.nodes.items()
                 if new_name != ""
             ]
@@ -1392,11 +1392,11 @@ class %s(Process):
                 meta["optional"] = True
             meta_str = ""
             if meta:
-                meta_str = ", ".join("%s=%s" % (k, repr(v)) for k, v in meta.items())
+                meta_str = ", ".join(f"{k}={v!r}" for k, v in meta.items())
                 meta_str = ", " + meta_str
-            f.write('        self.add_field("%s", %s%s)\n' % (name, t_str, meta_str))
+            f.write(f'        self.add_field("{name}", {t_str}{meta_str})\n')
             if value is not undefined:
-                f.write("        self.%s = %s\n" % (name, repr(value)))
+                f.write(f"        self.{name} = {value!r}\n")
 
         f.write(
             """

@@ -399,8 +399,7 @@ class Pipeline(Process):
         # Check the unicity of the name we want to insert
         if name in self.nodes:
             raise ValueError(
-                "Pipeline cannot have two nodes with the "
-                "same name : {0}".format(name)
+                f"Pipeline cannot have two nodes with the same name : {name}"
             )
 
         if skip_invalid:
@@ -464,22 +463,12 @@ class Pipeline(Process):
             if not plug.output:
                 for link_def in list(plug.links_from):
                     src_node, src_plug = link_def[:2]
-                    link_descr = "%s.%s->%s.%s" % (
-                        src_node,
-                        src_plug,
-                        node_name,
-                        plug_name,
-                    )
+                    link_descr = f"{src_node}.{src_plug}->{node_name}.{plug_name}"
                     self.remove_link(link_descr)
             else:
                 for link_def in list(plug.links_to):
                     dst_node, dst_plug = link_def[:2]
-                    link_descr = "%s.%s->%s.%s" % (
-                        node_name,
-                        plug_name,
-                        dst_node,
-                        dst_plug,
-                    )
+                    link_descr = f"{node_name}.{plug_name}->{dst_node}.{dst_plug}"
                     self.remove_link(link_descr)
         del self.nodes[node_name]
         self.nodes_activation.on_attribute_change.remove(
@@ -675,7 +664,7 @@ class Pipeline(Process):
         # Check the unicity of the name we want to insert
         if name in self.nodes:
             raise ValueError(
-                "Pipeline cannot have two nodes with the same " "name: {0}".format(name)
+                f"Pipeline cannot have two nodes with the same name: {name}"
             )
 
         # Create the node
@@ -864,7 +853,7 @@ class Pipeline(Process):
                     node = None
                     plug = None
                 else:
-                    raise ValueError("{0} is not a valid node name".format(node_name))
+                    raise ValueError(f"{node_name} is not a valid node name")
             plug_name = name[dot + 1 :]
 
         # Check if plug nexists
@@ -884,11 +873,10 @@ class Pipeline(Process):
                                 node.invalid_plugs.add(plug_name)
                                 break
                     if err and check:
+                        node_name = node_name or "pipeline"
                         raise ValueError(
-                            "'{0}' is not a valid parameter name for "
-                            "node '{1}'".format(
-                                plug_name, (node_name if node_name else "pipeline")
-                            )
+                            f"'{node_name}' is not a valid parameter name for "
+                            f"node '{node_name}'"
                         )
             else:
                 plug = node.plugs[plug_name]
@@ -968,16 +956,16 @@ class Pipeline(Process):
 
         # Assure that pipeline plugs are not linked
         if not source_plug.output and source_node is not self:
-            raise ValueError("Cannot link from an input plug: {0}".format(link))
+            raise ValueError(f"Cannot link from an input plug: {link}")
         if source_plug.output and source_node is self:
             raise ValueError(
-                "Cannot link from a pipeline output " "plug: {0}".format(link)
+                f"Cannot link from a pipeline output plug: {link}"
             )
         if dest_plug.output and dest_node is not self:
-            raise ValueError("Cannot link to an output plug: {0}".format(link))
+            raise ValueError(f"Cannot link to an output plug: {link}")
         if not dest_plug.output and dest_node is self:
             raise ValueError(
-                "Cannot link to a pipeline input " "plug: {0}".format(link)
+                f"Cannot link to a pipeline input plug: {link}"
             )
 
         # Propagate the plug value from source to destination
@@ -1930,10 +1918,10 @@ class Pipeline(Process):
                 )
                 plugs_list.append((plug_name, plug_dict))
                 for nn, pn, n, p, weak_link in plug.links_to:
-                    link_name = "%s:%s" % (n.full_name, pn)
+                    link_name = f"{n.full_name}:{pn}"
                     links_to_dict[link_name] = weak_link
                 for nn, pn, n, p, weak_link in plug.links_from:
-                    link_name = "%s:%s" % (n.full_name, pn)
+                    link_name = f"{n.full_name}:{pn}"
                     links_from_dict[link_name] = weak_link
         return result
 
@@ -1952,28 +1940,24 @@ class Pipeline(Process):
         def compare_dict(ref_dict, other_dict):
             for ref_key, ref_value in ref_dict.items():
                 if ref_key not in other_dict:
-                    yield "%s = %s is missing" % (ref_key, repr(ref_value))
+                    yield f"{ref_key} = {ref_value!r} is missing"
                 else:
                     other_value = other_dict.pop(ref_key)
                     if ref_value != other_value:
-                        yield "%s = %s differs from %s" % (
-                            ref_key,
-                            repr(ref_value),
-                            repr(other_value),
-                        )
+                        yield f"{ref_key} = {ref_value!r} differs from {other_value!r}"
             for other_key, other_value in other_dict.items():
-                yield "%s=%s is new" % (other_key, repr(other_value))
+                yield f"{other_key}={other_value!r} is new"
 
         pipeline_state = deepcopy(pipeline_state)
         for node in self.all_nodes():
             node_name = node.full_name
             node_dict = pipeline_state.pop(node_name, None)
             if node_dict is None:
-                result.append('node "%s" is missing' % node_name)
+                result.append(f'node "{node_name}" is missing')
             else:
                 plugs_list = OrderedDict(node_dict.pop("plugs"))
                 result.extend(
-                    'in node "%s": %s' % (node_name, i)
+                    f'in node "{node_name}": {i}'
                     for i in compare_dict(
                         dict(
                             name=node.name,

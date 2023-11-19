@@ -66,21 +66,21 @@ def save_py_pipeline(pipeline, py_file):
                 make_opt.append(fname)
         node_options = ""
         if len(make_opt) != 0:
-            node_options += ", make_optional=%s" % repr(make_opt)
+            node_options += f", make_optional={make_opt!r}"
         if skip_invalid:
             node_options += ", skip_invalid=True"
         print(
-            '        self.add_process("%s", "%s"%s)' % (name, procname, node_options),
+            f'        self.add_process("{name}", "{procname}"{node_options})',
             file=pyf,
         )
 
         # check that sub-nodes enable and plugs optional states are the
         # expected ones
-        todo = [('self.nodes["%s"]' % name, process, proc_copy)]
+        todo = [(f'self.nodes["{name}"]', process, proc_copy)]
         while todo:
             self_str, snode, cnode = todo.pop(0)
             if not snode.enabled:
-                print("        %s.enabled = False" % self_str, file=pyf)
+                print(f"        {self_str}.enabled = False", file=pyf)
 
             # if the node is a (sub)pipeline, and this pipeline has additional
             # exported traits compared to the its base module/class instance
@@ -178,20 +178,18 @@ def save_py_pipeline(pipeline, py_file):
                 (p, v) for p, v in c.asdict().items() if v not in (None, undefined)
             )
             print(
-                '        self.add_custom_node("%s", "%s", %s)'
-                % (name, nodename, get_repr_value(params)),
+                f'        self.add_custom_node("{name}", "{nodename}", {get_repr_value(params)})',
                 file=pyf,
             )
         else:
             print(
-                '        self.add_custom_node("%s", "%s")' % (name, nodename), file=pyf
+                f'        self.add_custom_node("{name}", "{nodename}")', file=pyf
             )
         # optional plugs
         for plug_name, plug in node.plugs.items():
             if plug.optional:
                 print(
-                    '        self.nodes["%s"].plugs["%s"].optional = True'
-                    % (name, plug_name),
+                    f'        self.nodes["{name}"].plugs["{plug_name}"].optional = True',
                     file=pyf,
                 )
         # non-default: values of unconnected plugs
@@ -205,8 +203,7 @@ def save_py_pipeline(pipeline, py_file):
             ):
                 value = getattr(node, plug_name, undefined)
                 print(
-                    '        self.nodes["%s"].%s = %s'
-                    % (name, plug_name, get_repr_value(value)),
+                    f'        self.nodes["{name}"].{plug_name} = {get_repr_value(value)}',
                     file=pyf,
                 )
 
@@ -229,8 +226,8 @@ def save_py_pipeline(pipeline, py_file):
         iteration_params = ", ".join(process_iter.iterative_parameters)
         # TODO: optional plugs, non-exported plugs...
         print(
-            '        self.add_iterative_process("%s", "%s", '
-            "iterative_plugs=%s)" % (name, procname, process_iter.iterative_parameters),
+            f'        self.add_iterative_process("{name}", "{procname}", '
+            f"iterative_plugs={process_iter.iterative_parameters})",
             file=pyf,
         )
 
@@ -265,12 +262,16 @@ def save_py_pipeline(pipeline, py_file):
                     inputs.append(name_parts[0])
         optional_p = ""
         if len(optional) != 0:
-            optional_p = ", make_optional=%s" % repr(optional)
+            optional_p = f", make_optional={optional!r}"
 
-        # print(f'        self.create_switch({repr(name)}, {repr(options)}, switch_value={repr(switch.switch)}, export_switch=False)', file=pyf)
+        # print(
+        #     f'        self.create_switch({repr(name)}, {repr(options)}, '
+        #     f'switch_value={repr(switch.switch)}, export_switch=False)',
+        #     file=pyf
+        # )
         print(
-            f"        self.add_switch({repr(name)}, {repr(inputs)}, "
-            f"{repr(outputs)}{optional_p}, export_switch=False)",
+            f"        self.add_switch({name!r}, {inputs!r}, "
+            f"{outputs!r}{optional_p}, export_switch=False)",
             file=pyf,
         )
 
@@ -309,8 +310,7 @@ def save_py_pipeline(pipeline, py_file):
             print("\n        # processes selection", file=pyf)
             for selector_name, groups in pipeline.processes_selection.items():
                 print(
-                    '        self.add_processes_selection("%s", %s)'
-                    % (selector_name, repr(groups)),
+                    f'        self.add_processes_selection("{selector_name}", {groups!r})',
                     file=pyf,
                 )
         return selection_parameters
@@ -326,14 +326,13 @@ def save_py_pipeline(pipeline, py_file):
         if param_name == plug_name:
             param_name = ""
         else:
-            param_name = ', "%s"' % param_name
+            param_name = f', "{param_name}"'
         weak_link = ""
         if link[-1]:
             weak_link = ", weak_link=True"
-        is_optional = ", is_optional=%s" % repr(field.optional)
+        is_optional = f", is_optional={field.optional!r}"
         print(
-            '        self.export_parameter("%s", "%s"%s%s%s)'
-            % (node_name, plug_name, param_name, weak_link, is_optional),
+            f'        self.export_parameter("{node_name}", "{plug_name}"{param_name}{weak_link}{is_optional})',
             file=pyf,
         )
         return node_name, plug_name
@@ -355,14 +354,14 @@ def save_py_pipeline(pipeline, py_file):
                                 exported_plug = _write_export(pipeline, pyf, src)
                                 exported.add(src)
                         else:
-                            src = "%s.%s" % (node_name, plug_name)
+                            src = f"{node_name}.{plug_name}"
                         if link[0] == "":
                             dst = link[1]
                             if dst not in exported:
                                 exported_plug = _write_export(pipeline, pyf, dst)
                                 exported.add(dst)
                         else:
-                            dst = "%s.%s" % (link[0], link[1])
+                            dst = f"{link[0]}.{link[1]}"
                         if not exported_plug or ".".join(exported_plug) not in (
                             src,
                             dst,
@@ -371,8 +370,7 @@ def save_py_pipeline(pipeline, py_file):
                             if link[-1]:
                                 weak_link = ", weak_link=True"
                             print(
-                                '        self.add_link("%s->%s"%s)'
-                                % (src, dst, weak_link),
+                                f'        self.add_link("{src}->{dst}"{weak_link})',
                                 file=pyf,
                             )
 
@@ -382,7 +380,7 @@ def save_py_pipeline(pipeline, py_file):
             return
         print("\n        # parameters order", file=pyf)
         names = [
-            '"%s"' % n.name
+            f'"{n.name}"'
             for n in user_fields
             if n.name not in ("nodes_activation", "pipeline_steps", "visible_groups")
         ]
@@ -403,8 +401,7 @@ def save_py_pipeline(pipeline, py_file):
                     enabled_str = ", enabled=false"
                 nodes = step.metadata("nodes", set())
                 print(
-                    '        self.add_pipeline_step("%s", %s%s)'
-                    % (step_name, repr(nodes), enabled_str),
+                    f'        self.add_pipeline_step("{step_name}", {nodes!r}{enabled_str})',
                     file=pyf,
                 )
 
@@ -417,12 +414,11 @@ def save_py_pipeline(pipeline, py_file):
                 if not isinstance(pos, (list, tuple)):
                     # pos is probably a QPointF
                     pos = (pos.x(), pos.y())
-                print('            "%s": %s,' % (node_name, repr(pos)), file=pyf)
+                print(f'            "{node_name}": {pos!r},', file=pyf)
             print("        }", file=pyf)
         if hasattr(pipeline, "scene_scale_factor"):
             print(
-                "        self.scene_scale_factor = %s"
-                % repr(pipeline.scene_scale_factor),
+                f"        self.scene_scale_factor = {pipeline.scene_scale_factor!r}",
                 file=pyf,
             )
 
@@ -435,7 +431,7 @@ def save_py_pipeline(pipeline, py_file):
             for node_name, dim in pipeline.node_dimension.items():
                 if not isinstance(dim, (list, tuple)):
                     dim = (dim.width(), dim.height())
-                print('            "%s": %s,' % (node_name, repr(dim)), file=pyf)
+                print(f'            "{node_name}": {dim!r},', file=pyf)
             print("        }", file=pyf)
 
     ######################################################
@@ -456,9 +452,7 @@ def save_py_pipeline(pipeline, py_file):
                     for i in notepos:
                         if (
                             splitdoc[i + 2].find(
-                                "* Type '{0}.help()'".format(
-                                    pipeline.__class__.__name__
-                                )
+                                f"* Type '{pipeline.__class__.__name__}.help()'"
                             )
                             != -1
                         ):
@@ -473,7 +467,7 @@ def save_py_pipeline(pipeline, py_file):
             if docstr:
                 doc = docstr.split("\n")
                 docstr = "\n".join([repr(x)[1:-1] for x in doc])
-                print('    """%s    """' % docstr, file=pyf)
+                print(f'    """{docstr}    """', file=pyf)
 
     def _write_values(pipeline, pyf):
         first = True
@@ -490,12 +484,12 @@ def save_py_pipeline(pipeline, py_file):
                 try:
                     eval(value_repr)
                 except Exception:
-                    print("warning, value of parameter %s cannot be saved" % param_name)
+                    print(f"warning, value of parameter {param_name} cannot be saved")
                     continue
                 if first:
                     first = False
                     print("\n        # default and initial values", file=pyf)
-                print("        self.%s = %s" % (param_name, value_repr), file=pyf)
+                print(f"        self.{param_name} = {value_repr}", file=pyf)
 
     class_name = type(pipeline).__name__
     if class_name == "Pipeline":
@@ -510,7 +504,7 @@ def save_py_pipeline(pipeline, py_file):
         print("from soma.controller import undefined", file=pyf)
         print(file=pyf)
         print(file=pyf)
-        print("class %s(Pipeline):" % class_name, file=pyf)
+        print(f"class {class_name}(Pipeline):", file=pyf)
 
         _write_doc(pipeline, pyf)
 

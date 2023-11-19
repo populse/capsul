@@ -135,7 +135,7 @@ class Switch(Node):
             raise Exception(
                 "The Switch node input and output parameters "
                 "are inconsistent: expect list, "
-                "got {0}, {1}".format(type(inputs), type(outputs))
+                f"got {type(inputs)}, {type(outputs)}"
             )
 
         # private copy of outputs and inputs
@@ -147,7 +147,7 @@ class Switch(Node):
         for switch_name in inputs:
             flat_inputs.extend(
                 [
-                    "{0}_switch_{1}".format(switch_name, plug_name)
+                    f"{switch_name}_switch_{plug_name}"
                     for plug_name in outputs
                 ]
             )
