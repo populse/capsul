@@ -190,29 +190,21 @@ def declare_morpho_schemas(morpho_module):
     normalization_fsl_reinit = importlib.import_module(
         f"{axon_module}.normalization_fsl_reinit"
     )
-    t1biascorrection = importlib.import_module(
-        f"{axon_module}.t1biascorrection"
-    )
+    t1biascorrection = importlib.import_module(f"{axon_module}.t1biascorrection")
     histoanalysis = importlib.import_module(f"{axon_module}.histoanalysis")
-    brainsegmentation = importlib.import_module(
-        f"{axon_module}.brainsegmentation"
-    )
+    brainsegmentation = importlib.import_module(f"{axon_module}.brainsegmentation")
     skullstripping = importlib.import_module(f"{axon_module}.skullstripping")
     scalpmesh = importlib.import_module(f"{axon_module}.scalpmesh")
     splitbrain = importlib.import_module(f"{axon_module}.splitbrain")
     greywhiteclassificationhemi = importlib.import_module(
         f"{axon_module}.greywhiteclassificationhemi"
     )
-    greywhitetopology = importlib.import_module(
-        f"{axon_module}.greywhitetopology"
-    )
+    greywhitetopology = importlib.import_module(f"{axon_module}.greywhitetopology")
     greywhitemesh = importlib.import_module(f"{axon_module}.greywhitemesh")
     pialmesh = importlib.import_module(f"{axon_module}.pialmesh")
     sulciskeleton = importlib.import_module(f"{axon_module}.sulciskeleton")
     sulcigraph = importlib.import_module(f"{axon_module}.sulcigraph")
-    sulcilabellingann = importlib.import_module(
-        f"{axon_module}.sulcilabellingann"
-    )
+    sulcilabellingann = importlib.import_module(f"{axon_module}.sulcilabellingann")
     sulcilabellingspamglobal = importlib.import_module(
         f"{axon_module}.sulcilabellingspamglobal"
     )

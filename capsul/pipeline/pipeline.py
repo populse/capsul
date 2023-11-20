@@ -958,15 +958,11 @@ class Pipeline(Process):
         if not source_plug.output and source_node is not self:
             raise ValueError(f"Cannot link from an input plug: {link}")
         if source_plug.output and source_node is self:
-            raise ValueError(
-                f"Cannot link from a pipeline output plug: {link}"
-            )
+            raise ValueError(f"Cannot link from a pipeline output plug: {link}")
         if dest_plug.output and dest_node is not self:
             raise ValueError(f"Cannot link to an output plug: {link}")
         if not dest_plug.output and dest_node is self:
-            raise ValueError(
-                f"Cannot link to a pipeline input plug: {link}"
-            )
+            raise ValueError(f"Cannot link to a pipeline input plug: {link}")
 
         # Propagate the plug value from source to destination
         value = getattr(source_node, source_plug_name, None)

@@ -182,9 +182,7 @@ def save_py_pipeline(pipeline, py_file):
                 file=pyf,
             )
         else:
-            print(
-                f'        self.add_custom_node("{name}", "{nodename}")', file=pyf
-            )
+            print(f'        self.add_custom_node("{name}", "{nodename}")', file=pyf)
         # optional plugs
         for plug_name, plug in node.plugs.items():
             if plug.optional:

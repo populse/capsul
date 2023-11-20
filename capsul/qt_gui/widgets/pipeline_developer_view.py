@@ -5246,9 +5246,7 @@ class PipelineDeveloperView(QGraphicsView):
             dic = json.loads(dic, object_hook=hinted_tuple_hook)
 
             if "pipeline_parameters" not in list(dic.keys()):
-                raise KeyError(
-                    f'No "pipeline_parameters" key found in {filename}.'
-                )
+                raise KeyError(f'No "pipeline_parameters" key found in {filename}.')
 
             for field_name, field_value in dic["pipeline_parameters"].items():
                 if field_name not in [

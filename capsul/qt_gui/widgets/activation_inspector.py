@@ -248,9 +248,7 @@ class ActivationInspector(QtGui.QWidget):
                 self.activations.append(current_activations.copy())
 
                 # > Add a line to the activation display
-                self.ui.events.addItem(
-                    f"{iteration}{activation} {node}:{plug}"
-                )
+                self.ui.events.addItem(f"{iteration}{activation} {node}:{plug}")
 
             # Select the last activation step so the pipeline will be
             # in his final configuration
@@ -270,9 +268,7 @@ class ActivationInspector(QtGui.QWidget):
             # Restore the plugs and nodes activations
             node_name = node.full_name
             for plug_name, plug in node.plugs.items():
-                plug.activated = activations.get(
-                    f"{node_name}:{plug_name}", False
-                )
+                plug.activated = activations.get(f"{node_name}:{plug_name}", False)
             node.activated = activations.get(f"{node_name}:", False)
 
         # Refresh views relying on plugs and nodes selection

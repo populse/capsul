@@ -115,9 +115,7 @@ class Application(Qt.QApplication):
 
             # If a no valid logging level is found raise an Exception
             if level is None:
-                raise Exception(
-                    f"Warning : unknown logging level {self.options.debug}"
-                )
+                raise Exception(f"Warning : unknown logging level {self.options.debug}")
 
             # Configure the logging module
             logging.basicConfig(level=level, format=logging_format, datefmt=date_format)
