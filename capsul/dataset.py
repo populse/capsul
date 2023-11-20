@@ -1163,6 +1163,12 @@ class ProcessMetadata(Controller):
                         v = getattr(metadata, f.name, undefined)
                         self.dprint("   ", f.name, "=", repr(v))
             metadata_modifications = self.metadata_modifications(executable)
+
+            if not hasattr(executable, "metadata_schemas"):
+                # print('executable has not metadata_schemas')
+                # don't fail, just do nothing
+                return
+
             for schema, parameters in self.parameters_per_schema.items():
                 proc_meta = executable.metadata_schemas.get(schema)
                 params_meta = {}
