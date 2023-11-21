@@ -18,7 +18,7 @@ _version_micro = version_micro
 _version_extra = version_extra
 
 # Expected by setup.py: string of form "X.Y.Z"
-__version__ = "{0}.{1}.{2}".format(version_major, version_minor, version_micro)
+__version__ = f"{version_major}.{version_minor}.{version_micro}"
 
 brainvisa_dependencies = [
     "soma-base",
@@ -83,25 +83,25 @@ VERSION = __version__
 PROVIDES = ["capsul"]
 REQUIRES = [
     "redis <4.5.0",
-    "pydantic >={0}".format(PYDANTIC_MIN_VERSION),
-    "soma-base >={0}".format(SOMA_MIN_VERSION),
-    "soma-workflow >={0}".format(SOMA_WORKFLOW_MIN_VERSION),
-    "populse-db >={0}".format(POPULSE_DB_MIN_VERSION),
+    f"pydantic >={PYDANTIC_MIN_VERSION}",
+    f"soma-base >={SOMA_MIN_VERSION}",
+    f"soma-workflow >={SOMA_WORKFLOW_MIN_VERSION}",
+    f"populse-db >={POPULSE_DB_MIN_VERSION}",
     "PyYAML",
 ]
 EXTRA_REQUIRES = {
     "test": ["pytest", "jupyter"],
     "doc": [
         "sphinx >=1.0",
-        "numpy >={0}".format(NUMPY_MIN_VERSION),
+        f"numpy >={NUMPY_MIN_VERSION}",
     ],
     "nipype": [
-        "traits >={}".format(TRAITS_MIN_VERSION),
-        "numpy >={0}".format(NUMPY_MIN_VERSION),
-        "scipy >={0}".format(SCIPY_MIN_VERSION),
-        "nibabel >={0}".format(NIBABEL_MIN_VERSION),
-        "networkx >={0}".format(NETWORKX_MIN_VERSION),
-        "nipype =={0}".format(NIPYPE_VERSION),
+        f"traits >={TRAITS_MIN_VERSION}",
+        f"numpy >={NUMPY_MIN_VERSION}",
+        f"scipy >={SCIPY_MIN_VERSION}",
+        f"nibabel >={NIBABEL_MIN_VERSION}",
+        f"networkx >={NETWORKX_MIN_VERSION}",
+        f"nipype =={NIPYPE_VERSION}",
     ],
 }
 

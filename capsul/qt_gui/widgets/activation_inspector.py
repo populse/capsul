@@ -160,8 +160,8 @@ class ActivationInspector(QtGui.QWidget):
             self.pipeline._debug_activations = self.record_file
         else:
             raise ValueError(
-                "The record file '{0}' can't be created since the "
-                "base directory does not exists.".format(self.record_file)
+                f"The record file '{self.record_file}' can't be created "
+                "since the base directory does not exist."
             )
 
         # Execute the pipeline activation method
@@ -216,10 +216,9 @@ class ActivationInspector(QtGui.QWidget):
             record_pipeline_id = openrecord.readline().strip()
             if record_pipeline_id != str(self.pipeline.definition):
                 raise ValueError(
-                    "'{0}' recorded activations for pipeline '{1}' but not for "
-                    "'{2}'".format(
-                        self.record_file, record_pipeline_id, self.pipeline.definition
-                    )
+                    f"'{self.record_file}' recorded activations for pipeline "
+                    f"'{record_pipeline_id}' but not for "
+                    f"'{self.pipeline.definition}'"
                 )
 
             # Clear the list where the recorded activation is displayed
@@ -243,15 +242,13 @@ class ActivationInspector(QtGui.QWidget):
 
                 # > Store the current activation stack
                 if activation == "+":
-                    current_activations["{0}:{1}".format(node, plug)] = True
+                    current_activations[f"{node}:{plug}"] = True
                 else:
-                    del current_activations["{0}:{1}".format(node, plug)]
+                    del current_activations[f"{node}:{plug}"]
                 self.activations.append(current_activations.copy())
 
                 # > Add a line to the activation display
-                self.ui.events.addItem(
-                    "{0}{1} {2}:{3}".format(iteration, activation, node, plug)
-                )
+                self.ui.events.addItem(f"{iteration}{activation} {node}:{plug}")
 
             # Select the last activation step so the pipeline will be
             # in his final configuration
@@ -271,10 +268,8 @@ class ActivationInspector(QtGui.QWidget):
             # Restore the plugs and nodes activations
             node_name = node.full_name
             for plug_name, plug in node.plugs.items():
-                plug.activated = activations.get(
-                    "{0}:{1}".format(node_name, plug_name), False
-                )
-            node.activated = activations.get("{0}:".format(node_name), False)
+                plug.activated = activations.get(f"{node_name}:{plug_name}", False)
+            node.activated = activations.get(f"{node_name}:", False)
 
         # Refresh views relying on plugs and nodes selection
         for node in self.pipeline.all_nodes():
