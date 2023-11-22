@@ -21,6 +21,7 @@ with open(os.path.join(python_dir, "capsul", "info.py")) as f:
 
 # Build the setup
 setup(
+    python_requires=">=3.9",
     name=release_info["NAME"],
     description=release_info["DESCRIPTION"],
     long_description=release_info["LONG_DESCRIPTION"],
