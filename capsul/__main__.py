@@ -45,6 +45,11 @@ run_parser.add_argument(
 )
 run_parser.add_argument("executable")
 
+run_parser = subparsers.add_parser(
+    "view", help="Display an executable in pipeline developer view"
+)
+run_parser.add_argument("executable")
+
 help_parser = subparsers.add_parser(
     "help", help="Get help about a command or a process"
 )
@@ -139,7 +144,19 @@ elif options.subcommand == "run":
                 print(stdout, end="")
             if stderr:
                 print(stderr, end="")
+elif options.subcommand == "view":
+    # Other commands must be able to work without PyQt installed
+    from soma.qt_gui.qt_backend import Qt
+    from capsul.qt_gui.widgets import PipelineDeveloperView
 
+    executable = Capsul.executable(options.executable)
+    app = Qt.QApplication(sys.argv)
+    view = PipelineDeveloperView(
+        executable, allow_open_controller=True, show_sub_pipelines=True
+    )
+    view.show()
+    app.exec_()
+    del view
 
 elif options.subcommand == "help":
     if options.command_or_executable in ("configure", "run", "help"):
