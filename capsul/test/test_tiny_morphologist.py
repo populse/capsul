@@ -16,6 +16,8 @@ from capsul.config.configuration import (
 from capsul.dataset import ProcessMetadata, ProcessSchema, Prepend, Append
 from capsul.config.configuration import default_builtin_database
 
+process_schema = lambda x, y: lambda z: z
+
 
 class FakeSPMConfiguration(ModuleConfiguration):
     """SPM configuration module"""
@@ -89,52 +91,40 @@ class FakeSPMNormalization12(Process):
             f.write(content)
 
 
-class FakeSPMNormalization12BIDS(
-    ProcessSchema, schema="bids", process=FakeSPMNormalization12
-):
-    output = Prepend("part", "normalized_fakespm12")
+@process_schema("bids", "capsul.test.test_tiny_morphologist.FakeSPMNormalization12")
+def bids_FakeSPMNormalization12(metadata):
+    metadata.output.part.prepend("normalized_fakespm12")
 
 
-class FakeSPMNormalization12BrainVISA(
-    ProcessSchema, schema="brainvisa", process=FakeSPMNormalization12
-):
-    metadata_per_parameter = {
-        "*": {
-            "unused": [
-                "subject_only",
-                "sulci_graph_version",
-                "sulci_recognition_session",
-            ]
-        },
-    }
-
-    output = Prepend("prefix", "normalized_fakespm12")
+@process_schema(
+    "brainvisa", "capsul.test.test_tiny_morphologist.FakeSPMNormalization12"
+)
+def brainvisa_FakeSPMNormalization12(metadata):
+    metadata["*"].unused_metadata = [
+        "subject_only",
+        "sulci_graph_version",
+        "sulci_recognition_session",
+    ]
+    metadata.output.prefix.prepend("normalized_fakespm12")
 
 
 class FakeSPMNormalization8(FakeSPMNormalization12):
     requirements = {"fakespm": {"version": "8"}}
 
 
-class FakeSPMNormalization8BIDS(
-    ProcessSchema, schema="bids", process=FakeSPMNormalization8
-):
-    output = Prepend("part", "normalized_fakespm8")
+@process_schema("bids", "capsul.test.test_tiny_morphologist.FakeSPMNormalization8")
+def bids_FakeSPMNormalization8(metadata):
+    metadata.output.part.prepend("normalized_fakespm8")
 
 
-class FakeSPMNormalization8BrainVISA(
-    ProcessSchema, schema="brainvisa", process=FakeSPMNormalization8
-):
-    metadata_per_parameter = {
-        "*": {
-            "unused": [
-                "subject_only",
-                "sulci_graph_version",
-                "sulci_recognition_session",
-            ]
-        },
-    }
-
-    output = Prepend("prefix", "normalized_fakespm8")
+@process_schema("brainvisa", "capsul.test.test_tiny_morphologist.FakeSPMNormalization8")
+def brainvisa_FakeSPMNormalization8(metadata):
+    metadata["*"].unused_metadata = [
+        "subject_only",
+        "sulci_graph_version",
+        "sulci_recognition_session",
+    ]
+    metadata.output.prefix.prepend("normalized_fakespm8")
 
 
 class AimsNormalization(Process):
@@ -151,24 +141,19 @@ class AimsNormalization(Process):
             f.write(content)
 
 
-class AimsNormalizationBIDS(ProcessSchema, schema="bids", process=AimsNormalization):
-    output = Prepend("part", "normalized_aims")
+@process_schema("bids", "capsul.test.test_tiny_morphologist.AimsNormalization")
+def bids_AimsNormalization(metadata):
+    metadata.output.part.prepend("normalized_aims")
 
 
-class AimsNormalizationBrainVISA(
-    ProcessSchema, schema="brainvisa", process=AimsNormalization
-):
-    metadata_per_parameter = {
-        "*": {
-            "unused": [
-                "subject_only",
-                "sulci_graph_version",
-                "sulci_recognition_session",
-            ]
-        },
-    }
-
-    output = Prepend("prefix", "normalized_aims")
+@process_schema("brainvisa", "capsul.test.test_tiny_morphologist.AimsNormalization")
+def brainvisa_AimsNormalization(metadata):
+    metadata["*"].unused_metadata = [
+        "subject_only",
+        "sulci_graph_version",
+        "sulci_recognition_session",
+    ]
+    metadata.output.prefix.prepend("normalized_aims")
 
 
 class SplitBrain(Process):
@@ -187,22 +172,17 @@ class SplitBrain(Process):
                 f.write(side_content)
 
 
-class SplitBrainBrainVISA(ProcessSchema, schema="brainvisa", process=SplitBrain):
-    _ = {
-        "right_output": Append("suffix", "right"),
-        "left_output": Append("suffix", "left"),
-    }
-    metadata_per_parameter = {
-        "*": {
-            "unused": [
-                "subject_only",
-                "sulci_graph_version",
-                "sulci_recognition_session",
-            ]
-        },
-    }
-    right_output = Prepend("prefix", "split")
-    left_output = Prepend("prefix", "split")
+@process_schema("brainvisa", "capsul.test.test_tiny_morphologist.SplitBrain")
+def brainvisa_SplitBrain(metadata):
+    metadata["*"].unused_metadata = [
+        "subject_only",
+        "sulci_graph_version",
+        "sulci_recognition_session",
+    ]
+    metadata.right_output.suffix.append("right")
+    metadata.left_output.suffix.append("left")
+    metadata.right_output.prefix.prepend("split")
+    metadata.left_output.prefix.prepend("split")
 
 
 class ProcessHemisphere(Process):
@@ -217,19 +197,14 @@ class ProcessHemisphere(Process):
             f.write(content)
 
 
-class ProcessHemisphereBrainVISA(
-    ProcessSchema, schema="brainvisa", process=ProcessHemisphere
-):
-    metadata_per_parameter = {
-        "*": {
-            "unused": [
-                "subject_only",
-                "sulci_graph_version",
-                "sulci_recognition_session",
-            ]
-        },
-    }
-    output = Prepend("prefix", "hemi")
+@process_schema("brainvisa", "capsul.test.test_tiny_morphologist.ProcessHemisphere")
+def brainvisa_ProcessHemisphere(metadata):
+    metadata["*"].unused_metadata = [
+        "subject_only",
+        "sulci_graph_version",
+        "sulci_recognition_session",
+    ]
+    metadata.output.prefix.prepend("hemi")
 
 
 class TinyMorphologist(Pipeline):
@@ -267,13 +242,26 @@ class TinyMorphologist(Pipeline):
         self.export_parameter("left_hemi", "output", "left_hemisphere")
 
 
-class TinyMorphologistBIDS(ProcessSchema, schema="bids", process=TinyMorphologist):
-    _ = {
-        "*": {"process": "tinymorphologist"},
-        "split.right_output": {"part": "right_hemi"},
-        "split.left_output": {"part": "left_hemi"},
-    }
-    input = {"process": None}
+@process_schema("bids", "capsul.test.test_tiny_morphologist.TinyMorphologist")
+def bids_TinyMorphologist(metadata):
+    metadata["*"].process = "tinymorphologist"
+    metadata.input.unused_metadata = "process"
+    metadata.split.right_output.part = "right_hemi"
+    metadata.split.left_output.part = "left_hemi"
+
+
+@process_schema("brainvisa", "capsul.test.test_tiny_morphologist.TinyMorphologist")
+def brainvisa_TinyMorphologist(metadata):
+    metadata["*"].unused_metadata = [
+        "subject_only",
+        "sulci_graph_version",
+        "sulci_recognition_session",
+    ]
+    metadata["*"].process = "tinymorphologist"
+    # metadata.split.right_output.prefix = "right_hemi"
+    # metadata.split.left_output.prefix = "left_hemi"
+
+    metadata.output.prefix.prepend("hemi")
 
 
 class TinyMorphologistBrainVISA(
