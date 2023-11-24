@@ -3,7 +3,6 @@ from pathlib import Path
 import shutil
 import tempfile
 import unittest
-import os.path as osp
 
 from soma.controller import field, File
 from soma.controller import Directory, undefined
@@ -13,10 +12,8 @@ from capsul.config.configuration import (
     ModuleConfiguration,
     default_engine_start_workers,
 )
-from capsul.dataset import ProcessMetadata, ProcessSchema, Prepend, Append
+from capsul.dataset import ProcessMetadata, process_schema
 from capsul.config.configuration import default_builtin_database
-
-process_schema = lambda x, y: lambda z: z
 
 
 class FakeSPMConfiguration(ModuleConfiguration):
@@ -50,24 +47,19 @@ class BiasCorrection(Process):
             f.write(content)
 
 
-class BiasCorrectionBIDS(ProcessSchema, schema="bids", process=BiasCorrection):
-    output = Prepend("part", "nobias")
+@process_schema("bids", "capsul.test.test_tiny_morphologist.BiasCorrection")
+def bids_FBiasCorrection(metadata):
+    metadata.output.part.prepend("nobias")
 
 
-class BiasCorrectionBrainVISA(
-    ProcessSchema, schema="brainvisa", process=BiasCorrection
-):
-    metadata_per_parameter = {
-        "*": {
-            "unused": [
-                "subject_only",
-                "sulci_graph_version",
-                "sulci_recognition_session",
-            ]
-        },
-    }
-
-    output = Prepend("prefix", "nobias")
+@process_schema("brainvisa", BiasCorrection)
+def brainvisa_BiasCorrection(metadata):
+    metadata["*"][
+        "subject_only",
+        "sulci_graph_version",
+        "sulci_recognition_session",
+    ].unused()
+    metadata.output.prefix.prepend("nobias")
 
 
 class FakeSPMNormalization12(Process):
@@ -100,11 +92,11 @@ def bids_FakeSPMNormalization12(metadata):
     "brainvisa", "capsul.test.test_tiny_morphologist.FakeSPMNormalization12"
 )
 def brainvisa_FakeSPMNormalization12(metadata):
-    metadata["*"].unused_metadata = [
+    metadata["*"][
         "subject_only",
         "sulci_graph_version",
         "sulci_recognition_session",
-    ]
+    ].unused()
     metadata.output.prefix.prepend("normalized_fakespm12")
 
 
@@ -119,11 +111,11 @@ def bids_FakeSPMNormalization8(metadata):
 
 @process_schema("brainvisa", "capsul.test.test_tiny_morphologist.FakeSPMNormalization8")
 def brainvisa_FakeSPMNormalization8(metadata):
-    metadata["*"].unused_metadata = [
+    metadata["*"][
         "subject_only",
         "sulci_graph_version",
         "sulci_recognition_session",
-    ]
+    ].unused()
     metadata.output.prefix.prepend("normalized_fakespm8")
 
 
@@ -148,12 +140,35 @@ def bids_AimsNormalization(metadata):
 
 @process_schema("brainvisa", "capsul.test.test_tiny_morphologist.AimsNormalization")
 def brainvisa_AimsNormalization(metadata):
-    metadata["*"].unused_metadata = [
+    metadata["*"][
         "subject_only",
         "sulci_graph_version",
         "sulci_recognition_session",
-    ]
+    ].unused()
     metadata.output.prefix.prepend("normalized_aims")
+
+
+class Normalization(Pipeline):
+    def pipeline_definition(self):
+        self.add_process("fakespm_normalization_12", FakeSPMNormalization12)
+        self.add_process("fakespm_normalization_8", FakeSPMNormalization8)
+        self.add_process("aims_normalization", AimsNormalization)
+
+        self.export_parameter("fakespm_normalization_12", "input")
+        self.add_link("input->fakespm_normalization_8.input")
+        self.export_parameter("fakespm_normalization_12", "template")
+        self.add_link("template->fakespm_normalization_8.template")
+        self.add_link("input->aims_normalization.input")
+
+        self.create_switch(
+            "normalization",
+            {
+                "none": {"output": "input"},
+                "fakespm12": {"output": "fakespm_normalization_12.output"},
+                "fakespm8": {"output": "fakespm_normalization_8.output"},
+                "aims": {"output": "aims_normalization.output"},
+            },
+        )
 
 
 class SplitBrain(Process):
@@ -174,11 +189,11 @@ class SplitBrain(Process):
 
 @process_schema("brainvisa", "capsul.test.test_tiny_morphologist.SplitBrain")
 def brainvisa_SplitBrain(metadata):
-    metadata["*"].unused_metadata = [
+    metadata["*"][
         "subject_only",
         "sulci_graph_version",
         "sulci_recognition_session",
-    ]
+    ].unused()
     metadata.right_output.suffix.append("right")
     metadata.left_output.suffix.append("left")
     metadata.right_output.prefix.prepend("split")
@@ -199,39 +214,25 @@ class ProcessHemisphere(Process):
 
 @process_schema("brainvisa", "capsul.test.test_tiny_morphologist.ProcessHemisphere")
 def brainvisa_ProcessHemisphere(metadata):
-    metadata["*"].unused_metadata = [
+    metadata["*"][
         "subject_only",
         "sulci_graph_version",
         "sulci_recognition_session",
-    ]
+    ].unused()
     metadata.output.prefix.prepend("hemi")
 
 
 class TinyMorphologist(Pipeline):
     def pipeline_definition(self):
         self.add_process("nobias", BiasCorrection)
-        self.add_process("fakespm_normalization_12", FakeSPMNormalization12)
-        self.add_process("fakespm_normalization_8", FakeSPMNormalization8)
-        self.add_process("aims_normalization", AimsNormalization)
+
+        self.add_process("normalization", Normalization)
+
         self.add_process("split", SplitBrain)
         self.add_process("right_hemi", ProcessHemisphere)
         self.add_process("left_hemi", ProcessHemisphere)
-        self.create_switch(
-            "normalization",
-            {
-                "none": {"output": "nobias.output"},
-                "fakespm12": {"output": "fakespm_normalization_12.output"},
-                "fakespm8": {"output": "fakespm_normalization_8.output"},
-                "aims": {"output": "aims_normalization.output"},
-            },
-        )
 
-        self.add_link("nobias.output->fakespm_normalization_12.input")
-        self.add_link("nobias.output->fakespm_normalization_8.input")
-        self.export_parameter("fakespm_normalization_12", "template")
-        self.add_link("template->fakespm_normalization_8.template")
-        self.add_link("nobias.output->aims_normalization.input")
-
+        self.add_link("nobias.output->normalization.input")
         self.export_parameter("nobias", "output", "nobias")
 
         self.add_link("normalization.output->split.input")
@@ -245,52 +246,18 @@ class TinyMorphologist(Pipeline):
 @process_schema("bids", "capsul.test.test_tiny_morphologist.TinyMorphologist")
 def bids_TinyMorphologist(metadata):
     metadata["*"].process = "tinymorphologist"
-    metadata.input.unused_metadata = "process"
-    metadata.split.right_output.part = "right_hemi"
-    metadata.split.left_output.part = "left_hemi"
+    metadata.input.process.unused()
 
 
 @process_schema("brainvisa", "capsul.test.test_tiny_morphologist.TinyMorphologist")
 def brainvisa_TinyMorphologist(metadata):
-    metadata["*"].unused_metadata = [
+    metadata["*"][
         "subject_only",
         "sulci_graph_version",
         "sulci_recognition_session",
-    ]
+    ].unused()
     metadata["*"].process = "tinymorphologist"
-    # metadata.split.right_output.prefix = "right_hemi"
-    # metadata.split.left_output.prefix = "left_hemi"
-
-    metadata.output.prefix.prepend("hemi")
-
-
-class TinyMorphologistBrainVISA(
-    ProcessSchema, schema="brainvisa", process=TinyMorphologist
-):
-    _ = {
-        "*": {"process": "tinymorphologist"},
-    }
-    _nodes = {
-        # 'split': {
-        #     'right_output': {'prefix': 'right_hemi'},
-        #     'left_output': {'prefix': 'left_hemi'}
-        # },
-        # 'fakespm_normalization_12': {'*': Append('suffix', 'fakespm12')},
-        # 'fakespm_normalization_8': {'*': Append('suffix', 'fakespm8')},
-        # 'aims_normalization': {'*': Append('suffix', 'aims')},
-    }
-    metadata_per_parameter = {
-        "*": {
-            "unused": [
-                "subject_only",
-                "sulci_graph_version",
-                "sulci_recognition_session",
-            ]
-        },
-    }
-    input = {"process": None}
-    # left_hemisphere = {'prefix': 'left_hemi'}
-    # right_hemisphere = {'prefix': 'right_hemi'}
+    metadata.input.process.unused()
 
 
 def concatenate(inputs: list[File], result: File):

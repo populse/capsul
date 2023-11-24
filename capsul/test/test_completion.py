@@ -9,7 +9,7 @@ from pathlib import Path
 
 from soma.controller import undefined, File
 
-from capsul.dataset import ProcessMetadata, ProcessSchema
+from capsul.dataset import ProcessMetadata
 from capsul.api import Capsul, executable, Pipeline
 
 
@@ -90,39 +90,39 @@ class TestPipeline(Pipeline):
         self.export_parameter("right_hemi", "output", "right_gw_mesh")
 
 
-class TestPipelineBIDS(ProcessSchema, schema="bids", process=TestPipeline):
-    __test__ = False
+# class TestPipelineBIDS(ProcessSchema, schema="bids", process=TestPipeline):
+#     __test__ = False
 
-    _ = {"*": {"pipeline": "test_pipeline"}}
+#     _ = {"*": {"pipeline": "test_pipeline"}}
 
 
-class TestPipelineBrainVISA(ProcessSchema, schema="brainvisa", process=TestPipeline):
-    __test__ = False
+# class TestPipelineBrainVISA(ProcessSchema, schema="brainvisa", process=TestPipeline):
+#     __test__ = False
 
-    _ = {
-        "*": {"process": "test_pipeline"},
-    }
-    metadata_per_parameter = {
-        "*": {
-            "unused": [
-                "subject_only",
-                "sulci_graph_version",
-                "sulci_recognition_session",
-            ]
-        },
-    }
-    _nodes = {
-        "nobias": {
-            "output": {"seg_directory": None},  # , 'prefix': 'nobias'},
-        },
-        "split": {
-            "*_output": {"seg_directory": "plouf"},
-            "left_output": {"side": "L", "suffix": ""},
-            "right_output": {"side": "R", "suffix": ""},
-        },
-    }
-    right_gw_mesh = {"extension": "gii", "seg_directory": None, "prefix": ""}
-    left_gw_mesh = {"extension": "gii", "seg_directory": None, "prefix": ""}
+#     _ = {
+#         "*": {"process": "test_pipeline"},
+#     }
+#     metadata_per_parameter = {
+#         "*": {
+#             "unused": [
+#                 "subject_only",
+#                 "sulci_graph_version",
+#                 "sulci_recognition_session",
+#             ]
+#         },
+#     }
+#     _nodes = {
+#         "nobias": {
+#             "output": {"seg_directory": None},  # , 'prefix': 'nobias'},
+#         },
+#         "split": {
+#             "*_output": {"seg_directory": "plouf"},
+#             "left_output": {"side": "L", "suffix": ""},
+#             "right_output": {"side": "R", "suffix": ""},
+#         },
+#     }
+#     right_gw_mesh = {"extension": "gii", "seg_directory": None, "prefix": ""}
+#     left_gw_mesh = {"extension": "gii", "seg_directory": None, "prefix": ""}
 
 
 datasets = {

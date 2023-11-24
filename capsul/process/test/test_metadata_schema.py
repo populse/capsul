@@ -9,7 +9,7 @@ from soma.controller import File, field
 
 from capsul.api import Process, executable, Capsul
 from ...dataset import MetadataSchema
-from capsul.dataset import ProcessSchema, ProcessMetadata
+from capsul.dataset import ProcessMetadata
 
 
 class DummyProcess(Process):
@@ -54,17 +54,17 @@ class CustomMetadataSchema(MetadataSchema):
         return ["_".join(items)]
 
 
-class DummyListProcessCustom(ProcessSchema, schema="custom", process=DummyListProcess):
-    _ = {"*": {"process": "DummyListProcess"}}
-    truc = {"parameter": "truc"}
-    bidule = {"parameter": "bidule"}
-    result = {"parameter": "result"}
+# class DummyListProcessCustom(ProcessSchema, schema="custom", process=DummyListProcess):
+#     _ = {"*": {"process": "DummyListProcess"}}
+#     truc = {"parameter": "truc"}
+#     bidule = {"parameter": "bidule"}
+#     result = {"parameter": "result"}
 
 
-class DummyProcessCustom(ProcessSchema, schema="custom", process=DummyProcess):
-    _ = {"*": {"process": "DummyProcess"}}
-    truc = {"parameter": "truc"}
-    bidule = {"parameter": "bidule"}
+# class DummyProcessCustom(ProcessSchema, schema="custom", process=DummyProcess):
+#     _ = {"*": {"process": "DummyProcess"}}
+#     truc = {"parameter": "truc"}
+#     bidule = {"parameter": "bidule"}
 
 
 class TestCompletion(unittest.TestCase):
