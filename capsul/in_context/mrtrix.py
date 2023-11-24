@@ -19,7 +19,7 @@ def set_env_from_config(execution_context):
     Set environment variables according to the
     execution context configuration.
     """
-    mrtrix_mod = getattr(execution_context, "mrtrix")
+    mrtrix_mod = getattr(execution_context, "mrtrix", None)
     if mrtrix_mod:
         if mrtrix_mod.directory is not undefined:
             os.environ["MRTRIXPATH"] = mrtrix_mod.directory

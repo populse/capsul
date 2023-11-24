@@ -51,7 +51,7 @@ def set_env_from_config(execution_context):
     Set environment variables FSLDIR, FSL_CONFIG, FSL_PREFIX according to the
     execution context configuration.
     """
-    fsl_mod = getattr(execution_context, "fsl")
+    fsl_mod = getattr(execution_context, "fsl", None)
     if fsl_mod:
         if fsl_mod.directory is not undefined:
             os.environ["FSLDIR"] = fsl_mod.directory

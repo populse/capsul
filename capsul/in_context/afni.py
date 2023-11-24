@@ -32,7 +32,7 @@ def set_env_from_config(execution_context):
     Set environment variables FSLDIR, FSL_CONFIG, FSL_PREFIX according to the
     execution context configuration.
     """
-    afni_mod = getattr(execution_context, "afni")
+    afni_mod = getattr(execution_context, "afni", None)
     if afni_mod:
         if afni_mod.directory is not undefined:
             os.environ["AFNIPATH"] = afni_mod.directory

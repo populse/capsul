@@ -21,17 +21,17 @@ from .config.configuration import ModuleConfiguration
 
 
 class ExecutionContext(Controller):
-    python_modules: list[str]
-    config_modules: list[str]
+    python_modules: list[str] = field(type=list[str], default_factory=list)
+    config_modules: list[str] = field(type=list[str], default_factory=list)
     dataset: OpenKeyDictController[Dataset]
 
     def __init__(self, config=None, executable=None, activate_modules=True):
         super().__init__()
         if config:
-            python_modules = config.get("python_modules", ())
+            python_modules = config.get("python_modules", [])
             for m in python_modules:
                 importlib.import_module(m)
-            config_modules = config.get("config_modules", ())
+            config_modules = config.get("config_modules", [])
             self.config_modules = config_modules
             for m in config_modules:
                 # The following function loads the appropriate module

@@ -30,7 +30,7 @@ def set_env_from_config(execution_context):
     Set environment variables FSLDIR, FSL_CONFIG, FSL_PREFIX according to the
     execution context configuration.
     """
-    fs_mod = getattr(execution_context, "freesurfer")
+    fs_mod = getattr(execution_context, "freesurfer", None)
     if fs_mod:
         if fs_mod.setup_script is not undefined:
             os.environ["FREESURFER_HOME"] = osp.dirname(fs_mod.setup_script)

@@ -32,7 +32,7 @@ def set_env_from_config(execution_context):
     Set environment variables FSLDIR, FSL_CONFIG, FSL_PREFIX according to the
     execution context configuration.
     """
-    ants_mod = getattr(execution_context, "ants")
+    ants_mod = getattr(execution_context, "ants", None)
     if ants_mod:
         if ants_mod.directory is not undefined:
             os.environ["ANTSPATH"] = ants_mod.directory

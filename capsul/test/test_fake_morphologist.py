@@ -205,6 +205,7 @@ class TestFakeMorphologist(unittest.TestCase):
                 }
             },
             "builtin": {
+                "config_modules": ["spm", "matlab"],
                 "database": "builtin",
                 "persistent": True,
                 "start_workers": default_engine_start_workers,
@@ -242,7 +243,7 @@ class TestFakeMorphologist(unittest.TestCase):
                 #'config_modules': ['capsul.test.test_fake_morphologist'],
             },
         }
-        print("\nconfig:", self.capsul.config.asdict(), "\n")
+        # print("\nconfig:", self.capsul.config.asdict(), "\n")
         self.assertEqual(self.capsul.config.asdict(), expected_config)
 
         engine = self.capsul.engine()
@@ -256,6 +257,8 @@ class TestFakeMorphologist(unittest.TestCase):
         context = engine.execution_context(morphologist)
         expected_context = {
             #'config_modules': ['capsul.test.test_fake_morphologist'],
+            "config_modules": ["spm", "matlab"],
+            "python_modules": [],
             "dataset": {
                 "input": {
                     "path": str(self.tmp / "bids"),

@@ -14,7 +14,7 @@ def set_env_from_config(execution_context):
     Set environment variables according to the
     execution context configuration.
     """
-    matlab_mod = getattr(execution_context, "matlab")
+    matlab_mod = getattr(execution_context, "matlab", None)
     if matlab_mod:
         if matlab_mod.executable is not undefined:
             os.environ["MATLAB_EXECUTABLE"] = matlab_mod.executable

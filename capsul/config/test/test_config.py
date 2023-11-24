@@ -33,6 +33,7 @@ class TestConfiguration(unittest.TestCase):
         user_file = osp.join(self.tmp_dir, "user_conf.json")
         conf_dict = {
             "builtin": {
+                "config_modules": ["spm", "matlab"],
                 "database": "builtin",
                 "persistent": True,
                 "start_workers": default_engine_start_workers,
@@ -57,6 +58,7 @@ class TestConfiguration(unittest.TestCase):
             json.dump(conf_dict, f)
         app_config = ApplicationConfiguration("single_conf", user_file=user_file)
         self.maxDiff = 2500
+
         self.assertEqual(
             app_config.asdict(),
             {
@@ -80,6 +82,7 @@ class TestConfiguration(unittest.TestCase):
     def test_config_as_dict(self):
         conf_dict = {
             "builtin": {
+                "config_modules": ["spm", "matlab"],
                 "database": "builtin",
                 "persistent": True,
                 "start_workers": default_engine_start_workers,
@@ -157,6 +160,7 @@ class TestConfiguration(unittest.TestCase):
         }
         merged_conf_dict = {
             "builtin": {
+                "config_modules": ["spm", "matlab"],
                 "database": "builtin",
                 "persistent": True,
                 "start_workers": default_engine_start_workers,

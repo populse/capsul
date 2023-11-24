@@ -16,7 +16,7 @@ def set_env_from_config(execution_context):
     Set environment variables according to the
     execution context configuration.
     """
-    spm_mod = getattr(execution_context, "spm")
+    spm_mod = getattr(execution_context, "spm", None)
     if spm_mod:
         if spm_mod.directory is not undefined:
             os.environ["SPM_DIRECTORY"] = spm_mod.directory
