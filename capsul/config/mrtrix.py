@@ -1,15 +1,13 @@
 from .configuration import ModuleConfiguration
-from soma.controller import Directory, undefined, File, field
+from soma.controller import Directory, undefined, field
 
 
-class FSLConfiguration(ModuleConfiguration):
-    """FSL configuration module"""
+class MRTrixConfiguration(ModuleConfiguration):
+    """MRTrix configuration module"""
 
-    directory: Directory = field(optional=True)
     version: str
-    setup_script: File = field(optional=True)
-    prefix: str = field(optional=True)
-    name = "fsl"
+    directory: Directory = field(optional=True)
+    name = "mrtrix"
 
     def is_valid_config(self, requirements):
         required_version = requirements.get("version")
@@ -22,6 +20,6 @@ class FSLConfiguration(ModuleConfiguration):
         """
         Configure execution (env variables) from a configured execution context
         """
-        from capsul.in_context import fsl
+        from capsul.in_context import mrtrix
 
-        fsl.set_env_from_config(execution_context)
+        mrtrix.set_env_from_config(execution_context)

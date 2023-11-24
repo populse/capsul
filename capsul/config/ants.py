@@ -1,5 +1,5 @@
 from .configuration import ModuleConfiguration
-from soma.controller import Directory, undefined, File, field
+from soma.controller import Directory, undefined, field
 
 
 class AntsConfiguration(ModuleConfiguration):
@@ -15,11 +15,11 @@ class AntsConfiguration(ModuleConfiguration):
             return False
         return True
 
+    @staticmethod
+    def init_execution_context(execution_context):
+        """
+        Configure execution (env variables) from a configured execution context
+        """
+        from capsul.in_context import ants
 
-def init_execution_context(execution_context):
-    """
-    Configure an execution context given a capsul_engine and some requirements.
-    """
-    config = execution_context.config["modules"]["ants"]
-    execution_context.ants = AntsConfiguration()
-    execution_context.ants.import_from_dict(config)
+        ants.set_env_from_config(execution_context)

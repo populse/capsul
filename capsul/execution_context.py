@@ -25,17 +25,17 @@ class ExecutionContext(Controller):
     config_modules: list[str]
     dataset: OpenKeyDictController[Dataset]
 
-    def __init__(self, config=None, executable=None):
-        mod_classes = []
+    def __init__(self, config=None, executable=None, activate_modules=True):
+        super().__init__()
         if config:
             python_modules = config.get("python_modules", ())
             for m in python_modules:
                 importlib.import_module(m)
             config_modules = config.get("config_modules", ())
+            self.config_modules = config_modules
             for m in config_modules:
                 # The following function loads the appropriate module
                 get_config_class(m)
-        super().__init__()
         self.dataset = OpenKeyDictController[Dataset]()
         if config is not None:
             for k in list(config.keys()):
@@ -53,14 +53,17 @@ class ExecutionContext(Controller):
                     k = new_k
                 if cls:
                     self.add_field(k, cls, doc=cls.__doc__, default_factory=cls)
-                    mod_classes.append(cls)
             dataset = config.pop("dataset", None)
             if dataset:
                 self.dataset = dataset
             self.import_dict(config)
         self.executable = executable
+        if activate_modules:
+            self.activate_modules_config()
 
-        for cls in mod_classes:
+    def activate_modules_config(self):
+        for cm in self.config_modules:
+            cls = get_config_class(cm)
             if hasattr(cls, "init_execution_context"):
                 cls.init_execution_context(self)
 

@@ -191,6 +191,9 @@ class EngineConfiguration(Controller):
             doc=cls.__doc__,
             default_factory=OpenKeyDictController[cls],
         )
+        if self.config_modules is undefined:
+            self.config_modules = []
+        self.config_modules.append(module_name)
 
         if hasattr(cls, "module_dependencies"):
             module_dependencies = getattr(cls, "module_dependencies")

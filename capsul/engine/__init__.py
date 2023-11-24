@@ -27,7 +27,9 @@ def execution_context(engine_label, engine_config, executable):
     for conf_item in ("dataset", "config_modules", "python_modules"):
         if conf_item in cdict:
             config[conf_item] = cdict[conf_item]
-    execution_context = ExecutionContext(executable=executable, config=config)
+    execution_context = ExecutionContext(
+        executable=executable, config=config, activate_modules=False
+    )
 
     req_to_check = execution_context.executable_requirements(executable)
     done_req = []  # record requirements to avoid loops
@@ -60,7 +62,7 @@ def execution_context(engine_label, engine_config, executable):
     # now check we have only one module for each
     for module_name in needed_modules:
         valid_module_configs = valid_configs.get(module_name)
-        if not valid_module_configs:
+        if valid_module_configs is None:
             raise RuntimeError(
                 f'Execution environment "{engine_label}" has no '
                 f"valid configuration for module {module_name}"
@@ -81,6 +83,10 @@ def execution_context(engine_label, engine_config, executable):
             module_name, type_=ModuleConfiguration, override=True
         )
         setattr(execution_context, module_name, valid_config)
+
+    # FIXME: should be done only in real execution (server) situation
+    execution_context.activate_modules_config()
+
     return execution_context
 
 

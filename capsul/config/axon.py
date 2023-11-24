@@ -50,12 +50,3 @@ class AxonConfiguration(ModuleConfiguration):
     @staticmethod
     def axon_default_version():
         return axon_default_version()
-
-
-def init_execution_context(execution_context):
-    """
-    Configure an execution context given a capsul_engine and some requirements.
-    """
-    config = execution_context.config["modules"]["axon"]
-    execution_context.axon = AxonConfiguration()
-    execution_context.axon.import_from_dict(config)

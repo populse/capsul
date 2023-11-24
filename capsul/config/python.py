@@ -16,12 +16,3 @@ class PythonConfiguration(ModuleConfiguration):
         if required_version and getattr(self, "version", undefined) != required_version:
             return False
         return True
-
-
-def init_execution_context(execution_context):
-    """
-    Configure an execution context given a capsul_engine and some requirements.
-    """
-    config = execution_context.config["modules"]["python"]
-    execution_context.python = PythonConfiguration()
-    execution_context.python.import_from_dict(config)

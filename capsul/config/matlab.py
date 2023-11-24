@@ -50,11 +50,11 @@ class MatlabConfiguration(ModuleConfiguration):
                 return False
         return True
 
+    @staticmethod
+    def init_execution_context(execution_context):
+        """
+        Configure execution (env variables) from a configured execution context
+        """
+        from capsul.in_context import matlab
 
-def init_execution_context(execution_context):
-    """
-    Configure an execution context given a capsul_engine and some requirements.
-    """
-    config = execution_context.config["modules"]["matlab"]
-    execution_context.matlab = MatlabConfiguration()
-    execution_context.matlab.import_dict(config)
+        matlab.set_env_from_config(execution_context)

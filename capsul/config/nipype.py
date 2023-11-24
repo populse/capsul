@@ -154,7 +154,7 @@ class NipypeConfiguration(ModuleConfiguration):
                 freesurfer.FSCommand.set_default_subjects_dir(subjects_dir)
             from capsul.in_context import freesurfer as fsrun
 
-            env = fsrun.freesurfer_env()
+            env = fsrun.freesurfer_env(execution_context=context)
             for var, value in env.items():
                 os.environ[var] = value
 

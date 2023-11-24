@@ -1,41 +1,42 @@
 # -*- coding: utf-8 -*-
 """
 Specific subprocess-like functions to call mrtrix taking into account
-configuration stored in ExecutionContext. To functions and class in
-this module it is mandatory to activate an ExecutionContext (using a
-with statement). For instance::
-
-   from capsul.engine import capsul_engine
-   from capsul.in_context.mrtrix import mrtrix_check_call
-
-   ce = capsul_engine()
-   with ce:
-       mrtrix_check_call(['mrinfo', '/somewhere/myimage.nii'])
-
-For calling mrtrix command with this module, the first argument of
-command line must be the mrtrix executable without any path.
-The appropriate path is added from the configuration
-of the ExecutionContext.
+configuration stored in ExecutionContext.
 """
-
-from __future__ import absolute_import
 
 import os
 import os.path as osp
-import soma.subprocess
+import subprocess
 from soma.utils.env import parse_env_lines
-import six
+from soma.controller import undefined
+
 
 mrtrix_runtime_env = None
 
 
-def mrtrix_command_with_environment(command, use_runtime_env=True):
+def set_env_from_config(execution_context):
+    """
+    Set environment variables according to the
+    execution context configuration.
+    """
+    mrtrix_mod = getattr(execution_context, "mrtrix")
+    if mrtrix_mod:
+        if mrtrix_mod.directory is not undefined:
+            os.environ["MRTRIXPATH"] = mrtrix_mod.directory
+
+
+def mrtrix_command_with_environment(
+    command, execution_context=None, use_runtime_env=True
+):
     """
     Given an mrtrix command where first element is a command name without
     any path. Returns the appropriate command to call taking into account
     the mrtrix configuration stored in the
     activated ExecutionContext.
     """
+
+    if execution_context is not None:
+        set_env_from_config(execution_context)
 
     if use_runtime_env and mrtrix_runtime_env:
         c0 = list(osp.split(command[0]))
@@ -44,6 +45,7 @@ def mrtrix_command_with_environment(command, use_runtime_env=True):
         return cmd
 
     mrtrix_dir = os.environ.get("MRTRIXPATH")
+    cmd = command
     if mrtrix_dir:
         shell = os.environ.get("SHELL", "/bin/sh")
         if shell.endswith("csh"):
@@ -68,7 +70,7 @@ def mrtrix_command_with_environment(command, use_runtime_env=True):
     return cmd
 
 
-def mrtrix_env():
+def mrtrix_env(execution_context=None):
     """
     get mrtrix env variables
     process
@@ -78,17 +80,18 @@ def mrtrix_env():
     if mrtrix_runtime_env is not None:
         return mrtrix_runtime_env
 
+    if execution_context is not None:
+        set_env_from_config(execution_context)
+
     mrtrix_dir = os.environ.get("MRTRIXPATH")
     kwargs = {}
 
     cmd = mrtrix_command_with_environment(["env"], use_runtime_env=False)
-    new_env = soma.subprocess.check_output(cmd, **kwargs).decode("utf-8").strip()
+    new_env = subprocess.check_output(cmd, **kwargs).decode("utf-8").strip()
     new_env = parse_env_lines(new_env)
     env = {}
-    for l in new_env:
-        name, val = l.strip().split("=", 1)
-        name = six.ensure_str(name)
-        val = six.ensure_str(val)
+    for line in new_env:
+        name, val = line.strip().split("=", 1)
         if name not in ("_", "SHLVL") and (
             name not in os.environ or os.environ[name] != val
         ):
@@ -102,35 +105,37 @@ def mrtrix_env():
     return env
 
 
-class MrtrixPopen(soma.subprocess.Popen):
+class MrtrixPopen(subprocess.Popen):
     """
     Equivalent to Python subprocess.Popen for mrtrix commands
     """
 
-    def __init__(self, command, **kwargs):
-        cmd = mrtrix_command_with_environment(command)
+    def __init__(self, command, execution_context=None, **kwargs):
+        cmd = mrtrix_command_with_environment(
+            command, execution_context=execution_context
+        )
         super(MrtrixPopen, self).__init__(cmd, **kwargs)
 
 
-def mrtrix_call(command, **kwargs):
+def mrtrix_call(command, execution_context=None, **kwargs):
     """
     Equivalent to Python subprocess.call for mrtrix commands
     """
-    cmd = mrtrix_command_with_environment(command)
-    return soma.subprocess.call(cmd, **kwargs)
+    cmd = mrtrix_command_with_environment(command, execution_context=execution_context)
+    return subprocess.call(cmd, **kwargs)
 
 
-def mrtrix_check_call(command, **kwargs):
+def mrtrix_check_call(command, execution_context=None, **kwargs):
     """
     Equivalent to Python subprocess.check_call for mrtrix commands
     """
-    cmd = mrtrix_command_with_environment(command)
-    return soma.subprocess.check_call(cmd, **kwargs)
+    cmd = mrtrix_command_with_environment(command, execution_context=execution_context)
+    return subprocess.check_call(cmd, **kwargs)
 
 
-def mrtrix_check_output(command, **kwargs):
+def mrtrix_check_output(command, execution_context=None, **kwargs):
     """
     Equivalent to Python subprocess.check_output for mrtrix commands
     """
-    cmd = mrtrix_command_with_environment(command)
-    return soma.subprocess.check_output(cmd, **kwargs)
+    cmd = mrtrix_command_with_environment(command, execution_context=execution_context)
+    return subprocess.check_output(cmd, **kwargs)
