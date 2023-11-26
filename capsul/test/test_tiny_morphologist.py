@@ -49,6 +49,7 @@ class BiasCorrection(Process):
 
 @process_schema("bids", "capsul.test.test_tiny_morphologist.BiasCorrection")
 def bids_FBiasCorrection(metadata):
+    metadata.output = metadata.input
     metadata.output.part.prepend("nobias")
 
 
@@ -59,6 +60,7 @@ def brainvisa_BiasCorrection(metadata):
         "sulci_graph_version",
         "sulci_recognition_session",
     ].unused()
+    metadata.output = metadata.input
     metadata.output.prefix.prepend("nobias")
 
 
@@ -85,6 +87,7 @@ class FakeSPMNormalization12(Process):
 
 @process_schema("bids", "capsul.test.test_tiny_morphologist.FakeSPMNormalization12")
 def bids_FakeSPMNormalization12(metadata):
+    metadata.output = metadata.input
     metadata.output.part.prepend("normalized_fakespm12")
 
 
@@ -97,6 +100,7 @@ def brainvisa_FakeSPMNormalization12(metadata):
         "sulci_graph_version",
         "sulci_recognition_session",
     ].unused()
+    metadata.output = metadata.input
     metadata.output.prefix.prepend("normalized_fakespm12")
 
 
@@ -106,6 +110,7 @@ class FakeSPMNormalization8(FakeSPMNormalization12):
 
 @process_schema("bids", "capsul.test.test_tiny_morphologist.FakeSPMNormalization8")
 def bids_FakeSPMNormalization8(metadata):
+    metadata.output = metadata.input
     metadata.output.part.prepend("normalized_fakespm8")
 
 
@@ -116,6 +121,7 @@ def brainvisa_FakeSPMNormalization8(metadata):
         "sulci_graph_version",
         "sulci_recognition_session",
     ].unused()
+    metadata.output = metadata.input
     metadata.output.prefix.prepend("normalized_fakespm8")
 
 
@@ -135,6 +141,7 @@ class AimsNormalization(Process):
 
 @process_schema("bids", "capsul.test.test_tiny_morphologist.AimsNormalization")
 def bids_AimsNormalization(metadata):
+    metadata.output = metadata.input
     metadata.output.part.prepend("normalized_aims")
 
 
@@ -145,6 +152,7 @@ def brainvisa_AimsNormalization(metadata):
         "sulci_graph_version",
         "sulci_recognition_session",
     ].unused()
+    metadata.output = metadata.input
     metadata.output.prefix.prepend("normalized_aims")
 
 
@@ -194,10 +202,12 @@ def brainvisa_SplitBrain(metadata):
         "sulci_graph_version",
         "sulci_recognition_session",
     ].unused()
-    metadata.right_output.suffix.append("right")
-    metadata.left_output.suffix.append("left")
+    metadata.right_output = metadata.input
+    metadata.left_output = metadata.input
     metadata.right_output.prefix.prepend("split")
     metadata.left_output.prefix.prepend("split")
+    metadata.right_output.suffix.append("right")
+    metadata.left_output.suffix.append("left")
 
 
 class ProcessHemisphere(Process):
@@ -219,6 +229,7 @@ def brainvisa_ProcessHemisphere(metadata):
         "sulci_graph_version",
         "sulci_recognition_session",
     ].unused()
+    metadata.output = metadata.input
     metadata.output.prefix.prepend("hemi")
 
 

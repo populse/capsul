@@ -16,7 +16,7 @@ import sys
 import importlib
 import weakref
 
-from capsul.pipeline.pipeline import Process, Pipeline
+from capsul.pipeline.pipeline import Process, Pipeline, Switch
 from capsul.pipeline.process_iteration import ProcessIteration
 
 from soma.controller import Controller, Literal, Directory
@@ -652,32 +652,30 @@ class process_schema:
 class MetadataModification:
     """Record a simple modification request of process metadata"""
 
-    def __init__(self, executable):
-        exported_parameters = {}
-        for field in executable.user_fields():
-            exported_parameters.setdefault(executable, {})[field.name] = field.name
-            done = set()
-            stack = [(executable, field.name)]
-            while stack:
-                node, parameter = stack.pop()
-                done.add((node, parameter))
-                plug = node.plugs[parameter]
-                for (
-                    dest_node_name,
-                    dest_plug_name,
-                    dest_node,
-                    dest_plug,
-                    weak_link,
-                ) in itertools.chain(plug.links_from, plug.links_to):
-                    if (dest_node, dest_plug_name) in done:
-                        continue
-                    stack.append((dest_node, dest_plug_name))
-                if isinstance(node, Process) and node is not executable:
-                    exported_parameters.setdefault(node, {})[parameter] = field.name
-        super().__setattr__("_exported_parameters", exported_parameters)
-        super().__setattr__("_parameter", None)
-        super().__setattr__("_item", None)
-        super().__setattr__("_actions", [])
+    def __init__(
+        self,
+        executable=None,
+        parameters_equivalence=None,
+        parameter=None,
+        item=None,
+        actions=None,
+    ):
+        if actions is None:
+            actions = []
+        if executable:
+            super().__setattr__("_executable", weakref.ref(executable))
+        else:
+            super().__setattr__("_executable", None)
+        if parameters_equivalence is None:
+            parameters_equivalence = {}
+        super().__setattr__("_parameters_equivalence", parameters_equivalence)
+        super().__setattr__("_parameter", parameter)
+        super().__setattr__("_item", item)
+        super().__setattr__("_actions", actions)
+        if not self._parameters_equivalence and executable:
+            super().__setattr__(
+                "_parameters_equivalence", find_parameters_equivalence(executable)
+            )
 
     @property
     def executable(self):
@@ -688,7 +686,13 @@ class MetadataModification:
 
     def __getitem__(self, key):
         if self._parameter is None:
-            super().__setattr__("_parameter", key)
+            return MetadataModification(
+                executable=self.executable,
+                parameters_equivalence=self._parameters_equivalence,
+                parameter=key,
+                item=None,
+                actions=self._actions,
+            )
         elif self._item is None:
             super().__setattr__("_item", key)
         else:
@@ -702,36 +706,77 @@ class MetadataModification:
         return self[attribute]
 
     def __setitem__(self, key, value):
-        if not self._parameter:
-            raise Exception("invalid metdata modification, no parameter")
-        if self._item:
-            raise Exception(
-                f"invalid metdata modification, unexpected item: {self._item}"
+        if isinstance(value, MetadataModification):
+            if self._item:
+                raise Exception(f"invalid metdata copy, unexpected item: {self._item}")
+            if not self._parameter:
+                if not value._parameter:
+                    raise Exception("invalid metdata copy, no source parameter")
+                if value._item:
+                    raise Exception(
+                        "invalid metdata copy, source item {value._item} cannot be copied to a whole parameter"
+                    )
+                self._actions.append(
+                    functools.partial(
+                        self._apply_copy_all,
+                        executable=self.executable,
+                        parameters=key,
+                        source_parameters=value._parameter,
+                    )
+                )
+            else:
+                if not value._parameter:
+                    raise Exception("invalid metdata copy, no source parameter")
+                if not value._item:
+                    raise Exception("invalid metdata copy, no source item")
+                self._actions.append(
+                    functools.partial(
+                        self._apply_copy_item,
+                        executable=self.executable,
+                        parameters=self._parameter,
+                        items=key,
+                        source_parameters=value._parameter,
+                        source_items=value._item,
+                    )
+                )
+        else:
+            if not self._parameter:
+                raise Exception("invalid metdata modification, no parameter")
+            if self._item:
+                raise Exception(
+                    f"invalid metdata modification, unexpected item: {self._item}"
+                )
+            self._actions.append(
+                functools.partial(
+                    self._apply_set,
+                    executable=self.executable,
+                    parameters=self._parameter,
+                    items=key,
+                    value=value,
+                )
             )
-        self._actions.append(
-            functools.partial(
-                self._apply_set,
-                executable=self.executable,
-                parameters=self._parameter,
-                items=key,
-                value=value,
-            )
-        )
         super().__setattr__("_parameter", None)
 
     def __setattr__(self, attribute, value):
         self[attribute] = value
 
     def _parameters(self, executable, parameters):
+        # print("!parameters!", executable.name, parameters)
         if isinstance(parameters, str):
             selection = (re.compile(fnmatch.translate(parameters)),)
         else:
             selection = tuple(re.compile(fnmatch.translate(i)) for i in parameters)
         for field in executable.user_fields():
+            # print(
+            #     "!parameters! ?",
+            #     field.name,
+            #     any(i.match(field.name) for i in selection),
+            # )
             if any(i.match(field.name) for i in selection):
-                exported_name = self._exported_parameters.get(executable, {}).get(
+                exported_name = self._parameters_equivalence.get(executable, {}).get(
                     field.name
                 )
+                # print("!parameters! ->", exported_name)
                 if exported_name:
                     yield exported_name
 
@@ -796,34 +841,98 @@ class MetadataModification:
         super().__setattr__("_item", None)
 
     def _apply_set(self, unused, metadata, executable, parameters, items, value):
-        for parameter in self._parameters(executable, parameters):
-            for item in self._items(items):
-                metadata.setdefault(parameter, {})[item] = value
+        if executable.activated:
+            for parameter in self._parameters(executable, parameters):
+                for item in self._items(items):
+                    metadata.setdefault(parameter, {})[item] = value
+
+    def _apply_copy_item(
+        self,
+        unused,
+        metadata,
+        executable,
+        parameters,
+        items,
+        source_parameters,
+        source_items,
+    ):
+        if executable.activated:
+            # print(
+            #     "!apply_copy_item!",
+            #     executable.name,
+            #     parameters,
+            #     items,
+            #     source_parameters,
+            #     source_items,
+            # )
+            for parameter in self._parameters(executable, source_parameters):
+                for item in self._items(source_items):
+                    value = metadata.get(parameter, {}).get(item)
+                    # print(
+                    #     "!apply_copy_item!",
+                    #     executable.name,
+                    #     parameter,
+                    #     item,
+                    #     "->",
+                    #     value,
+                    # )
+                    self._apply_set(
+                        unused, metadata, executable, parameters, items, value
+                    )
+
+    def _apply_copy_all(
+        self,
+        unused,
+        metadata,
+        executable,
+        parameters,
+        source_parameters,
+    ):
+        if executable.activated:
+            # print(
+            #     "!apply_copy_all!",
+            #     executable.name,
+            #     parameters,
+            #     source_parameters,
+            # )
+            for parameter in self._parameters(executable, source_parameters):
+                for item, value in metadata.get(parameter, {}).items():
+                    if value is not None:
+                        self._apply_set(
+                            unused, metadata, executable, parameters, item, value
+                        )
 
     def _apply_unused(self, unused, metadata, executable, parameters, items, value):
-        for parameter in self._parameters(executable, parameters):
-            for item in self._items(items):
-                unused.setdefault(parameter, {})[item] = value
+        if executable.activated:
+            for parameter in self._parameters(executable, parameters):
+                for item in self._items(items):
+                    unused.setdefault(parameter, {})[item] = value
 
     def _apply_append(
         self, unused, metadata, executable, parameters, items, value, sep
     ):
-        for parameter in self._parameters(executable, parameters):
-            for item in self._items(items):
-                v = metadata.setdefault(parameter, {}).get(item)
-                if v:
-                    value = f"{v}{sep}{value}"
-                metadata[parameter][item] = value
+        if executable.activated:
+            # print("!apply_append!", executable.name, parameters, items, value)
+            for parameter in self._parameters(executable, parameters):
+                for item in self._items(items):
+                    v = metadata.setdefault(parameter, {}).get(item)
+                    if v:
+                        value = f"{v}{sep}{value}"
+                    # print("!apply_append! ->", value)
+                    metadata[parameter][item] = value
 
     def _apply_prepend(
         self, unused, metadata, executable, parameters, items, value, sep
     ):
-        for parameter in self._parameters(executable, parameters):
-            for item in self._items(items):
-                v = metadata.setdefault(parameter, {}).get(item)
-                if v:
-                    value = f"{value}{sep}{v}"
-                metadata[parameter][item] = value
+        if executable.activated:
+            # print("!apply_prepend!", executable.name, parameters, items, value)
+            for parameter in self._parameters(executable, parameters):
+                for item in self._items(items):
+                    v = metadata.setdefault(parameter, {}).get(item)
+                    if v:
+                        value = f"{value}{sep}{v}"
+                    # print("!apply_prepend! ->", value)
+                    metadata[parameter][item] = value
 
     def _apply(self, unused, metadata):
         for action in self._actions:
@@ -833,22 +942,140 @@ class MetadataModification:
 def resolve_process_schema(schema, executable):
     modification = MetadataModification(executable)
 
-    _find_metadata_modification(modification, schema, executable)
+    if isinstance(executable, Pipeline):
+        # Topological sort of pipeline nodes
+        for process in iter_processes(executable):
+            modifier = process_schema.modifier_function.get(
+                (schema, process.definition)
+            )
+            if modifier:
+                modification.set_executable(process)
+                modifier(modification)
+
     unused = {}
     metadata = {}
     modification._apply(unused, metadata)
     return (unused, metadata)
 
 
-def _find_metadata_modification(modification, schema, executable):
+def _build_single_plug_equivalence(
+    equivalence, equivalent_name, executable, node, parameter
+):
+    e = equivalence.get(node, {}).get(parameter)
+    if e is None:
+        equivalence.setdefault(node, {})[parameter] = equivalent_name
+    if not isinstance(executable, Pipeline):
+        return
+    done = set()
+    stack = [(node, parameter)]
+    while stack:
+        node, parameter = stack.pop()
+        done.add((node, parameter))
+        plug = node.plugs[parameter]
+        for (
+            dest_node_name,
+            dest_plug_name,
+            dest_node,
+            dest_plug,
+            weak_link,
+        ) in itertools.chain(plug.links_from, plug.links_to):
+            if (dest_node, dest_plug_name) in done:
+                continue
+            stack.append((dest_node, dest_plug_name))
+        if isinstance(node, Process) and node is not executable:
+            e = equivalence.get(node, {}).get(parameter)
+            if e is None:
+                equivalence.setdefault(node, {})[parameter] = equivalent_name
+        if isinstance(node, Switch):
+            # Connect all switch inputs to every corresponding outputs
+            # not taking switch value into account
+            for (
+                input_plug_name,
+                output_plug_name,
+            ) in node.connections():
+                if parameter == input_plug_name:
+                    if (node, output_plug_name) not in done:
+                        stack.append((node, output_plug_name))
+                if parameter == output_plug_name:
+                    if (node, input_plug_name) not in done:
+                        stack.append((node, input_plug_name))
+
+
+def find_parameters_equivalence(executable):
+    equivalence = {}
+    for field in executable.user_fields():
+        _build_single_plug_equivalence(
+            equivalence=equivalence,
+            equivalent_name=field.name,
+            executable=executable,
+            node=executable,
+            parameter=field.name,
+        )
     if isinstance(executable, Pipeline):
         for node in executable.nodes.values():
-            if isinstance(node, Process) and node is not executable:
-                _find_metadata_modification(modification, schema, node)
-    modifier = process_schema.modifier_function.get((schema, executable.definition))
-    if modifier:
-        modification.set_executable(executable)
-        modifier(modification)
+            for field in node.user_fields():
+                e = equivalence.get(node, {}).get(field.name)
+                if not e:
+                    _build_single_plug_equivalence(
+                        equivalence=equivalence,
+                        equivalent_name=f"{node.full_name}.{field.name}",
+                        executable=executable,
+                        node=node,
+                        parameter=field.name,
+                    )
+    print("!parameters_equivalence!", executable.name)
+    from pprint import pprint
+
+    pprint(equivalence)
+    return equivalence
+
+
+def iter_processes(executable):
+    if isinstance(executable, Pipeline):
+        for node in topological_sort_nodes(executable):
+            if isinstance(node, Process):
+                yield node
+        yield executable
+    elif isinstance(executable, ProcessIteration):
+        yield executable.process
+    else:
+        yield executable
+
+
+def topological_sort_nodes(pipeline):
+    after = {}
+    before = {}
+    for node in pipeline.nodes.values():
+        if node is pipeline:
+            continue
+        for source_field in node.user_fields():
+            if not source_field.is_output():
+                for (
+                    dest_node_name,
+                    dest_plug_name,
+                    dest_node,
+                    dest_plug,
+                    weak_link,
+                ) in node.plugs[source_field.name].links_to:
+                    if dest_node is not pipeline:
+                        after.setdefault(dest_node, set()).add(node)
+                        before.setdefault(node, set()).add(dest_node)
+    stack = list(pipeline.nodes.values())
+    while stack:
+        i = 0
+        while i < len(stack):
+            node = stack[i]
+            if node is pipeline:
+                del stack[i]
+            elif not after.get(node):
+                if isinstance(node, Pipeline):
+                    yield from topological_sort_nodes(node)
+                yield node
+                del stack[i]
+                for next in before.get(node, ()):
+                    after.get(next).remove(node)
+            else:
+                i += 1
 
 
 def dprint(debug, *args, _frame_depth=1, **kwargs):
@@ -928,10 +1155,18 @@ class ProcessMetadata(Controller):
             self.dprint("  Iterative schemas:", self.iterative_schemas)
 
     def dprint(self, *args, **kwargs):
-        if isinstance(self.debug, bool) and self.debug:
-            self.debug = sys.stderr
         if self.debug:
+            if isinstance(self.debug, bool):
+                self.debug = sys.stderr
             print(*args, file=self.debug, **kwargs)
+
+    def dpprint(self, args):
+        if self.debug:
+            from pprint import pprint
+
+            if isinstance(self.debug, bool):
+                self.debug = sys.stderr
+            pprint(args, self.debug)
 
     def parameter_dataset_name(self, process, field):
         """
@@ -995,20 +1230,6 @@ class ProcessMetadata(Controller):
         Generate all paths for parameters of the given executable. Completion
         rules will apply using the current values of the metadata.
         """
-        # self.debug = True
-        if executable is None:
-            executable = self.executable()
-
-        if self.debug:
-            if self._current_iteration is not None:
-                iteration = f"[{self._current_iteration}]"
-            else:
-                iteration = ""
-            self.dprint(f"Generate paths for {executable.name}{iteration}")
-            for field in executable.user_fields():
-                value = getattr(executable, field.name, undefined)
-                self.dprint("       ", field.name, "=", repr(value))
-
         for parameter, value in self.path_for_parameters(executable).items():
             setattr(executable, parameter, value)
 
@@ -1018,44 +1239,60 @@ class ProcessMetadata(Controller):
         This is a restricted version of generate_paths(), which does not assign
         the generated value to the executable parameter but just returns it.
         """
+        self.debug = False
         if executable is None:
             executable = self.executable()
 
+        if self.debug:
+            if self._current_iteration is not None:
+                iteration = f"[{self._current_iteration}]"
+            else:
+                iteration = ""
+            if parameters is None:
+                p = ", ".join(i.name for i in executable.user_fields())
+            else:
+                p = ", ".join(parameters)
+            self.dprint(
+                f"Generate paths for {executable.name}{iteration}, parameters {p}"
+            )
+            for field in executable.user_fields():
+                value = getattr(executable, field.name, undefined)
+                self.dprint("   ", field.name, "=", repr(value))
+
+        result = {}
         if isinstance(executable, ProcessIteration):
-            raise NotImplementedError()
-            # empty_iterative_schema = set()
-            # iteration_size = 0
-            # for schema in self.iterative_schemas:
-            #     schema_iteration_size = len(getattr(self, schema))
-            #     if schema_iteration_size:
-            #         if iteration_size == 0:
-            #             iteration_size = schema_iteration_size
-            #             first_schema = schema
-            #         elif iteration_size != schema_iteration_size:
-            #             raise ValueError(
-            #                 f"Iteration on schema {first_schema} has {iteration_size} element(s) which is not equal to schema {schema} ({schema_iteration_size} element(s))"
-            #             )
-            #     else:
-            #         empty_iterative_schema.add(schema)
+            empty_iterative_schema = set()
+            iteration_size = 0
+            for schema in self.iterative_schemas:
+                schema_iteration_size = len(getattr(self, schema))
+                if schema_iteration_size:
+                    if iteration_size == 0:
+                        iteration_size = schema_iteration_size
+                        first_schema = schema
+                    elif iteration_size != schema_iteration_size:
+                        raise ValueError(
+                            f"Iteration on schema {first_schema} has {iteration_size} element(s) which is not equal to schema {schema} ({schema_iteration_size} element(s))"
+                        )
+                else:
+                    empty_iterative_schema.add(schema)
 
-            # for schema in empty_iterative_schema:
-            #     setattr(
-            #         self,
-            #         schema,
-            #         [Dataset.find_schema(schema)() for i in range(iteration_size)],
-            #     )
+            for schema in empty_iterative_schema:
+                setattr(
+                    self,
+                    schema,
+                    [Dataset.find_schema(schema)() for i in range(iteration_size)],
+                )
 
-            # if parameter in executable.iterative_parameters:
-            #     paths = []
-            #     for iteration in range(iteration_size):
-            #         self._current_iteration = iteration
-            #         executable.select_iteration_index(iteration)
-            #         path = self.parh_for_parameter(executable.process, parameter)
-            #         paths.append(path)
-            #         return paths
-            # else:
-            #     path = self.parh_for_parameter(executable.process, parameter)
-            #     return path
+            for iteration in range(iteration_size):
+                self._current_iteration = iteration
+                executable.select_iteration_index(iteration)
+                for parameter, value in self.path_for_parameters(
+                    executable.process, parameters
+                ).items():
+                    if parameter in executable.iterative_parameters:
+                        result.setdefault(parameter, []).append(value)
+                    else:
+                        result[parameter] = value
         else:
             for schema_name in self.parameters_per_schema:
                 for other_schema_name in self.parameters_per_schema:
@@ -1070,11 +1307,12 @@ class ProcessMetadata(Controller):
                         if mapping:
                             mapping.map_schemas(source, dest)
 
-            result = {}
             resolved_process_schemas = {}
             if parameters is None:
                 parameters = (i.name for i in executable.user_fields())
+            self.dprint("-" * 40)
             for parameter in parameters:
+                self.dprint("   ", parameter, ":")
                 schema = self.schema_per_parameter.get(parameter)
                 if schema is None:
                     continue
@@ -1084,14 +1322,31 @@ class ProcessMetadata(Controller):
                         schema
                     ] = resolve_process_schema(schema, executable)
                 unused, metadata_values = resolved_process_schema
+                unused = unused.get(parameter, set())
+                metadata_values = metadata_values.get(parameter, {})
                 dataset = self.dataset_per_parameter[parameter]
                 metadata = Dataset.find_schema(schema)(
                     base_path=f"!{{dataset.{dataset}.path}}"
                 )
                 s = self.get_schema(schema)
                 if s:
-                    metadata.import_dict(s.asdict())
-                metadata.import_dict(metadata_values)
+                    d = {
+                        k: v
+                        for k, v in s.asdict().items()
+                        if k is not None and k not in unused
+                    }
+                else:
+                    d = {}
+                self.dprint("       schema:", schema)
+                self.dprint("       schema dict:", d)
+                self.dprint("       executable dict:", metadata_values)
+                self.dprint("       unused:", unused)
+                d.update(
+                    (k, v)
+                    for k, v in metadata_values.items()
+                    if k is not None and k not in unused
+                )
+                metadata.import_dict(d)
                 try:
                     path = str(
                         metadata.build_param(
@@ -1100,5 +1355,7 @@ class ProcessMetadata(Controller):
                         )
                     )
                     result[parameter] = path
-                except Exception:
-                    pass
+                    self.dprint("         ->", path)
+                except Exception as e:
+                    self.dprint("         Error:", e)
+        return result
