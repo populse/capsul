@@ -25,7 +25,7 @@ class ExecutionContext(Controller):
     config_modules: list[str] = field(type=list[str], default_factory=list)
     dataset: OpenKeyDictController[Dataset]
 
-    def __init__(self, config=None, executable=None, activate_modules=True):
+    def __init__(self, config=None, executable=None, activate_modules=False):
         super().__init__()
         if config:
             python_modules = config.get("python_modules", [])

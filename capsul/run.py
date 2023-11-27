@@ -54,10 +54,12 @@ def run_job(
 
 
 def execute_job(database, engine_id, execution_id, job_uuid, debug=False):
+    # TODO: the context should be specific to the job, not only the execution
     execution_context = database.execution_context(engine_id, execution_id)
     execution_context.dataset.tmp = {
         "path": database.tmp(engine_id, execution_id),
     }
+    execution_context.activate_modules_config()
     job = database.job(engine_id, execution_id, job_uuid)
     if job is None:
         raise ValueError(f"No such job: {job_uuid}")

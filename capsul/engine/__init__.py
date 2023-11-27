@@ -84,8 +84,10 @@ def execution_context(engine_label, engine_config, executable):
         )
         setattr(execution_context, module_name, valid_config)
 
-    # FIXME: should be done only in real execution (server) situation
-    execution_context.activate_modules_config()
+    # context activation should be done only in real execution (server)
+    # situation. This is done in database.execution_context(), not here
+    # because here we are on client-side API.
+    # execution_context.activate_modules_config()
 
     return execution_context
 
