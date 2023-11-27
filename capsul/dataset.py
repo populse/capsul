@@ -654,18 +654,19 @@ class MetadataModification:
 
     def __init__(
         self,
+        unused,
+        metadata,
         executable=None,
         parameters_equivalence=None,
         parameter=None,
         item=None,
         actions=None,
     ):
+        super().__setattr__("_unused", unused)
+        super().__setattr__("_metadata", metadata)
         if actions is None:
             actions = []
-        if executable:
-            super().__setattr__("_executable", weakref.ref(executable))
-        else:
-            super().__setattr__("_executable", None)
+        super().__setattr__("_executable", executable)
         if parameters_equivalence is None:
             parameters_equivalence = {}
         super().__setattr__("_parameters_equivalence", parameters_equivalence)
@@ -677,17 +678,15 @@ class MetadataModification:
                 "_parameters_equivalence", find_parameters_equivalence(executable)
             )
 
-    @property
-    def executable(self):
-        return self._executable()
-
     def set_executable(self, executable):
-        super().__setattr__("_executable", weakref.ref(executable))
+        super().__setattr__("_executable", executable)
 
     def __getitem__(self, key):
         if self._parameter is None:
             return MetadataModification(
-                executable=self.executable,
+                unused=self._unused,
+                metadata=self._metadata,
+                executable=self._executable,
                 parameters_equivalence=self._parameters_equivalence,
                 parameter=key,
                 item=None,
@@ -716,28 +715,20 @@ class MetadataModification:
                     raise Exception(
                         "invalid metdata copy, source item {value._item} cannot be copied to a whole parameter"
                     )
-                self._actions.append(
-                    functools.partial(
-                        self._apply_copy_all,
-                        executable=self.executable,
-                        parameters=key,
-                        source_parameters=value._parameter,
-                    )
+                self._copy_all(
+                    parameters=key,
+                    source_parameters=value._parameter,
                 )
             else:
                 if not value._parameter:
                     raise Exception("invalid metdata copy, no source parameter")
                 if not value._item:
                     raise Exception("invalid metdata copy, no source item")
-                self._actions.append(
-                    functools.partial(
-                        self._apply_copy_item,
-                        executable=self.executable,
-                        parameters=self._parameter,
-                        items=key,
-                        source_parameters=value._parameter,
-                        source_items=value._item,
-                    )
+                self._copy_item(
+                    parameters=self._parameter,
+                    items=key,
+                    source_parameters=value._parameter,
+                    source_items=value._item,
                 )
         else:
             if not self._parameter:
@@ -746,36 +737,32 @@ class MetadataModification:
                 raise Exception(
                     f"invalid metdata modification, unexpected item: {self._item}"
                 )
-            self._actions.append(
-                functools.partial(
-                    self._apply_set,
-                    executable=self.executable,
-                    parameters=self._parameter,
-                    items=key,
-                    value=value,
-                )
+            self._set(
+                parameters=self._parameter,
+                items=key,
+                value=value,
             )
         super().__setattr__("_parameter", None)
 
     def __setattr__(self, attribute, value):
         self[attribute] = value
 
-    def _parameters(self, executable, parameters):
-        # print("!parameters!", executable.name, parameters)
+    def _parameters(self, parameters):
+        # print("!parameters!", self._executable.name, parameters)
         if isinstance(parameters, str):
             selection = (re.compile(fnmatch.translate(parameters)),)
         else:
             selection = tuple(re.compile(fnmatch.translate(i)) for i in parameters)
-        for field in executable.user_fields():
+        for field in self._executable.user_fields():
             # print(
             #     "!parameters! ?",
             #     field.name,
             #     any(i.match(field.name) for i in selection),
             # )
             if any(i.match(field.name) for i in selection):
-                exported_name = self._parameters_equivalence.get(executable, {}).get(
-                    field.name
-                )
+                exported_name = self._parameters_equivalence.get(
+                    self._executable, {}
+                ).get(field.name)
                 # print("!parameters! ->", exported_name)
                 if exported_name:
                     yield exported_name
@@ -791,16 +778,10 @@ class MetadataModification:
             raise Exception("invalid metdata modification, no parameter")
         if not self._item:
             raise Exception("invalid metdata modification, no item")
-
-        self._actions.append(
-            functools.partial(
-                self._apply_unused,
-                executable=self.executable,
-                parameters=self._parameter,
-                items=self._item,
-                value=value,
-            )
-        )
+        if self._executable.activated:
+            for parameter in self._parameters(self._parameter):
+                for item in self._items(self._item):
+                    self._unused.setdefault(parameter, {})[item] = value
         super().__setattr__("_parameter", None)
         super().__setattr__("_item", None)
 
@@ -809,16 +790,15 @@ class MetadataModification:
             raise Exception("invalid metdata modification, no parameter")
         if not self._item:
             raise Exception("invalid metdata modification, no item")
-        self._actions.append(
-            functools.partial(
-                self._apply_append,
-                executable=self.executable,
-                parameters=self._parameter,
-                items=self._item,
-                value=value,
-                sep=sep,
-            )
-        )
+        if self._executable.activated:
+            # print("!apply_append!", executable.name, parameters, items, value)
+            for parameter in self._parameters(self._parameter):
+                for item in self._items(self._item):
+                    v = self._metadata.setdefault(parameter, {}).get(item)
+                    if v:
+                        value = f"{v}{sep}{value}"
+                    # print("!apply_append! ->", value)
+                    self._metadata[parameter][item] = value
         super().__setattr__("_parameter", None)
         super().__setattr__("_item", None)
 
@@ -827,36 +807,32 @@ class MetadataModification:
             raise Exception("invalid metdata modification, no parameter")
         if not self._item:
             raise Exception("invalid metdata modification, no item")
-        self._actions.append(
-            functools.partial(
-                self._apply_prepend,
-                executable=self.executable,
-                parameters=self._parameter,
-                items=self._item,
-                value=value,
-                sep=sep,
-            )
-        )
+        if self._executable.activated:
+            # print("!apply_prepend!", executable.name, parameters, items, value)
+            for parameter in self._parameters(self._parameter):
+                for item in self._items(self._item):
+                    v = self._metadata.setdefault(parameter, {}).get(item)
+                    if v:
+                        value = f"{value}{sep}{v}"
+                    # print("!apply_prepend! ->", value)
+                    self._metadata[parameter][item] = value
         super().__setattr__("_parameter", None)
         super().__setattr__("_item", None)
 
-    def _apply_set(self, unused, metadata, executable, parameters, items, value):
-        if executable.activated:
-            for parameter in self._parameters(executable, parameters):
+    def _set(self, parameters, items, value):
+        if self._executable.activated:
+            for parameter in self._parameters(parameters):
                 for item in self._items(items):
-                    metadata.setdefault(parameter, {})[item] = value
+                    self._metadata.setdefault(parameter, {})[item] = value
 
-    def _apply_copy_item(
+    def _copy_item(
         self,
-        unused,
-        metadata,
-        executable,
         parameters,
         items,
         source_parameters,
         source_items,
     ):
-        if executable.activated:
+        if self._executable.activated:
             # print(
             #     "!apply_copy_item!",
             #     executable.name,
@@ -865,9 +841,9 @@ class MetadataModification:
             #     source_parameters,
             #     source_items,
             # )
-            for parameter in self._parameters(executable, source_parameters):
+            for parameter in self._parameters(source_parameters):
                 for item in self._items(source_items):
-                    value = metadata.get(parameter, {}).get(item)
+                    value = self._metadata.get(parameter, {}).get(item)
                     # print(
                     #     "!apply_copy_item!",
                     #     executable.name,
@@ -876,81 +852,35 @@ class MetadataModification:
                     #     "->",
                     #     value,
                     # )
-                    self._apply_set(
-                        unused, metadata, executable, parameters, items, value
-                    )
+                    self._set(parameters, items, value)
 
-    def _apply_copy_all(
+    def _copy_all(
         self,
-        unused,
-        metadata,
-        executable,
         parameters,
         source_parameters,
     ):
-        if executable.activated:
+        if self._executable.activated:
             # print(
             #     "!apply_copy_all!",
             #     executable.name,
             #     parameters,
             #     source_parameters,
             # )
-            for parameter in self._parameters(executable, source_parameters):
-                for item, value in metadata.get(parameter, {}).items():
+            for parameter in self._parameters(source_parameters):
+                for item, value in self._metadata.get(parameter, {}).items():
                     if value is not None:
-                        self._apply_set(
-                            unused, metadata, executable, parameters, item, value
-                        )
-
-    def _apply_unused(self, unused, metadata, executable, parameters, items, value):
-        if executable.activated:
-            for parameter in self._parameters(executable, parameters):
-                for item in self._items(items):
-                    unused.setdefault(parameter, {})[item] = value
-
-    def _apply_append(
-        self, unused, metadata, executable, parameters, items, value, sep
-    ):
-        if executable.activated:
-            # print("!apply_append!", executable.name, parameters, items, value)
-            for parameter in self._parameters(executable, parameters):
-                for item in self._items(items):
-                    v = metadata.setdefault(parameter, {}).get(item)
-                    if v:
-                        value = f"{v}{sep}{value}"
-                    # print("!apply_append! ->", value)
-                    metadata[parameter][item] = value
-
-    def _apply_prepend(
-        self, unused, metadata, executable, parameters, items, value, sep
-    ):
-        if executable.activated:
-            # print("!apply_prepend!", executable.name, parameters, items, value)
-            for parameter in self._parameters(executable, parameters):
-                for item in self._items(items):
-                    v = metadata.setdefault(parameter, {}).get(item)
-                    if v:
-                        value = f"{value}{sep}{v}"
-                    # print("!apply_prepend! ->", value)
-                    metadata[parameter][item] = value
-
-    def _apply(self, unused, metadata):
-        for action in self._actions:
-            action(unused, metadata)
+                        self._set(parameters, item, value)
 
 
 def resolve_process_schema(schema, executable):
-    modification = MetadataModification(executable)
-
+    unused = {}
+    metadata = {}
+    modification = MetadataModification(unused, metadata, executable)
     for process in iter_processes(executable):
         modifier = process_schema.modifier_function.get((schema, process.definition))
         if modifier:
             modification.set_executable(process)
             modifier(modification)
-
-    unused = {}
-    metadata = {}
-    modification._apply(unused, metadata)
     return (unused, metadata)
 
 
