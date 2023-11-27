@@ -942,15 +942,11 @@ class MetadataModification:
 def resolve_process_schema(schema, executable):
     modification = MetadataModification(executable)
 
-    if isinstance(executable, Pipeline):
-        # Topological sort of pipeline nodes
-        for process in iter_processes(executable):
-            modifier = process_schema.modifier_function.get(
-                (schema, process.definition)
-            )
-            if modifier:
-                modification.set_executable(process)
-                modifier(modification)
+    for process in iter_processes(executable):
+        modifier = process_schema.modifier_function.get((schema, process.definition))
+        if modifier:
+            modification.set_executable(process)
+            modifier(modification)
 
     unused = {}
     metadata = {}
@@ -1023,10 +1019,11 @@ def find_parameters_equivalence(executable):
                         node=node,
                         parameter=field.name,
                     )
-    print("!parameters_equivalence!", executable.name)
-    from pprint import pprint
 
-    pprint(equivalence)
+    # from pprint import pprint
+    # print("!parameters_equivalence!", executable.name)
+    # pprint(equivalence)
+
     return equivalence
 
 
@@ -1249,13 +1246,13 @@ class ProcessMetadata(Controller):
             else:
                 iteration = ""
             if parameters is None:
-                p = ", ".join(i.name for i in executable.user_fields())
-            else:
-                p = ", ".join(parameters)
-            self.dprint(
-                f"Generate paths for {executable.name}{iteration}, parameters {p}"
-            )
-            for field in executable.user_fields():
+                parameters = [
+                    field for field in executable.user_fields() if field.path_type
+                ]
+            # self.dprint(
+            #     f"Generate paths for {executable.name}{iteration}, parameters {", ".join(parameters)}"
+            # )
+            for field in parameters:
                 value = getattr(executable, field.name, undefined)
                 self.dprint("   ", field.name, "=", repr(value))
 
@@ -1286,13 +1283,17 @@ class ProcessMetadata(Controller):
             for iteration in range(iteration_size):
                 self._current_iteration = iteration
                 executable.select_iteration_index(iteration)
-                for parameter, value in self.path_for_parameters(
-                    executable.process, parameters
-                ).items():
-                    if parameter in executable.iterative_parameters:
-                        result.setdefault(parameter, []).append(value)
-                    else:
+                pfp = self.path_for_parameters(executable.process, parameters)
+                generated_iteratives = set()
+                for parameter, value in pfp.items():
+                    if parameter not in executable.iterative_parameters:
                         result[parameter] = value
+                    else:
+                        generated_iteratives.add(parameter)
+                for parameter in generated_iteratives:
+                    value = pfp.get(parameter, undefined)
+                    print("!!!!", executable.name, iteration, parameter, value)
+                    result.setdefault(parameter, []).append(value)
         else:
             for schema_name in self.parameters_per_schema:
                 for other_schema_name in self.parameters_per_schema:

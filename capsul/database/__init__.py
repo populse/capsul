@@ -416,7 +416,15 @@ class ExecutionDatabase:
                         value = parameters.no_proxy(value)
                         if value is None:
                             value = undefined
-                        # print('!update_executable!', node.full_name, field.name, '<-', repr(value))
+                        elif isinstance(value, list) and field.is_list():
+                            value = list((undefined if i is None else i) for i in value)
+                        print(
+                            "!update_executable!",
+                            node.full_name,
+                            field.name,
+                            f"({field.type} <-",
+                            repr(value),
+                        )
                         setattr(node, field.name, value)
                     # else:
                     #     print('!update_executable! ignore', node.full_name, field.name, repr(value))
