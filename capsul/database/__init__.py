@@ -166,6 +166,9 @@ class ExecutionDatabase:
         ]
         return workers_command
 
+    def kill_worker_command(self, engine_id, worker_id):
+        raise NotImplementedError
+
     def new_execution(
         self, executable, engine_id, execution_context, workflow, start_time
     ):
@@ -494,6 +497,12 @@ class ExecutionDatabase:
     def worker_ended(self, engine_id, worker_id):
         """
         Remove a worker from the list of workers for this engine.
+        """
+        raise NotImplementedError
+
+    def get_workers(self, engine_id):
+        """
+        returns the workers IDs list
         """
         raise NotImplementedError
 

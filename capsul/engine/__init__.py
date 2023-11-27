@@ -184,6 +184,8 @@ class Engine:
         if start_count:
             for i in range(start_count):
                 workers_command = self.database.workers_command(self.engine_id)
+                # TODO: we should keep track of the running worker in order
+                # to be able to contact / kill him later.
                 try:
                     subprocess.run(
                         workers_command,
@@ -198,6 +200,28 @@ class Engine:
                     raise RuntimeError(
                         f'Command failed: {" ".join(quote(i) for i in workers_command)}'
                     ) from e
+
+    def kill_workers(self, worker_ids=None):
+        if worker_ids is None:
+            # kill all workers
+            worker_ids = self.database_get_workers(self.engine_id)
+        for worker_id in worker_ids:
+            cmd = self.database.kill_worker_command(self.engine_id, worker_id)
+            try:
+                subprocess.run(
+                    cmd,
+                    capture_output=False,
+                    check=True,
+                )
+            except Exception as e:
+
+                def quote(x):
+                    return f"'{x}'"
+
+                raise RuntimeError(
+                    f'Command failed: {" ".join(quote(i) for i in cmd)}'
+                ) from e
+            self.database.worker_ended(self.engine_id, worker_id)
 
     def __exit__(self, exception_type, exception_value, exception_traceback):
         # exiting the engine disposes it from the database: executions will
