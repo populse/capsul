@@ -412,22 +412,13 @@ class ExecutionDatabase:
                 node, parameters = stack.pop(0)
                 for field in node.user_fields():
                     value = parameters.get(field.name, undefined)
+                    value = parameters.no_proxy(value)
+                    if value is None:
+                        value = undefined
                     if value is not undefined:
-                        value = parameters.no_proxy(value)
-                        if value is None:
-                            value = undefined
-                        elif isinstance(value, list) and field.is_list():
+                        if isinstance(value, list) and field.is_list():
                             value = list((undefined if i is None else i) for i in value)
-                        print(
-                            "!update_executable!",
-                            node.full_name,
-                            field.name,
-                            f"({field.type} <-",
-                            repr(value),
-                        )
                         setattr(node, field.name, value)
-                    # else:
-                    #     print('!update_executable! ignore', node.full_name, field.name, repr(value))
                 if isinstance(node, Pipeline):
                     stack.extend(
                         (n, parameters["nodes"][n.name])

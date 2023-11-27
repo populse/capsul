@@ -677,6 +677,13 @@ class MetadataModification:
             super().__setattr__(
                 "_parameters_equivalence", find_parameters_equivalence(executable)
             )
+            # Ignore path generation for parameters that are equivelent to another one
+            for field in executable.user_fields():
+                equivalent = self._parameters_equivalence.get(executable, {}).get(
+                    field.name
+                )
+                if equivalent and equivalent != field.name:
+                    metadata.setdefault(field.name, {})["path_generation"] = False
 
     def set_executable(self, executable):
         super().__setattr__("_executable", executable)
@@ -908,10 +915,9 @@ def _build_single_plug_equivalence(
             if (dest_node, dest_plug_name) in done:
                 continue
             stack.append((dest_node, dest_plug_name))
-        if isinstance(node, Process) and node is not executable:
-            e = equivalence.get(node, {}).get(parameter)
-            if e is None:
-                equivalence.setdefault(node, {})[parameter] = equivalent_name
+        e = equivalence.get(node, {}).get(parameter)
+        if e is None:
+            equivalence.setdefault(node, {})[parameter] = equivalent_name
         if isinstance(node, Switch):
             # Connect all switch inputs to every corresponding outputs
             # not taking switch value into account
@@ -952,7 +958,7 @@ def find_parameters_equivalence(executable):
 
     # from pprint import pprint
     # print("!parameters_equivalence!", executable.name)
-    # pprint(equivalence)
+    # pprint({k.name:v for k, v in equivalence.items()})
 
     return equivalence
 
@@ -1158,6 +1164,7 @@ class ProcessMetadata(Controller):
         rules will apply using the current values of the metadata.
         """
         for parameter, value in self.path_for_parameters(executable).items():
+            # self.dprint(f"Set {executable.name}.{parameter} = {value}")
             setattr(executable, parameter, value)
 
     def path_for_parameters(self, executable, parameters=None):
@@ -1170,21 +1177,21 @@ class ProcessMetadata(Controller):
         if executable is None:
             executable = self.executable()
 
+        if parameters is None:
+            parameters = [
+                field.name for field in executable.user_fields() if field.path_type
+            ]
         if self.debug:
             if self._current_iteration is not None:
                 iteration = f"[{self._current_iteration}]"
             else:
                 iteration = ""
-            if parameters is None:
-                parameters = [
-                    field for field in executable.user_fields() if field.path_type
-                ]
             # self.dprint(
-            #     f"Generate paths for {executable.name}{iteration}, parameters {", ".join(parameters)}"
+            #     f"Generate paths for {executable.name}{iteration}, parameters: {', '.join(parameters)}"
             # )
-            for field in parameters:
-                value = getattr(executable, field.name, undefined)
-                self.dprint("   ", field.name, "=", repr(value))
+            for n in parameters:
+                value = getattr(executable, n, undefined)
+                # self.dprint("   ", n, "=", repr(value))
 
         result = {}
         if isinstance(executable, ProcessIteration):
@@ -1210,19 +1217,23 @@ class ProcessMetadata(Controller):
                     [Dataset.find_schema(schema)() for i in range(iteration_size)],
                 )
 
+            selected_parameters = [
+                i
+                for i in executable.iterative_parameters
+                if executable.field(i).path_type
+            ]
             for iteration in range(iteration_size):
                 self._current_iteration = iteration
                 executable.select_iteration_index(iteration)
                 pfp = self.path_for_parameters(executable.process, parameters)
-                generated_iteratives = set()
                 for parameter, value in pfp.items():
-                    if parameter not in executable.iterative_parameters:
+                    if (
+                        value is not undefined
+                        and parameter not in executable.iterative_parameters
+                    ):
                         result[parameter] = value
-                    else:
-                        generated_iteratives.add(parameter)
-                for parameter in generated_iteratives:
+                for parameter in selected_parameters:
                     value = pfp.get(parameter, undefined)
-                    print("!!!!", executable.name, iteration, parameter, value)
                     result.setdefault(parameter, []).append(value)
         else:
             for schema_name in self.parameters_per_schema:
@@ -1241,9 +1252,9 @@ class ProcessMetadata(Controller):
             resolved_process_schemas = {}
             if parameters is None:
                 parameters = (i.name for i in executable.user_fields())
-            self.dprint("-" * 40)
+            # self.dprint("-" * 40)
             for parameter in parameters:
-                self.dprint("   ", parameter, ":")
+                # self.dprint("   ", parameter, ":")
                 schema = self.schema_per_parameter.get(parameter)
                 if schema is None:
                     continue
@@ -1264,19 +1275,21 @@ class ProcessMetadata(Controller):
                     d = {
                         k: v
                         for k, v in s.asdict().items()
-                        if k is not None and k not in unused
+                        if v not in (None, undefined) and k not in unused
                     }
                 else:
                     d = {}
-                self.dprint("       schema:", schema)
-                self.dprint("       schema dict:", d)
-                self.dprint("       executable dict:", metadata_values)
-                self.dprint("       unused:", unused)
+                # self.dprint("       schema:", schema)
+                # self.dprint("       schema dict:", d)
+                # self.dprint("       executable dict:", metadata_values)
+                # self.dprint("       unused:", unused)
                 d.update(
                     (k, v)
                     for k, v in metadata_values.items()
-                    if k is not None and k not in unused
+                    if v not in (undefined, None) and k not in unused
                 )
+                if not d.get("path_generation", True):
+                    continue
                 metadata.import_dict(d)
                 try:
                     path = str(
@@ -1286,7 +1299,8 @@ class ProcessMetadata(Controller):
                         )
                     )
                     result[parameter] = path
-                    self.dprint("         ->", path)
+                    # self.dprint("         ->", path)
                 except Exception as e:
-                    self.dprint("         Error:", e)
+                    pass
+                    # self.dprint("         Error:", e)
         return result
