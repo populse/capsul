@@ -666,7 +666,7 @@ class MetadataModification:
         super().__setattr__("_metadata", metadata)
         if actions is None:
             actions = []
-        super().__setattr__("_executable", executable)
+        super().__setattr__("executable", executable)
         if parameters_equivalence is None:
             parameters_equivalence = {}
         super().__setattr__("_parameters_equivalence", parameters_equivalence)
@@ -686,14 +686,14 @@ class MetadataModification:
                     metadata.setdefault(field.name, {})["path_generation"] = False
 
     def set_executable(self, executable):
-        super().__setattr__("_executable", executable)
+        super().__setattr__("executable", executable)
 
     def __getitem__(self, key):
         if self._parameter is None:
             return MetadataModification(
                 unused=self._unused,
                 metadata=self._metadata,
-                executable=self._executable,
+                executable=self.executable,
                 parameters_equivalence=self._parameters_equivalence,
                 parameter=key,
                 item=None,
@@ -710,6 +710,16 @@ class MetadataModification:
 
     def __getattr__(self, attribute):
         return self[attribute]
+
+    def value(self):
+        result = self._metadata
+        if self._parameter:
+            result = result[self._parameter]
+        if self._item:
+            result = result[self._item]
+        super().__setattr__("_parameter", None)
+        super().__setattr__("_item", None)
+        return result
 
     def __setitem__(self, key, value):
         if isinstance(value, MetadataModification):
@@ -755,12 +765,12 @@ class MetadataModification:
         self[attribute] = value
 
     def _parameters(self, parameters):
-        # print("!parameters!", self._executable.name, parameters)
+        # print("!parameters!", self.executable.name, parameters)
         if isinstance(parameters, str):
             selection = (re.compile(fnmatch.translate(parameters)),)
         else:
             selection = tuple(re.compile(fnmatch.translate(i)) for i in parameters)
-        for field in self._executable.user_fields():
+        for field in self.executable.user_fields():
             # print(
             #     "!parameters! ?",
             #     field.name,
@@ -768,7 +778,7 @@ class MetadataModification:
             # )
             if any(i.match(field.name) for i in selection):
                 exported_name = self._parameters_equivalence.get(
-                    self._executable, {}
+                    self.executable, {}
                 ).get(field.name)
                 # print("!parameters! ->", exported_name)
                 if exported_name:
@@ -785,7 +795,7 @@ class MetadataModification:
             raise Exception("invalid metdata modification, no parameter")
         if not self._item:
             raise Exception("invalid metdata modification, no item")
-        if self._executable.activated:
+        if self.executable.activated:
             for parameter in self._parameters(self._parameter):
                 for item in self._items(self._item):
                     self._unused.setdefault(parameter, {})[item] = value
@@ -797,7 +807,9 @@ class MetadataModification:
             raise Exception("invalid metdata modification, no parameter")
         if not self._item:
             raise Exception("invalid metdata modification, no item")
-        if self._executable.activated:
+        if isinstance(value, MetadataModification):
+            value = value.value()
+        if self.executable.activated:
             # print("!apply_append!", executable.name, parameters, items, value)
             for parameter in self._parameters(self._parameter):
                 for item in self._items(self._item):
@@ -814,7 +826,9 @@ class MetadataModification:
             raise Exception("invalid metdata modification, no parameter")
         if not self._item:
             raise Exception("invalid metdata modification, no item")
-        if self._executable.activated:
+        if isinstance(value, MetadataModification):
+            value = value.value()
+        if self.executable.activated:
             # print("!apply_prepend!", executable.name, parameters, items, value)
             for parameter in self._parameters(self._parameter):
                 for item in self._items(self._item):
@@ -827,7 +841,7 @@ class MetadataModification:
         super().__setattr__("_item", None)
 
     def _set(self, parameters, items, value):
-        if self._executable.activated:
+        if self.executable.activated:
             for parameter in self._parameters(parameters):
                 for item in self._items(items):
                     self._metadata.setdefault(parameter, {})[item] = value
@@ -839,7 +853,7 @@ class MetadataModification:
         source_parameters,
         source_items,
     ):
-        if self._executable.activated:
+        if self.executable.activated:
             # print(
             #     "!apply_copy_item!",
             #     executable.name,
@@ -866,7 +880,7 @@ class MetadataModification:
         parameters,
         source_parameters,
     ):
-        if self._executable.activated:
+        if self.executable.activated:
             # print(
             #     "!apply_copy_all!",
             #     executable.name,

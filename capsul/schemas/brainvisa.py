@@ -1,4 +1,4 @@
-from capsul.dataset import MetadataSchema, SchemaMapping
+from capsul.dataset import MetadataSchema, SchemaMapping, process_schema
 from soma.controller import undefined
 import importlib
 import copy
@@ -267,21 +267,18 @@ def declare_morpho_schemas(morpho_module):
         sulcigraphmorphometrybysubject.sulcigraphmorphometrybysubject
     )
 
-    bv_acq_meta = {
-        "unused": [
-            "subject_only",
-            "analysis",
-            "seg_directory",
-            "side",
-            "sidebis",
-            "sulci_graph_version",
-            "sulci_recognition_session",
-        ]
-    }
-    bv_t1_meta = copy.deepcopy(bv_acq_meta)
-    bv_t1_meta["unused"] += ["suffix"]
-    bv_ref_meta = copy.deepcopy(bv_acq_meta)
-    bv_ref_meta["unused"].remove("seg_directory")
+    bv_acq_unused = [
+        "subject_only",
+        "analysis",
+        "seg_directory",
+        "side",
+        "sidebis",
+        "sulci_graph_version",
+        "sulci_recognition_session",
+    ]
+    bv_t1_unused = bv_acq_meta + ["suffix"]
+    bv_ref_unused = list(bv_acq_meta)
+    bv_ref_unused.remove("seg_directory")
 
     def updated(d, *args):
         res = copy.deepcopy(d)
@@ -289,111 +286,107 @@ def declare_morpho_schemas(morpho_module):
             res.update(d2)
         return res
 
-    # class MorphologistBrainVISA(
-    #     ProcessSchema, schema="brainvisa", process=Morphologist
-    # ):
-    #     _ = {
-    #         "*": {"process": None, "modality": "t1mri"},
-    #         "*_pass1": Append("suffix", "pass1"),
-    #         "*_labelled_graph": {
-    #             "suffix": lambda **kwargs: f'{kwargs["metadata"].sulci_recognition_session}'
-    #             f'_{kwargs["metadata"].sulci_recognition_type}',
-    #         },
-    #         "left_*": {"side": "L"},
-    #         "right_*": {"side": "R"},
-    #     }
+    @process_schema("brainvisa", Morphologist)
+    def brainvisa_Morphologist(metadata):
+        metadata["*"].process = None
+        metadata["*"].modality = "t1mri"
+        metadata["*_pass1"].suffix.append("pass1")
+        metadata["*_labelled_graph"].suffix.append(
+            metadata["left_labelled_graph"].sulci_recognition_session
+        )
+        metadata["*_labelled_graph"].suffix.append(
+            metadata["left_labelled_graph"].sulci_recognition_type
+        )
+        metadata["left_*"].side = "L"
+        metadata["right_*"].side = "R"
+        #     _nodes = {
+        #         "GreyWhiteClassification": {"*": {"side": "L"}},
+        #         "GreyWhiteTopology": {"*": {"side": "L"}},
+        #         "GreyWhiteMesh": {"*": {"sidebis": "L"}},
+        #         "PialMesh": {"*": {"sidebis": "L"}},
+        #         "SulciSkeleton": {"*": {"side": "L"}},
+        #         "CorticalFoldsGraph": {"*": {"side": "L"}},
+        #         "SulciRecognition": {"*": {"side": "L"}},
+        #         "*_1": {"*": {"side": "R"}},
+        #         "GreyWhiteMesh_1": {"*": {"sidebis": "R", "side": None}},
+        #         "PialMesh_1": {"*": {"sidebis": "R", "side": None}},
+        #         "SulciRecognition*": {
+        #             "*": {
+        #                 "sulci_graph_version": lambda **kwargs: f'{kwargs["process"].CorticalFoldsGraph_graph_version}',
+        #                 "prefix": None,
+        #                 "sidebis": None,
+        #             }
+        #         },
+        #         "*.ReorientAnatomy": {
+        #             "_meta_links": {
+        #                 "transformation": {
+        #                     "*": [],
+        #                 },
+        #             },
+        #         },
+        #         "*.Convert*normalizationToAIMS": {
+        #             "_meta_links": {
+        #                 "*": {
+        #                     "*": [],
+        #                 },
+        #             },
+        #         },
+        #     }
 
-    #     _nodes = {
-    #         "GreyWhiteClassification": {"*": {"side": "L"}},
-    #         "GreyWhiteTopology": {"*": {"side": "L"}},
-    #         "GreyWhiteMesh": {"*": {"sidebis": "L"}},
-    #         "PialMesh": {"*": {"sidebis": "L"}},
-    #         "SulciSkeleton": {"*": {"side": "L"}},
-    #         "CorticalFoldsGraph": {"*": {"side": "L"}},
-    #         "SulciRecognition": {"*": {"side": "L"}},
-    #         "*_1": {"*": {"side": "R"}},
-    #         "GreyWhiteMesh_1": {"*": {"sidebis": "R", "side": None}},
-    #         "PialMesh_1": {"*": {"sidebis": "R", "side": None}},
-    #         "SulciRecognition*": {
-    #             "*": {
-    #                 "sulci_graph_version": lambda **kwargs: f'{kwargs["process"].CorticalFoldsGraph_graph_version}',
-    #                 "prefix": None,
-    #                 "sidebis": None,
-    #             }
-    #         },
-    #         "*.ReorientAnatomy": {
-    #             "_meta_links": {
-    #                 "transformation": {
-    #                     "*": [],
-    #                 },
-    #             },
-    #         },
-    #         "*.Convert*normalizationToAIMS": {
-    #             "_meta_links": {
-    #                 "*": {
-    #                     "*": [],
-    #                 },
-    #             },
-    #         },
-    #     }
+        metadata["*"][
+            "subject_only", "sulci_graph_version", "sulci_recognition_session"
+        ].unused()
+        metadata["*_graph"]["sulci_graph_version"].unused(False)
+        metadata["*_graph"]["sulci_graph_version", "sulci_recognition_session"].unused(
+            False
+        )
 
-    #     metadata_per_parameter = {
-    #         "*": {
-    #             "unused": [
-    #                 "subject_only",
-    #                 "sulci_graph_version",
-    #                 "sulci_recognition_session",
-    #             ]
-    #         },
-    #         "*_graph": {"unused": ["subject_only", "sulci_recognition_session"]},
-    #         "*_labelled_graph": {"unused": ["subject_only"]},
-    #         "t1mri": bv_t1_meta,
-    #         "imported_t1mri": bv_t1_meta,
-    #         "reoriented_t1mri": bv_t1_meta,
-    #         "normalized_t1mri": bv_acq_meta,
-    #         "normalization_spm_native_transformation": bv_acq_meta,
-    #         "commissure_coordinates": bv_t1_meta,
-    #         "t1mri_referential": bv_ref_meta,
-    #         "Talairach_transform": bv_ref_meta,
-    #         "MNI_transform": bv_ref_meta,
-    #         "subject": {"used": ["subject_only", "subject"]},
-    #         "sulcal_morpho_measures": {"unused": ["subject_only"]},
-    #     }
+        metadata[
+            "t1mri", "imported_t1mri", "reoriented_t1mri", "commissure_coordinates"
+        ][bv_t1_unused].unused()
+        metadata[
+            "normalized_t1mri",
+            "normalization_spm_native_transformation",
+        ][bv_acq_unused].unused()
+        metadata[
+            "t1mri_referential",
+            "Talairach_transform",
+            "MNI_transform",
+        ][bv_ref_unused].unused()
+        metadata["subject"]["subject_only", "subject"].unused(False)
+        metadata["sulcal_morpho_measures"]["subject_only"].unused()
 
-    #     normalization_spm_native_transformation = {"prefix": None}
-    #     commissure_coordinates = {
-    #         "extension": "APC",
-    #     }
-    #     t1mri_referential = {
-    #         "seg_directory": "registration",
-    #         "short_prefix": "RawT1-",
-    #         "suffix": lambda **kwargs: f'{kwargs["metadata"].acquisition}',
-    #         "extension": "referential",
-    #     }
-    #     Talairach_transform = {
-    #         "seg_directory": "registration",
-    #         "prefix": "",
-    #         "short_prefix": "RawT1-",
-    #         "suffix": lambda **kwargs: f'{kwargs["metadata"].acquisition}_TO_Talairach-ACPC',
-    #         "extension": "trm",
-    #     }
-    #     MNI_transform = {
-    #         "seg_directory": "registration",
-    #         "prefix": "",
-    #         "short_prefix": "RawT1-",
-    #         "suffix": lambda **kwargs: f'{kwargs["metadata"].acquisition}_TO_Talairach-MNI',
-    #         "extension": "trm",
-    #     }
-    #     left_graph = {
-    #         "prefix": None,
-    #         "suffix": None,
-    #     }
-    #     right_graph = {
-    #         "prefix": None,
-    #         "suffix": None,
-    #     }
-    #     subject = {"subject_only": True}
-    #     sulcal_morpho_measures = {"subject_only": False}
+        metadata.normalization_spm_native_transformation.prefix = None
+        metadata.commissure_coordinates.extension = "APC"
+
+        metadata.t1mri_referential.seg_directory = "registration"
+        metadata.t1mri_referential.short_prefix = "RawT1-"
+        metadata.t1mri_referential.suffix = (
+            metadata.t1mri_referential.acquisition.value()
+        )
+        metadata.t1mri_referential.extension = "referential"
+
+        metadata.Talairach_transform.seg_directory = "registration"
+        metadata.Talairach_transform.prefix = ""
+        metadata.Talairach_transform.short_prefix = "RawT1-"
+        metadata.Talairach_transform.suffix = (
+            f"{metadata.Talairach_transform.acquisition.value()}_TO_Talairach-ACPC"
+        )
+        metadata.Talairach_transform.extension = "trm"
+
+        metadata.MNI_transform.seg_directory = "registration"
+        metadata.MNI_transform.prefix = ""
+        metadata.MNI_transform.short_prefix = "RawT1-"
+        metadata.MNI_transform.suffix = (
+            f"{metadata.MNI_transform.acquisition.value()}_TO_Talairach-MNI"
+        )
+        metadata.MNI_transform.extension = "trm"
+
+        metadata["left_graph", "right_graph"].prefix = None
+        metadata["left_graph", "right_graph"].suffix = None
+
+        metadata.subject.subject_only = True
+        metadata.sulcal_morpho_measures.subject_only = False
 
     # class MorphologistBIDS(
     #     MorphologistBrainVISA, schema="morphologist_bids", process=Morphologist
