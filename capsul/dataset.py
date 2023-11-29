@@ -767,16 +767,38 @@ class MetadataModification:
     def _parameters(self, parameters):
         # print("!parameters!", self.executable.name, parameters)
         if isinstance(parameters, str):
-            selection = (re.compile(fnmatch.translate(parameters)),)
-        else:
-            selection = tuple(re.compile(fnmatch.translate(i)) for i in parameters)
+            parameters = (parameters,)
+        selection = []
+        for selection_string in parameters:
+            s = selection_string.split(":", 1)
+            if len(s) == 2:
+                meta_selection, selection_string = s
+                if meta_selection == "output":
+                    meta_selection = True
+                elif meta_selection == "input":
+                    meta_selection = False
+                else:
+                    raise ValueError(
+                        "invalid parameter meta-selection: {meta_selection}"
+                    )
+            else:
+                meta_selection = None
+            selection.append((meta_selection, re.compile(fnmatch.translate(i))))
         for f in self.executable.user_fields():
             # print(
             #     "!parameters! ?",
             #     f.name,
             #     any(i.match(f.name) for i in selection),
             # )
-            if any(i.match(f.name) for i in selection):
+            selected = False
+            for meta_selection, regex in selection:
+                if meta_selection is not None:
+                    if bool(meta_selection) != bool(f.is_output()):
+                        continue
+                if regex.match(f.name):
+                    selected = True
+                    break
+            if selected:
                 exported_name = self._parameters_equivalence.get(
                     self.executable, {}
                 ).get(f.name)

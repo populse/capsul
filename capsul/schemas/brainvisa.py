@@ -336,10 +336,8 @@ def declare_morpho_schemas(morpho_module):
         # metadata["*"][
         #     "subject_only", "sulci_graph_version", "sulci_recognition_session"
         # ].unused()
-        metadata["*_graph"]["sulci_graph_version"].unused(False)
-        metadata["*_graph"]["sulci_graph_version", "sulci_recognition_session"].unused(
-            False
-        )
+        metadata["*_graph"]["sulci_graph_version"].used()
+        metadata["*_graph"]["sulci_graph_version", "sulci_recognition_session"].used()
 
         metadata[
             "t1mri", "imported_t1mri", "reoriented_t1mri", "commissure_coordinates"
@@ -353,7 +351,7 @@ def declare_morpho_schemas(morpho_module):
             "Talairach_transform",
             "MNI_transform",
         ][bv_ref_unused].unused()
-        metadata["subject"]["subject_only", "subject"].unused(False)
+        metadata["subject"]["subject_only", "subject"].used()
         metadata["sulcal_morpho_measures"]["subject_only"].unused()
 
         metadata.normalization_spm_native_transformation.prefix = None
@@ -464,168 +462,144 @@ def declare_morpho_schemas(morpho_module):
         metadata.normalized_anatomy_data.prefix = "normalized_FSL"
         metadata.normalized_anatomy_data.suffix = None
 
-    # class FSLNormalizationBIDS(
-    #     FSLNormalizationBrainVISA,
-    #     schema="morphologist_bids",
-    #     process=Normalization_FSL_reinit,
-    # ):
-    #     pass
+    @process_schema("morphologist_bids", Normalization_FSL_reinit)
+    def morphologist_bids_Normalization_FSL_reinit(metadata):
+        brainvisa_Normalization_FSL_reinit(metadata)
 
-    # class T1BiasCorrectionBrainVISA(
-    #     ProcessSchema, schema="brainvisa", process=T1BiasCorrection
-    # ):
-    #     _ = {
-    #         "*": {
-    #             "seg_directory": None,
-    #             "analysis": lambda **kwargs: f'{kwargs["initial_meta"].analysis}',
-    #         }
-    #     }
-    #     t1mri_nobias = {"prefix": "nobias"}
-    #     b_field = {"prefix": "biasfield"}
-    #     hfiltered = {"prefix": "hfiltered"}
-    #     white_ridges = {"prefix": "whiteridge"}
-    #     variance = {"prefix": "variance"}
-    #     edges = {"prefix": "edges"}
-    #     meancurvature = {"prefix": "meancurvature"}
+    @process_schema("brainvisa", T1BiasCorrection)
+    def brainvisa_T1BiasCorrection(metadata):
+        metadata["*"].seg_directory = None
+        # TODO: check the conversion of the following code
+        #     _ = {
+        #         "*": {
+        #             "analysis": lambda **kwargs: f'{kwargs["initial_meta"].analysis}',
+        #         }
+        #     }
+        metadata["*"].analysis = metadata.initial_meta.analysis
+        metadata.transformation_matrix.seg_directory = "registration"
+        metadata.t1mri_nobias.prefix = "nobias"
+        metadata.b_field.prefix = "biasfield"
+        metadata.hfiltered.prefix = "hfiltered"
+        metadata.white_ridges.prefix = "whiteridge"
+        metadata.variance.prefix = "variance"
+        metadata.edges.prefix = "edges"
+        metadata.meancurvature.prefix = "meancurvature"
 
-    # class T1BiasCorrectionBIDS(
-    #     T1BiasCorrectionBrainVISA, schema="morphologist_bids", process=T1BiasCorrection
-    # ):
-    #     pass
+    @process_schema("morphologist_bids", T1BiasCorrection)
+    def morphologist_bids_T1BiasCorrection(metadata):
+        brainvisa_T1BiasCorrection(metadata)
 
-    # class HistoAnalysisBrainVISA(
-    #     ProcessSchema, schema="brainvisa", process=HistoAnalysis
-    # ):
-    #     histo = {"prefix": "nobias", "extension": "his"}
-    #     histo_analysis = {"prefix": "nobias", "extension": "han"}
+    @process_schema("brainvisa", HistoAnalysis)
+    def brainvisa_HistoAnalysis(metadata):
+        metadata["histo", "histo_analysis"].prefix = "nobias"
+        metadata.histo.extension = "his"
+        metadata.histo_analysis.extension = "han"
 
-    # class HistoAnalysisBIDS(
-    #     HistoAnalysisBrainVISA, schema="morphologist_bids", process=HistoAnalysis
-    # ):
-    #     pass
+    @process_schema("morphologist_bids", HistoAnalysis)
+    def morphologist_bids_HistoAnalysis(metadata):
+        brainvisa_HistoAnalysis(metadata)
 
-    # class BrainSegmentationBrainVISA(
-    #     ProcessSchema, schema="brainvisa", process=BrainSegmentation
-    # ):
-    #     _ = {"*": {"seg_directory": "segmentation"}}
-    #     brain_mask = {"prefix": "brain"}
-    #     _meta_links = {
-    #         "histo_analysis": {
-    #             "*": [],
-    #         }
-    #     }
+    @process_schema("brainvisa", BrainSegmentation)
+    def brainvisa_BrainSegmentation(metadata):
+        metadata["*"].seg_directory = "segmentation"
+        metadata.brain_mask.prefix = "brain"
+        metadata["output:*"] = metadata.histo_analysis
 
-    # class BrainSegmentationBIDS(
-    #     BrainSegmentationBrainVISA,
-    #     schema="morphologist_bids",
-    #     process=BrainSegmentation,
-    # ):
-    #     pass
+    @process_schema("morphologist_bids", BrainSegmentation)
+    def morphologist_bids_BrainSegmentation(metadata):
+        brainvisa_BrainSegmentation(metadata)
 
-    # class skullstrippingBrainVISA(
-    #     ProcessSchema, schema="brainvisa", process=skullstripping
-    # ):
-    #     _ = {
-    #         "*": {"seg_directory": "segmentation"},
-    #     }
-    #     skull_stripped = {"prefix": "skull_stripped"}
+    @process_schema("brainvisa", skullstripping)
+    def brainvisa_skullstripping(metadata):
+        metadata["*"].seg_directory = "segmentation"
+        metadata.skull_stripped.prefix = "skull_stripped"
 
-    # class skullstrippingBIDS(
-    #     skullstrippingBrainVISA, schema="morphologist_bids", process=skullstripping
-    # ):
-    #     pass
+    @process_schema("morphologist_bids", skullstripping)
+    def morphologist_bids_skullstripping(metadata):
+        brainvisa_skullstripping(metadata)
 
-    # class ScalpMeshBrainVISA(ProcessSchema, schema="brainvisa", process=ScalpMesh):
-    #     _ = {
-    #         "*": {"seg_directory": "segmentation"},
-    #     }
-    #     head_mask = {"prefix": "head"}
-    #     head_mesh = {
-    #         "seg_directory": "segmentation/mesh",
-    #         "suffix": "head",
-    #         "prefix": None,
-    #         "extension": "gii",
-    #     }
-    #     _meta_links = {"histo_analysis": {"*": []}}
+    @process_schema("brainvisa", ScalpMesh)
+    def brainvisa_ScalpMesh(metadata):
+        metadata["*"].seg_directory = "segmentation"
+        metadata.head_mask.prefix = "head"
+        metadata.head_mesh.seg_directory = "segmentation/mesh"
+        metadata.head_mesh.suffix = "head"
+        metadata.head_mesh.prefix = None
+        metadata.head_mesh.extension = "gii"
 
-    # class ScalpMeshBBIDS(
-    #     ScalpMeshBrainVISA, schema="morphologist_bids", process=ScalpMesh
-    # ):
-    #     pass
+    @process_schema("morphologist_bids", ScalpMesh)
+    def morphologist_bids_ScalpMesh(metadata):
+        brainvisa_ScalpMesh(metadata)
 
-    # class SplitBrainBrainVISA(ProcessSchema, schema="brainvisa", process=SplitBrain):
-    #     _ = {
-    #         "*": {"seg_directory": "segmentation"},
-    #     }
-    #     split_brain = {
-    #         "prefix": "voronoi",
-    #         "analysis": lambda **kwargs: f'{kwargs["initial_meta"].analysis}',
-    #     }
-    #     _meta_links = {"histo_analysis": {"*": []}}
+    @process_schema("brainvisa", SplitBrain)
+    def brainvisa_SplitBrain(metadata):
+        metadata["*"].seg_directory = "segmentation"
+        metadata.split_brain.prefix = "voronoi"
+        # TODO: check the conversion of the following code
+        # split_brain = {
+        #     "analysis": lambda **kwargs: f'{kwargs["initial_meta"].analysis}',
+        # }
+        metadata.split_brain.analysis = metadata.initial_meta.analysis
+        metadata["output:*"] = metadata.histo_analysis
 
-    # class SplitBrainBIDS(
-    #     SplitBrainBrainVISA, schema="morphologist_bids", process=SplitBrain
-    # ):
-    #     pass
+    @process_schema("morphologist_bids", SplitBrain)
+    def morphologist_bids_SplitBrain(metadata):
+        brainvisa_SplitBrain(metadata)
 
-    # class GreyWhiteClassificationHemiBrainVISA(
-    #     ProcessSchema, schema="brainvisa", process=GreyWhiteClassificationHemi
-    # ):
-    #     _ = {
-    #         "*": {"seg_directory": "segmentation"},
-    #     }
-    #     grey_white = {"prefix": "grey_white"}
-    #     _meta_links = {"histo_analysis": {"*": []}}
+    @process_schema("brainvisa", GreyWhiteClassificationHemi)
+    def brainvisa_GreyWhiteClassificationHemi(metadata):
+        metadata["*"].seg_directory = "segmentation"
+        metadata.grey_white.prefix = "grey_white"
+        metadata["output:*"] = metadata.histo_analysis
 
-    # class GreyWhiteClassificationHemiBIDS(
-    #     GreyWhiteClassificationHemiBrainVISA,
-    #     schema="morphologist_bids",
-    #     process=GreyWhiteClassificationHemi,
-    # ):
-    #     pass
+    @process_schema("morphologist_bids", GreyWhiteClassificationHemi)
+    def morphologist_bids_GreyWhiteClassificationHemi(metadata):
+        brainvisa_GreyWhiteClassificationHemi(metadata)
 
-    # class GreyWhiteTopologyBrainVISA(
-    #     ProcessSchema, schema="brainvisa", process=GreyWhiteTopology
-    # ):
-    #     _ = {
-    #         "*": {"seg_directory": "segmentation"},
-    #     }
-    #     hemi_cortex = {"prefix": "cortex"}
-    #     _meta_links = {"histo_analysis": {"*": []}}
+    @process_schema("brainvisa", GreyWhiteTopology)
+    def brainvisa_GreyWhiteTopology(metadata):
+        metadata["*"].seg_directory = "segmentation"
+        metadata.hemi_cortex.prefix = "cortex"
+        metadata["output:*"] = metadata.histo_analysis
 
-    # class GreyWhiteTopologyBIDS(
-    #     GreyWhiteTopologyBrainVISA,
-    #     schema="morphologist_bids",
-    #     process=GreyWhiteTopology,
-    # ):
-    #     pass
+    @process_schema("morphologist_bids", GreyWhiteTopology)
+    def morphologist_bids_GreyWhiteTopology(metadata):
+        brainvisa_GreyWhiteTopology(metadata)
 
-    # class GreyWhiteMeshBrainVISA(
-    #     ProcessSchema, schema="brainvisa", process=GreyWhiteMesh
-    # ):
-    #     _ = {
-    #         "*": {"seg_directory": "segmentation/mesh"},
-    #     }
-    #     white_mesh = {
-    #         "side": None,
-    #         "prefix": None,
-    #         "suffix": "white",
-    #         "extension": "gii",
-    #     }
+    @process_schema("brainvisa", GreyWhiteMesh)
+    def brainvisa_GreyWhiteMesh(metadata):
+        metadata["*"].seg_directory = "segmentation"
+        metadata.white_mesh.side = None
+        metadata.white_mesh.prefix = None
+        metadata.white_mesh.suffix = "white"
+        metadata.white_mesh.extension = "gii"
+        metadata["output:*"] = metadata.histo_analysis
 
-    # class GreyWhiteMeshBIDS(
-    #     GreyWhiteMeshBrainVISA, schema="morphologist_bids", process=GreyWhiteMesh
-    # ):
-    #     pass
+    @process_schema("morphologist_bids", GreyWhiteMesh)
+    def morphologist_bids_GreyWhiteMesh(metadata):
+        brainvisa_GreyWhiteMesh(metadata)
 
-    # class PialMeshBrainVISA(ProcessSchema, schema="brainvisa", process=PialMesh):
-    #     _ = {
-    #         "*": {"seg_directory": "segmentation/mesh"},
-    #     }
-    #     pial_mesh = {"side": None, "prefix": None, "suffix": "hemi", "extension": "gii"}
+    @process_schema("brainvisa", PialMesh)
+    def brainvisa_PialMesh(metadata):
+        metadata["*"].seg_directory = "segmentation/mesh"
+        metadata.pial_mesh.side = None
+        metadata.pial_mesh.prefix = None
+        metadata.pial_mesh.suffix = "hemi"
+        metadata.pial_mesh.extension = "gii"
 
-    # class PialMeshBIDS(PialMeshBrainVISA, schema="morphologist_bids", process=PialMesh):
-    #     pass
+    @process_schema("morphologist_bids", PialMesh)
+    def morphologist_bids_PialMesh(metadata):
+        brainvisa_PialMesh(metadata)
+
+    @process_schema("brainvisa", SulciSkeleton)
+    def brainvisa_SulciSkeleton(metadata):
+        metadata["*"].seg_directory = "segmentation"
+        metadata.roots.prefix = None
+        metadata.skeleton.prefix = "skeleton"
+
+    @process_schema("morphologist_bids", SulciSkeleton)
+    def morphologist_bids_SulciSkeleton(metadata):
+        brainvisa_SulciSkeleton(metadata)
 
     # class SulciSkeletonBrainVISA(
     #     ProcessSchema, schema="brainvisa", process=SulciSkeleton
