@@ -276,8 +276,8 @@ def declare_morpho_schemas(morpho_module):
         "sulci_graph_version",
         "sulci_recognition_session",
     ]
-    bv_t1_unused = bv_acq_meta + ["suffix"]
-    bv_ref_unused = list(bv_acq_meta)
+    bv_t1_unused = bv_acq_unused + ["suffix"]
+    bv_ref_unused = list(bv_acq_unused)
     bv_ref_unused.remove("seg_directory")
 
     def updated(d, *args):
@@ -333,9 +333,9 @@ def declare_morpho_schemas(morpho_module):
         #         },
         #     }
 
-        metadata["*"][
-            "subject_only", "sulci_graph_version", "sulci_recognition_session"
-        ].unused()
+        # metadata["*"][
+        #     "subject_only", "sulci_graph_version", "sulci_recognition_session"
+        # ].unused()
         metadata["*_graph"]["sulci_graph_version"].unused(False)
         metadata["*_graph"]["sulci_graph_version", "sulci_recognition_session"].unused(
             False
@@ -388,107 +388,81 @@ def declare_morpho_schemas(morpho_module):
         metadata.subject.subject_only = True
         metadata.sulcal_morpho_measures.subject_only = False
 
-    # class MorphologistBIDS(
-    #     MorphologistBrainVISA, schema="morphologist_bids", process=Morphologist
-    # ):
-    #     _ = {
-    #         "*": {"process": None, "modality": "t1mri", "folder": "derivative"},
-    #         "*_pass1": Append("suffix", "pass1"),
-    #         "*_labelled_graph": {
-    #             "suffix": lambda **kwargs: f'{kwargs["metadata"].sulci_recognition_session}'
-    #             f'_{kwargs["metadata"].sulci_recognition_type}',
-    #         },
-    #         "left_*": {"side": "L"},
-    #         "right_*": {"side": "R"},
-    #     }
-    #     t1mri = {
-    #         "folder": "rawdata",
-    #     }
+    @process_schema("bids", Morphologist)
+    def bids_Morphologist(metadata):
+        metadata["*"].process = None
+        metadata["*"].modality = "t1mri"
+        metadata["*"].folder = "derivative"
+        metadata["*_pass1"].suffix.append("pass1")
+        metadata["*_labelled_graph"].suffix.append(
+            metadata["left_labelled_graph"].sulci_recognition_session
+        )
+        metadata["*_labelled_graph"].suffix.append(
+            metadata["left_labelled_graph"].sulci_recognition_type
+        )
+        metadata["left_*"].side = "L"
+        metadata["right_*"].side = "R"
+        metadata.t1mri.folder = "rawdata"
 
-    # class SPM12NormalizationBrainVISA(
-    #     ProcessSchema, schema="brainvisa", process=normalization_t1_spm12_reinit
-    # ):
-    #     transformations_informations = {
-    #         "analysis": undefined,
-    #         "suffix": "sn",
-    #         "extension": "mat",
-    #     }
-    #     normalized_anatomy_data = {
-    #         "analysis": undefined,
-    #         "prefix": "normalized_SPM",
-    #         "extension": "nii",
-    #     }
+    @process_schema("brainvisa", normalization_t1_spm12_reinit)
+    def brainvisa_normalization_t1_spm12_reinit(metadata):
+        metadata.transformations_informations.analysis = undefined
+        metadata.transformations_informations.suffix = "sn"
+        metadata.transformations_informations.extension = "mat"
 
-    # class SPM12NormalizationBIDS(
-    #     SPM12NormalizationBrainVISA,
-    #     schema="morphologist_bids",
-    #     process=normalization_t1_spm12_reinit,
-    # ):
-    #     pass
+        metadata.normalized_anatomy_data.analysis = undefined
+        metadata.normalized_anatomy_data.prefix = "normalized_SPM"
+        metadata.normalized_anatomy_data.extension = "nii"
 
-    # class SPM12NormalizationShared(
-    #     ProcessSchema, schema="brainvisa_shared", process=normalization_t1_spm12_reinit
-    # ):
-    #     anatomical_template = {"data_id": "normalization_template"}
+    @process_schema("morphologist_bids", normalization_t1_spm12_reinit)
+    def morphologist_bids_normalization_t1_spm12_reinit(metadata):
+        brainvisa_normalization_t1_spm12_reinit(metadata)
 
-    # class SPM8NormalizationBrainVISA(
-    #     ProcessSchema, schema="brainvisa", process=normalization_t1_spm8_reinit
-    # ):
-    #     transformations_informations = {
-    #         "analysis": undefined,
-    #         "suffix": "sn",
-    #         "extension": "mat",
-    #     }
-    #     normalized_anatomy_data = {
-    #         "analysis": undefined,
-    #         "prefix": "normalized_SPM",
-    #         "extension": "nii",
-    #     }
+    @process_schema("brainvisa_shared", normalization_t1_spm12_reinit)
+    def brainvisa_shared_normalization_t1_spm12_reinit(metadata):
+        metadata.anatomical_template.data_id = "normalization_template"
 
-    # class SPM8NormalizationBIDS(
-    #     SPM8NormalizationBrainVISA,
-    #     schema="morphologist_bids",
-    #     process=normalization_t1_spm8_reinit,
-    # ):
-    #     pass
+    @process_schema("brainvisa", normalization_t1_spm8_reinit)
+    def brainvisa_normalization_t1_spm8_reinit(metadata):
+        metadata.transformations_informations.analysis = undefined
+        metadata.transformations_informations.suffix = "sn"
+        metadata.transformations_informations.extension = "mat"
+        metadata.normalized_anatomy_data.analysis = undefined
+        metadata.normalized_anatomy_data.prefix = "normalized_SPM"
+        metadata.normalized_anatomy_data.extension = "nii"
 
-    # class SPM8NormalizationShared(
-    #     ProcessSchema, schema="brainvisa_shared", process=normalization_t1_spm8_reinit
-    # ):
-    #     anatomical_template = {"data_id": "normalization_template"}
+    @process_schema("morphologist_bids", normalization_t1_spm8_reinit)
+    def morphologist_bids_normalization_t1_spm8_reinit(metadata):
+        brainvisa_normalization_t1_spm8_reinit(metadata)
 
-    # class AimsNormalizationBrainVISA(
-    #     ProcessSchema, schema="brainvisa", process=normalization_aimsmiregister
-    # ):
-    #     transformation_to_ACPC = {"prefix": "normalized_aims", "extension": "trm"}
+    @process_schema("brainvisa_shared", normalization_t1_spm8_reinit)
+    def brainvisa_shared_normalization_t1_spm8_reinit(metadata):
+        metadata.anatomical_template.data_id = "normalization_template"
 
-    # class AimsNormalizationBIDS(
-    #     AimsNormalizationBrainVISA,
-    #     schema="morphologist_bids",
-    #     process=normalization_aimsmiregister,
-    # ):
-    #     pass
+    @process_schema("brainvisa", normalization_aimsmiregister)
+    def brainvisa_normalization_aimsmiregister(metadata):
+        metadata.transformation_to_ACPC.prefix = "normalized_aims"
+        metadata.transformation_to_ACPC.extension = "trm"
 
-    # class AimsNormalizationShared(
-    #     ProcessSchema, schema="brainvisa_shared", process=normalization_aimsmiregister
-    # ):
-    #     anatomical_template = {"data_id": "normalization_template"}
+    @process_schema("morphologist_bids", normalization_aimsmiregister)
+    def morphologist_bids_normalization_aimsmiregister(metadata):
+        brainvisa_normalization_aimsmiregister(metadata)
 
-    # class FSLNormalizationBrainVISA(
-    #     ProcessSchema, schema="brainvisa", process=Normalization_FSL_reinit
-    # ):
-    #     transformation_matrix = {
-    #         "seg_directory": "registration",
-    #         "analysis": undefined,
-    #         "suffix": "fsl",
-    #         "extension": "mat",
-    #     }
-    #     normalized_anatomy_data = {
-    #         "seg_directory": None,
-    #         "analysis": undefined,
-    #         "prefix": "normalized_FSL",
-    #         "suffix": None,
-    #     }
+    @process_schema("brainvisa_shared", normalization_aimsmiregister)
+    def brainvisa_shared_normalization_aimsmiregister(metadata):
+        metadata.anatomical_template.data_id = "normalization_template"
+
+    @process_schema("brainvisa", Normalization_FSL_reinit)
+    def brainvisa_Normalization_FSL_reinit(metadata):
+        metadata.transformation_matrix.seg_directory = "registration"
+        metadata.transformation_matrix.analysis = undefined
+        metadata.transformation_matrix.suffix = "fsl"
+        metadata.transformation_matrix.extension = "mat"
+
+        metadata.normalized_anatomy_data.seg_directory = None
+        metadata.normalized_anatomy_data.analysis = undefined
+        metadata.normalized_anatomy_data.prefix = "normalized_FSL"
+        metadata.normalized_anatomy_data.suffix = None
 
     # class FSLNormalizationBIDS(
     #     FSLNormalizationBrainVISA,

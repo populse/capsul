@@ -19,7 +19,7 @@ import weakref
 from capsul.pipeline.pipeline import Process, Pipeline, Switch
 from capsul.pipeline.process_iteration import ProcessIteration
 
-from soma.controller import Controller, Literal, Directory
+from soma.controller import Controller, Literal, Directory, field
 from soma.undefined import undefined
 
 global_debug = False
@@ -350,14 +350,14 @@ class BIDSSchema(MetadataSchema):
             layout = self.__class__(self.base_path, data_type="*", **kwargs)
         else:
             layout = self.__class__(self.base_path, **kwargs)
-        for field in layout.fields():
-            value = getattr(layout, field.name, undefined)
+        for f in layout.fields():
+            value = getattr(layout, f.name, undefined)
             if value is undefined:
-                if not field.optional:
+                if not f.optional:
                     # Force the value of the attribute without
                     # using Pydantic validation because '*' may
                     # not be a valid value.
-                    object.__setattr__(layout, field.name, "*")
+                    object.__setattr__(layout, f.name, "*")
         globs = layout._path_list()
         directories = [self.base_path]
         while len(globs) > 1:
@@ -388,8 +388,8 @@ class BrainVISASchema(MetadataSchema):
     preprocessings: str = None
     longitudinal: list[str] = None
     seg_directory: str = None
-    sulci_graph_version: str = "3.1"
-    sulci_recognition_session: str = "default_session"
+    sulci_graph_version: field(type_=str, default="3.1", used=False)
+    sulci_recognition_session: field(type_=str, default="default_session", used=False)
     sulci_recognition_type: str = "auto"
     prefix: str = None
     short_prefix: str = None
@@ -481,7 +481,7 @@ class MorphologistBIDSSchema(BrainVISASchema):
     schema_name = "morphologist_bids"
 
     folder: Literal["sourcedata", "rawdata", "derivative"]
-    subject_only: bool = False
+    subject_only: field(type_=bool, default=False, used=False)
 
     def _path_list(self, unused_meta=None):
         if unused_meta is None:
@@ -678,12 +678,12 @@ class MetadataModification:
                 "_parameters_equivalence", find_parameters_equivalence(executable)
             )
             # Ignore path generation for parameters that are equivelent to another one
-            for field in executable.user_fields():
+            for f in executable.user_fields():
                 equivalent = self._parameters_equivalence.get(executable, {}).get(
-                    field.name
+                    f.name
                 )
-                if equivalent and equivalent != field.name:
-                    metadata.setdefault(field.name, {})["path_generation"] = False
+                if equivalent and equivalent != f.name:
+                    metadata.setdefault(f.name, {})["path_generation"] = False
 
     def set_executable(self, executable):
         super().__setattr__("executable", executable)
@@ -770,16 +770,16 @@ class MetadataModification:
             selection = (re.compile(fnmatch.translate(parameters)),)
         else:
             selection = tuple(re.compile(fnmatch.translate(i)) for i in parameters)
-        for field in self.executable.user_fields():
+        for f in self.executable.user_fields():
             # print(
             #     "!parameters! ?",
-            #     field.name,
-            #     any(i.match(field.name) for i in selection),
+            #     f.name,
+            #     any(i.match(f.name) for i in selection),
             # )
-            if any(i.match(field.name) for i in selection):
+            if any(i.match(f.name) for i in selection):
                 exported_name = self._parameters_equivalence.get(
                     self.executable, {}
-                ).get(field.name)
+                ).get(f.name)
                 # print("!parameters! ->", exported_name)
                 if exported_name:
                     yield exported_name
@@ -801,6 +801,9 @@ class MetadataModification:
                     self._unused.setdefault(parameter, {})[item] = value
         super().__setattr__("_parameter", None)
         super().__setattr__("_item", None)
+
+    def used(self, value=True):
+        self.unused(not value)
 
     def append(self, value, sep="_"):
         if not self._parameter:
@@ -949,25 +952,25 @@ def _build_single_plug_equivalence(
 
 def find_parameters_equivalence(executable):
     equivalence = {}
-    for field in executable.user_fields():
+    for f in executable.user_fields():
         _build_single_plug_equivalence(
             equivalence=equivalence,
-            equivalent_name=field.name,
+            equivalent_name=f.name,
             executable=executable,
             node=executable,
-            parameter=field.name,
+            parameter=f.name,
         )
     if isinstance(executable, Pipeline):
         for node in executable.nodes.values():
-            for field in node.user_fields():
-                e = equivalence.get(node, {}).get(field.name)
+            for f in node.user_fields():
+                e = equivalence.get(node, {}).get(f.name)
                 if not e:
                     _build_single_plug_equivalence(
                         equivalence=equivalence,
-                        equivalent_name=f"{node.full_name}.{field.name}",
+                        equivalent_name=f"{node.full_name}.{f.name}",
                         executable=executable,
                         node=node,
-                        parameter=field.name,
+                        parameter=f.name,
                     )
 
     # from pprint import pprint
@@ -1067,18 +1070,18 @@ class ProcessMetadata(Controller):
             process = executable
 
         # Associate each field to a dataset
-        for field in process.user_fields():
-            dataset_name = self.parameter_dataset_name(executable, field)
+        for f in process.user_fields():
+            dataset_name = self.parameter_dataset_name(executable, f)
             if dataset_name is None:
                 # no completion for this field
                 continue
             dataset = getattr(execution_context.dataset, dataset_name, None)
             if dataset:
-                self.dataset_per_parameter[field.name] = dataset_name
+                self.dataset_per_parameter[f.name] = dataset_name
                 schema = dataset.metadata_schema
-                self.parameters_per_schema.setdefault(schema, []).append(field.name)
-                self.schema_per_parameter[field.name] = schema
-                if field.is_list() or field.name in iterative_parameters:
+                self.parameters_per_schema.setdefault(schema, []).append(f.name)
+                self.schema_per_parameter[f.name] = schema
+                if f.is_list() or f.name in iterative_parameters:
                     self.iterative_schemas.add(schema)
 
         for schema_name in self.parameters_per_schema:
@@ -1094,11 +1097,11 @@ class ProcessMetadata(Controller):
 
         if self.debug:
             self.dprint("Create ProcessMetadata for", self.executable().label)
-            for field in process.user_fields():
-                if field.path_type:
-                    dataset = self.dataset_per_parameter.get(field.name)
-                    schema = self.schema_per_parameter.get(field.name)
-                    self.dprint(f"  {field.name} -> dataset={dataset}, schema={schema}")
+            for f in process.user_fields():
+                if f.path_type:
+                    dataset = self.dataset_per_parameter.get(f.name)
+                    schema = self.schema_per_parameter.get(f.name)
+                    self.dprint(f"  {f.name} -> dataset={dataset}, schema={schema}")
             self.dprint("  Iterative schemas:", self.iterative_schemas)
 
     def dprint(self, *args, **kwargs):
@@ -1277,19 +1280,24 @@ class ProcessMetadata(Controller):
                     resolved_process_schema = resolved_process_schemas[
                         schema
                     ] = resolve_process_schema(schema, executable)
-                unused, metadata_values = resolved_process_schema
-                unused = unused.get(parameter, set())
-                metadata_values = metadata_values.get(parameter, {})
                 dataset = self.dataset_per_parameter[parameter]
                 metadata = Dataset.find_schema(schema)(
                     base_path=f"!{{dataset.{dataset}.path}}"
                 )
+                update_unused, metadata_values = resolved_process_schema
+                unused = {
+                    field.name: False
+                    for field in metadata.fields()
+                    if not getattr(field, "used", True)
+                }
+                unused.update(update_unused.get(parameter, {}))
+                metadata_values = metadata_values.get(parameter, {})
                 s = self.get_schema(schema)
                 if s:
                     d = {
                         k: v
                         for k, v in s.asdict().items()
-                        if v not in (None, undefined) and k not in unused
+                        if v not in (None, undefined) and not unused.get(k, False)
                     }
                 else:
                     d = {}

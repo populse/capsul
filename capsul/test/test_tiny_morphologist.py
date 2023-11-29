@@ -55,11 +55,6 @@ def bids_FBiasCorrection(metadata):
 
 @process_schema("brainvisa", BiasCorrection)
 def brainvisa_BiasCorrection(metadata):
-    metadata["*"][
-        "subject_only",
-        "sulci_graph_version",
-        "sulci_recognition_session",
-    ].unused()
     metadata.output = metadata.input
     metadata.output.prefix.prepend("nobias")
 
@@ -95,11 +90,6 @@ def bids_FakeSPMNormalization12(metadata):
     "brainvisa", "capsul.test.test_tiny_morphologist.FakeSPMNormalization12"
 )
 def brainvisa_FakeSPMNormalization12(metadata):
-    metadata["*"][
-        "subject_only",
-        "sulci_graph_version",
-        "sulci_recognition_session",
-    ].unused()
     metadata.output = metadata.input
     metadata.output.prefix.prepend("normalized_fakespm12")
 
@@ -116,11 +106,6 @@ def bids_FakeSPMNormalization8(metadata):
 
 @process_schema("brainvisa", "capsul.test.test_tiny_morphologist.FakeSPMNormalization8")
 def brainvisa_FakeSPMNormalization8(metadata):
-    metadata["*"][
-        "subject_only",
-        "sulci_graph_version",
-        "sulci_recognition_session",
-    ].unused()
     metadata.output = metadata.input
     metadata.output.prefix.prepend("normalized_fakespm8")
 
@@ -147,11 +132,6 @@ def bids_AimsNormalization(metadata):
 
 @process_schema("brainvisa", "capsul.test.test_tiny_morphologist.AimsNormalization")
 def brainvisa_AimsNormalization(metadata):
-    metadata["*"][
-        "subject_only",
-        "sulci_graph_version",
-        "sulci_recognition_session",
-    ].unused()
     metadata.output = metadata.input
     metadata.output.prefix.prepend("normalized_aims")
 
@@ -197,11 +177,6 @@ class SplitBrain(Process):
 
 @process_schema("brainvisa", "capsul.test.test_tiny_morphologist.SplitBrain")
 def brainvisa_SplitBrain(metadata):
-    metadata["*"][
-        "subject_only",
-        "sulci_graph_version",
-        "sulci_recognition_session",
-    ].unused()
     metadata.right_output = metadata.input
     metadata.left_output = metadata.input
     metadata.right_output.prefix.prepend("split")
@@ -224,11 +199,6 @@ class ProcessHemisphere(Process):
 
 @process_schema("brainvisa", "capsul.test.test_tiny_morphologist.ProcessHemisphere")
 def brainvisa_ProcessHemisphere(metadata):
-    metadata["*"][
-        "subject_only",
-        "sulci_graph_version",
-        "sulci_recognition_session",
-    ].unused()
     metadata.output = metadata.input
     metadata.output.prefix.prepend("hemi")
 
@@ -262,11 +232,6 @@ def bids_TinyMorphologist(metadata):
 
 @process_schema("brainvisa", "capsul.test.test_tiny_morphologist.TinyMorphologist")
 def brainvisa_TinyMorphologist(metadata):
-    metadata["*"][
-        "subject_only",
-        "sulci_graph_version",
-        "sulci_recognition_session",
-    ].unused()
     metadata["*"].process = "tinymorphologist"
     metadata.input.process.unused()
 
