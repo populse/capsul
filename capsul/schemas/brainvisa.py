@@ -601,135 +601,104 @@ def declare_morpho_schemas(morpho_module):
     def morphologist_bids_SulciSkeleton(metadata):
         brainvisa_SulciSkeleton(metadata)
 
-    # class SulciSkeletonBrainVISA(
-    #     ProcessSchema, schema="brainvisa", process=SulciSkeleton
-    # ):
-    #     _ = {
-    #         "*": {"seg_directory": "segmentation"},
-    #     }
-    #     skeleton = {"prefix": "skeleton"}
-    #     roots = {"prefix": "roots"}
+    @process_schema("brainvisa", SulciGraph)
+    def brainvisa_SulciGraph(metadata):
+        metadata["*"].seg_directory = "folds"
+        metadata["*"].sidebis = None
+        metadata.graph.extension = "arg"
+        metadata.graph.sulci_graph_version = (
+            metadata.executable.CorticalFoldsGraph_graph_version
+        )
+        metadata.sulci_voronoi.prefix = "sulcivoronoi"
+        metadata.sulci_voronoi.sulci_graph_version = (
+            metadata.executable.CorticalFoldsGraph_graph_version
+        )
+        metadata.cortex_mid_interface.seg_directory = "segmentation"
+        metadata.cortex_mid_interface.prefix = "gw_interface"
+        # TODO: check conversion of the following code:
+        # _meta_links = {
+        #     "*_mesh": {"*": []},
+        # }
+        metadata["output"] = metadata.pial_mesh
 
-    # class SulciSkeletonBIDS(
-    #     SulciSkeletonBrainVISA, schema="morphologist_bids", process=SulciSkeleton
-    # ):
-    #     pass
+    @process_schema("morphologist_bids", SulciGraph)
+    def morphologist_bids_SulciGraph(metadata):
+        brainvisa_SulciGraph(metadata)
 
-    # class SulciGraphBrainVISA(ProcessSchema, schema="brainvisa", process=SulciGraph):
-    #     _ = {
-    #         "*": {"seg_directory": "folds", "sidebis": None},
-    #     }
-    #     graph = {
-    #         "extension": "arg",
-    #         "sulci_graph_version": lambda **kwargs: f'{kwargs["process"].CorticalFoldsGraph_graph_version}',
-    #     }
-    #     sulci_voronoi = {
-    #         "prefix": "sulcivoronoi",
-    #         "sulci_graph_version": lambda **kwargs: f'{kwargs["process"].CorticalFoldsGraph_graph_version}',
-    #     }
-    #     cortex_mid_interface = {
-    #         "seg_directory": "segmentation",
-    #         "prefix": "gw_interface",
-    #     }
-    #     _meta_links = {
-    #         "*_mesh": {"*": []},
-    #     }
+    @process_schema("brainvisa", SulciLabellingANN)
+    def brainvisa_SulciLabellingANN(metadata):
+        metadata["*"].seg_directory = "folds"
+        metadata.output_graph.suffix = metadata.output_graph.sulci_recognition_session
+        metadata.output_graph.suffix.append(
+            metadata.output_graph.sulci_recognition_type
+        )
+        metadata.output_graph.extension = "arg"
+        metadata.energy_plot_file.suffix = (
+            metadata.output_graph.sulci_recognition_session
+        )
+        metadata.energy_plot_file.suffix.append(
+            metadata.output_graph.sulci_recognition_type
+        )
+        metadata.energy_plot_file.extension = "nr"
 
-    # class SulciGraphBIDS(
-    #     SulciGraphBrainVISA, schema="morphologist_bids", process=SulciGraph
-    # ):
-    #     pass
+    @process_schema("morphologist_bids", SulciLabellingANN)
+    def morphologist_bids_SulciLabellingANN(metadata):
+        brainvisa_SulciLabellingANN(metadata)
 
-    # class SulciLabellingANNBrainVISA(
-    #     ProcessSchema, schema="brainvisa", process=SulciLabellingANN
-    # ):
-    #     _ = {
-    #         "*": {"seg_directory": "folds"},
-    #     }
-    #     output_graph = {
-    #         "suffix": lambda **kwargs: f'{kwargs["metadata"].sulci_recognition_session}'
-    #         f'_{kwargs["metadata"].sulci_recognition_type}',
-    #         "extension": "arg",
-    #     }
-    #     energy_plot_file = {
-    #         "suffix": lambda **kwargs: f'{kwargs["metadata"].sulci_recognition_session}'
-    #         f'_{kwargs["metadata"].sulci_recognition_type}',
-    #         "extension": "nrj",
-    #     }
+    @process_schema("brainvisa_shared", SulciLabellingANN)
+    def brainvisa_shared_SSulciLabellingANN(metadata):
+        metadata["*"].model_version = "08"
 
-    # class SulciLabellingANNBIDS(
-    #     SulciLabellingANNBrainVISA,
-    #     schema="morphologist_bids",
-    #     process=SulciLabellingANN,
-    # ):
-    #     pass
+    @process_schema("brainvisa", SulciLabellingSPAMGlobal)
+    def brainvisa_SulciLabellingSPAMGlobal(metadata):
+        metadata["*"].seg_directory = "folds"
+        metadata.output_graph.suffix = metadata.output_graph.sulci_recognition_session
+        metadata.output_graph.suffix.append(
+            metadata.output_graph.sulci_recognition_type
+        )
+        metadata.output_graph.extension = "arg"
+        metadata.posterior_probabilities.suffix = (
+            metadata.output_graph.sulci_recognition_session
+        )
+        metadata.energy_plot_file.suffix.append("proba")
+        metadata.energy_plot_file.extension = "csv"
+        metadata.output_transformation.suffix = (
+            metadata.output_graph.sulci_recognition_session
+        )
+        metadata.output_transformation.suffix.append("Tal_TO_SPAM")
+        metadata.output_transformation.extension = "trm"
+        metadata.output_t1_to_global_transformation.suffix = (
+            metadata.output_graph.sulci_recognition_session
+        )
+        metadata.output_t1_to_global_transformation.suffix.append("T1_TO_SPAM")
+        metadata.output_t1_to_global_transformation.extension = "trm"
 
-    # class SulciLabellingANNShared(
-    #     ProcessSchema, schema="brainvisa_shared", process=SulciLabellingANN
-    # ):
-    #     _ = {
-    #         "*": {
-    #             "model_version": "08",
-    #         }
-    #     }
+    @process_schema("morphologist_bids", SulciLabellingSPAMGlobal)
+    def morphologist_bids_SulciLabellingSPAMGlobal(metadata):
+        brainvisa_SulciLabellingSPAMGlobal(metadata)
 
-    # class SulciLabellingSPAMGlobalBrainVISA(
-    #     ProcessSchema, schema="brainvisa", process=SulciLabellingSPAMGlobal
-    # ):
-    #     _ = {
-    #         "*": {"seg_directory": "folds"},
-    #     }
-    #     output_graph = {
-    #         "suffix": lambda **kwargs: f'{kwargs["metadata"].sulci_recognition_session}'
-    #         f'_{kwargs["metadata"].sulci_recognition_type}',
-    #         "extension": "arg",
-    #     }
-    #     posterior_probabilities = {
-    #         "suffix": lambda **kwargs: f'{kwargs["metadata"].sulci_recognition_session}_proba',
-    #         "extension": "csv",
-    #     }
-    #     output_transformation = {
-    #         "suffix": lambda **kwargs: f'{kwargs["metadata"].sulci_recognition_session}_Tal_TO_SPAM',
-    #         "extension": "trm",
-    #     }
-    #     output_t1_to_global_transformation = {
-    #         "suffix": lambda **kwargs: f'{kwargs["metadata"].sulci_recognition_session}_T1_TO_SPAM',
-    #         "extension": "trm",
-    #     }
+    @process_schema("brainvisa", SulciLabellingSPAMLocal)
+    def brainvisa_SulciLabellingSPAMLocal(metadata):
+        metadata["*"].seg_directory = "folds"
+        metadata.output_graph.suffix = metadata.output_graph.sulci_recognition_session
+        metadata.output_graph.suffix.append(
+            metadata.output_graph.sulci_recognition_type
+        )
+        metadata.output_graph.extension = "arg"
+        metadata.posterior_probabilities.suffix = (
+            metadata.output_graph.sulci_recognition_session
+        )
+        metadata.energy_plot_file.suffix.append("proba")
+        metadata.energy_plot_file.extension = "csv"
+        metadata.output_local_transformations.suffix = (
+            metadata.output_graph.sulci_recognition_session
+        )
+        metadata.output_local_transformations.suffix.append("global_TO_local")
+        metadata.output_local_transformations.extension = None
 
-    # class SulciLabellingSPAMGlobalBIDS(
-    #     SulciLabellingSPAMGlobalBrainVISA,
-    #     schema="morphologist_bids",
-    #     process=SulciLabellingSPAMGlobal,
-    # ):
-    #     pass
-
-    # class SulciLabellingSPAMLocalBrainVISA(
-    #     ProcessSchema, schema="brainvisa", process=SulciLabellingSPAMLocal
-    # ):
-    #     _ = {
-    #         "*": {"seg_directory": "folds"},
-    #     }
-    #     output_graph = {
-    #         "suffix": lambda **kwargs: f'{kwargs["metadata"].sulci_recognition_session}'
-    #         f'_{kwargs["metadata"].sulci_recognition_type}',
-    #         "extension": "arg",
-    #     }
-    #     posterior_probabilities = {
-    #         "suffix": lambda **kwargs: f'{kwargs["metadata"].sulci_recognition_session}_proba',
-    #         "extension": "csv",
-    #     }
-    #     output_local_transformations = {
-    #         "suffix": lambda **kwargs: f'{kwargs["metadata"].sulci_recognition_session}_global_TO_local',
-    #         "extension": None,
-    #     }
-
-    # class SulciLabellingSPAMLocalBIDS(
-    #     SulciLabellingSPAMLocalBrainVISA,
-    #     schema="morphologist_bids",
-    #     process=SulciLabellingSPAMLocal,
-    # ):
-    #     pass
+    @process_schema("morphologist_bids", SulciLabellingSPAMLocal)
+    def morphologist_bids_SulciLabellingSPAMLocal(metadata):
+        brainvisa_SulciLabellingSPAMLocal(metadata)
 
     # class SulciLabellingSPAMMarkovBrainVISA(
     #     ProcessSchema, schema="brainvisa", process=SulciLabellingSPAMMarkov
