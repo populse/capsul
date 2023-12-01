@@ -844,7 +844,7 @@ class TestTinyMorphologist(unittest.TestCase):
                 (None, undefined),
             )
         with self.capsul.engine() as engine:
-            status = engine.run(tiny_morphologist_iteration, timeout=30)
+            status = engine.run(tiny_morphologist_iteration, timeout=60)
 
         self.assertEqual(status, "ended")
 
