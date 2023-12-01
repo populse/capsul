@@ -2451,8 +2451,10 @@ class Pipeline(Process):
 
     def dispatch_value(self, node, name, value):
         """Propagate the value from a pipeline plug through links"""
+        # print(f"!dispatch! {node.name}.{name} = {value}")
         for node, plug in self.dispatch_plugs(node, name):
-            if getattr(node, plug, None) != value:
+            # print(f"!dispatch! -> {node.name}.{plug}")
+            if getattr(node, plug, undefined) != value:
                 setattr(node, plug, value)
 
     def dispatch_plugs(self, node, name):
@@ -2486,6 +2488,17 @@ class Pipeline(Process):
                         direction=("links_from", "links_to"),
                     )
                 )
+                if isinstance(node, Switch):
+                    # Connect all switch inputs to every corresponding outputs
+                    # taking switch value into account
+                    for (
+                        input_plug_name,
+                        output_plug_name,
+                    ) in node.connections():
+                        if plug == input_plug_name:
+                            stack.append((node, output_plug_name))
+                        if plug == output_plug_name:
+                            stack.append((node, input_plug_name))
         self.enable_parameter_links = enable_parameter_links
 
     def dispatch_all_values(self):

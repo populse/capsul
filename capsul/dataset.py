@@ -659,8 +659,8 @@ class MetadataModification:
         metadata,
         executable,
         schema_instance,
+        parameters_equivalence,
         modified=None,
-        parameters_equivalence=None,
         parameter=None,
         item=None,
         actions=None,
@@ -674,23 +674,10 @@ class MetadataModification:
         if actions is None:
             actions = []
         super().__setattr__("executable", executable)
-        if parameters_equivalence is None:
-            parameters_equivalence = {}
         super().__setattr__("_parameters_equivalence", parameters_equivalence)
         super().__setattr__("_parameter", parameter)
         super().__setattr__("_item", item)
         super().__setattr__("_actions", actions)
-        if not self._parameters_equivalence and executable:
-            super().__setattr__(
-                "_parameters_equivalence", find_parameters_equivalence(executable)
-            )
-            # Ignore path generation for parameters that are equivelent to another one
-            for f in executable.user_fields():
-                equivalent = self._parameters_equivalence.get(executable, {}).get(
-                    f.name
-                )
-                if equivalent and equivalent != f.name:
-                    metadata.setdefault(f.name, {})["path_generation"] = False
 
     def set_executable(self, executable):
         super().__setattr__("executable", executable)
@@ -797,11 +784,6 @@ class MetadataModification:
                 (meta_selection, re.compile(fnmatch.translate(selection_string)))
             )
         for f in self.executable.user_fields():
-            # print(
-            #     "!parameters! ?",
-            #     f.name,
-            #     any(i.match(f.name) for i in selection),
-            # )
             selected = False
             for meta_selection, regex in selection:
                 if meta_selection is not None:
@@ -810,6 +792,11 @@ class MetadataModification:
                 if regex.match(f.name):
                     selected = True
                     break
+            # print(
+            #     "!parameters! ?",
+            #     f.name,
+            #     selected,
+            # )
             if selected:
                 exported_name = self._parameters_equivalence.get(
                     self.executable, {}
@@ -841,12 +828,6 @@ class MetadataModification:
         if self.executable.activated:
             for parameter in self._parameters(self._parameter):
                 for item in self._items(self._item):
-                    if (
-                        not value
-                        and parameter == "t1mri_nobias"
-                        and item == "sulci_graph_version"
-                    ):
-                        boom
                     self._unused.setdefault(parameter, {})[item] = value
         super().__setattr__("_parameter", None)
         super().__setattr__("_item", None)
@@ -967,26 +948,6 @@ class MetadataModification:
                         self._set(dest_parameters, item, value)
 
 
-def resolve_process_schema(schema_name, executable, schema_instance):
-    unused = {}
-    metadata = defaultdict(lambda: schema_instance.asdict())
-    debug = schema_name == "brainvisa"
-    # dprint(debug, schema_name, executable.name)
-    # dpprint(debug, schema_instance.asdict())
-    modification = MetadataModification(unused, metadata, executable, schema_instance)
-    for process in iter_processes(executable):
-        modifier = process_schema.modifier_function.get(
-            (schema_name, process.definition)
-        )
-        if modifier:
-            modification.set_executable(process)
-            modifier(modification)
-    # dprint(debug, schema_name, executable.name)
-    # dpprint(debug, metadata)
-    # dpprint(debug, unused)
-    return (unused, metadata)
-
-
 def _build_single_plug_equivalence(
     equivalence, equivalent_name, executable, node, parameter
 ):
@@ -1016,7 +977,7 @@ def _build_single_plug_equivalence(
             equivalence.setdefault(node, {})[parameter] = equivalent_name
         if isinstance(node, Switch):
             # Connect all switch inputs to every corresponding outputs
-            # not taking switch value into account
+            # taking switch value into account
             for (
                 input_plug_name,
                 output_plug_name,
@@ -1321,16 +1282,27 @@ class ProcessMetadata(Controller):
             for iteration in range(iteration_size):
                 self._current_iteration = iteration
                 executable.select_iteration_index(iteration)
-                pfp = self.path_for_parameters(executable.process, parameters)
-                for parameter, value in pfp.items():
-                    if (
-                        value is not undefined
-                        and parameter not in executable.iterative_parameters
-                    ):
-                        result[parameter] = value
-                for parameter in selected_parameters:
-                    value = pfp.get(parameter, undefined)
-                    result.setdefault(parameter, []).append(value)
+                # pfp = self.path_for_parameters(executable.process, parameters)
+                # for parameter, value in pfp.items():
+                #     if (
+                #         value is not undefined
+                #         and parameter not in executable.iterative_parameters
+                #     ):
+                #         result[parameter] = value
+                # for parameter in selected_parameters:
+                #     value = pfp.get(parameter, undefined)
+                #     result.setdefault(parameter, []).append(value)
+                executable.process.import_dict(
+                    self.path_for_parameters(executable.process, parameters)
+                )
+                for f in executable.process.user_fields():
+                    if not f.path_type:
+                        continue
+                    value = getattr(executable.process, f.name)
+                    if f.name in executable.iterative_parameters:
+                        result.setdefault(f.name, []).append(value)
+                    else:
+                        result[f.name] = value
         else:
             for schema_name in self.parameters_per_schema:
                 for other_schema_name in self.parameters_per_schema:
@@ -1348,14 +1320,17 @@ class ProcessMetadata(Controller):
             resolved_process_schemas = {}
             if parameters is None:
                 parameters = (i.name for i in executable.user_fields())
-            # self.dprint("-" * 40)
+            # print("!-" * 40)
+            parameters_equivalence = find_parameters_equivalence(executable)
             for parameter in parameters:
+                # Ignore path generation for parameters that are equivelent to another one
+                equivalent = parameters_equivalence.get(executable, {}).get(parameter)
+                if equivalent and equivalent != parameter:
+                    # print(f"!skip! {parameter} => {equivalent}")
+                    continue
                 schema = self.schema_per_parameter.get(parameter)
                 if schema is None:
                     continue
-                resolved_process_schema = resolved_process_schemas.get(
-                    (schema, executable)
-                )
                 dataset = self.dataset_per_parameter[parameter]
                 metadata = Dataset.find_schema(schema)(
                     base_path=f"!{{dataset.{dataset}.path}}"
@@ -1369,10 +1344,30 @@ class ProcessMetadata(Controller):
                             if v not in (None, undefined)
                         }
                     )
+                resolved_process_schema = resolved_process_schemas.get(
+                    (schema, executable)
+                )
                 if resolved_process_schema is None:
+                    unused = {}
+                    schema_metadata = defaultdict(lambda: metadata.asdict())
+                    modification = MetadataModification(
+                        unused=unused,
+                        metadata=schema_metadata,
+                        executable=executable,
+                        schema_instance=metadata,
+                        parameters_equivalence=parameters_equivalence,
+                    )
+                    for process in iter_processes(executable):
+                        modifier = process_schema.modifier_function.get(
+                            (schema, process.definition)
+                        )
+                        if modifier:
+                            modification.set_executable(process)
+                            modifier(modification)
                     resolved_process_schema = resolved_process_schemas[
                         (schema, executable)
-                    ] = resolve_process_schema(schema, executable, metadata)
+                    ] = (unused, schema_metadata)
+
                 update_unused, metadata_values = resolved_process_schema
                 unused = {
                     field.name: True
@@ -1388,8 +1383,6 @@ class ProcessMetadata(Controller):
                     for k, v in metadata_values.items()
                     if v not in (undefined, None) and k not in unused
                 )
-                if not d.get("path_generation", True):
-                    continue
                 metadata.import_dict(d)
                 # dprint(True, "Metadata attributes for", parameter, ":")
                 # dprint(True, 'unused =', unused)
@@ -1401,7 +1394,7 @@ class ProcessMetadata(Controller):
                             unused_meta=unused,
                         )
                     )
-                    # dprint(True, parameter, "=", path)
+                    # print(f"!set! {executable.name}.{parameter} = {repr(path)}")
                     result[parameter] = path
                 except Exception as e:
                     pass
