@@ -56,7 +56,9 @@ def bids_FBiasCorrection(metadata):
 @process_schema("brainvisa", BiasCorrection)
 def brainvisa_BiasCorrection(metadata):
     metadata.output = metadata.input
+    print("!nobias! <-", metadata.input.prefix.value())
     metadata.output.prefix.prepend("nobias")
+    print("!nobias! ->", metadata.output.prefix.value())
 
 
 class FakeSPMNormalization12(Process):
@@ -177,6 +179,7 @@ class SplitBrain(Process):
 
 @process_schema("brainvisa", "capsul.test.test_tiny_morphologist.SplitBrain")
 def brainvisa_SplitBrain(metadata):
+    print("!split!", metadata.input.value())
     metadata.right_output = metadata.input
     metadata.left_output = metadata.input
     metadata.right_output.prefix.prepend("split")
@@ -199,6 +202,7 @@ class ProcessHemisphere(Process):
 
 @process_schema("brainvisa", "capsul.test.test_tiny_morphologist.ProcessHemisphere")
 def brainvisa_ProcessHemisphere(metadata):
+    print("!hemi!", metadata.input.value())
     metadata.output = metadata.input
     metadata.output.prefix.prepend("hemi")
 
@@ -226,14 +230,12 @@ class TinyMorphologist(Pipeline):
 
 @process_schema("bids", "capsul.test.test_tiny_morphologist.TinyMorphologist")
 def bids_TinyMorphologist(metadata):
-    metadata["*"].process = "tinymorphologist"
-    metadata.input.process.unused()
+    metadata["output:*"].process = "tinymorphologist"
 
 
 @process_schema("brainvisa", "capsul.test.test_tiny_morphologist.TinyMorphologist")
 def brainvisa_TinyMorphologist(metadata):
-    metadata["*"].process = "tinymorphologist"
-    metadata.input.process.unused()
+    metadata["output:*"].process = "tinymorphologist"
 
 
 def concatenate(inputs: list[File], result: File):

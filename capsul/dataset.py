@@ -5,6 +5,7 @@ The main function to be used contains most of the doc: see :func:`generate_paths
 """
 
 import csv
+from collections import defaultdict
 import fnmatch
 import functools
 import itertools
@@ -658,13 +659,17 @@ class MetadataModification:
         metadata,
         executable,
         schema_instance,
+        modified=None,
         parameters_equivalence=None,
         parameter=None,
         item=None,
         actions=None,
     ):
+        if modified is None:
+            modified = defaultdict(dict)
         super().__setattr__("_unused", unused)
         super().__setattr__("_metadata", metadata)
+        super().__setattr__("_modified", modified)
         super().__setattr__("_schema_instance", schema_instance)
         if actions is None:
             actions = []
@@ -697,6 +702,7 @@ class MetadataModification:
                 metadata=self._metadata,
                 executable=self.executable,
                 schema_instance=self._schema_instance,
+                modified=self._modified,
                 parameters_equivalence=self._parameters_equivalence,
                 parameter=key,
                 item=None,
@@ -717,9 +723,9 @@ class MetadataModification:
     def value(self):
         result = self._metadata
         if self._parameter:
-            result = result[self._parameter]
+            result = result[next(self._parameters(self._parameter))]
         if self._item:
-            result = result.get(self._item, undefined)
+            result = result.get(next(self._items(self._item), None), undefined)
 
         super().__setattr__("_parameter", None)
         super().__setattr__("_item", None)
@@ -737,7 +743,7 @@ class MetadataModification:
                         "invalid metdata copy, source item {value._item} cannot be copied to a whole parameter"
                     )
                 self._copy_all(
-                    parameters=key,
+                    dest_parameters=key,
                     source_parameters=value._parameter,
                 )
             else:
@@ -835,6 +841,12 @@ class MetadataModification:
         if self.executable.activated:
             for parameter in self._parameters(self._parameter):
                 for item in self._items(self._item):
+                    if (
+                        not value
+                        and parameter == "t1mri_nobias"
+                        and item == "sulci_graph_version"
+                    ):
+                        boom
                     self._unused.setdefault(parameter, {})[item] = value
         super().__setattr__("_parameter", None)
         super().__setattr__("_item", None)
@@ -847,19 +859,20 @@ class MetadataModification:
             raise Exception("invalid metdata modification, no parameter")
         if not self._item:
             raise Exception("invalid metdata modification, no item")
-        if isinstance(value, MetadataModification):
-            value = value.value()
         if self.executable.activated:
+            if isinstance(value, MetadataModification):
+                value = value.value()
             # print("!append!", self.executable.name, ":", self._parameter, self._item, value)
             for parameter in self._parameters(self._parameter):
                 for item in self._items(self._item):
-                    v = self._metadata.setdefault(parameter, {}).get(item)
+                    v = self._metadata[parameter].get(item)
                     if v:
                         v = f"{v}{sep}{value}"
                     else:
                         v = value
                     # print(f"!append! {parameter}.{item} =", v)
                     self._metadata[parameter][item] = v
+                    self._modified[parameter][item] = True
         super().__setattr__("_parameter", None)
         super().__setattr__("_item", None)
 
@@ -871,16 +884,24 @@ class MetadataModification:
         if isinstance(value, MetadataModification):
             value = value.value()
         if self.executable.activated:
-            # print("!prepend!", self.executable.name, ":", self._parameter, self._item, value)
+            # print(
+            #     "!prepend!",
+            #     self.executable.name,
+            #     ":",
+            #     self._parameter,
+            #     self._item,
+            #     value,
+            # )
             for parameter in self._parameters(self._parameter):
                 for item in self._items(self._item):
-                    v = self._metadata.setdefault(parameter, {}).get(item)
+                    v = self._metadata[parameter].get(item)
                     if v:
                         v = f"{value}{sep}{v}"
                     else:
                         v = value
                     # print(f"!prepend! {parameter}.{item} =", v)
                     self._metadata[parameter][item] = v
+                    self._modified[parameter][item] = True
         super().__setattr__("_parameter", None)
         super().__setattr__("_item", None)
 
@@ -890,7 +911,8 @@ class MetadataModification:
             for parameter in self._parameters(parameters):
                 for item in self._items(items):
                     # print(f"!set! {parameter}.{item} =", value)
-                    self._metadata.setdefault(parameter, {})[item] = value
+                    self._metadata[parameter][item] = value
+                    self._modified[parameter][item] = True
 
     def _copy_item(
         self,
@@ -910,7 +932,7 @@ class MetadataModification:
             # )
             for parameter in self._parameters(source_parameters):
                 for item in self._items(source_items):
-                    value = self._metadata.get(parameter, {}).get(item)
+                    value = self._metadata[parameter].get(item)
                     # print(
                     #     "!apply_copy_item!",
                     #     executable.name,
@@ -923,26 +945,34 @@ class MetadataModification:
 
     def _copy_all(
         self,
-        parameters,
+        dest_parameters,
         source_parameters,
     ):
         if self.executable.activated:
             # print(
-            #     "!apply_copy_all!",
-            #     executable.name,
-            #     parameters,
+            #     "!copy_all!",
+            #     self.executable.name,
+            #     dest_parameters,
             #     source_parameters,
             # )
-            for parameter in self._parameters(source_parameters):
-                for item, value in self._metadata.get(parameter, {}).items():
-                    if value is not None:
-                        self._set(parameters, item, value)
+            for source_parameter in self._parameters(source_parameters):
+                for item, value in self._metadata[source_parameter].items():
+                    # print(
+                    #     f"!copy_all!  {source_parameter}.{item} =",
+                    #     value,
+                    #     "; modified =",
+                    #     self._modified[source_parameter].get(item),
+                    # )
+                    if value is not None and self._modified[source_parameter].get(item):
+                        self._set(dest_parameters, item, value)
 
 
 def resolve_process_schema(schema_name, executable, schema_instance):
     unused = {}
-    metadata = {}
-    metadata.update(schema_instance.asdict())
+    metadata = defaultdict(lambda: schema_instance.asdict())
+    debug = schema_name == "brainvisa"
+    # dprint(debug, schema_name, executable.name)
+    # dpprint(debug, schema_instance.asdict())
     modification = MetadataModification(unused, metadata, executable, schema_instance)
     for process in iter_processes(executable):
         modifier = process_schema.modifier_function.get(
@@ -951,6 +981,9 @@ def resolve_process_schema(schema_name, executable, schema_instance):
         if modifier:
             modification.set_executable(process)
             modifier(modification)
+    # dprint(debug, schema_name, executable.name)
+    # dpprint(debug, metadata)
+    # dpprint(debug, unused)
     return (unused, metadata)
 
 
@@ -1090,8 +1123,8 @@ def dpprint(debug, item):
     if debug:
         from pprint import pprint
 
-        dprint(debug=debug, _frame_depth=2, file=sys.stderr)
-        pprint(item)
+        dprint(debug=debug, _frame_depth=2)
+        pprint(item, stream=sys.stderr)
 
 
 class ProcessMetadata(Controller):
@@ -1142,13 +1175,13 @@ class ProcessMetadata(Controller):
                 setattr(self, schema_name, schema_cls())
 
         if self.debug:
-            self.dprint("Create ProcessMetadata for", self.executable().label)
+            # self.dprint("Create ProcessMetadata for", self.executable().label)
             for f in process.user_fields():
                 if f.path_type:
                     dataset = self.dataset_per_parameter.get(f.name)
                     schema = self.schema_per_parameter.get(f.name)
-                    self.dprint(f"  {f.name} -> dataset={dataset}, schema={schema}")
-            self.dprint("  Iterative schemas:", self.iterative_schemas)
+                    # self.dprint(f"  {f.name} -> dataset={dataset}, schema={schema}")
+            # self.dprint("  Iterative schemas:", self.iterative_schemas)
 
     def dprint(self, *args, **kwargs):
         if self.debug:
@@ -1317,7 +1350,6 @@ class ProcessMetadata(Controller):
                 parameters = (i.name for i in executable.user_fields())
             # self.dprint("-" * 40)
             for parameter in parameters:
-                # self.dprint("   ", parameter, ":")
                 schema = self.schema_per_parameter.get(parameter)
                 if schema is None:
                     continue
@@ -1328,31 +1360,29 @@ class ProcessMetadata(Controller):
                 metadata = Dataset.find_schema(schema)(
                     base_path=f"!{{dataset.{dataset}.path}}"
                 )
+                s = self.get_schema(schema)
+                if s:
+                    metadata.import_dict(
+                        {
+                            k: v
+                            for k, v in s.asdict().items()
+                            if v not in (None, undefined)
+                        }
+                    )
                 if resolved_process_schema is None:
                     resolved_process_schema = resolved_process_schemas[
                         (schema, executable)
                     ] = resolve_process_schema(schema, executable, metadata)
                 update_unused, metadata_values = resolved_process_schema
                 unused = {
-                    field.name: False
+                    field.name: True
                     for field in metadata.fields()
                     if not getattr(field, "used", True)
                 }
                 unused.update(update_unused.get(parameter, {}))
+                unused = {k for k, v in unused.items() if v}
                 metadata_values = metadata_values.get(parameter, {})
-                s = self.get_schema(schema)
-                if s:
-                    d = {
-                        k: v
-                        for k, v in s.asdict().items()
-                        if v not in (None, undefined) and not unused.get(k, False)
-                    }
-                else:
-                    d = {}
-                # self.dprint("       schema:", schema)
-                # self.dprint("       schema dict:", d)
-                # self.dprint("       executable dict:", metadata_values)
-                # self.dprint("       unused:", unused)
+                d = {}
                 d.update(
                     (k, v)
                     for k, v in metadata_values.items()
@@ -1361,6 +1391,9 @@ class ProcessMetadata(Controller):
                 if not d.get("path_generation", True):
                     continue
                 metadata.import_dict(d)
+                # dprint(True, "Metadata attributes for", parameter, ":")
+                # dprint(True, 'unused =', unused)
+                # dpprint(True, metadata.asdict())
                 try:
                     path = str(
                         metadata.build_param(
@@ -1368,8 +1401,8 @@ class ProcessMetadata(Controller):
                             unused_meta=unused,
                         )
                     )
+                    # dprint(True, parameter, "=", path)
                     result[parameter] = path
-                    # self.dprint("         ->", path)
                 except Exception as e:
                     pass
                     # self.dprint("         Error:", e)

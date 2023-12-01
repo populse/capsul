@@ -290,52 +290,8 @@ def declare_morpho_schemas(morpho_module):
     def brainvisa_Morphologist(metadata):
         metadata["output:*"].modality = "t1mri"
         metadata["*_pass1"].suffix.append("pass1")
-        metadata["*_labelled_graph"].suffix.append(
-            metadata["left_labelled_graph"].sulci_recognition_session
-        )
-        metadata["*_labelled_graph"].suffix.append(
-            metadata["left_labelled_graph"].sulci_recognition_type
-        )
         metadata["left_*"].side = "L"
         metadata["right_*"].side = "R"
-        #     _nodes = {
-        #         "GreyWhiteClassification": {"*": {"side": "L"}},
-        #         "GreyWhiteTopology": {"*": {"side": "L"}},
-        #         "GreyWhiteMesh": {"*": {"sidebis": "L"}},
-        #         "PialMesh": {"*": {"sidebis": "L"}},
-        #         "SulciSkeleton": {"*": {"side": "L"}},
-        #         "CorticalFoldsGraph": {"*": {"side": "L"}},
-        #         "SulciRecognition": {"*": {"side": "L"}},
-        #         "*_1": {"*": {"side": "R"}},
-        #         "GreyWhiteMesh_1": {"*": {"sidebis": "R", "side": None}},
-        #         "PialMesh_1": {"*": {"sidebis": "R", "side": None}},
-        #         "SulciRecognition*": {
-        #             "*": {
-        #                 "sulci_graph_version": lambda **kwargs: f'{kwargs["process"].CorticalFoldsGraph_graph_version}',
-        #                 "prefix": None,
-        #                 "sidebis": None,
-        #             }
-        #         },
-        #         "*.ReorientAnatomy": {
-        #             "_meta_links": {
-        #                 "transformation": {
-        #                     "*": [],
-        #                 },
-        #             },
-        #         },
-        #         "*.Convert*normalizationToAIMS": {
-        #             "_meta_links": {
-        #                 "*": {
-        #                     "*": [],
-        #                 },
-        #             },
-        #         },
-        #     }
-
-        # metadata["*"][
-        #     "subject_only", "sulci_graph_version", "sulci_recognition_session"
-        # ].unused()
-        metadata["*_graph"]["sulci_graph_version"].used()
         metadata["*_graph"]["sulci_graph_version", "sulci_recognition_session"].used()
 
         metadata[
@@ -605,11 +561,11 @@ def declare_morpho_schemas(morpho_module):
         metadata["output:*"].sidebis = None
         metadata.graph.extension = "arg"
         metadata.graph.sulci_graph_version = (
-            metadata.executable.CorticalFoldsGraph_graph_version
+            metadata.executable.pipeline.CorticalFoldsGraph_graph_version
         )
         metadata.sulci_voronoi.prefix = "sulcivoronoi"
         metadata.sulci_voronoi.sulci_graph_version = (
-            metadata.executable.CorticalFoldsGraph_graph_version
+            metadata.executable.pipeline.CorticalFoldsGraph_graph_version
         )
         metadata.cortex_mid_interface.seg_directory = "segmentation"
         metadata.cortex_mid_interface.prefix = "gw_interface"
@@ -803,6 +759,7 @@ def declare_morpho_schemas(morpho_module):
     @process_schema("brainvisa", morpho_report)
     def brainvisa_morpho_report(metadata):
         metadata["output:*"].seg_directory = "segmentation"
+        metadata.report.seg_directory = None
         metadata["*_labelled_graph"][
             "sulci_graph_version", "sulci_recognition_session"
         ].used()
