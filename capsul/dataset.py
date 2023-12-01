@@ -656,7 +656,8 @@ class MetadataModification:
         self,
         unused,
         metadata,
-        executable=None,
+        executable,
+        schema_instance,
         parameters_equivalence=None,
         parameter=None,
         item=None,
@@ -664,6 +665,7 @@ class MetadataModification:
     ):
         super().__setattr__("_unused", unused)
         super().__setattr__("_metadata", metadata)
+        super().__setattr__("_schema_instance", schema_instance)
         if actions is None:
             actions = []
         super().__setattr__("executable", executable)
@@ -694,6 +696,7 @@ class MetadataModification:
                 unused=self._unused,
                 metadata=self._metadata,
                 executable=self.executable,
+                schema_instance=self._schema_instance,
                 parameters_equivalence=self._parameters_equivalence,
                 parameter=key,
                 item=None,
@@ -716,7 +719,8 @@ class MetadataModification:
         if self._parameter:
             result = result[self._parameter]
         if self._item:
-            result = result[self._item]
+            result = result.get(self._item, undefined)
+
         super().__setattr__("_parameter", None)
         super().__setattr__("_item", None)
         return result
@@ -783,7 +787,9 @@ class MetadataModification:
                     )
             else:
                 meta_selection = None
-            selection.append((meta_selection, re.compile(fnmatch.translate(i))))
+            selection.append(
+                (meta_selection, re.compile(fnmatch.translate(selection_string)))
+            )
         for f in self.executable.user_fields():
             # print(
             #     "!parameters! ?",
@@ -808,9 +814,18 @@ class MetadataModification:
 
     def _items(self, items):
         if isinstance(items, str):
-            yield items
-        else:
-            yield from items
+            items = (items,)
+        selection = []
+        for selection_string in items:
+            selection.append(re.compile(fnmatch.translate(selection_string)))
+        for f in self._schema_instance.fields():
+            selected = False
+            for regex in selection:
+                if regex.match(f.name):
+                    selected = True
+                    break
+            if selected:
+                yield f.name
 
     def unused(self, value=True):
         if not self._parameter:
@@ -835,14 +850,16 @@ class MetadataModification:
         if isinstance(value, MetadataModification):
             value = value.value()
         if self.executable.activated:
-            # print("!apply_append!", executable.name, parameters, items, value)
+            # print("!append!", self.executable.name, ":", self._parameter, self._item, value)
             for parameter in self._parameters(self._parameter):
                 for item in self._items(self._item):
                     v = self._metadata.setdefault(parameter, {}).get(item)
                     if v:
-                        value = f"{v}{sep}{value}"
-                    # print("!apply_append! ->", value)
-                    self._metadata[parameter][item] = value
+                        v = f"{v}{sep}{value}"
+                    else:
+                        v = value
+                    # print(f"!append! {parameter}.{item} =", v)
+                    self._metadata[parameter][item] = v
         super().__setattr__("_parameter", None)
         super().__setattr__("_item", None)
 
@@ -854,21 +871,25 @@ class MetadataModification:
         if isinstance(value, MetadataModification):
             value = value.value()
         if self.executable.activated:
-            # print("!apply_prepend!", executable.name, parameters, items, value)
+            # print("!prepend!", self.executable.name, ":", self._parameter, self._item, value)
             for parameter in self._parameters(self._parameter):
                 for item in self._items(self._item):
                     v = self._metadata.setdefault(parameter, {}).get(item)
                     if v:
-                        value = f"{value}{sep}{v}"
-                    # print("!apply_prepend! ->", value)
-                    self._metadata[parameter][item] = value
+                        v = f"{value}{sep}{v}"
+                    else:
+                        v = value
+                    # print(f"!prepend! {parameter}.{item} =", v)
+                    self._metadata[parameter][item] = v
         super().__setattr__("_parameter", None)
         super().__setattr__("_item", None)
 
     def _set(self, parameters, items, value):
         if self.executable.activated:
+            # print("!set!", self.executable.name, ":", parameters, items, value)
             for parameter in self._parameters(parameters):
                 for item in self._items(items):
+                    # print(f"!set! {parameter}.{item} =", value)
                     self._metadata.setdefault(parameter, {})[item] = value
 
     def _copy_item(
@@ -918,12 +939,15 @@ class MetadataModification:
                         self._set(parameters, item, value)
 
 
-def resolve_process_schema(schema, executable):
+def resolve_process_schema(schema_name, executable, schema_instance):
     unused = {}
     metadata = {}
-    modification = MetadataModification(unused, metadata, executable)
+    metadata.update(schema_instance.asdict())
+    modification = MetadataModification(unused, metadata, executable, schema_instance)
     for process in iter_processes(executable):
-        modifier = process_schema.modifier_function.get((schema, process.definition))
+        modifier = process_schema.modifier_function.get(
+            (schema_name, process.definition)
+        )
         if modifier:
             modification.set_executable(process)
             modifier(modification)
@@ -1297,15 +1321,17 @@ class ProcessMetadata(Controller):
                 schema = self.schema_per_parameter.get(parameter)
                 if schema is None:
                     continue
-                resolved_process_schema = resolved_process_schemas.get(schema)
-                if resolved_process_schema is None:
-                    resolved_process_schema = resolved_process_schemas[
-                        schema
-                    ] = resolve_process_schema(schema, executable)
+                resolved_process_schema = resolved_process_schemas.get(
+                    (schema, executable)
+                )
                 dataset = self.dataset_per_parameter[parameter]
                 metadata = Dataset.find_schema(schema)(
                     base_path=f"!{{dataset.{dataset}.path}}"
                 )
+                if resolved_process_schema is None:
+                    resolved_process_schema = resolved_process_schemas[
+                        (schema, executable)
+                    ] = resolve_process_schema(schema, executable, metadata)
                 update_unused, metadata_values = resolved_process_schema
                 unused = {
                     field.name: False

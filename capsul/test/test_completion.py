@@ -1,10 +1,8 @@
 import unittest
-import sys
 import os
 import os.path as osp
 import shutil
 import tempfile
-import json
 from pathlib import Path
 
 from soma.controller import undefined, File
@@ -98,11 +96,6 @@ def bids_TestPipeline(metadata):
 @process_schema("brainvisa", TestPipeline)
 def brainvisa_TestPipeline(metadata):
     metadata["*"].process = "test_pipeline"
-    metadata["*"][
-        "subject_only",
-        "sulci_graph_version",
-        "sulci_recognition_session",
-    ].unused()
     metadata["left_*"].side = "L"
     metadata["left_*"].suffix = ""
     metadata["right_*"].side = "R"
@@ -113,8 +106,8 @@ def brainvisa_TestPipeline(metadata):
     metadata.left_gw_mesh.extension = "gii"
     metadata.left_gw_mesh.seg_directory = None
     metadata.left_gw_mesh.prefix = ""
-    metadata["*_classif"].seg_directory = "segmentation"
-    metadata["*_classif"].prefix.append("grey_white")
+    # metadata["*_classif"].seg_directory = "segmentation"
+    # metadata["*_classif"].prefix.append("grey_white")
 
 
 datasets = {
