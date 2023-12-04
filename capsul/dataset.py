@@ -534,18 +534,21 @@ class process_schema:
     path parameters can be generated for an executable in the
     context of a dataset schema::
 
-    from capsul.api import Process, process_schema
-    from soma.controller import File, field
+        from capsul.api import Process, process_schema
+        from soma.controller import File, field
 
-    class MyProcess(Process):
-        input: field(type_=File, write=False)
-        output: field(type_=File, write=True)
+        class MyProcess(Process):
+            input: field(type_=File, write=False)
+            output: field(type_=File, write=True)
 
-        def
+            def execute(self, context):
+                # do something
+                pass
 
-    @process_schema('bids', MyProcess)
-    def bids_MyProcess(executable, metadata):
-        metadata.output.prefix.prepend("my_process")
+        @process_schema('bids', MyProcess)
+        def bids_MyProcess(executable, metadata):
+            metadata.output.prefix.prepend("my_process")
+
     """
 
     modifier_function = {}
