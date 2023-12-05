@@ -1279,7 +1279,7 @@ class ProcessMetadata(Controller):
             for schema, parameters in self.parameters_per_schema.items():
                 if parameter not in parameters:
                     continue
-                proc_meta = executable.metadata_schemas.get(schema)
+                proc_meta = getattr(executable, "metadata_schemas", {}).get(schema)
                 params_meta = {}
                 if proc_meta is not None:
                     params_meta = getattr(proc_meta, "metadata_per_parameter", {})
