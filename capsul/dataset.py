@@ -1,5 +1,7 @@
 """
-Metadata handling and attributes-based path generation system. In other words, this module is the completion system for Capsul processes and other executables.
+Metadata handling and attributes-based path generation system. In other words,
+this module is the completion system for Capsul processes and other
+executables.
 
 The main function to be used contains most of the doc: see :func:`generate_paths`
 """
@@ -29,9 +31,11 @@ global_debug = False
 class Dataset(Controller):
     """
     Dataset representation.
-    You don't need to define or instantiate this class yourself, it will be done automatically and internally in the path generation system.
+    You don't need to define or instantiate this class yourself, it will be
+    done automatically and internally in the path generation system.
 
-    Instead, users need to define datasets in the Capsul config. See :func:`generate_paths`.
+    Instead, users need to define datasets in the Capsul config. See
+    :func:`generate_paths`.
     """
 
     path: Directory
@@ -531,9 +535,10 @@ class BidsToMorphoBids(SchemaMapping):
 
 
 class process_schema:
-    """Decorator used to register functions that defines how
-    path parameters can be generated for an executable in the
-    context of a dataset schema::
+    """Decorator used to register functions that defines how path parameters can
+    be generated for a process or pipeline in the context of a dataset schema.
+    These process schema functions are typically written by pipeline developers.
+    The following example gives a typical syntax to use this decorator::
 
         from capsul.api import Process, process_schema
         from soma.controller import File, field
@@ -548,8 +553,8 @@ class process_schema:
 
         @process_schema('bids', MyProcess)
         def bids_MyProcess(executable, metadata):
+            metadata.output = metadata.input
             metadata.output.prefix.prepend("my_process")
-
     """
 
     modifier_function = {}
@@ -655,7 +660,10 @@ class process_schema:
 
 
 class MetadataModification:
-    """Record a simple modification request of process metadata"""
+    """This class aims to offer pipeline developers an uncomplicated syntax for
+    defining modifications to a MetadataSchema. These modifications are intended to
+    be applied in a sequence of chained operations whose order is determined
+    dynamically at runtime based on the pipeline structure and parameters."""
 
     def __init__(
         self,

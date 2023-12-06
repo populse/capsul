@@ -352,7 +352,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
 
             redis.call('hset', execution_key, 'dispose', 1)
             if (redis.call('hget', execution_key, 'status') == 'ended') and
-               (bypass_persistence or (redis.call('hget', engine_key, 'persistent') == '0')) then
+               (bypass_persistence ~= 0 or (redis.call('hget', engine_key, 'persistent') == '0')) then
                 redis.call('del', execution_key)
                 local executions = cjson.decode(redis.call('hget', engine_key, 'executions'))
                 table.remove(executions, table_find(executions, execution_id))
@@ -837,7 +837,10 @@ class RedisExecutionDatabase(ExecutionDatabase):
         self.redis.hset(f"capsul:{engine_id}:{execution_id}", "status", "ended")
         tmp = self.redis.hget(f"capsul:{engine_id}:{execution_id}", "tmp")
         self.redis.hdel(f"capsul:{engine_id}:{execution_id}", "tmp")
-        if self.redis.hget(f"capsul:{engine_id}:{execution_id}", "dispose"):
+        if (
+            self.redis.hget(f"capsul:{engine_id}:{execution_id}", "dispose")
+            and not self.persistent
+        ):
             executions = json.loads(
                 self.redis.hget(f"capsul:{engine_id}", "executions")
             )

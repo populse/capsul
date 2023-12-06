@@ -158,6 +158,7 @@ class SQliteExecutionDatabase(ExecutionDatabase):
             sql = "SELECT engine_id FROM capsul_engine WHERE label=?"
             row = sqlite.execute(sql, [engine.label]).fetchone()
             if row:
+                print("!sqlite update!", engine.config.persistent)
                 engine_id = row[0]
                 if update_database:
                     # Update configuration stored in database
@@ -171,6 +172,7 @@ class SQliteExecutionDatabase(ExecutionDatabase):
                         ],
                     )
             else:
+                print("!sqlite create!", engine.config.persistent)
                 # Create new engine in database
                 engine_id = str(uuid4())
                 sql = (
