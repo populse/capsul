@@ -459,7 +459,7 @@ class BrainVISASchema(MetadataSchema):
         if "short_prefix" not in unused_meta and self.short_prefix:
             filename.append(f"{self.short_prefix}")
         if "subject_in_filename" not in unused_meta and self.subject_in_filename:
-            filename.append(self.subject)
+            filename.append(str(self.subject))
         if "longitudinal" not in unused_meta and self.longitudinal:
             filename.append(f"_to_avg_{self.longitudinal}")
         if ("suffix" not in unused_meta and self.suffix) or (
@@ -473,6 +473,7 @@ class BrainVISASchema(MetadataSchema):
                 filename.append(f"{self.suffix}")
         if "extension" not in unused_meta and self.extension:
             filename.append(f".{self.extension}")
+        # print('path_list filename:', filename)
         path_list.append("".join(filename))
 
         return path_list
@@ -1336,7 +1337,10 @@ class ProcessMetadata(Controller):
                 schema = self.schema_per_parameter.get(parameter)
                 if schema is None:
                     continue
-                dataset = self.dataset_per_parameter[parameter]
+                dataset = self.dataset_per_parameter.get(parameter)
+                if dataset is None:
+                    # this parameter has no dataset, so no schema.
+                    continue
                 metadata = Dataset.find_schema(schema)(
                     base_path=f"!{{dataset.{dataset}.path}}"
                 )
@@ -1402,6 +1406,6 @@ class ProcessMetadata(Controller):
                     # print(f"!set! {executable.name}.{parameter} = {repr(path)}")
                     result[parameter] = path
                 except Exception as e:
-                    self.dprint("         Error:", e)
+                    # self.dprint("         Error:", e)
                     pass
         return result

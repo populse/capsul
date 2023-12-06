@@ -19,7 +19,7 @@ class BrainVISASharedSchema(MetadataSchema):
         <something>
         """
 
-        full_side = {"L": "left", "R": "right"}
+        full_side = {"L": "left", "R": "right", None: "<None>"}
         path_list = []
         filename = ""
         if self.data_id == "normalization_template":
@@ -657,6 +657,7 @@ def declare_morpho_schemas(morpho_module):
     @process_schema("brainvisa", SulciLabellingSPAMMarkov)
     def brainvisa_SulciLabellingSPAMMarkov(metadata):
         metadata["output:*"].seg_directory = "folds"
+        metadata.graph.seg_directory = "folds"
         metadata.output_graph.suffix = metadata.output_graph.sulci_recognition_session
         metadata.output_graph.suffix.append(
             metadata.output_graph.sulci_recognition_type
@@ -675,6 +676,7 @@ def declare_morpho_schemas(morpho_module):
     @process_schema("brainvisa", SulciDeepLabeling)
     def brainvisa_SulciDeepLabeling(metadata):
         metadata["output:*"].seg_directory = "folds"
+        metadata.graph.seg_directory = "folds"
         metadata.graph["sulci_graph_version"].used()
         metadata.graph.extension = "arg"
         metadata.labeled_graph[
@@ -704,8 +706,8 @@ def declare_morpho_schemas(morpho_module):
     def brainvisa_shared_SulciDeepLabeling(metadata):
         metadata.model_file.data_id = "sulci_cnn_recognition_model"
         metadata.model_file.model_version = "19"
-        metadata.model_file.data_id = "sulci_cnn_recognition_param"
-        metadata.model_file.model_version = "19"
+        metadata.param_file.data_id = "sulci_cnn_recognition_param"
+        metadata.param_file.model_version = "19"
 
     @process_schema("brainvisa", sulcigraphmorphometrybysubject)
     def brainvisa_sulcigraphmorphometrybysubject(metadata):
