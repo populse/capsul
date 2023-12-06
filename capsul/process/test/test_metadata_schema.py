@@ -8,8 +8,8 @@ import unittest
 from soma.controller import File, field
 
 from capsul.api import Process, executable, Capsul
-from ...dataset import MetadataSchema
-from capsul.dataset import ProcessSchema, ProcessMetadata
+from ...dataset import MetadataSchema, process_schema
+from capsul.dataset import ProcessMetadata
 
 
 class DummyProcess(Process):
@@ -54,17 +54,20 @@ class CustomMetadataSchema(MetadataSchema):
         return ["_".join(items)]
 
 
-class DummyListProcessCustom(ProcessSchema, schema="custom", process=DummyListProcess):
-    _ = {"*": {"process": "DummyListProcess"}}
-    truc = {"parameter": "truc"}
-    bidule = {"parameter": "bidule"}
-    result = {"parameter": "result"}
+@process_schema("custom", DummyListProcess)
+def custom_DummyListProcess(metadata):
+    metadata["*"].process = "DummyListProcess"
+    #     truc = {"parameter": "truc"}
+    metadata.truc.parameter = "truc"
+    metadata.bidule.parameter = "bidule"
+    metadata.result.parameter = "result"
 
 
-class DummyProcessCustom(ProcessSchema, schema="custom", process=DummyProcess):
-    _ = {"*": {"process": "DummyProcess"}}
-    truc = {"parameter": "truc"}
-    bidule = {"parameter": "bidule"}
+@process_schema("custom", DummyProcess)
+def custom_DummyProcess(metadata):
+    metadata["*"].process = "DummyProcess"
+    metadata.truc.parameter = "truc"
+    metadata.bidule.parameter = "bidule"
 
 
 class TestCompletion(unittest.TestCase):
@@ -133,7 +136,7 @@ class TestCompletion(unittest.TestCase):
         self.capsul = None
         shutil.rmtree(temp_home_dir)
 
-    def test_completion(self):
+    def test_simple_completion(self):
         global temp_home_dir
 
         process = executable("capsul.process.test.test_metadata_schema.DummyProcess")
@@ -157,7 +160,7 @@ class TestCompletion(unittest.TestCase):
             os.path.normpath(f"{temp_home_dir}/out/DummyProcess_bidule_jojo_barbapapa"),
         )
 
-    def test_iteration(self):
+    def test_iteration_simple_completion(self):
         pipeline = self.capsul.executable_iteration(
             "capsul.process.test.test_metadata_schema.DummyProcess",
             iterative_plugs=["truc", "bidule"],
@@ -196,7 +199,7 @@ class TestCompletion(unittest.TestCase):
             ],
         )
 
-    def test_run_iteraton(self):
+    def test_simple_completion_run_iteraton(self):
         pipeline = self.capsul.executable_iteration(
             "capsul.process.test.test_metadata_schema.DummyProcess",
             iterative_plugs=["truc", "bidule"],

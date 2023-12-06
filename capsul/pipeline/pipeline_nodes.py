@@ -247,7 +247,7 @@ class Switch(Node):
         self.pipeline.restore_update_nodes_and_plugs_activation()
         self.__block_output_propagation = False
 
-    def connections(self):
+    def connections(self, all=False):
         """Returns the current internal connections between input and output
         plugs
 
@@ -257,10 +257,15 @@ class Switch(Node):
             list of internal connections
             [(input_plug_name, output_plug_name), ...]
         """
-        return [
-            (f"{self.switch}_switch_{plug_name}", plug_name)
-            for plug_name in self._outputs
-        ]
+        if all:
+            switch_values = self._switch_values
+        else:
+            switch_values = [self.switch]
+        for switch in switch_values:
+            yield from (
+                (f"{switch}_switch_{plug_name}", plug_name)
+                for plug_name in self._outputs
+            )
 
     def _any_attribute_changed(self, new, old, name):
         """Callback linked to the switch attribute modification that enables

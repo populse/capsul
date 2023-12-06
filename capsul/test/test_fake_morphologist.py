@@ -10,7 +10,7 @@ from soma.controller import undefined
 
 from capsul.api import Capsul
 from capsul.config.configuration import default_engine_start_workers
-from capsul.dataset import ProcessMetadata, BrainVISASchema
+from capsul.dataset import ProcessMetadata, BrainVISASchema, process_schema
 from capsul.schemas.brainvisa import declare_morpho_schemas
 from capsul.config.configuration import default_builtin_database
 
@@ -914,13 +914,9 @@ class TestFakeMorphologist(unittest.TestCase):
         self.clear_values(morphologist_iteration)
         self.clear_values(morphologist_iteration.process)
 
-        # class MorphologistIterationBrainVISA(ProcessSchema, schema='brainvisa',
-        # process=morphologist_iteration):
-        # _ = {
-        #'*': {
-        #'suffix': lambda iteration_index, **kwargs: f'{{executable.normalization[{iteration_index}]}}',
-        # }
-        # }
+        @process_schema("brainvisa", morphologist_iteration)
+        def brainvisa_morphologist_iteration(metadata):
+            metadata["*"].suffix = metadata.executable.normalization
 
         engine = self.capsul.engine()
         execution_context = engine.execution_context(morphologist_iteration)

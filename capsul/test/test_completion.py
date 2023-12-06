@@ -1,15 +1,13 @@
 import unittest
-import sys
 import os
 import os.path as osp
 import shutil
 import tempfile
-import json
 from pathlib import Path
 
 from soma.controller import undefined, File
 
-from capsul.dataset import ProcessMetadata, ProcessSchema
+from capsul.dataset import ProcessMetadata, process_schema
 from capsul.api import Capsul, executable, Pipeline
 
 
@@ -90,39 +88,26 @@ class TestPipeline(Pipeline):
         self.export_parameter("right_hemi", "output", "right_gw_mesh")
 
 
-class TestPipelineBIDS(ProcessSchema, schema="bids", process=TestPipeline):
-    __test__ = False
+@process_schema("bids", TestPipeline)
+def bids_TestPipeline(metadata):
+    metadata["*"].pipeline = "test_pipeline"
 
-    _ = {"*": {"pipeline": "test_pipeline"}}
 
-
-class TestPipelineBrainVISA(ProcessSchema, schema="brainvisa", process=TestPipeline):
-    __test__ = False
-
-    _ = {
-        "*": {"process": "test_pipeline"},
-    }
-    metadata_per_parameter = {
-        "*": {
-            "unused": [
-                "subject_only",
-                "sulci_graph_version",
-                "sulci_recognition_session",
-            ]
-        },
-    }
-    _nodes = {
-        "nobias": {
-            "output": {"seg_directory": None},  # , 'prefix': 'nobias'},
-        },
-        "split": {
-            "*_output": {"seg_directory": "plouf"},
-            "left_output": {"side": "L", "suffix": ""},
-            "right_output": {"side": "R", "suffix": ""},
-        },
-    }
-    right_gw_mesh = {"extension": "gii", "seg_directory": None, "prefix": ""}
-    left_gw_mesh = {"extension": "gii", "seg_directory": None, "prefix": ""}
+@process_schema("brainvisa", TestPipeline)
+def brainvisa_TestPipeline(metadata):
+    metadata["*"].process = "test_pipeline"
+    metadata["left_*"].side = "L"
+    metadata["left_*"].suffix = ""
+    metadata["right_*"].side = "R"
+    metadata["right_*"].suffix = ""
+    metadata.right_gw_mesh.extension = "gii"
+    metadata.right_gw_mesh.seg_directory = None
+    metadata.right_gw_mesh.prefix = ""
+    metadata.left_gw_mesh.extension = "gii"
+    metadata.left_gw_mesh.seg_directory = None
+    metadata.left_gw_mesh.prefix = ""
+    # metadata["*_classif"].seg_directory = "segmentation"
+    # metadata["*_classif"].prefix.append("grey_white")
 
 
 datasets = {
@@ -240,7 +225,7 @@ class TestCompletion(unittest.TestCase):
         self.maxDiff = 3000
         self.assertEqual(params, expected)
 
-    def test_iteration_completion(self):
+    def test_pipeline_iteration_completion(self):
         expected_completion = {
             "input": [
                 "!{dataset.input.path}/rawdata/sub-aleksander/ses-m0/anat/sub-aleksander_ses-m0_T1w.nii",

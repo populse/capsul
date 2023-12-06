@@ -3,7 +3,6 @@ from pathlib import Path
 import shutil
 import tempfile
 import unittest
-import os.path as osp
 
 from soma.controller import field, File
 from soma.controller import Directory, undefined
@@ -13,7 +12,7 @@ from capsul.config.configuration import (
     ModuleConfiguration,
     default_engine_start_workers,
 )
-from capsul.dataset import ProcessMetadata, ProcessSchema, Prepend, Append
+from capsul.dataset import ProcessMetadata, process_schema
 from capsul.config.configuration import default_builtin_database
 
 
@@ -48,24 +47,16 @@ class BiasCorrection(Process):
             f.write(content)
 
 
-class BiasCorrectionBIDS(ProcessSchema, schema="bids", process=BiasCorrection):
-    output = Prepend("part", "nobias")
+@process_schema("bids", "capsul.test.test_tiny_morphologist.BiasCorrection")
+def bids_FBiasCorrection(metadata):
+    metadata.output = metadata.input
+    metadata.output.part.prepend("nobias")
 
 
-class BiasCorrectionBrainVISA(
-    ProcessSchema, schema="brainvisa", process=BiasCorrection
-):
-    metadata_per_parameter = {
-        "*": {
-            "unused": [
-                "subject_only",
-                "sulci_graph_version",
-                "sulci_recognition_session",
-            ]
-        },
-    }
-
-    output = Prepend("prefix", "nobias")
+@process_schema("brainvisa", BiasCorrection)
+def brainvisa_BiasCorrection(metadata):
+    metadata.output = metadata.input
+    metadata.output.prefix.prepend("nobias")
 
 
 class FakeSPMNormalization12(Process):
@@ -89,52 +80,34 @@ class FakeSPMNormalization12(Process):
             f.write(content)
 
 
-class FakeSPMNormalization12BIDS(
-    ProcessSchema, schema="bids", process=FakeSPMNormalization12
-):
-    output = Prepend("part", "normalized_fakespm12")
+@process_schema("bids", "capsul.test.test_tiny_morphologist.FakeSPMNormalization12")
+def bids_FakeSPMNormalization12(metadata):
+    metadata.output = metadata.input
+    metadata.output.part.prepend("normalized_fakespm12")
 
 
-class FakeSPMNormalization12BrainVISA(
-    ProcessSchema, schema="brainvisa", process=FakeSPMNormalization12
-):
-    metadata_per_parameter = {
-        "*": {
-            "unused": [
-                "subject_only",
-                "sulci_graph_version",
-                "sulci_recognition_session",
-            ]
-        },
-    }
-
-    output = Prepend("prefix", "normalized_fakespm12")
+@process_schema(
+    "brainvisa", "capsul.test.test_tiny_morphologist.FakeSPMNormalization12"
+)
+def brainvisa_FakeSPMNormalization12(metadata):
+    metadata.output = metadata.input
+    metadata.output.prefix.prepend("normalized_fakespm12")
 
 
 class FakeSPMNormalization8(FakeSPMNormalization12):
     requirements = {"fakespm": {"version": "8"}}
 
 
-class FakeSPMNormalization8BIDS(
-    ProcessSchema, schema="bids", process=FakeSPMNormalization8
-):
-    output = Prepend("part", "normalized_fakespm8")
+@process_schema("bids", "capsul.test.test_tiny_morphologist.FakeSPMNormalization8")
+def bids_FakeSPMNormalization8(metadata):
+    metadata.output = metadata.input
+    metadata.output.part.prepend("normalized_fakespm8")
 
 
-class FakeSPMNormalization8BrainVISA(
-    ProcessSchema, schema="brainvisa", process=FakeSPMNormalization8
-):
-    metadata_per_parameter = {
-        "*": {
-            "unused": [
-                "subject_only",
-                "sulci_graph_version",
-                "sulci_recognition_session",
-            ]
-        },
-    }
-
-    output = Prepend("prefix", "normalized_fakespm8")
+@process_schema("brainvisa", "capsul.test.test_tiny_morphologist.FakeSPMNormalization8")
+def brainvisa_FakeSPMNormalization8(metadata):
+    metadata.output = metadata.input
+    metadata.output.prefix.prepend("normalized_fakespm8")
 
 
 class AimsNormalization(Process):
@@ -151,24 +124,39 @@ class AimsNormalization(Process):
             f.write(content)
 
 
-class AimsNormalizationBIDS(ProcessSchema, schema="bids", process=AimsNormalization):
-    output = Prepend("part", "normalized_aims")
+@process_schema("bids", "capsul.test.test_tiny_morphologist.AimsNormalization")
+def bids_AimsNormalization(metadata):
+    metadata.output = metadata.input
+    metadata.output.part.prepend("normalized_aims")
 
 
-class AimsNormalizationBrainVISA(
-    ProcessSchema, schema="brainvisa", process=AimsNormalization
-):
-    metadata_per_parameter = {
-        "*": {
-            "unused": [
-                "subject_only",
-                "sulci_graph_version",
-                "sulci_recognition_session",
-            ]
-        },
-    }
+@process_schema("brainvisa", "capsul.test.test_tiny_morphologist.AimsNormalization")
+def brainvisa_AimsNormalization(metadata):
+    metadata.output = metadata.input
+    metadata.output.prefix.prepend("normalized_aims")
 
-    output = Prepend("prefix", "normalized_aims")
+
+class Normalization(Pipeline):
+    def pipeline_definition(self):
+        self.add_process("fakespm_normalization_12", FakeSPMNormalization12)
+        self.add_process("fakespm_normalization_8", FakeSPMNormalization8)
+        self.add_process("aims_normalization", AimsNormalization)
+
+        self.export_parameter("fakespm_normalization_12", "input")
+        self.add_link("input->fakespm_normalization_8.input")
+        self.export_parameter("fakespm_normalization_12", "template")
+        self.add_link("template->fakespm_normalization_8.template")
+        self.add_link("input->aims_normalization.input")
+
+        self.create_switch(
+            "normalization",
+            {
+                "none": {"output": "input"},
+                "fakespm12": {"output": "fakespm_normalization_12.output"},
+                "fakespm8": {"output": "fakespm_normalization_8.output"},
+                "aims": {"output": "aims_normalization.output"},
+            },
+        )
 
 
 class SplitBrain(Process):
@@ -187,22 +175,14 @@ class SplitBrain(Process):
                 f.write(side_content)
 
 
-class SplitBrainBrainVISA(ProcessSchema, schema="brainvisa", process=SplitBrain):
-    _ = {
-        "right_output": Append("suffix", "right"),
-        "left_output": Append("suffix", "left"),
-    }
-    metadata_per_parameter = {
-        "*": {
-            "unused": [
-                "subject_only",
-                "sulci_graph_version",
-                "sulci_recognition_session",
-            ]
-        },
-    }
-    right_output = Prepend("prefix", "split")
-    left_output = Prepend("prefix", "split")
+@process_schema("brainvisa", "capsul.test.test_tiny_morphologist.SplitBrain")
+def brainvisa_SplitBrain(metadata):
+    metadata.right_output = metadata.input
+    metadata.left_output = metadata.input
+    metadata.right_output.prefix.prepend("split")
+    metadata.left_output.prefix.prepend("split")
+    metadata.right_output.suffix.append("right")
+    metadata.left_output.suffix.append("left")
 
 
 class ProcessHemisphere(Process):
@@ -217,46 +197,23 @@ class ProcessHemisphere(Process):
             f.write(content)
 
 
-class ProcessHemisphereBrainVISA(
-    ProcessSchema, schema="brainvisa", process=ProcessHemisphere
-):
-    metadata_per_parameter = {
-        "*": {
-            "unused": [
-                "subject_only",
-                "sulci_graph_version",
-                "sulci_recognition_session",
-            ]
-        },
-    }
-    output = Prepend("prefix", "hemi")
+@process_schema("brainvisa", "capsul.test.test_tiny_morphologist.ProcessHemisphere")
+def brainvisa_ProcessHemisphere(metadata):
+    metadata.output = metadata.input
+    metadata.output.prefix.prepend("hemi")
 
 
 class TinyMorphologist(Pipeline):
     def pipeline_definition(self):
         self.add_process("nobias", BiasCorrection)
-        self.add_process("fakespm_normalization_12", FakeSPMNormalization12)
-        self.add_process("fakespm_normalization_8", FakeSPMNormalization8)
-        self.add_process("aims_normalization", AimsNormalization)
+
+        self.add_process("normalization", Normalization)
+
         self.add_process("split", SplitBrain)
         self.add_process("right_hemi", ProcessHemisphere)
         self.add_process("left_hemi", ProcessHemisphere)
-        self.create_switch(
-            "normalization",
-            {
-                "none": {"output": "nobias.output"},
-                "fakespm12": {"output": "fakespm_normalization_12.output"},
-                "fakespm8": {"output": "fakespm_normalization_8.output"},
-                "aims": {"output": "aims_normalization.output"},
-            },
-        )
 
-        self.add_link("nobias.output->fakespm_normalization_12.input")
-        self.add_link("nobias.output->fakespm_normalization_8.input")
-        self.export_parameter("fakespm_normalization_12", "template")
-        self.add_link("template->fakespm_normalization_8.template")
-        self.add_link("nobias.output->aims_normalization.input")
-
+        self.add_link("nobias.output->normalization.input")
         self.export_parameter("nobias", "output", "nobias")
 
         self.add_link("normalization.output->split.input")
@@ -267,42 +224,14 @@ class TinyMorphologist(Pipeline):
         self.export_parameter("left_hemi", "output", "left_hemisphere")
 
 
-class TinyMorphologistBIDS(ProcessSchema, schema="bids", process=TinyMorphologist):
-    _ = {
-        "*": {"process": "tinymorphologist"},
-        "split.right_output": {"part": "right_hemi"},
-        "split.left_output": {"part": "left_hemi"},
-    }
-    input = {"process": None}
+@process_schema("bids", "capsul.test.test_tiny_morphologist.TinyMorphologist")
+def bids_TinyMorphologist(metadata):
+    metadata["output:*"].process = "tinymorphologist"
 
 
-class TinyMorphologistBrainVISA(
-    ProcessSchema, schema="brainvisa", process=TinyMorphologist
-):
-    _ = {
-        "*": {"process": "tinymorphologist"},
-    }
-    _nodes = {
-        # 'split': {
-        #     'right_output': {'prefix': 'right_hemi'},
-        #     'left_output': {'prefix': 'left_hemi'}
-        # },
-        # 'fakespm_normalization_12': {'*': Append('suffix', 'fakespm12')},
-        # 'fakespm_normalization_8': {'*': Append('suffix', 'fakespm8')},
-        # 'aims_normalization': {'*': Append('suffix', 'aims')},
-    }
-    metadata_per_parameter = {
-        "*": {
-            "unused": [
-                "subject_only",
-                "sulci_graph_version",
-                "sulci_recognition_session",
-            ]
-        },
-    }
-    input = {"process": None}
-    # left_hemisphere = {'prefix': 'left_hemi'}
-    # right_hemisphere = {'prefix': 'right_hemi'}
+@process_schema("brainvisa", "capsul.test.test_tiny_morphologist.TinyMorphologist")
+def brainvisa_TinyMorphologist(metadata):
+    metadata["output:*"].process = "tinymorphologist"
 
 
 def concatenate(inputs: list[File], result: File):
@@ -908,9 +837,14 @@ class TestTinyMorphologist(unittest.TestCase):
                 value,
                 f"Differing value for parameter {name}",
             )
-
+        for i in (0, 3, 6, 9, 12, 15):
+            tiny_morphologist_iteration.select_iteration_index(i)
+            self.assertNotIn(
+                tiny_morphologist_iteration.process.nodes["split"].input,
+                (None, undefined),
+            )
         with self.capsul.engine() as engine:
-            status = engine.run(tiny_morphologist_iteration, timeout=30)
+            status = engine.run(tiny_morphologist_iteration, timeout=60)
 
         self.assertEqual(status, "ended")
 
