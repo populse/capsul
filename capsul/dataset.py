@@ -1223,6 +1223,8 @@ class ProcessMetadata(Controller):
         Generate all paths for parameters of the given executable. Completion
         rules will apply using the current values of the metadata.
         """
+        if executable is None:
+            executable = self.executable()
         for parameter, value in self.path_for_parameters(executable).items():
             # self.dprint(f"Set {executable.name}.{parameter} = {value}")
             setattr(executable, parameter, value)
@@ -1400,6 +1402,6 @@ class ProcessMetadata(Controller):
                     # print(f"!set! {executable.name}.{parameter} = {repr(path)}")
                     result[parameter] = path
                 except Exception as e:
+                    self.dprint("         Error:", e)
                     pass
-                    # self.dprint("         Error:", e)
         return result
