@@ -242,6 +242,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
 
 
             table.remove(ongoing, table_find(ongoing, job_uuid))
+            redis.call('hdel', execution_key, 'kill_job:' .. job_uuid)
 
             if return_code ~= '0' then
                 table.insert(failed, job_uuid)
@@ -472,6 +473,33 @@ class RedisExecutionDatabase(ExecutionDatabase):
             redis.call('hset', execution_key, job_key, cjson.encode(job))
             redis.call('hset', execution_key, 'workflow_parameters_values', cjson.encode(values))
         """
+        )
+
+        self._kill_jobs = self.redis.register_script(
+            """
+            local function table_find(array, value)
+                for i, v in pairs(array) do
+                    if v == value then
+                        return i
+                    end
+                end
+            end
+
+            local execution_key = KEYS[1]
+
+            local job_ids = cjson.decode(ARGV[1])
+            local ongoing = cjson.decode(redis.call('hget', execution_key, 'ongoing'))
+
+            if (next(job_ids) == nil) then
+                job_ids = ongoing
+            end
+
+            for _, job_uuid in ipairs(job_ids) do
+                if table_find(ongoing, job_uuid) then
+                    redis.call('hset', execution_key, 'kill_job:' .. job_uuid, 1)
+                end
+            end
+            """
         )
 
     def _exit(self):
@@ -719,14 +747,16 @@ class RedisExecutionDatabase(ExecutionDatabase):
         # we just set a flag to 1 associated with the jobs to be killed.
         # Workers will poll for it while jobs are running, and react
         # accordingly.
-        # TODO:
-        # - atomicity: ensure jobs still exist and are running
-        # - skip or error if a job is not running
-        key = f"capsul:{engine_id}:{execution_id}"
-        if job_ids is None:
-            job_ids = self.redis.hget(f"capsul:{engine_id}:{execution_id}", "ongoing")
-        for job_id in job_ids:
-            self.redis.hset(key, f"kill_job:{job_id}", 1)
+        if not job_ids:
+            job_ids = []
+
+        keys = [
+            f"capsul:{engine_id}",
+        ]
+        args = [
+            json.encode(job_ids),
+        ]
+        self._kill_jobs(keys=keys, args=args)
 
     def job_kill_requested(self, engine_id, execution_id, job_id):
         return self.redis.hget(
