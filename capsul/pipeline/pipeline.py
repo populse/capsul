@@ -174,8 +174,6 @@ class Pipeline(Process):
 
     _doc_path = "api/pipeline.html#pipeline"
 
-    selection_changed = Event()
-
     # The default value for do_autoexport_nodes_parameters is stored in the
     # pipeline class. This makes it possible to change this default value
     # in derived classes (for instance in DynamicPipeline).
@@ -213,6 +211,8 @@ class Pipeline(Process):
             up when possible.
         """
         super().__setattr__("enable_parameter_links", False)
+        self.selection_changed = Event()
+
         if "definition" not in kwargs:
             raise TypeError("No definition string given to Pipeline constructor")
 
