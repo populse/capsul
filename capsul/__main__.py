@@ -20,6 +20,54 @@ def executable_parser(executable):
     return parser
 
 
+def set_executable_cmd_args(executable, args):
+    done = set()
+    kwargs = {}
+    names = None
+    for arg in args:
+        m = re.match(r"^\s*([\w_]+)\s*=\s*(.*)$", arg)
+        if m:
+            name = m.group(1)
+            value = m.group(2)
+        else:
+            if names is None:
+                names = [field.name for field in executable.user_fields()]
+                index = 0
+            while index < len(names):
+                if names[index] in done:
+                    index += 1
+                else:
+                    break
+            if index < len(names):
+                name = names[index]
+                value = arg
+            else:
+                raise ValueError("Too many arguments")
+        field = executable.field(name)
+        done.add(name)
+        if field.type is int:
+            if value == "None" or value == "null" or value == "undefined":
+                value = undefined
+            else:
+                value = int(value)
+        elif field.type is float:
+            if value == "None" or value == "null" or value == "undefined":
+                value = undefined
+            else:
+                value = float(value)
+        elif field.type is str or field.is_path():
+            if value == "None" or value == "null" or value == "undefined":
+                value = undefined
+            elif value and value[0] == '"':
+                value = json.loads(value)
+        else:
+            value = json.loads(value)
+        if value is None:
+            value = undefined
+        kwargs[name] = value
+    executable.import_dict(kwargs)
+
+
 parser = argparse.ArgumentParser(
     prog=f"{sys.executable} -m capsul", description="Capsul main command"
 )
@@ -75,52 +123,11 @@ if options.subcommand == "configure":
     del w
 elif options.subcommand == "run":
     executable = Capsul.executable(options.executable)
-    done = set()
-    kwargs = {}
-    names = None
-    for arg in args:
-        m = re.match(r"^\s*([\w_]+)\s*=\s*(.*)$", arg)
-        if m:
-            name = m.group(1)
-            value = m.group(2)
-        else:
-            if names is None:
-                names = [field.name for field in executable.user_fields()]
-                index = 0
-            while index < len(names):
-                if names[index] in done:
-                    index += 1
-                else:
-                    break
-            if index < len(names):
-                name = names[index]
-                value = arg
-            else:
-                raise ValueError("Too many arguments")
-        field = executable.field(name)
-        done.add(name)
-        if field.type is int:
-            if value == "None" or value == "null" or value == "undefined":
-                value = undefined
-            else:
-                value = int(value)
-        elif field.type is float:
-            if value == "None" or value == "null" or value == "undefined":
-                value = undefined
-            else:
-                value = float(value)
-        elif field.type is str or field.is_path():
-            if value == "None" or value == "null" or value == "undefined":
-                value = undefined
-            elif value and value[0] == '"':
-                value = json.loads(value)
-        else:
-            value = json.loads(value)
-        if value is None:
-            value = undefined
-        kwargs[name] = value
-    executable.import_dict(kwargs)
+    set_executable_cmd_args(executable, args)
+
     with capsul.engine() as ce:
+        # print('engine config:', ce.config.json())
+        # print('Workers count', ce.config.start_workers.get('count'))
         ce.assess_ready_to_start(executable)
         execution_id = ce.start(executable)
         try:
@@ -150,6 +157,8 @@ elif options.subcommand == "view":
     from capsul.qt_gui.widgets import PipelineDeveloperView
 
     executable = Capsul.executable(options.executable)
+    set_executable_cmd_args(executable, args)
+
     app = Qt.QApplication(sys.argv)
     view = PipelineDeveloperView(
         executable, allow_open_controller=True, show_sub_pipelines=True
