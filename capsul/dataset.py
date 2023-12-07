@@ -1414,6 +1414,10 @@ class ProcessMetadata(Controller):
                     # print(f"!set! {executable.name}.{parameter} = {repr(path)}")
                     result[parameter] = path
                 except Exception as e:
+                    # print('EXCEPTION for param', parameter, ':', e)
+                    # import traceback
+                    # traceback.print_exc()
+                    # print(' - -continuing')
                     # self.dprint("         Error:", e)
                     pass
         return result

@@ -455,9 +455,9 @@ def declare_morpho_schemas(morpho_module):
 
     @process_schema("brainvisa", BrainSegmentation)
     def brainvisa_BrainSegmentation(metadata):
+        metadata["output:*"] = metadata.t1mri_nobias
         metadata["output:*"].seg_directory = "segmentation"
         metadata.brain_mask.prefix = "brain"
-        metadata["output:*"] = metadata.histo_analysis
 
     @process_schema("morphologist_bids", BrainSegmentation)
     def morphologist_bids_BrainSegmentation(metadata):
@@ -487,6 +487,7 @@ def declare_morpho_schemas(morpho_module):
 
     @process_schema("brainvisa", SplitBrain)
     def brainvisa_SplitBrain(metadata):
+        metadata["output:*"] = metadata.brain_mask
         metadata["output:*"].seg_directory = "segmentation"
         metadata.split_brain.prefix = "voronoi"
         # TODO: check the conversion of the following code
@@ -494,7 +495,6 @@ def declare_morpho_schemas(morpho_module):
         #     "analysis": lambda **kwargs: f'{kwargs["initial_meta"].analysis}',
         # }
         metadata.split_brain.analysis = metadata.initial_meta.analysis
-        metadata["output:*"] = metadata.histo_analysis
 
     @process_schema("morphologist_bids", SplitBrain)
     def morphologist_bids_SplitBrain(metadata):
@@ -502,9 +502,13 @@ def declare_morpho_schemas(morpho_module):
 
     @process_schema("brainvisa", GreyWhiteClassificationHemi)
     def brainvisa_GreyWhiteClassificationHemi(metadata):
+        side = metadata.executable.side
+        reside = {"left": "L", "right": "R"}.get(side, side)
+        metadata["output:*"] = metadata.t1mri_nobias
         metadata["output:*"].seg_directory = "segmentation"
         metadata.grey_white.prefix = "grey_white"
-        metadata["output:*"] = metadata.histo_analysis
+        metadata.grey_white.side = reside
+        metadata.side.side = reside
 
     @process_schema("morphologist_bids", GreyWhiteClassificationHemi)
     def morphologist_bids_GreyWhiteClassificationHemi(metadata):
@@ -512,9 +516,9 @@ def declare_morpho_schemas(morpho_module):
 
     @process_schema("brainvisa", GreyWhiteTopology)
     def brainvisa_GreyWhiteTopology(metadata):
+        metadata["output:*"] = metadata.grey_white
         metadata["output:*"].seg_directory = "segmentation"
         metadata.hemi_cortex.prefix = "cortex"
-        metadata["output:*"] = metadata.histo_analysis
 
     @process_schema("morphologist_bids", GreyWhiteTopology)
     def morphologist_bids_GreyWhiteTopology(metadata):
@@ -522,12 +526,13 @@ def declare_morpho_schemas(morpho_module):
 
     @process_schema("brainvisa", GreyWhiteMesh)
     def brainvisa_GreyWhiteMesh(metadata):
-        metadata["output:*"].seg_directory = "segmentation"
-        metadata.white_mesh.side = None
+        metadata["output:*"] = metadata.hemi_cortex
+        metadata["output:*"].seg_directory = "segmentation/mesh"
+        metadata.white_mesh.sidebis = metadata.white_mesh.side
+        metadata.white_mesh.side.unused()
         metadata.white_mesh.prefix = None
         metadata.white_mesh.suffix = "white"
         metadata.white_mesh.extension = "gii"
-        metadata["output:*"] = metadata.histo_analysis
 
     @process_schema("morphologist_bids", GreyWhiteMesh)
     def morphologist_bids_GreyWhiteMesh(metadata):
@@ -535,8 +540,11 @@ def declare_morpho_schemas(morpho_module):
 
     @process_schema("brainvisa", PialMesh)
     def brainvisa_PialMesh(metadata):
+        metadata.pial_mesh = metadata.hemi_cortex
         metadata["output:*"].seg_directory = "segmentation/mesh"
-        metadata.pial_mesh.side = None
+        metadata.pial_mesh.sidebis = metadata.pial_mesh.side
+        print("side:", metadata.pial_mesh.sidebis.value())
+        metadata.pial_mesh.side.unused()
         metadata.pial_mesh.prefix = None
         metadata.pial_mesh.suffix = "hemi"
         metadata.pial_mesh.extension = "gii"
@@ -547,8 +555,9 @@ def declare_morpho_schemas(morpho_module):
 
     @process_schema("brainvisa", SulciSkeleton)
     def brainvisa_SulciSkeleton(metadata):
+        metadata["output:*"] = metadata.hemi_cortex
         metadata["output:*"].seg_directory = "segmentation"
-        metadata.roots.prefix = None
+        metadata.roots.prefix = "roots"
         metadata.skeleton.prefix = "skeleton"
 
     @process_schema("morphologist_bids", SulciSkeleton)
@@ -557,12 +566,15 @@ def declare_morpho_schemas(morpho_module):
 
     @process_schema("brainvisa", SulciGraph)
     def brainvisa_SulciGraph(metadata):
+        metadata["output:*"] = metadata.skeleton
         metadata["output:*"].seg_directory = "folds"
         metadata["output:*"].sidebis = None
         metadata.graph.extension = "arg"
         metadata.graph.sulci_graph_version = (
             metadata.executable.pipeline.CorticalFoldsGraph_graph_version
         )
+        metadata.graph.sulci_recognition_session.unused()
+        metadata.graph.prefix = None
         metadata.sulci_voronoi.prefix = "sulcivoronoi"
         metadata.sulci_voronoi.sulci_graph_version = (
             metadata.executable.pipeline.CorticalFoldsGraph_graph_version
