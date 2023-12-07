@@ -271,6 +271,9 @@ class ExecutionDatabase:
                 result[k] = parameters_values[i]
         return result
 
+    def successful_node_paths(self, engine_id, execution_id):
+        raise NotImplementedError
+
     def print_execution_report(self, report, file=sys.stdout):
         print(
             "====================\n" "| Execution report |\n" "====================\n",
@@ -410,6 +413,8 @@ class ExecutionDatabase:
             # pprint(parameters.content)
             while stack:
                 node, parameters = stack.pop(0)
+                if parameters is None:
+                    continue
                 for field in node.user_fields():
                     value = parameters.get(field.name, undefined)
                     value = parameters.no_proxy(value)
@@ -421,7 +426,7 @@ class ExecutionDatabase:
                         setattr(node, field.name, value)
                 if isinstance(node, Pipeline):
                     stack.extend(
-                        (n, parameters["nodes"][n.name])
+                        (n, parameters["nodes"].get(n.name))
                         for n in node.nodes.values()
                         if n is not node and isinstance(n, Process) and n.activated
                     )

@@ -310,31 +310,6 @@ class RedisExecutionDatabase(ExecutionDatabase):
         """
         )
 
-        self._update_workflow_parameters = self.redis.register_script(
-            """
-            local execution_key = KEYS[1]
-
-            local parameters_location = cjson.decode(ARGV[1])
-            local output_parameters = cjson.decode(ARGV[2])
-            local workflow_parameters = cjson.decode(redis.call('hget', execution_key, 'workflow_parameters'))
-
-            local parameters = workflow_parameters['content']
-            for index, value in ipairs(parameters_location) do
-                local i = tonumber(value)
-                if i then
-                    parameters = parameters[i+1]
-                else
-                    parameters = parameters[value]
-                end
-            end
-
-            for k, v in pairs(output_parameters) do
-                workflow_parameters['proxy_values'][parameters[k][2]+1] = v
-            end
-            redis.call('hset', execution_key, 'workflow_parameters', cjson.encode(workflow_parameters))
-            """
-        )
-
         self._dispose = self.redis.register_script(
             """
             local function table_find(array, value)
@@ -807,6 +782,19 @@ class RedisExecutionDatabase(ExecutionDatabase):
             job["parameters"] = self.job_parameters_from_values(job, parameters_values)
 
         return result
+
+    def successful_node_paths(self, engine_id, execution_id):
+        execution_key = f"capsul:{engine_id}:{execution_id}"
+        failed = json.loads(self.redis.hget(execution_key, "done"))
+        for job_uuid in failed:
+            job = json.loads(
+                self.redis.hget(f"capsul:{engine_id}:{execution_id}", f"job:{job_uuid}")
+            )
+            parameters_location = job.get("parameters_location")
+            if parameters_location:
+                result = tuple(i for i in parameters_location if i != "nodes")
+                if result != ("directories_creation",):
+                    yield result
 
     def dispose(self, engine_id, execution_id, bypass_persistence=False):
         keys = [f"capsul:{engine_id}", f"capsul:{engine_id}:{execution_id}"]
