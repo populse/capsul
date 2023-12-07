@@ -112,10 +112,11 @@ capsul = Capsul(database_path=db_path)
 
 if options.subcommand == "configure":
     # Other commands must be able to work without PyQt installed
-    from soma.qt_gui.qt_backend import QtGui
+    from soma.qt_gui.qt_backend import QtGui, Qt
     from .qt_gui.widgets.settings_editor import SettingsEditor
 
     app_config = ApplicationConfiguration("global_config")
+    QtGui.QApplication.setAttribute(Qt.Qt.AA_ShareOpenGLContexts, True)
     app = QtGui.QApplication(sys.argv)
     w = SettingsEditor(capsul.config)
     w.show()
@@ -156,10 +157,14 @@ elif options.subcommand == "view":
     from soma.qt_gui.qt_backend import Qt
     from capsul.qt_gui.widgets import PipelineDeveloperView
 
+    # WARNING: QApplication should always be instanciated before aims PluginLoader
+    # has been called otherwise another QCoreApplication is instanciated
+    # that can conflict with the QApplication created.
+    Qt.QApplication.setAttribute(Qt.Qt.AA_ShareOpenGLContexts, True)
+    app = Qt.QApplication(sys.argv)
+
     executable = Capsul.executable(options.executable)
     set_executable_cmd_args(executable, args)
-
-    app = Qt.QApplication(sys.argv)
     view = PipelineDeveloperView(
         executable, allow_open_controller=True, show_sub_pipelines=True
     )
