@@ -83,8 +83,8 @@ class Capsul:
             user_file = os.environ.get("CAPSUL_USER_CONFIG")
             if user_file is None:
                 for user_file in (
-                    "~/.config/{app_name}/capsul_user.json",
-                    "~/.config/{app_name}/capsul_user.py",
+                    f"~/.config/{app_name}/capsul_user.json",
+                    f"~/.config/{app_name}/capsul_user.py",
                 ):
                     user_file = os.path.expanduser(user_file)
                     if os.path.exists(user_file):
@@ -99,8 +99,8 @@ class Capsul:
                 for site_file in (
                     os.path.expandvars("$CASA_CONF/capsul_site.json"),
                     os.path.expandvars("$CASA_CONF/capsul_site.py"),
-                    "/etc/{app_name}/capsul_site.json",
-                    "/etc/{app_name}/capsul_site.py",
+                    f"/etc/{app_name}/capsul_site.json",
+                    f"/etc/{app_name}/capsul_site.py",
                 ):
                     if os.path.exists(site_file):
                         break
@@ -112,6 +112,8 @@ class Capsul:
             site_file = str(site_file)
         if isinstance(user_file, Path):
             user_file = str(user_file)
+        # print("User configuration file", user_file)
+        # print("Site configuration file", site_file)
         self.label = app_name
         c = ApplicationConfiguration(
             app_name=app_name, user_file=user_file, site_file=site_file
