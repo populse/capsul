@@ -2449,6 +2449,13 @@ class Pipeline(Process):
             self.dispatch_value(self, name, value)
         return result
 
+    def __setitem__(self, path, value):
+        path = path.split(".")
+        node_path = path[:-1]
+        node = self.node_from_path(node_path)
+        setattr(node, path[-1], value)
+        self.dispatch_value(node, path[-1], value)
+
     def dispatch_value(self, node, name, value):
         """Propagate the value from a pipeline plug through links"""
         # print(f"!dispatch! {node.name}.{name} = {value}")
@@ -2649,6 +2656,15 @@ class Pipeline(Process):
                 and names[-1] in node.plugs
             ):
                 self.dispatch_value(node, names[-1], json_value)
+
+    def node_from_path(self, path):
+        node = self
+        for path_item in path:
+            if isinstance(node, ProcessIteration):
+                node = node.process
+            else:
+                node = node.nodes[path_item]
+        return node
 
 
 class CustomPipeline(Pipeline):
