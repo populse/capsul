@@ -8,6 +8,7 @@ from soma.controller import Controller, undefined
 from ..execution_context import CapsulWorkflow, ExecutionContext
 from ..config.configuration import ModuleConfiguration
 from ..database import engine_database
+from ..api import Pipeline
 
 
 def execution_context(engine_label, engine_config, executable):
@@ -413,21 +414,20 @@ class Engine:
     def prepare_pipeline_for_retry(self, pipeline, execution_id):
         """Modify a pipeline given a previous execution to select only the nodes that
         weren't successful. Running the pipeline after this step will retry the
-        execution of failed jobs. This method adds (or modifies if it exists) an
-        unselected pipeline step called "successfully_executed" containing all nodes
-        that were successfully executed.
+        execution of failed jobs. This method sets a `self._enabled_nodes` attribute
+        containing the list of active jobs. I such an attribute exists and is not
+        empty, not job is created for any node outside this list.
         """
-        successful_nodes = []
-        for path in self.database.successful_node_paths(self.engine_id, execution_id):
-            successful_nodes.append(pipeline.node_from_path(path).name)
-        step_field = None
-        if pipeline.field("pipeline_steps"):
-            step_field = pipeline.pipeline_steps.fields("successfully_executed")
-        if step_field is None:
-            pipeline.add_pipeline_step("successfully_executed", successful_nodes, False)
-        else:
-            step_field.nodes = successful_nodes
-            setattr(pipeline.pipeline_steps, "successfully_executed", False)
+        # Parse successful nodes in previous execution and set the corresponding
+        # "successfully_executed" steps.
+        enabled_nodes = set()
+        for path in self.database.failed_node_paths(self.engine_id, execution_id):
+            node = pipeline
+            for i in path[:-1]:
+                node = node.nodes[i]
+            failed_node = node.nodes[path[-1]]
+            enabled_nodes.add(failed_node)
+        pipeline._enabled_nodes = enabled_nodes or None
 
 
 class Workers(Controller):

@@ -783,9 +783,9 @@ class RedisExecutionDatabase(ExecutionDatabase):
 
         return result
 
-    def successful_node_paths(self, engine_id, execution_id):
+    def failed_node_paths(self, engine_id, execution_id):
         execution_key = f"capsul:{engine_id}:{execution_id}"
-        failed = json.loads(self.redis.hget(execution_key, "done"))
+        failed = json.loads(self.redis.hget(execution_key, "failed"))
         for job_uuid in failed:
             job = json.loads(
                 self.redis.hget(f"capsul:{engine_id}:{execution_id}", f"job:{job_uuid}")

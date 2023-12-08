@@ -115,8 +115,11 @@ class CapsulWorkflow(Controller):
         jobs_per_process = {}
         process_chronology = {}
         processes_proxies = {}
+        enabled_nodes = None
         if isinstance(executable, (Pipeline, ProcessIteration)):
             pipeline_tools.propagate_meta(executable)
+            if isinstance(executable, Pipeline):
+                enabled_nodes = executable.enabled_pipeline_nodes()
         job_parameters = self._create_jobs(
             top_parameters=top_parameters,
             executable=executable,
@@ -128,6 +131,7 @@ class CapsulWorkflow(Controller):
             parameters_location=[],
             process_iterations={},
             disabled=False,
+            enabled_nodes=enabled_nodes,
             priority=priority,
             debug=debug,
         )
@@ -145,7 +149,7 @@ class CapsulWorkflow(Controller):
                         aj["wait_for"].add(before_job)
                         bj = self.jobs[before_job]
                         if bj["disabled"]:
-                            bj["waited_by"].add(after_job)
+                            bj.setdefault("waited_by", set()).add(after_job)
 
         # Resolve disabled jobs
         disabled_jobs = [
@@ -161,14 +165,14 @@ class CapsulWorkflow(Controller):
                 else:
                     wait_for.add(job)
             waited_by = set()
-            stack = list(disabled_job[1]["waited_by"])
+            stack = list(disabled_job[1].get("waited_by", ()))
             while stack:
                 job = stack.pop(0)
                 if self.jobs[job]["disabled"]:
-                    stack.extend(self.jobs[job]["waited_by"])
+                    stack.extend(self.jobs[job].get("waited_by", ()))
                 else:
                     waited_by.add(job)
-            for job in disabled_job[1]["waited_by"]:
+            for job in disabled_job[1].get("waited_by", ()):
                 self.jobs[job]["wait_for"].remove(disabled_job[0])
             del self.jobs[disabled_job[0]]
 
@@ -276,6 +280,7 @@ class CapsulWorkflow(Controller):
         parameters_location,
         process_iterations,
         disabled,
+        enabled_nodes,
         priority=None,
         debug=None,
     ):
@@ -311,6 +316,7 @@ class CapsulWorkflow(Controller):
                     parameters_location=parameters_location + ["nodes", node_name],
                     process_iterations=process_iterations,
                     disabled=disabled or node in disabled_nodes,
+                    enabled_nodes=enabled_nodes,
                     priority=priority,
                     debug=debug,
                 )
@@ -460,6 +466,7 @@ class CapsulWorkflow(Controller):
                     + ["_iterations", str(iteration_index)],
                     process_iterations=process_iterations,
                     disabled=disabled,
+                    enabled_nodes=enabled_nodes,
                     priority=new_priority,
                     debug=debug,
                 )
@@ -504,7 +511,7 @@ class CapsulWorkflow(Controller):
             else:
                 job = {
                     "uuid": job_uuid,
-                    "disabled": False,
+                    "disabled": enabled_nodes and process not in enabled_nodes,
                     "wait_for": set(),
                     "process": process.json(include_parameters=False),
                     "parameters_location": parameters_location,

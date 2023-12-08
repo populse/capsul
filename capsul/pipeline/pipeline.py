@@ -933,7 +933,6 @@ class Pipeline(Process):
                 source_node is self.pipeline_node
                 and source_plug_name not in source_node.plugs
             ):
-                print(dest_node_name, dest_node, dest_node.plugs.keys())
                 self.export_parameter(dest_node_name, dest_plug_name, source_plug_name)
                 return
             elif (
@@ -2163,6 +2162,11 @@ class Pipeline(Process):
                 nodes = field.nodes
                 disabled_nodes.update(self.nodes[node] for node in nodes)
         return disabled_nodes
+
+    def enabled_pipeline_nodes(self):
+        """Restrict the nodes to execute to the returned list. This method returns
+        either None or a non empty set of nodes."""
+        return getattr(self, "_enabled_nodes", None)
 
     def get_pipeline_step_nodes(self, step_name):
         """Get the nodes in the given pipeline step"""
