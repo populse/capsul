@@ -16,7 +16,7 @@ configuration stored in ExecutionContext.
         def execute(self, execution_context):
             fsl_check_call(['bet', '-h'], execution_context=execution_context)
 
-For calling FSL command with this module, the first arguent of
+For calling FSL command with this module, the first argument of
 command line must be the FSL executable without any path nor prefix.
 Prefix are used in Neurodebian install. For instance on Ubuntu 16.04
 Neurodebian FSL commands are prefixed with "fsl5.0-".

@@ -711,7 +711,7 @@ class MetadataModification:
             super().__setattr__("_item", key)
         else:
             raise Exception(
-                "invalid metdata modification, attribute too deep: "
+                "invalid metadata modification, attribute too deep: "
                 f"{self._parameter}, {self._item}, {key}"
             )
         return self
@@ -733,13 +733,13 @@ class MetadataModification:
     def __setitem__(self, key, value):
         if isinstance(value, MetadataModification):
             if self._item:
-                raise Exception(f"invalid metdata copy, unexpected item: {self._item}")
+                raise Exception(f"invalid metadata copy, unexpected item: {self._item}")
             if not self._parameter:
                 if not value._parameter:
-                    raise Exception("invalid metdata copy, no source parameter")
+                    raise Exception("invalid metadata copy, no source parameter")
                 if value._item:
                     raise Exception(
-                        "invalid metdata copy, source item {value._item} cannot be copied to a whole parameter"
+                        "invalid metadata copy, source item {value._item} cannot be copied to a whole parameter"
                     )
                 self._copy_all(
                     dest_parameters=key,
@@ -747,9 +747,9 @@ class MetadataModification:
                 )
             else:
                 if not value._parameter:
-                    raise Exception("invalid metdata copy, no source parameter")
+                    raise Exception("invalid metadata copy, no source parameter")
                 if not value._item:
-                    raise Exception("invalid metdata copy, no source item")
+                    raise Exception("invalid metadata copy, no source item")
                 self._copy_item(
                     parameters=self._parameter,
                     items=key,
@@ -758,10 +758,10 @@ class MetadataModification:
                 )
         else:
             if not self._parameter:
-                raise Exception("invalid metdata modification, no parameter")
+                raise Exception("invalid metadata modification, no parameter")
             if self._item:
                 raise Exception(
-                    f"invalid metdata modification, unexpected item: {self._item}"
+                    f"invalid metadata modification, unexpected item: {self._item}"
                 )
             self._set(
                 parameters=self._parameter,
@@ -834,9 +834,9 @@ class MetadataModification:
 
     def unused(self, value=True):
         if not self._parameter:
-            raise Exception("invalid metdata modification, no parameter")
+            raise Exception("invalid metadata modification, no parameter")
         if not self._item:
-            raise Exception("invalid metdata modification, no item")
+            raise Exception("invalid metadata modification, no item")
         if self.executable.activated:
             for parameter in self._parameters(self._parameter):
                 for item in self._items(self._item):
@@ -849,9 +849,9 @@ class MetadataModification:
 
     def append(self, value, sep="_"):
         if not self._parameter:
-            raise Exception("invalid metdata modification, no parameter")
+            raise Exception("invalid metadata modification, no parameter")
         if not self._item:
-            raise Exception("invalid metdata modification, no item")
+            raise Exception("invalid metadata modification, no item")
         if self.executable.activated:
             if isinstance(value, MetadataModification):
                 value = value.value()
@@ -871,9 +871,9 @@ class MetadataModification:
 
     def prepend(self, value, sep="_"):
         if not self._parameter:
-            raise Exception("invalid metdata modification, no parameter")
+            raise Exception("invalid metadata modification, no parameter")
         if not self._item:
-            raise Exception("invalid metdata modification, no item")
+            raise Exception("invalid metadata modification, no item")
         if isinstance(value, MetadataModification):
             value = value.value()
         if self.executable.activated:
@@ -1337,7 +1337,7 @@ class ProcessMetadata(Controller):
             # print("!-" * 40)
             parameters_equivalence = find_parameters_equivalence(executable)
             for parameter in parameters:
-                # Ignore path generation for parameters that are equivelent to another one
+                # Ignore path generation for parameters that are equivalent to another one
                 equivalent = parameters_equivalence.get(executable, {}).get(parameter)
                 if equivalent and equivalent != parameter:
                     # print(f"!skip! {parameter} => {equivalent}")

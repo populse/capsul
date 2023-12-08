@@ -50,7 +50,7 @@ class FormatsManager:
 
     def __setitem__(self, label, value):
         """
-        Adds a new fromat. Label is the format name that is displayed to
+        Adds a new format. Label is the format name that is displayed to
         the user. It must be unique among all format labels independently
         of character case. value is a list of extensions or a format object.
         """
@@ -72,7 +72,7 @@ class FormatsManager:
     def __getitem__(self, label_or_key):
         """
         Return a Format instance from its label. Research is case independent.
-        A KeyError is raised if the fomat is not found.
+        A KeyError is raised if the format is not found.
         """
         return self._formats[label_or_key.lower()]
 
@@ -537,11 +537,11 @@ def global_formats():
                         "gz compressed SPM image",
                         "SPM image",
                     ],
-                    "aims partialy writable volume formats": [
+                    "aims partially writable volume formats": [
                         "GIS image",
                         "NIFTI-1 image",
                     ],
-                    "aims partialy readable volume formats": [
+                    "aims partially readable volume formats": [
                         "GIS image",
                         "NIFTI-1 image",
                         "TIFF image",

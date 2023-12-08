@@ -413,21 +413,21 @@ class Engine:
     def prepare_pipeline_for_retry(self, pipeline, execution_id):
         """Modify a pipeline given a previous execution to select only the nodes that
         weren't successful. Running the pipeline after this step will retry the
-        execution of faile jobs. This method adds (or modify if it exists) an unselectd
-        pipeline step called "succesfully_executed" containing all nodes that were
-        succesfully executed.
-        """ ""
+        execution of failed jobs. This method adds (or modifies if it exists) an
+        unselected pipeline step called "successfully_executed" containing all nodes
+        that were successfully executed.
+        """
         successful_nodes = []
         for path in self.database.successful_node_paths(self.engine_id, execution_id):
             successful_nodes.append(pipeline.node_from_path(path).name)
         step_field = None
         if pipeline.field("pipeline_steps"):
-            step_field = pipeline.pipeline_steps.fields("succesfully_executed")
+            step_field = pipeline.pipeline_steps.fields("successfully_executed")
         if step_field is None:
-            pipeline.add_pipeline_step("succesfully_executed", successful_nodes, False)
+            pipeline.add_pipeline_step("successfully_executed", successful_nodes, False)
         else:
             step_field.nodes = successful_nodes
-            setattr(pipeline.pipeline_steps, "succesfully_executed", False)
+            setattr(pipeline.pipeline_steps, "successfully_executed", False)
 
 
 class Workers(Controller):

@@ -157,8 +157,8 @@ elif options.subcommand == "view":
     from soma.qt_gui.qt_backend import Qt
     from capsul.qt_gui.widgets import PipelineDeveloperView
 
-    # WARNING: QApplication should always be instanciated before aims PluginLoader
-    # has been called otherwise another QCoreApplication is instanciated
+    # WARNING: QApplication should always be instantiated before aims PluginLoader
+    # has been called otherwise another QCoreApplication is instantiated
     # that can conflict with the QApplication created.
     Qt.QApplication.setAttribute(Qt.Qt.AA_ShareOpenGLContexts, True)
     app = Qt.QApplication(sys.argv)
