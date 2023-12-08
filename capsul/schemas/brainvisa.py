@@ -10,7 +10,7 @@ class BrainVISASharedSchema(MetadataSchema):
     schema_name = "brainvisa_shared"
     data_id: str = ""
     side: str = None
-    graph_version: str = None
+    sulci_graph_version: str = None
     model_version: str = None
 
     def _path_list(self, unused_meta=None):
@@ -54,7 +54,7 @@ class BrainVISASharedSchema(MetadataSchema):
                 "models",
                 f"models_20{self.model_version}",
                 "discriminative_models",
-                self.graph_version,
+                self.sulci_graph_version,
                 f"{self.side}folds_noroots",
             ]
             filename = f"{self.side}folds_noroots.arg"
@@ -150,7 +150,7 @@ class BrainVISAToShared(SchemaMapping):
     @staticmethod
     def map_schemas(source, dest):
         dest.side = source.side
-        dest.graph_version = source.sulci_graph_version
+        dest.sulci_graph_version = source.sulci_graph_version
 
 
 class MorphoBIDSToShared(SchemaMapping):
@@ -268,7 +268,6 @@ def declare_morpho_schemas(morpho_module):
     )
 
     bv_acq_unused = [
-        "subject_only",
         "analysis",
         "seg_directory",
         "side",
@@ -306,8 +305,7 @@ def declare_morpho_schemas(morpho_module):
             "Talairach_transform",
             "MNI_transform",
         ][bv_ref_unused].unused()
-        metadata["subject"]["subject_only", "subject"].used()
-        metadata["sulcal_morpho_measures"]["subject_only"].unused()
+        metadata.subject.subject.used()
 
         metadata.normalization_spm_native_transformation.prefix = None
         metadata.commissure_coordinates.extension = "APC"
@@ -335,11 +333,9 @@ def declare_morpho_schemas(morpho_module):
         )
         metadata.MNI_transform.extension = "trm"
 
-        metadata["left_graph", "right_graph"].prefix = None
-        metadata["left_graph", "right_graph"].suffix = None
-
-        metadata.subject.subject_only = True
-        metadata.sulcal_morpho_measures.subject_only = False
+        metadata["left_graph", "right_graph"].sulci_recognition_session.unused()
+        # metadata["left_graph", "right_graph"].prefix = None
+        # metadata["left_graph", "right_graph"].suffix = None
 
     @process_schema("bids", Morphologist)
     def bids_Morphologist(metadata):
@@ -437,7 +433,7 @@ def declare_morpho_schemas(morpho_module):
         metadata.white_ridges.prefix = "whiteridge"
         metadata.variance.prefix = "variance"
         metadata.edges.prefix = "edges"
-        metadata.meancurvature.prefix = "meancurvature"
+        metadata.meancurvature.prefix = "mean_curvature"
 
     @process_schema("morphologist_bids", T1BiasCorrection)
     def morphologist_bids_T1BiasCorrection(metadata):
@@ -579,6 +575,8 @@ def declare_morpho_schemas(morpho_module):
         metadata.sulci_voronoi.sulci_graph_version = (
             metadata.executable.pipeline.CorticalFoldsGraph_graph_version
         )
+        metadata.sulci_voronoi.sulci_graph_version.used()
+        metadata.sulci_voronoi.sulci_recognition_session.unused()
         metadata.cortex_mid_interface.seg_directory = "segmentation"
         metadata.cortex_mid_interface.prefix = "gw_interface"
         # TODO: check conversion of the following code:
@@ -738,7 +736,7 @@ def declare_morpho_schemas(morpho_module):
             "sulci_graph_version", "sulci_recognition_session"
         ].used()
         metadata.subject["*"].unused()
-        metadata.subject["subject_only", "subject"].used()
+        metadata.subject["subject"].used()
 
         metadata.left_csf.prefix = "csf"
         metadata.left_csf.side = "L"
@@ -758,11 +756,6 @@ def declare_morpho_schemas(morpho_module):
         metadata.brain_volumes_file.suffix = None
         metadata.brain_volumes_file.extension = "csv"
 
-        metadata.subject.seg_directory = None
-        metadata.subject.prefix = None
-        metadata.subject.side = None
-        metadata.subject.subject_in_filename = False
-
         metadata["output:*"] = metadata.left_labelled_graph
         metadata.left_csf.extension = metadata.left_grey_white.extension
 
@@ -778,7 +771,7 @@ def declare_morpho_schemas(morpho_module):
             "sulci_graph_version", "sulci_recognition_session"
         ].used()
         metadata.subject["*"].unused()
-        metadata.subject["subject_only", "subject"].used()
+        metadata.subject["subject"].used()
         metadata.report.prefix = None
         metadata.report.side = None
         metadata.report.sidebis = None

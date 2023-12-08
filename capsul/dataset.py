@@ -433,7 +433,6 @@ class BrainVISASchema(MetadataSchema):
             "process",
             "acquisition",
             "preprocessings",
-            "longitudinal",
             "analysis",
         ):
             if key not in unused_meta:
@@ -465,7 +464,7 @@ class BrainVISASchema(MetadataSchema):
         if "subject_in_filename" not in unused_meta and self.subject_in_filename:
             filename.append(str(self.subject))
         if "longitudinal" not in unused_meta and self.longitudinal:
-            filename.append(f"_to_avg_{self.longitudinal}")
+            filename.append(f"_to_avg_{'_'.join(self.longitudinal)}")
         if ("suffix" not in unused_meta and self.suffix) or (
             "sidebis" not in unused_meta and self.sidebis
         ):
@@ -487,16 +486,11 @@ class MorphologistBIDSSchema(BrainVISASchema):
     schema_name = "morphologist_bids"
 
     folder: Literal["sourcedata", "rawdata", "derivative"]
-    subject_only: field(type_=bool, default=False, used=False)
 
     def _path_list(self, unused_meta=None):
         if unused_meta is None:
             unused_meta = set()
-        if "subject_only" not in unused_meta and self.subject_only:
-            return [self.subject]
 
-        if unused_meta is None:
-            unused_meta = set()
         path_list = super()._path_list(unused_meta=unused_meta)
         pre_path = [f"sub-{self.subject}", f"ses-{self.acquisition}", "anat"]
         if "folder" not in unused_meta and self.folder not in (undefined, None, ""):
@@ -1250,7 +1244,7 @@ class ProcessMetadata(Controller):
 
         if parameters is None:
             parameters = [
-                field.name for field in executable.user_fields() if field.path_type
+                field.name for field in executable.user_fields()  # if field.path_type
             ]
         if self.debug:
             if self._current_iteration is not None:
@@ -1332,8 +1326,6 @@ class ProcessMetadata(Controller):
                             mapping.map_schemas(source, dest)
 
             resolved_process_schemas = {}
-            if parameters is None:
-                parameters = (i.name for i in executable.user_fields())
             # print("!-" * 40)
             parameters_equivalence = find_parameters_equivalence(executable)
             for parameter in parameters:
@@ -1364,6 +1356,7 @@ class ProcessMetadata(Controller):
                 resolved_process_schema = resolved_process_schemas.get(
                     (schema, executable)
                 )
+                # print('param:', parameter)
                 if resolved_process_schema is None:
                     unused = {}
                     schema_metadata = defaultdict(lambda: metadata.asdict())
