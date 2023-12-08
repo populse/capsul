@@ -116,7 +116,7 @@ def execute_job(database, engine_id, execution_id, job_uuid, debug=False):
 if __name__ == "__main__":
     if len(sys.argv) != 4:
         print(
-            "Wrong number of paramaters, 3 expected:" f"command={sys.argv}",
+            "Wrong number of parameters, 3 expected:" f"command={sys.argv}",
             file=sys.stderr,
         )
         sys.exit(1)
