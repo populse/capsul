@@ -271,7 +271,7 @@ class ExecutionDatabase:
                 result[k] = parameters_values[i]
         return result
 
-    def successful_node_paths(self, engine_id, execution_id):
+    def failed_node_paths(self, engine_id, execution_id):
         raise NotImplementedError
 
     def print_execution_report(self, report, file=sys.stdout):
