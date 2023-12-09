@@ -6,14 +6,18 @@ This branch contains the code of the future 3.0 release. This is still work in p
 
 ## Using development version of Capsul v3
 
-To use Capsul v3 it is mandatory to have at least Python 3.9 and the **3.0** branch of projects [soma-base](https://github.com/populse/soma-base>) and [capsul](https://github.com/populse/capsul>).
+Capsul v3 requires Python ≥ 3.9 and
+the [**6.0**](https://github.com/populse/soma-base/tree/6.0) branch
+of [soma-base](https://github.com/populse/soma-base)
+and [**3.0**](https://github.com/populse/populse_dbtree/3.0) branch
+of [populse_db](https://github.com/populse/populse_db).
 
 The simplest is to use a [casa-distro](https://github.com/brainvisa/casa-distro>) container for developers, and setup a minimalist dev environment, based on an Ubuntu 22.04 container with singularity:
 
-* [install singularity](https://brainvisa.info/web/download.html#prerequisites-for-singularity-on-linux>)
+* [install singularity](https://brainvisa.info/web/download.html#prerequisites-for-singularity-on-linux)
 
 
-* get a recent [developer image](https://brainvisa.info/web/download.html#installing-a-singularity-developer-environment>):
+* get a recent [developer image](https://brainvisa.info/web/download.html#installing-a-singularity-developer-environment):
 ```
         wget https://brainvisa.info/download/casa-dev-5.3-6.sif
 ```
