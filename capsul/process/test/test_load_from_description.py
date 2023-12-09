@@ -84,9 +84,9 @@ def mask(
     pass
 
 
-def cat(
-    value1: str, value2: str, value3: str
-) -> field(type_=str, desc="Concatenation of non empty input values."):
+def cat(value1: str, value2: str, value3: str) -> field(
+    type_=str, desc="Concatenation of non empty input values."
+):
     return "_".join(i for i in (value1, value2, value3) if i)
 
 

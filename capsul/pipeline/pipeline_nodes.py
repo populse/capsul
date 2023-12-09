@@ -9,7 +9,7 @@ Classes
 
 import typing
 
-from soma.controller import Controller, field, undefined, Literal, List, type_from_str
+from soma.controller import Controller, undefined, Literal, List, type_from_str
 
 from ..process.node import Plug, Node
 
@@ -385,7 +385,9 @@ class Switch(Node):
     def configured_controller(self):
         c = self.configure_controller()
         c.outputs = [
-            field.name for field in self.fields() if field.is_output()  # noqa: F811
+            field.name
+            for field in self.fields()
+            if field.is_output()  # noqa: F811
         ]
         c.inputs = self.get_switch_inputs()
         c.output_types = [self.field(p).type_str() for p in self.outputs]

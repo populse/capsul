@@ -1,6 +1,5 @@
-# See https://pre-commit.com for more information
-# See https://pre-commit.com/hooks.html for more hooks
 exclude: '^(doc/source|capsul)/sphinxext/'
+
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
@@ -21,15 +20,14 @@ repos:
         exclude: \.min\.js$
     -   id: fix-byte-order-marker
     -   id: trailing-whitespace
--   repo: https://github.com/psf/black
-    rev: 23.11.0
+
+-   repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.7
     hooks:
-      - id: black
-#-   repo: https://github.com/astral-sh/ruff-pre-commit
-#    rev: v0.1.5
-#    hooks:
-#    -   id: ruff
-#        exclude: '^doc/'
+    #-   id: ruff
+    -   id: ruff-format
+        exclude: '^doc/'
+
 -   repo: https://github.com/PyCQA/flake8
     rev: 5.0.4
     hooks:
