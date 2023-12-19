@@ -238,7 +238,7 @@
         <span class="n">sub_module_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="n">module_path</span><span class="p">,</span> <span class="o">*</span><span class="n">sub_module</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="n">shift</span><span class="p">:])</span>
 
-        <span class="c1"># List all the mdule in sub module path</span>
+        <span class="c1"># List all the module in submodule path</span>
         <span class="n">sub_sub_module_names</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">sub_module</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">x</span><span class="p">[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">sub_module_path</span><span class="p">)</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.py&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">))]</span>
@@ -283,8 +283,8 @@
 <div class="viewcode-block" id="lists2dict">
 <a class="viewcode-back" href="../../../../api/qt_apps.html#capsul.qt_apps.utils.find_pipelines.lists2dict">[docs]</a>
 <span class="k">def</span> <span class="nf">lists2dict</span><span class="p">(</span><span class="n">list_of_pipeline_description</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot; Convert a list of split module names to a hierachic dictionary with</span>
-<span class="sd">    list leafs that contain the url to the module docuementation.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Convert a list of split module names to a hierarchic dictionary with</span>
+<span class="sd">    list leafs that contain the url to the module documentation.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>

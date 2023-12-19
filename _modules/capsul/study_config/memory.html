@@ -804,7 +804,7 @@
 
 <div class="viewcode-block" id="file_fingerprint">
 <a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.memory.file_fingerprint">[docs]</a>
-<span class="k">def</span> <span class="nf">file_fingerprint</span><span class="p">(</span><span class="n">afile</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">file_fingerprint</span><span class="p">(</span><span class="n">a_file</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Computes the file fingerprint.</span>
 
 <span class="sd">    Do not consider the file content, just the fingerprint (ie. the mtime,</span>
@@ -812,7 +812,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    afile: string</span>
+<span class="sd">    a_file: string</span>
 <span class="sd">        the file to process.</span>
 
 <span class="sd">    Returns</span>
@@ -821,12 +821,12 @@
 <span class="sd">        the file location, mtime and size.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">fingerprint</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">afile</span><span class="p">,</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">a_file</span><span class="p">,</span>
         <span class="s2">&quot;mtime&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
         <span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="kc">None</span>
     <span class="p">}</span>
-    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">afile</span><span class="p">):</span>
-        <span class="n">stat</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">afile</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">a_file</span><span class="p">):</span>
+        <span class="n">stat</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">a_file</span><span class="p">)</span>
         <span class="n">fingerprint</span><span class="p">[</span><span class="s2">&quot;size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">stat</span><span class="o">.</span><span class="n">st_size</span><span class="p">)</span>
         <span class="n">fingerprint</span><span class="p">[</span><span class="s2">&quot;mtime&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">stat</span><span class="o">.</span><span class="n">st_mtime</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">fingerprint</span></div>

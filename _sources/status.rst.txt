@@ -19,7 +19,7 @@ Pipeline execution:
     * sequential execution:                                             |OK|
     * via Soma-Workflow:                                                |OK|
 Switch nodes:                                                           |OK|
-Iteraton nodes:                                                         |OK|
+Iteration nodes:                                                         |OK|
 StudyConfig:                                                            |OK|
 Workflow transformation:                                                |OK|
 Attributes and parameters completion:                                   |OK|

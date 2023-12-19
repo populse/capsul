@@ -548,7 +548,7 @@
     <span class="k">def</span> <span class="nf">remove_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">,</span> <span class="n">environment</span><span class="p">,</span> <span class="n">config_id</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Removes a configuration (document in the database) for a given module /</span>
-<span class="sd">        environment, idenfified by its `Settings.config_id_field` value.</span>
+<span class="sd">        environment, identified by its `Settings.config_id_field` value.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">collection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">collection_name</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
         <span class="nb">id</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">-</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">config_id</span><span class="p">,</span> <span class="n">environment</span><span class="p">)</span>
@@ -591,7 +591,7 @@
 <a class="viewcode-back" href="../../../api/engine.html#capsul.engine.settings.SettingsSession.config">[docs]</a>
     <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">,</span> <span class="n">environment</span><span class="p">,</span> <span class="n">selection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">any</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        Selects configurations (like in :meth:`congigs`) and ensures at most</span>
+<span class="sd">        Selects configurations (like in :meth:`configs`) and ensures at most</span>
 <span class="sd">        one one is selected</span>
 
 <span class="sd">        Parameters</span>

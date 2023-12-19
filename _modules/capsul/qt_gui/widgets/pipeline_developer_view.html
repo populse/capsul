@@ -2274,7 +2274,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        source_dest: tupe (2 tuples of 2 strings)</span>
+<span class="sd">        source_dest: tuple (2 tuples of 2 strings)</span>
 <span class="sd">            link description:</span>
 <span class="sd">            ((source_node, source_param), (dest_node, dest_param))</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -3828,7 +3828,7 @@
 <div class="viewcode-block" id="PipelineDeveloperView.disable_preceding_steps">
 <a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.disable_preceding_steps">[docs]</a>
     <span class="k">def</span> <span class="nf">disable_preceding_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step_name</span><span class="p">,</span> <span class="n">dummy</span><span class="p">):</span>
-        <span class="c1"># don&#39;t know why we get this additionall dummy parameter (False)</span>
+        <span class="c1"># don&#39;t know why we get this additional dummy parameter (False)</span>
         <span class="n">steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">pipeline_steps</span>
         <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">steps</span><span class="o">.</span><span class="n">user_traits</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">step</span> <span class="o">==</span> <span class="n">step_name</span><span class="p">:</span>

@@ -457,7 +457,7 @@ memory) database with no persistent settings or history values.</p>
 <p>Configuration is read from a dictionary stored in two database entries.
 The first entry has the key ‘global_config’ (i.e.
 database.json_value(‘global_config’)), it contains the configuration
-values that are shared by all processings engines. The secon entry is
+values that are shared by all processing engines. The second entry is
 computing_config`. It contains a dictionary with one item per computing
 resource where the key is the resource name and the value is configuration
 values that are specific to this computing resource.</p>
@@ -1109,7 +1109,7 @@ prefixed by Settings.collection_prefix (i.e. <cite>‘settings/’</cite>).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="capsul.engine.settings.SettingsSession.config">
 <span class="sig-name descname"><span class="pre">config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">environment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">any</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/settings.html#SettingsSession.config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.settings.SettingsSession.config" title="Link to this definition">¶</a></dt>
-<dd><p>Selects configurations (like in <code class="xref py py-meth docutils literal notranslate"><span class="pre">congigs()</span></code>) and ensures at most
+<dd><p>Selects configurations (like in <a class="reference internal" href="#capsul.engine.settings.SettingsSession.configs" title="capsul.engine.settings.SettingsSession.configs"><code class="xref py py-meth docutils literal notranslate"><span class="pre">configs()</span></code></a>) and ensures at most
 one one is selected</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1169,7 +1169,7 @@ given in <cite>values</cite> a unique random value is created (with
 <dt class="sig sig-object py" id="capsul.engine.settings.SettingsSession.remove_config">
 <span class="sig-name descname"><span class="pre">remove_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">environment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/settings.html#SettingsSession.remove_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.settings.SettingsSession.remove_config" title="Link to this definition">¶</a></dt>
 <dd><p>Removes a configuration (document in the database) for a given module /
-environment, idenfified by its <cite>Settings.config_id_field</cite> value.</p>
+environment, identified by its <cite>Settings.config_id_field</cite> value.</p>
 </dd></dl>
 
 </dd></dl>
