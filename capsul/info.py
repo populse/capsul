@@ -8,7 +8,7 @@ import sys
 
 # Capsul current version
 version_major = 2
-version_minor = 4
+version_minor = 5
 version_micro = 0
 version_extra = ""
 
@@ -61,7 +61,7 @@ NETWORKX_MIN_VERSION = "1.0"
 NUMPY_MIN_VERSION = "1.17"
 SCIPY_MIN_VERSION = "1.5"
 TRAITS_MIN_VERSION = "4.6"
-NIPYPE_VERSION = "1.1"
+NIPYPE_MIN_VERSION = "1.8"
 
 # Main setup parameters
 NAME = "capsul"
@@ -100,7 +100,7 @@ EXTRA_REQUIRES = {
         "scipy>={0}".format(SCIPY_MIN_VERSION),
         "nibabel>={0}".format(NIBABEL_MIN_VERSION),
         "networkx>={0}".format(NETWORKX_MIN_VERSION),
-        "nipype=={0}".format(NIPYPE_VERSION),
+        "nipype>={0}".format(NIPYPE_MIN_VERSION),
     ],
 }
 
