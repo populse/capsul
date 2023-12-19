@@ -232,7 +232,7 @@ class CapsulMainWindow(MyQUiLoader):
     def onTreeSelectionChanged(self):
         """ Event to refresh the pipeline load button status.
         """
-        # Get the cuurent item
+        # Get the current item
         item = self.ui.menu_treectrl.currentItem()
         if item is None:
             return

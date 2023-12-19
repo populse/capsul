@@ -684,7 +684,7 @@ def has_attribute(trait, attribute_name, attribute_value=None,
     return count > 0
 
 
-def file_fingerprint(afile):
+def file_fingerprint(a_file):
     """ Computes the file fingerprint.
 
     Do not consider the file content, just the fingerprint (ie. the mtime,
@@ -692,7 +692,7 @@ def file_fingerprint(afile):
 
     Parameters
     ----------
-    afile: string
+    a_file: string
         the file to process.
 
     Returns
@@ -701,12 +701,12 @@ def file_fingerprint(afile):
         the file location, mtime and size.
     """
     fingerprint = {
-        "name": afile,
+        "name": a_file,
         "mtime": None,
         "size": None
     }
-    if os.path.isfile(afile):
-        stat = os.stat(afile)
+    if os.path.isfile(a_file):
+        stat = os.stat(a_file)
         fingerprint["size"] = str(stat.st_size)
         fingerprint["mtime"] = str(stat.st_mtime)
     return fingerprint

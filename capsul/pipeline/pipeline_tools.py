@@ -363,7 +363,7 @@ def dot_graph_from_pipeline(pipeline, nodes_sizes={}, use_nodes_pos=False,
                     edge = (id, dest)
                     old_edge = edges.get(edge)
                     if old_edge is not None:
-                        # use stongest color/style
+                        # use strongest color/style
                         if not old_edge[2]:
                             weak = False
                             style = old_edge[0]['style']

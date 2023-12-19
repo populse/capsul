@@ -166,7 +166,7 @@ class Pipeline(Process):
         a dictionary containing the pipeline nodes and where the pipeline node
         name is ''
     workflow_list: list
-        a list of odered nodes that can be executed
+        a list of ordered nodes that can be executed
     workflow_repr: str
         a string representation of the workflow list <node_i>-><node_i+1>
 

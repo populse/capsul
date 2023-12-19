@@ -12,7 +12,7 @@ with statement). For instance::
    with ce:
        fsl_check_call(['bet', '/somewhere/myimage.nii'])
 
-For calling FSL command with this module, the first arguent of
+For calling FSL command with this module, the first argument of
 command line must be the FSL executable without any path nor prefix. 
 Prefix are used in Neurodebian install. For instance on Ubuntu 16.04 
 Neurodebian FSL commands are prefixed with "fsl5.0-".

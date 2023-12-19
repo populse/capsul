@@ -2,7 +2,7 @@
 '''
 Extension to sphinx to document Capsul processes
 
-This moduls allows to make sphinx source to automatically document Capsul processes and pipelines. The module can be used as a commandline:
+This module allows to make sphinx source to automatically document Capsul processes and pipelines. The module can be used as a commandline:
 
 .. code-block:: bash
 

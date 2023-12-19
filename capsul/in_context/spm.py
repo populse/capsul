@@ -12,7 +12,7 @@ with statement). For instance::
    with ce:
       spm_check_call(spm_batch_filename)
 
-For calling SPM command with this module, the first arguent of
+For calling SPM command with this module, the first argument of
 command line must be the SPM batch file to execute with Matlab.
 '''
 

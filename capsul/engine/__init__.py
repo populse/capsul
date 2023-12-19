@@ -540,7 +540,7 @@ def capsul_engine(database_location=None, require=None):
     Configuration is read from a dictionary stored in two database entries.
     The first entry has the key 'global_config' (i.e.
     database.json_value('global_config')), it contains the configuration
-    values that are shared by all processings engines. The secon entry is 
+    values that are shared by all processing engines. The second entry is
     computing_config`. It contains a dictionary with one item per computing
     resource where the key is the resource name and the value is configuration 
     values that are specific to this computing resource.

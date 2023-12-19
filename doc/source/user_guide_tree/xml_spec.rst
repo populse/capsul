@@ -357,7 +357,7 @@ Attributes:
 -  **name**: node name in the pipeline (as in process elements)
 -  **switch\_value** (optional): value of the "switch" parameter: name
    of the active input
--  **enabed** (optional): as in process elements
+-  **enabled** (optional): as in process elements
 
 Children:
 
@@ -392,7 +392,7 @@ temporary values inside the pipeline if they are left undefined.
 Attributes:
 
 -  **name**: node name in the pipeline (as in process elements)
--  **enabed** (optional): as in process elements
+-  **enabled** (optional): as in process elements
 
 Children:
 

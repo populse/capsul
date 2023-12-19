@@ -413,7 +413,7 @@ class SettingsSession:
     def remove_config(self, module, environment, config_id):
         '''
         Removes a configuration (document in the database) for a given module /
-        environment, idenfified by its `Settings.config_id_field` value.
+        environment, identified by its `Settings.config_id_field` value.
         '''
         collection = self.collection_name(module)
         id = '%s-%s' % (config_id, environment)
@@ -450,7 +450,7 @@ class SettingsSession:
 
     def config(self, module, environment, selection=None, any=True):
         '''
-        Selects configurations (like in :meth:`congigs`) and ensures at most
+        Selects configurations (like in :meth:`configs`) and ensures at most
         one one is selected
 
         Parameters

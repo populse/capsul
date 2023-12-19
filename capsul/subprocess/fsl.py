@@ -9,7 +9,7 @@ configuration had been tested in the two following cases:
   environment variable is set (fsl.sh can be sourced or not)
 - FSL was installed from Neurodebian packages
 
-For calling FSL command with this module, the first arguent of
+For calling FSL command with this module, the first argument of
 command line must be the FSL executable without any path nor prefix. 
 Prefix areused  in Neurodebian install. For instance on Ubuntu 16.04 
 Neurodebian FSL commands are prefixed with "fsl5.0-".
