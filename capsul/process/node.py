@@ -530,12 +530,6 @@ class Node(Controller):
         """
         return hasattr(self, "build_job")
 
-    def is_parameter_protected(self, plug_name):
-        return self.field(plug_name).metadata("protected", False)
-
-    def protect_parameter(self, plug_name, state=True):
-        self.field(plug_name).protected = state
-
     # def get_capsul_engine(self):
     #''' OBSOLETE '''
     # engine = getattr(self, 'engine', None)

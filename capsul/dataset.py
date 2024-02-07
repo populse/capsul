@@ -1229,8 +1229,11 @@ class ProcessMetadata(Controller):
         if executable is None:
             executable = self.executable()
         for parameter, value in self.path_for_parameters(executable).items():
-            # self.dprint(f"Set {executable.name}.{parameter} = {value}")
-            setattr(executable, parameter, value)
+            if not executable.is_parameter_protected(parameter):
+                # self.dprint(f"Set {executable.name}.{parameter} = {value}")
+                setattr(executable, parameter, value)
+        # associate the current metadata to the process completion
+        executable.metadata = self
 
     def path_for_parameters(self, executable, parameters=None):
         """
