@@ -391,7 +391,7 @@ class ExecutionDatabase:
             raise RuntimeError(error)
 
     def update_executable(self, engine_id, execution_id, executable):
-        parameters = DictWithProxy.from_json(
+        parameters = DictWithProxy.from_json_controller(
             dict(
                 proxy_values=self.workflow_parameters_values(engine_id, execution_id),
                 content=self.workflow_parameters_dict(engine_id, execution_id),

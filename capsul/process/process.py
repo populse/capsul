@@ -148,11 +148,8 @@ class Process(Node):
             "uuid": self.uuid,
         }
         if include_parameters:
-            result["parameters"] = self.json_parameters()
+            result["parameters"] = self.json_controller()
         return result
-
-    def json_parameters(self):
-        return super().json()
 
     def before_execute(self, context):
         """This method is called by CapsulEngine before calling

@@ -8,7 +8,7 @@ from soma.controller import (
     File,
     Directory,
     field,
-    to_json,
+    to_json_controller,
 )
 from soma.api import DictWithProxy, undefined
 
@@ -68,7 +68,7 @@ class ExecutionContext(Controller):
                 cls.init_execution_context(self)
 
     def json(self):
-        json_context = super().json()
+        json_context = self.json_controller()
         for k in list(json_context):
             # replace module classes with long name, if they are not in the
             # standard location (capsul.config)
@@ -570,7 +570,7 @@ class CapsulWorkflow(Controller):
                     value = process.getattr(field.name, None)
                 # print('  ', field.name, '<-', repr(value), getattr(field, 'generate_temporary', False))
                 # debug = (field.name in debug_plugs)
-                proxy = parameters.proxy(to_json(value))
+                proxy = parameters.proxy(to_json_controller(value))
                 parameters[field.name] = proxy
                 # if debug: print('create proxy for', field.name, ':', proxy)
                 if field.is_output() and isinstance(

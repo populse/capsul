@@ -229,6 +229,9 @@ class EngineConfiguration(Controller):
                 self.add_module(mod, allow_existing=True)
         super().import_dict(conf_dict, clear=clear)
 
+    def json(self):
+        return self.json_controller()
+
 
 class ConfigurationLayer(OpenKeyDictController[EngineConfiguration]):
     """Configuration "layer", which represents a config file (site config or
