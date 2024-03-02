@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 The ``in_context`` module provides functions to call some external software from Capsul processes (SPM, FSL, etc.). The main functions perform calls to the software in a similar way as ``subprocess`` functions (:class:`~subprocess.Popen`, :func:`~subprocess.call`, :func:`~subprocess.check_call` and :func:`subprocess.check_output`).
 The notable difference is that they use an :class:`~capsul.execution_context.ExecutionContext` object instance to get configuration from.

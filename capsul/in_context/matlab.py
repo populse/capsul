@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Specific subprocess-like functions to call Matlab taking into account
 configuration stored in ExecutionContext.

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Specific subprocess-like functions to call ANTS taking into account
 configuration stored in ExecutionContext.For instance::
