@@ -2360,7 +2360,7 @@ class PipelineScene(QtGui.QGraphicsScene):
     def is_existing_path(value):
         if (
             value not in (None, undefined)
-            and type(value) is str
+            and isinstance(value, str)
             and os.path.exists(value)
         ):
             return True
@@ -5086,8 +5086,6 @@ class PipelineDeveloperView(QGraphicsView):
                 "node_dimension": {},
             }
             name = le.text()
-            if type(name) is not str:  # unicode ?
-                name = name.encode()
             pipeline_class = type(name, (Pipeline,), class_kwargs)
             pipeline = pipeline_class()
             self.set_pipeline(pipeline)
