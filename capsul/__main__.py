@@ -1,12 +1,13 @@
 import argparse
-from datetime import datetime
 import json
 import re
 import sys
+from datetime import datetime
+
+from soma.controller import undefined
 
 from .api import Capsul
 from .config.configuration import ApplicationConfiguration
-from soma.controller import undefined
 
 
 def executable_parser(executable):
@@ -112,7 +113,8 @@ capsul = Capsul(database_path=db_path)
 
 if options.subcommand == "configure":
     # Other commands must be able to work without PyQt installed
-    from soma.qt_gui.qt_backend import QtGui, Qt
+    from soma.qt_gui.qt_backend import Qt, QtGui
+
     from .qt_gui.widgets.settings_editor import SettingsEditor
 
     app_config = ApplicationConfiguration("global_config")
@@ -155,6 +157,7 @@ elif options.subcommand == "run":
 elif options.subcommand == "view":
     # Other commands must be able to work without PyQt installed
     from soma.qt_gui.qt_backend import Qt
+
     from capsul.qt_gui.widgets import PipelineDeveloperView
 
     # WARNING: QApplication should always be instantiated before aims PluginLoader

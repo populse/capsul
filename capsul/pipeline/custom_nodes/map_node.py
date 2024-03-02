@@ -4,8 +4,9 @@
 """
 
 
+from soma.controller import Controller, File, field, type_from_str, undefined
+
 from capsul.process.node import Node, Plug
-from soma.controller import Controller, File, undefined, field, type_from_str
 
 
 class MapNode(Node):

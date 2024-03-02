@@ -6,6 +6,7 @@ configuration stored in ExecutionContext.
 
 import os
 import subprocess
+
 from soma.controller import undefined
 
 
@@ -68,8 +69,9 @@ def matlab_check_output(cmd, execution_context=None, **kwargs):
 
 
 if __name__ == "__main__":
-    from capsul.api import Capsul
     import tempfile
+
+    from capsul.api import Capsul
 
     c = Capsul()
     c.config.builtin.add_module("matlab")

@@ -6,8 +6,8 @@ import subprocess
 import sys
 import traceback
 
-from soma.undefined import undefined
 from populse_db.database import json_decode, json_encode
+from soma.undefined import undefined
 
 from .application import Capsul
 from .database import engine_database

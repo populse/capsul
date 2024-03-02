@@ -1,15 +1,16 @@
 import json
 import os
-from pathlib import Path
 import shutil
 import tempfile
 import unittest
+from pathlib import Path
 
 from soma.controller import File, field
 
-from capsul.api import Process, executable, Capsul
-from ...dataset import MetadataSchema, process_schema
+from capsul.api import Capsul, Process, executable
 from capsul.dataset import ProcessMetadata
+
+from ...dataset import MetadataSchema, process_schema
 
 
 class DummyProcess(Process):

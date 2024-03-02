@@ -1,5 +1,6 @@
-from .configuration import ModuleConfiguration
 from soma.controller import Directory, undefined
+
+from .configuration import ModuleConfiguration
 
 
 class SPMConfiguration(ModuleConfiguration):

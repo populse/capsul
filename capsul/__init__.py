@@ -5,10 +5,11 @@ _doc_path = None
 
 def _init_doc_path():
     global _doc_path
-    import capsul
     import os
-    from .info import version_major
-    from .info import version_minor
+
+    import capsul
+
+    from .info import version_major, version_minor
 
     p = os.path.dirname(os.path.dirname(capsul.__file__))
     doc_path = os.path.join(p, "doc/build/html")

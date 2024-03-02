@@ -3,8 +3,9 @@
 -------------------
 """
 
+from soma.controller import Any, Controller, type_from_str
+
 from capsul.process.node import Node
-from soma.controller import Controller, Any, type_from_str
 
 
 class StrCatNode(Node):

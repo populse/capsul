@@ -1,16 +1,13 @@
-import unittest
-import tempfile
 import os
 import os.path as osp
-import sys
 import shutil
+import sys
+import tempfile
+import unittest
 
 from soma.controller import File
 
-from capsul.api import Capsul
-from capsul.api import executable
-from capsul.api import Process
-from capsul.api import Pipeline
+from capsul.api import Capsul, Pipeline, Process, executable
 from capsul.execution_context import CapsulWorkflow
 
 
@@ -144,9 +141,11 @@ class TestPipeline(unittest.TestCase):
         pipeline2 = executable(filename)
         wf = CapsulWorkflow(pipeline2, create_output_dirs=False)
         if self.debug:
-            from soma.qt_gui.qt_backend import QtGui
-            from capsul.qt_gui.widgets import PipelineDeveloperView
             import sys
+
+            from soma.qt_gui.qt_backend import QtGui
+
+            from capsul.qt_gui.widgets import PipelineDeveloperView
 
             app = QtGui.QApplication.instance()
             if not app:
@@ -213,6 +212,7 @@ class TestPipeline(unittest.TestCase):
 
 if __name__ == "__main__":
     from soma.qt_gui.qt_backend import Qt
+
     from capsul.qt_gui.widgets import PipelineDeveloperView
 
     app = Qt.QApplication.instance()

@@ -4,19 +4,19 @@ import importlib.resources
 import inspect
 import json
 import os
-from pathlib import Path
-import types
 import sys
+import types
+from pathlib import Path
 
-from soma.controller import field, Controller
-from soma.undefined import undefined
+from soma.controller import Controller, field
 from soma.singleton import Singleton
+from soma.undefined import undefined
 
 from .config.configuration import ApplicationConfiguration
 from .dataset import Dataset
-from .pipeline.pipeline import Pipeline, CustomPipeline
+from .pipeline.pipeline import CustomPipeline, Pipeline
 from .pipeline.process_iteration import ProcessIteration
-from .process.process import Process, Node
+from .process.process import Node, Process
 
 # note: nipype and related imports are not done here to avoid several seconds
 # of import time when we don't use them.

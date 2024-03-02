@@ -1,13 +1,13 @@
-import unittest
-import tempfile
 import os
 import os.path as osp
-import sys
 import shutil
+import sys
+import tempfile
+import unittest
 
 from soma.controller import File
 
-from capsul.api import Capsul, Process, Pipeline
+from capsul.api import Capsul, Pipeline, Process
 
 
 class DummyProcess(Process):
@@ -184,6 +184,7 @@ class TestPipelineWithTemp(unittest.TestCase):
 
 if __name__ == "__main__":
     from soma.qt_gui.qt_backend import QtGui
+
     from capsul.qt_gui.widgets import PipelineDeveloperView
 
     app = QtGui.QApplication.instance()

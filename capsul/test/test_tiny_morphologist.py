@@ -1,19 +1,18 @@
 import json
-from pathlib import Path
 import shutil
 import tempfile
 import unittest
+from pathlib import Path
 
-from soma.controller import field, File
-from soma.controller import Directory, undefined
+from soma.controller import Directory, File, field, undefined
 
-from capsul.api import Capsul, Process, Pipeline
+from capsul.api import Capsul, Pipeline, Process
 from capsul.config.configuration import (
     ModuleConfiguration,
+    default_builtin_database,
     default_engine_start_workers,
 )
 from capsul.dataset import ProcessMetadata, process_schema
-from capsul.config.configuration import default_builtin_database
 
 
 class FakeSPMConfiguration(ModuleConfiguration):
@@ -851,7 +850,9 @@ class TestTinyMorphologist(unittest.TestCase):
 
 if __name__ == "__main__":
     import sys
+
     from soma.qt_gui.qt_backend import Qt
+
     from capsul.web import CapsulBrowserWindow
 
     qt_app = Qt.QApplication.instance()

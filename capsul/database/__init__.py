@@ -1,20 +1,18 @@
-from datetime import datetime
-import dateutil.parser
 import importlib
 import json
-from pprint import pprint
 import re
 import sys
 import time
+from datetime import datetime
+from pprint import pprint
 
-from populse_db.database import json_encode, json_decode
-
+import dateutil.parser
+from populse_db.database import json_decode, json_encode
 from soma.api import DictWithProxy, undefined
 
 from ..application import Capsul
 from ..execution_context import ExecutionContext
-from ..pipeline.pipeline import Process, Pipeline
-
+from ..pipeline.pipeline import Pipeline, Process
 
 database_classes = {
     "sqlite": "capsul.database.sqlite:SQliteExecutionDatabase",

@@ -1,10 +1,11 @@
+import os
 import sys
 import unittest
-import os
-from capsul.api import Process, executable
-from capsul.api import Pipeline, CapsulWorkflow
+
 from soma.api import DictWithProxy
 from soma.controller import undefined
+
+from capsul.api import CapsulWorkflow, Pipeline, Process, executable
 
 
 class DummyProcess(Process):
@@ -188,6 +189,7 @@ class TestSwitchPipeline(unittest.TestCase):
 if __name__ == "__main__":
     from soma.qt_gui import qt_backend
     from soma.qt_gui.qt_backend import QtGui
+
     from capsul.qt_gui.widgets import PipelineDeveloperView
 
     app = QtGui.QApplication.instance()

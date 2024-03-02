@@ -10,17 +10,17 @@ Functions
 """
 
 # System import
-import logging
-import traceback
-import os
 import json
+import logging
+import os
 import sys
-from setuptools import find_packages
+import traceback
 from inspect import isclass
 
+from setuptools import find_packages
+
 # CAPSUL import
-from capsul.api import Pipeline
-from capsul.api import Process
+from capsul.api import Pipeline, Process
 
 # Define the logger
 logger = logging.getLogger(__name__)

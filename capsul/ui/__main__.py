@@ -1,14 +1,17 @@
 import os
+import sys
+
 from ..api import Capsul
 from . import CapsulWebBackend
-import sys
 
 # Parameters common to Qt and Web server handlers
 web_backend = CapsulWebBackend(capsul=Capsul())
 
 
 def web_server_gui():
-    import http, http.server
+    import http
+    import http.server
+
     from soma.web import SomaHTTPHandler
 
     class Handler(SomaHTTPHandler, web_backend=web_backend):
@@ -20,6 +23,7 @@ def web_server_gui():
 
 def qt_web_gui():
     import sys
+
     from soma.qt_gui.qt_backend import Qt
     from soma.web import SomaBrowserWidget
 

@@ -1,5 +1,6 @@
+from soma.controller import Directory, field, undefined
+
 from .configuration import ModuleConfiguration
-from soma.controller import Directory, undefined, field
 
 
 class MRTrixConfiguration(ModuleConfiguration):

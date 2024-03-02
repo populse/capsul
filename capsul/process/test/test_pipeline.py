@@ -1,5 +1,6 @@
-from capsul.api import Pipeline
 from collections import OrderedDict
+
+from capsul.api import Pipeline
 
 
 class test_pipeline(Pipeline):

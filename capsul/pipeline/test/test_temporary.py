@@ -1,11 +1,13 @@
-import unittest
 import os
 import os.path as osp
+import shutil
 import sys
 import tempfile
+import unittest
+
 from soma.controller import File, field
-from capsul.api import Process, Pipeline, Capsul
-import shutil
+
+from capsul.api import Capsul, Pipeline, Process
 
 
 class DummyProcess1(Process):
@@ -173,6 +175,7 @@ if __name__ == "__main__":
 
     qt_backend.set_qt_backend(compatible_qt5=True)
     from soma.qt_gui.qt_backend import QtGui
+
     from capsul.qt_gui.widgets import PipelineDeveloperView
 
     app = QtGui.QApplication(sys.argv)

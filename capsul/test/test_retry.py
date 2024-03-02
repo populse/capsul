@@ -1,7 +1,9 @@
 import os
 import tempfile
-from capsul.api import Capsul, Process, Pipeline
-from soma.controller import field, File, undefined
+
+from soma.controller import File, field, undefined
+
+from capsul.api import Capsul, Pipeline, Process
 
 
 class ControlledFailure(Process):

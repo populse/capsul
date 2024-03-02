@@ -1,15 +1,15 @@
-from datetime import datetime
 import json
+import math
 import os
 import shutil
+import signal
 import sys
-import time
 import tempfile
 import threading
-import signal
-import math
+import time
+from datetime import datetime
 
-from capsul.database import engine_database, ResponseError, ConnectionError
+from capsul.database import ConnectionError, ResponseError, engine_database
 from capsul.run import run_job
 
 

@@ -8,9 +8,9 @@ Classes
 """
 
 # System import
-import sys
-import optparse
 import logging
+import optparse
+import sys
 import warnings
 
 # Soma import

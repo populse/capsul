@@ -1,15 +1,15 @@
-from datetime import datetime
-import shutil
-import tempfile
 import json
 import os
+import shutil
 import subprocess
+import tempfile
 import time
+from datetime import datetime
 from uuid import uuid4
 
 import redis
 
-from . import ExecutionDatabase, ResponseError, ConnectionError
+from . import ConnectionError, ExecutionDatabase, ResponseError
 
 
 class RedisExecutionDatabase(ExecutionDatabase):

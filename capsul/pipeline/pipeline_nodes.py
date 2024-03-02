@@ -9,9 +9,9 @@ Classes
 
 import typing
 
-from soma.controller import Controller, undefined, Literal, List, type_from_str
+from soma.controller import Controller, List, Literal, type_from_str, undefined
 
-from ..process.node import Plug, Node
+from ..process.node import Node, Plug
 
 
 class Switch(Node):

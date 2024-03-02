@@ -38,7 +38,6 @@ import subprocess
 from soma.controller import undefined
 from soma.utils.env import parse_env_lines
 
-
 """
 If this variable is set, it contains FSL runtime env variables, allowing to run
 directly FSL commands from this process.

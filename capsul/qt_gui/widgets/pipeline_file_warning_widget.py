@@ -8,8 +8,8 @@ Classes
 """
 
 # System import
-from soma.qt_gui.qt_backend import QtCore, QtGui, Qt
 from soma.controller import undefined
+from soma.qt_gui.qt_backend import Qt, QtCore, QtGui
 
 
 class PipelineFileWarningWidget(Qt.QSplitter):

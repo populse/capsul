@@ -1,5 +1,6 @@
+from soma.controller import Directory, File, field, undefined
+
 from .configuration import ModuleConfiguration
-from soma.controller import Directory, undefined, File, field
 
 
 class FSLConfiguration(ModuleConfiguration):

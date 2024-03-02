@@ -4,11 +4,10 @@ import multiprocessing
 import os
 import sys
 
-from soma.controller import Controller, field, OpenKeyDictController, File
+from soma.controller import Controller, File, OpenKeyDictController, field
 from soma.undefined import undefined
 
 from ..dataset import Dataset
-
 
 default_builtin_database = {
     "type": "sqlite",

@@ -3,7 +3,6 @@ import subprocess
 import sys
 import unittest
 
-
 from soma.controller import field
 
 from capsul.api import Process

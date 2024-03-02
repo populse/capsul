@@ -13,8 +13,8 @@ import os
 
 # Soma import
 import soma.subprocess
-from soma.qt_gui.qt_backend import QtGui, QtCore
 from soma.controller import undefined
+from soma.qt_gui.qt_backend import QtCore, QtGui
 
 # Qt import
 try:

@@ -7,9 +7,9 @@ configuration stored in ExecutionContext.
 import os
 import os.path as osp
 import subprocess
-from soma.utils.env import parse_env_lines
-from soma.controller import undefined
 
+from soma.controller import undefined
+from soma.utils.env import parse_env_lines
 
 mrtrix_runtime_env = None
 

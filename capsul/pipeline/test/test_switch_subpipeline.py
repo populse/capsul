@@ -1,9 +1,9 @@
-import unittest
-import os
 import json
-from capsul.api import Process, executable
-from capsul.api import Pipeline
+import os
 import sys
+import unittest
+
+from capsul.api import Pipeline, Process, executable
 
 
 class DummyProcess(Process):
@@ -255,10 +255,12 @@ if __name__ == "__main__":
             print("Wrote", state_file_name)
 
         import sys
+
         from soma.qt_gui import qt_backend
 
         qt_backend.set_qt_backend(compatible_qt5=True)
         from soma.qt_gui.qt_backend import Qt
+
         from capsul.qt_gui.widgets import PipelineDeveloperView
 
         # from capsul.qt_gui.widgets import PipelineUserView

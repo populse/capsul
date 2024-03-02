@@ -1,28 +1,28 @@
 import json
-from pathlib import Path
+import os.path as osp
 import shutil
 import tempfile
-import unittest
 import time
-import os.path as osp
+import unittest
+from pathlib import Path
 
 from soma.controller import undefined
 
 from capsul.api import Capsul
-from capsul.config.configuration import default_engine_start_workers
-from capsul.dataset import ProcessMetadata, BrainVISASchema, process_schema
-from capsul.schemas.brainvisa import declare_morpho_schemas
-from capsul.config.configuration import default_builtin_database
-
-# patch processes to setup their requirements
-
-from capsul.pipeline.test.fake_morphologist.normalization_t1_spm12_reinit import (
-    normalization_t1_spm12_reinit,
+from capsul.config.configuration import (
+    default_builtin_database,
+    default_engine_start_workers,
 )
+from capsul.dataset import BrainVISASchema, ProcessMetadata, process_schema
 from capsul.pipeline.test.fake_morphologist.normalization_t1_spm8_reinit import (
     normalization_t1_spm8_reinit,
 )
 
+# patch processes to setup their requirements
+from capsul.pipeline.test.fake_morphologist.normalization_t1_spm12_reinit import (
+    normalization_t1_spm12_reinit,
+)
+from capsul.schemas.brainvisa import declare_morpho_schemas
 
 normalization_t1_spm12_reinit.requirements = {"spm": {"version": "12"}}
 
@@ -617,6 +617,7 @@ class TestFakeMorphologist(unittest.TestCase):
             debug = False
             if debug:
                 from soma.qt_gui.qt_backend import Qt
+
                 from capsul.qt_gui.widgets.pipeline_developer_view import (
                     PipelineDeveloperView,
                 )
@@ -1134,7 +1135,9 @@ def without_iteration(engine):
 
 if __name__ == "__main__":
     import sys
+
     from soma.qt_gui.qt_backend import Qt
+
     from capsul.web import CapsulBrowserWindow
 
     qt_app = Qt.QApplication.instance()

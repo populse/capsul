@@ -1,11 +1,10 @@
-from contextlib import contextmanager
-from datetime import datetime
 import json
 import os
 import sqlite3
 import tempfile
+from contextlib import contextmanager
+from datetime import datetime
 from uuid import uuid4
-
 
 from . import ExecutionDatabase
 

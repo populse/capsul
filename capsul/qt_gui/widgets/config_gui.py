@@ -1,14 +1,16 @@
-from soma.qt_gui.controller import (
-    ControllerWidget,
-    WidgetFactory,
-    OpenKeyControllerWidgetFactory,
-    ControllerWidgetFactory,
-    ControllerSubwidget,
-)
-from soma.qt_gui.collapsible import CollapsibleWidget
-from soma.controller import undefined
-from soma.qt_gui.qt_backend import Qt
 from functools import partial
+
+from soma.controller import undefined
+from soma.qt_gui.collapsible import CollapsibleWidget
+from soma.qt_gui.controller import (
+    ControllerSubwidget,
+    ControllerWidget,
+    ControllerWidgetFactory,
+    OpenKeyControllerWidgetFactory,
+    WidgetFactory,
+)
+from soma.qt_gui.qt_backend import Qt
+
 from capsul.config.configuration import ApplicationConfiguration
 
 

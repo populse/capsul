@@ -1,14 +1,16 @@
-import unittest
-from capsul.api import Process, Pipeline, executable
-from capsul.pipeline import python_export
-from capsul.execution_context import CapsulWorkflow
-from soma.controller import File
+import json
 import os
 import os.path as osp
-import tempfile
-import sys
 import shutil
-import json
+import sys
+import tempfile
+import unittest
+
+from soma.controller import File
+
+from capsul.api import Pipeline, Process, executable
+from capsul.execution_context import CapsulWorkflow
+from capsul.pipeline import python_export
 
 
 class TestProcess(Process):
@@ -796,6 +798,7 @@ class TestCustomNodes(unittest.TestCase):
 if __name__ == "__main__":
     if "-v" in sys.argv[1:] or "--verbose" in sys.argv[1:]:
         from soma.qt_gui.qt_backend import QtGui
+
         from capsul.qt_gui.widgets import PipelineDeveloperView
 
         app = QtGui.QApplication.instance()

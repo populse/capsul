@@ -1,17 +1,18 @@
 # System import
 
-import sys
 import os
 import os.path as osp
-import unittest
-import tempfile
-from tempfile import NamedTemporaryFile
-import struct
 import shutil
+import struct
+import sys
+import tempfile
+import unittest
+from tempfile import NamedTemporaryFile
+
+from soma.controller import File, field
 
 # Capsul import
-from capsul.api import Capsul, Process, Pipeline
-from soma.controller import File, field
+from capsul.api import Capsul, Pipeline, Process
 
 
 class WriteOutput(Process):
@@ -131,6 +132,7 @@ class TestPipeline(unittest.TestCase):
 
 if __name__ == "__main__":
     from soma.qt_gui.qt_backend import QtGui
+
     from capsul.qt_gui.widgets import PipelineDeveloperView
 
     app = QtGui.QApplication.instance()

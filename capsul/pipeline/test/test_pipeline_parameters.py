@@ -1,19 +1,19 @@
+import json
 import os
 import os.path as osp
-import json
 import shutil
-import unittest
 import tempfile
-from datetime import time, datetime
+import unittest
+from datetime import datetime, time
 
 from populse_db import json_encode
-
-from capsul.api import Process, Capsul
-from capsul.pipeline.pipeline_tools import (
-    save_pipeline_parameters,
-    load_pipeline_parameters,
-)
 from soma.controller import File
+
+from capsul.api import Capsul, Process
+from capsul.pipeline.pipeline_tools import (
+    load_pipeline_parameters,
+    save_pipeline_parameters,
+)
 
 
 def load_pipeline_dictionary(filename):

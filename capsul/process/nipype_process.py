@@ -7,14 +7,15 @@ Functions
 ++++++++++++++++++++++
 """
 
-import sys
-import os
-import types
 import inspect
 import logging
+import os
+import sys
+import types
+
+import soma.controller as sc
 
 from .process import NipypeProcess
-import soma.controller as sc
 
 try:
     from pydantic import v1 as pydantic

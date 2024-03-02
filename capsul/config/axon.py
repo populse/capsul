@@ -1,5 +1,6 @@
+from soma.controller import Directory, File, field, undefined
+
 from .configuration import ModuleConfiguration
-from soma.controller import Directory, undefined, File, field
 
 
 def axon_default_shared_dir():

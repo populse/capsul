@@ -21,15 +21,13 @@ Functions
 
 """
 
-from .debug import debug
-from .process.process import (
-    Process,
-    NipypeProcess,
-    FileCopyProcess,
-)
-from .pipeline.pipeline import Pipeline
-from .pipeline.pipeline_nodes import Plug
-from .pipeline.pipeline_nodes import Node
-from .pipeline.pipeline_nodes import Switch
 from .application import Capsul, executable
+from .debug import debug
 from .execution_context import CapsulWorkflow
+from .pipeline.pipeline import Pipeline
+from .pipeline.pipeline_nodes import Node, Plug, Switch
+from .process.process import (
+    FileCopyProcess,
+    NipypeProcess,
+    Process,
+)

@@ -7,23 +7,23 @@ The main function to be used contains most of the doc: see :func:`generate_paths
 """
 
 import csv
-from collections import defaultdict
 import fnmatch
 import functools
+import importlib
 import itertools
 import json
 import operator
-from pathlib import Path
 import re
 import sys
-import importlib
 import weakref
+from collections import defaultdict
+from pathlib import Path
 
-from capsul.pipeline.pipeline import Process, Pipeline, Switch
-from capsul.pipeline.process_iteration import ProcessIteration
-
-from soma.controller import Controller, Literal, Directory, field
+from soma.controller import Controller, Directory, Literal, field
 from soma.undefined import undefined
+
+from capsul.pipeline.pipeline import Pipeline, Process, Switch
+from capsul.pipeline.process_iteration import ProcessIteration
 
 global_debug = False
 

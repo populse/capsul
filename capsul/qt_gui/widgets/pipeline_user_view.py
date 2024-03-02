@@ -9,12 +9,13 @@ Classes
 
 # System import
 from __future__ import absolute_import
+
 import sys
 import tempfile
-from soma.subprocess import check_call
 
 # Soma import
 from soma.qt_gui.qt_backend import QtGui
+from soma.subprocess import check_call
 
 
 class PipelineUserView(QtGui.QWidget):

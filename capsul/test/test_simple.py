@@ -1,9 +1,10 @@
 import tempfile
 import unittest
 
+from soma.controller import File, field
+
 import capsul.api
-from capsul.api import Capsul, Process, Pipeline
-from soma.controller import field, File
+from capsul.api import Capsul, Pipeline, Process
 
 
 class ProcessWithInputAndOutputFiles(Process):

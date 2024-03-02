@@ -1,14 +1,14 @@
-import unittest
 import os
 import os.path as osp
 import shutil
 import tempfile
+import unittest
 from pathlib import Path
 
-from soma.controller import undefined, File
+from soma.controller import File, undefined
 
+from capsul.api import Capsul, Pipeline, executable
 from capsul.dataset import ProcessMetadata, process_schema
-from capsul.api import Capsul, executable, Pipeline
 
 
 class HemiPipeline(Pipeline):
@@ -287,6 +287,7 @@ class TestCompletion(unittest.TestCase):
 
 if __name__ == "__main__":
     from soma.qt_gui.qt_backend import Qt
+
     from capsul.qt_gui.widgets.pipeline_developer_view import PipelineDeveloperView
 
     app = Qt.QApplication.instance()

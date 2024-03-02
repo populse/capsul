@@ -1,6 +1,8 @@
-from capsul.api import Process
 import os
-from soma.controller import File, Directory, undefined, Literal
+
+from soma.controller import Directory, File, Literal, undefined
+
+from capsul.api import Process
 
 
 class skullstripping(Process):

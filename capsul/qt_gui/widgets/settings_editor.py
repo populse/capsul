@@ -1,6 +1,8 @@
 import sys
+
 from soma.qt_gui.qt_backend import Qt
 from soma.qt_gui.qvtabbar import QVTabWidget
+
 from capsul.config.configuration import get_config_class
 
 
