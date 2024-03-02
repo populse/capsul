@@ -9,7 +9,7 @@ Classes
 from soma.qt_gui import qt_backend
 
 # Capsul import
-from capsul.qt_apps.resources.icones import *
+from capsul.qt_apps.resources.icones import *  # noqa: F403
 
 
 class MyQUiLoader:
