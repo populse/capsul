@@ -50,7 +50,7 @@ class PipelineUserView(QtGui.QWidget):
 
     def write(self, out=sys.stdout):
         graph = self.pipeline.workflow_graph()
-        out.write("digraph workflow {\n".encode())
+        out.write(b"digraph workflow {\n")
         ids = {}
         for n in graph._nodes:
             id = str(len(ids))
@@ -58,4 +58,4 @@ class PipelineUserView(QtGui.QWidget):
             out.write(('  %s [label="%s"];\n' % (id, n)).encode())
         for n, v in graph._links:
             out.write(("  %s -> %s;\n" % (ids[n], ids[v])).encode())
-        out.write("}\n".encode())
+        out.write(b"}\n")
