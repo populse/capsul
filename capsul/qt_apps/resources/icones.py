@@ -5,7 +5,6 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-from __future__ import absolute_import
 
 import sys
 
