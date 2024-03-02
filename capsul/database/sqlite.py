@@ -472,7 +472,7 @@ class SQliteExecutionDatabase(ExecutionDatabase):
 
             sql = "SELECT ready, ongoing, failed, waiting, done FROM capsul_execution WHERE engine_id=? AND execution_id=?"
             row = sqlite.execute(sql, [engine_id, execution_id]).fetchone()
-            ready, ongoing, failed, waiting, done = [json.loads(i) for i in row]
+            ready, ongoing, failed, waiting, done = (json.loads(i) for i in row)
             ongoing.remove(job_id)
             if return_code != 0:
                 failed.append(job_id)
