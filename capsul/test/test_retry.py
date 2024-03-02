@@ -109,7 +109,7 @@ def test_retry_pipeline():
         error = engine.database.error(engine.engine_id, execution_id)
         with open(executable.output) as f:
             result = f.read()
-        assert error == None
+        assert error is None
         assert result == "initial_value\nsuccessful\nmust_restart\nfinal_value"
         engine.raise_for_status(execution_id)
 
@@ -149,7 +149,7 @@ def test_retry_sub_pipeline():
         error = engine.database.error(engine.engine_id, execution_id)
         with open(executable.output) as f:
             result = f.read()
-        assert error == None
+        assert error is None
         assert (
             result
             == "initial_value_1\nsuccessful\nmust_restart\nfinal_value\ninitial_value_2\nsuccessful\nmust_restart\nfinal_value"
