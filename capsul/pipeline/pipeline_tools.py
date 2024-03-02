@@ -38,7 +38,6 @@ Functions
 """
 
 import dataclasses
-import io
 import json
 import os
 import sys
@@ -1215,7 +1214,7 @@ def load_pipeline_parameters(filename, pipeline):
     """
 
     if filename:
-        with io.open(filename, "r", encoding="utf8") as file:
+        with open(filename, "r", encoding="utf8") as file:
             dic = json.load(file)
 
         if "pipeline_parameters" not in dic:

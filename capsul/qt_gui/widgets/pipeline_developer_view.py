@@ -36,7 +36,6 @@ import distutils.spawn
 import html
 import importlib
 import inspect
-import io
 import json
 import os
 import sys
@@ -5236,7 +5235,7 @@ class PipelineDeveloperView(QGraphicsView):
         )
 
         if filename:
-            with io.open(filename, "r", encoding="utf8") as fileJson:
+            with open(filename, "r", encoding="utf8") as fileJson:
                 dic = json.load(fileJson)
 
             dic = json.loads(dic, object_hook=hinted_tuple_hook)
