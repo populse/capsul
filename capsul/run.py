@@ -73,7 +73,7 @@ def execute_job(database, engine_id, execution_id, job_uuid, debug=False):
 
         print(f"---- init {process.definition} ----")
         pprint(job_parameters)
-        print(f"----")
+        print("----")
     for field in process.user_fields():
         value = job_parameters.get(field.name)
         if value is not None:

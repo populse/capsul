@@ -293,7 +293,7 @@ class TestTinyMorphologist(unittest.TestCase):
         for subject in self.subjects:
             for session in ("m0", "m12", "m24"):
                 for data_type in ("T1w", "T2w"):
-                    subject_dir = bids / f"rawdata" / f"sub-{subject}"
+                    subject_dir = bids / "rawdata" / f"sub-{subject}"
                     session_dir = subject_dir / f"ses-{session}"
                     file = (
                         session_dir
