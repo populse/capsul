@@ -178,7 +178,7 @@ class BIDSSchema(MetadataSchema):
 
     schema_name = "bids"
 
-    folder: Literal["sourcedata", "rawdata", "derivative"]
+    folder: Literal["sourcedata", "rawdata", "derivative"]  # noqa: F821
     process: str = None
     sub: str
     ses: str
@@ -485,7 +485,7 @@ class BrainVISASchema(MetadataSchema):
 class MorphologistBIDSSchema(BrainVISASchema):
     schema_name = "morphologist_bids"
 
-    folder: Literal["sourcedata", "rawdata", "derivative"]
+    folder: Literal["sourcedata", "rawdata", "derivative"]  # noqa: F821
 
     def _path_list(self, unused_meta=None):
         if unused_meta is None:
