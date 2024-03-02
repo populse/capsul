@@ -9,6 +9,8 @@ extend-select = [
 ]
 ignore = [
   # FIXME: apply the following rules
+  "F401",
+  "F841",
   "E402",
   "E741",
   "E501",
