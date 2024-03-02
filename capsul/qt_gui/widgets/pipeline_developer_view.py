@@ -2339,7 +2339,7 @@ class PipelineScene(QtGui.QGraphicsScene):
       <td>existing path</td>
     </tr>
 """
-            elif not field.type is sc.Any:
+            elif field.type is not sc.Any:
                 msg += """    <tr>
       <td></td>
       <td><font color="#a0a0a0">non-existing path</font></td>
@@ -2445,7 +2445,7 @@ class PipelineScene(QtGui.QGraphicsScene):
       <td>existing path</td>
     </tr>
 """
-            elif not field.type is sc.Any:
+            elif field.type is not sc.Any:
                 msg += """    <tr>
       <td></td>
       <td><font color="#a0a0a0">non-existing path</font></td>
