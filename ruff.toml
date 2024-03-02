@@ -8,6 +8,11 @@ extend-select = [
   "UP",  # https://docs.astral.sh/ruff/rules/#pyupgrade-up
 ]
 ignore = [
+  # FIXME: apply the following rules
+  "UP015",
+  "UP030",
+  "UP031",
+  "UP032",
   # https://docs.astral.sh/ruff/rules/redundant-open-modes/
   # we prefer explicit to implicit open modes
   "UP015",
