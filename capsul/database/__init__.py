@@ -59,15 +59,15 @@ class URL:
         else:
             path = ""
         if self.parameters:
-            parameters = f";{parameters}"
+            parameters = f";{self.parameters}"
         else:
             parameters = ""
         if self.query:
-            query = f"?{query}"
+            query = f"?{self.query}"
         else:
             query = ""
         if self.fragment:
-            fragment = f"#{fragment}"
+            fragment = f"#{self.fragment}"
         else:
             fragment = ""
         return f"{self.scheme}://{login}{host}{path}{parameters}{query}{fragment}"

@@ -117,7 +117,7 @@ class FormatsManager:
         l = self._format_lists.get(key)
         if l:
             raise ValueError(
-                f'Cannot create format list "{label}" because list "{f.label}" already exists.'
+                f'Cannot create format list "{label}" because list "{label}" already exists.'
             )
         result = self._format_lists[key] = NamedFormatList(label, [])
         return result
