@@ -28,7 +28,7 @@ class PipelineFileWarningWidget(Qt.QSplitter):
     """
 
     def __init__(self, missing_inputs, overwritten_outputs, parent=None):
-        super(PipelineFileWarningWidget, self).__init__(QtCore.Qt.Vertical, parent)
+        super().__init__(QtCore.Qt.Vertical, parent)
         """
         Builds the check widget.
 

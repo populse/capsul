@@ -7,7 +7,7 @@ from capsul.api import Process
 
 class SPMsn3dToAims(Process):
     def __init__(self, **kwargs):
-        super(SPMsn3dToAims, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.name = "ConvertSPMnormalizationToAIMS"
 
         self.add_field("read", File, read=True, extensions=[".mat"], write=False)

@@ -7,7 +7,7 @@ from capsul.api import Process
 
 class TalairachTransformation(Process):
     def __init__(self, **kwargs):
-        super(TalairachTransformation, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.name = "TalairachTransformation"
 
         self.add_field(

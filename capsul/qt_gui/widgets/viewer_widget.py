@@ -38,7 +38,7 @@ class ViewerWidget(QtGui.QWidget):
             since the viewer node is unactivated
         """
         # Inheritance
-        super(ViewerWidget, self).__init__()
+        super().__init__()
 
         # Default parameters
         self.viewer_node_name = viewer_node_name

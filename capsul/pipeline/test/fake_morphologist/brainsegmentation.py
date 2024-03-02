@@ -7,7 +7,7 @@ from capsul.api import Process
 
 class BrainSegmentation(Process):
     def __init__(self, **kwargs):
-        super(BrainSegmentation, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.name = "BrainSegmentation"
 
         self.add_field(

@@ -7,7 +7,7 @@ from capsul.api import Process
 
 class Normalization_Baladin(Process):
     def __init__(self, **kwargs):
-        super(Normalization_Baladin, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.name = "NormalizeBaladin"
 
         self.add_field(

@@ -7,7 +7,7 @@ from capsul.api import Process
 
 class ScalpMesh(Process):
     def __init__(self, **kwargs):
-        super(ScalpMesh, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.name = "HeadMesh"
 
         self.add_field(

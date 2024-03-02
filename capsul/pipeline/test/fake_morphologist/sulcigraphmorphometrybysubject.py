@@ -7,7 +7,7 @@ from capsul.api import Process
 
 class sulcigraphmorphometrybysubject(Process):
     def __init__(self, **kwargs):
-        super(sulcigraphmorphometrybysubject, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.name = "SulcalMorphometry"
 
         self.add_field(

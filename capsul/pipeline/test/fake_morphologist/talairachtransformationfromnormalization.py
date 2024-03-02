@@ -7,7 +7,7 @@ from capsul.api import Process
 
 class TalairachTransformationFromNormalization(Process):
     def __init__(self, **kwargs):
-        super(TalairachTransformationFromNormalization, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.name = "TalairachFromNormalization"
 
         self.add_field(

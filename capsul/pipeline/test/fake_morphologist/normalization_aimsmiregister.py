@@ -7,7 +7,7 @@ from capsul.api import Process
 
 class normalization_aimsmiregister(Process):
     def __init__(self, **kwargs):
-        super(normalization_aimsmiregister, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.name = "Normalization_AimsMIRegister"
 
         self.add_field(

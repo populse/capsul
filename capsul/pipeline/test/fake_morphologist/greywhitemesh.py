@@ -7,7 +7,7 @@ from capsul.api import Process
 
 class GreyWhiteMesh(Process):
     def __init__(self, **kwargs):
-        super(GreyWhiteMesh, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.name = "GreyWhiteMesh"
 
         self.add_field(

@@ -7,7 +7,7 @@ from capsul.api import Process
 
 class GreyWhiteClassificationHemi(Process):
     def __init__(self, **kwargs):
-        super(GreyWhiteClassificationHemi, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.name = "GreyWhiteClassification"
 
         self.add_field("side", Literal["left", "right"], optional=True)

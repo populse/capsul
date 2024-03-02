@@ -7,7 +7,7 @@ from capsul.api import Process
 
 class SulciSkeleton(Process):
     def __init__(self, **kwargs):
-        super(SulciSkeleton, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.name = "SulciSkeleton"
 
         self.add_field(

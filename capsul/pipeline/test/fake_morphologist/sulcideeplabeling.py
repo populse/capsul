@@ -7,7 +7,7 @@ from capsul.api import Process
 
 class SulciDeepLabeling(Process):
     def __init__(self, **kwargs):
-        super(SulciDeepLabeling, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.name = "CNN_recognition19"
 
         self.add_field(

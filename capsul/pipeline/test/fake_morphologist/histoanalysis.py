@@ -7,7 +7,7 @@ from capsul.api import Process
 
 class HistoAnalysis(Process):
     def __init__(self, **kwargs):
-        super(HistoAnalysis, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.name = "HistoAnalysis"
 
         self.add_field(

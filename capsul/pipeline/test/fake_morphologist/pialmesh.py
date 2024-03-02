@@ -7,7 +7,7 @@ from capsul.api import Process
 
 class PialMesh(Process):
     def __init__(self, **kwargs):
-        super(PialMesh, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.name = "PialMesh"
 
         self.add_field(

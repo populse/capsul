@@ -7,7 +7,7 @@ from capsul.api import Process
 
 class GreyWhiteTopology(Process):
     def __init__(self, **kwargs):
-        super(GreyWhiteTopology, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.name = "GreyWhiteTopology"
 
         self.add_field(

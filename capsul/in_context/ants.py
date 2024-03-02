@@ -127,7 +127,7 @@ class ANTSPopen(subprocess.Popen):
         cmd = ants_command_with_environment(
             command, execution_context=execution_context
         )
-        super(ANTSPopen, self).__init__(cmd, **kwargs)
+        super().__init__(cmd, **kwargs)
 
 
 def ants_call(command, execution_context=None, **kwargs):

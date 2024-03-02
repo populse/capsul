@@ -7,7 +7,7 @@ from capsul.api import Process
 
 class FSLnormalizationToAims(Process):
     def __init__(self, **kwargs):
-        super(FSLnormalizationToAims, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.name = "ConvertFSLnormalizationToAIMS"
 
         self.add_field("read", File, read=True, extensions=[".mat"], write=False)

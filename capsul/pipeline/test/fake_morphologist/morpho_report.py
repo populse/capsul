@@ -7,7 +7,7 @@ from capsul.api import Process
 
 class morpho_report(Process):
     def __init__(self, **kwargs):
-        super(morpho_report, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.name = "Report"
 
         self.add_field(

@@ -7,7 +7,7 @@ from capsul.api import Process
 
 class AimsConverter(Process):
     def __init__(self, **kwargs):
-        super(AimsConverter, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.name = "converter"
 
         self.add_field(

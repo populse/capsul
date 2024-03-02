@@ -8,7 +8,7 @@ from capsul.config.configuration import get_config_class
 
 class SettingsEditor(Qt.QDialog):
     def __init__(self, config, parent=None):
-        super(SettingsEditor, self).__init__(parent)
+        super().__init__(parent)
 
         self.config = config
 
@@ -79,6 +79,6 @@ class SettingsEditor(Qt.QDialog):
         self.update_gui()
 
     def accept(self):
-        super(SettingsEditor, self).accept()
+        super().accept()
         for module_name, tab in self.module_tabs.items():
             tab.accept()

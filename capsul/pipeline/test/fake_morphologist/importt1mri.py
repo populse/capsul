@@ -7,7 +7,7 @@ from capsul.api import Process
 
 class ImportT1MRI(Process):
     def __init__(self, **kwargs):
-        super(ImportT1MRI, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.name = "importation"
 
         self.add_field(

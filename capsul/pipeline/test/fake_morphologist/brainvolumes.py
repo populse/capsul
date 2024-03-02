@@ -7,7 +7,7 @@ from capsul.api import Process
 
 class brainvolumes(Process):
     def __init__(self, **kwargs):
-        super(brainvolumes, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.name = "GlobalMorphometry"
 
         self.add_field(

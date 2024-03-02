@@ -41,7 +41,7 @@ class MatlabPopen(subprocess.Popen):
 
     def __init__(self, cmd, execution_context=None, **kwargs):
         cmd = matlab_command(cmd, execution_context=execution_context)
-        super(MatlabPopen, self).__init__(cmd, **kwargs)
+        super().__init__(cmd, **kwargs)
 
 
 def matlab_call(cmd, execution_context=None, **kwargs):

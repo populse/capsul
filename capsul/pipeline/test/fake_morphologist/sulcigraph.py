@@ -7,7 +7,7 @@ from capsul.api import Process
 
 class SulciGraph(Process):
     def __init__(self, **kwargs):
-        super(SulciGraph, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.name = "CorticalFoldsGraph"
 
         self.add_field(

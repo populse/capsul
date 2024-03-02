@@ -12,7 +12,7 @@ except ImportError:
 
 class AcpcOrientation(Process):
     def __init__(self, **kwargs):
-        super(AcpcOrientation, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.name = "StandardACPC"
 
         self.add_field(

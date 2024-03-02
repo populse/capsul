@@ -7,7 +7,7 @@ from capsul.api import Process
 
 class BaladinNormalizationToAims(Process):
     def __init__(self, **kwargs):
-        super(BaladinNormalizationToAims, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.name = "ConvertBaladinNormalizationToAIMS"
 
         self.add_field("read", File, read=True, extensions=[".txt"], write=False)

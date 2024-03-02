@@ -127,7 +127,7 @@ class AFNIPopen(subprocess.Popen):
         cmd = afni_command_with_environment(
             command, execution_context=execution_context
         )
-        super(AFNIPopen, self).__init__(cmd, **kwargs)
+        super().__init__(cmd, **kwargs)
 
 
 def afni_call(command, execution_context=None, **kwargs):

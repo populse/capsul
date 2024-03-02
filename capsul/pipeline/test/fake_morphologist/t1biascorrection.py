@@ -7,7 +7,7 @@ from capsul.api import Process
 
 class T1BiasCorrection(Process):
     def __init__(self, **kwargs):
-        super(T1BiasCorrection, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.name = "BiasCorrection"
 
         self.add_field(

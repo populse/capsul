@@ -7,7 +7,7 @@ from capsul.api import Process
 
 class skullstripping(Process):
     def __init__(self, **kwargs):
-        super(skullstripping, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.name = "SkullStripping"
 
         self.add_field(

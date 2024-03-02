@@ -7,7 +7,7 @@ from capsul.api import Process
 
 class SulciLabellingSPAMGlobal(Process):
     def __init__(self, **kwargs):
-        super(SulciLabellingSPAMGlobal, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.name = "global_recognition"
 
         self.add_field(

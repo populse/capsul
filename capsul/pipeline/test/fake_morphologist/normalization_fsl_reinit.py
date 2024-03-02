@@ -7,7 +7,7 @@ from capsul.api import Process
 
 class Normalization_FSL_reinit(Process):
     def __init__(self, **kwargs):
-        super(Normalization_FSL_reinit, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.name = "NormalizeFSL"
 
         self.add_field(

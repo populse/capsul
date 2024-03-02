@@ -27,7 +27,7 @@ class PipelineUserView(QtGui.QWidget):
     def __init__(self, pipeline):
         """Initialize the WorkflowViewer class"""
         # Inheritance
-        super(PipelineUserView, self).__init__()
+        super().__init__()
 
         # Class attributets
         self.pipeline = pipeline
