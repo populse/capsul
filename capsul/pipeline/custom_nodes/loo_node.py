@@ -3,7 +3,6 @@
 ------------------------
 """
 
-
 from soma.controller import Any, Controller, type_from_str
 
 from capsul.process.node import Node

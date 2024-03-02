@@ -9,7 +9,6 @@ Functions
 ----------------------
 """
 
-
 # Soma import
 from soma.qt_gui.qt_backend import QtGui
 

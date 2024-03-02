@@ -350,9 +350,9 @@ class CapsulWorkflow(Controller):
                         field.metadata("write", False)
                         and field.name in parameters.content
                     ):
-                        nodes_dict.setdefault(dest_node.name, {})[
-                            plug_name
-                        ] = parameters.content[field.name]
+                        nodes_dict.setdefault(dest_node.name, {})[plug_name] = (
+                            parameters.content[field.name]
+                        )
                         # if debug: print('-> add write in nodes_dict')
                     else:
                         parameters.content[field.name] = nodes_dict.get(
@@ -563,9 +563,9 @@ class CapsulWorkflow(Controller):
                                     else:
                                         suffix = ""
                                     uuid = str(uuid4())
-                                    value[
-                                        i
-                                    ] = f"{prefix}.{field.name}_{i}_{uuid}{suffix}"
+                                    value[i] = (
+                                        f"{prefix}.{field.name}_{i}_{uuid}{suffix}"
+                                    )
                     # print('generate tmp:', value)
                 if value is undefined:
                     value = process.getattr(field.name, None)

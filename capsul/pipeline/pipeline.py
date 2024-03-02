@@ -1,4 +1,4 @@
-""" Pipeline main class module
+"""Pipeline main class module
 
 Classes
 =======

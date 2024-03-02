@@ -23,7 +23,6 @@ class DummyProcess(Process):
 
 
 class MyPipelineWithOptOut(Pipeline):
-
     """Simple Pipeline to test the OptionalOutputSwitch Node"""
 
     def pipeline_definition(self):

@@ -1,4 +1,4 @@
-""" Process main class and infrastructure
+"""Process main class and infrastructure
 
 Classes
 -------

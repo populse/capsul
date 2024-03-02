@@ -3,7 +3,6 @@
 ------------------------
 """
 
-
 from soma.controller import Controller, File, field, type_from_str, undefined
 
 from capsul.process.node import Node, Plug
