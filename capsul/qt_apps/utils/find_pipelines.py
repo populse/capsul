@@ -190,7 +190,7 @@ def lists2dict(list_of_pipeline_description, url, d):
 
         # Continue the recursion
         else:
-            if not l[0] in d:
+            if l[0] not in d:
                 d[l[0]] = lists2dict([l[1:]], url, {})
             else:
                 d[l[0]].update(lists2dict([l[1:]], url, d[l[0]]))
