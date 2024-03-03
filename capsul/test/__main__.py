@@ -1,8 +1,8 @@
 import argparse
 import os
-from pathlib import Path
 import subprocess
 import sys
+from pathlib import Path
 
 parser = argparse.ArgumentParser(
     prog="Test capsul module", description="Run Capsul test suite"

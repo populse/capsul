@@ -6,27 +6,27 @@ Classes
 """
 
 # System import
-import os
 import logging
+import os
 
 # Define the logger
 logger = logging.getLogger(__name__)
 
 # Capsul import
-from capsul.qt_apps.utils.application import Application
-from capsul.qt_apps.main_window import CapsulMainWindow
-from capsul.qt_apps.utils.find_pipelines import find_pipelines_from_description
 import capsul.qt_apps.resources as resources
 from capsul.plugins import PLUGS
+from capsul.qt_apps.main_window import CapsulMainWindow
+from capsul.qt_apps.utils.application import Application
+from capsul.qt_apps.utils.find_pipelines import find_pipelines_from_description
 
 
 class PipelineViewerApp(Application):
     """CAPSULVIEW Application."""
 
     # Load some meta information
-    from capsul.info import __version__ as _version
     from capsul.info import NAME as _application_name
     from capsul.info import ORGANISATION as _organisation_name
+    from capsul.info import __version__ as _version
 
     def __init__(self, *args, **kwargs):
         """Method to initialize the PipelineViewerApp class."""

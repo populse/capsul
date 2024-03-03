@@ -8,10 +8,11 @@ Classes
 """
 
 import json
+
+from soma.controller import Any, Controller, File, Path
 from soma.qt_gui import qt_backend
-from soma.qt_gui.qt_backend import QtGui, QtCore
-from soma.controller import Controller, File, Any, Path
 from soma.qt_gui.controller import ControllerWidget
+from soma.qt_gui.qt_backend import QtCore, QtGui
 from soma.utils.weak_proxy import proxy_method
 
 

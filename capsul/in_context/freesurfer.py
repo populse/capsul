@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Specific subprocess-like functions to call Freesurfer taking into account
 configuration stored in the execution context configuration.
@@ -14,9 +13,9 @@ properly set, the functions will use:
 import os
 import os.path as osp
 import subprocess
-from soma.utils.env import parse_env_lines
-from soma.controller import undefined
 
+from soma.controller import undefined
+from soma.utils.env import parse_env_lines
 
 """
 If this variable is set, it contains FS runtime env variables,

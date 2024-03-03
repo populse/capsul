@@ -3,8 +3,9 @@
 --------------------------------
 """
 
+from soma.controller import Any, Controller, type_from_str, undefined
+
 from capsul.process.node import Node
-from soma.controller import Controller, Any, undefined, type_from_str
 
 
 class StrConvNode(Node):

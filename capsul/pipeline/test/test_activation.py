@@ -1,8 +1,9 @@
-import unittest
-from soma.controller import File
-from capsul.api import Process, executable
-from capsul.api import Pipeline
 import sys
+import unittest
+
+from soma.controller import File
+
+from capsul.api import Pipeline, Process, executable
 
 
 class DummyProcess(Process):
@@ -123,6 +124,7 @@ class TestPipeline(unittest.TestCase):
 if __name__ == "__main__":
     if "-v" in sys.argv[1:]:
         from soma.qt_gui.qt_backend import QtGui
+
         from capsul.qt_gui.widgets import PipelineDeveloperView
 
         app = QtGui.QApplication.instance()

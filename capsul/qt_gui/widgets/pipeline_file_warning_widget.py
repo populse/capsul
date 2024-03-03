@@ -8,8 +8,8 @@ Classes
 """
 
 # System import
-from soma.qt_gui.qt_backend import QtCore, QtGui, Qt
 from soma.controller import undefined
+from soma.qt_gui.qt_backend import Qt, QtCore, QtGui
 
 
 class PipelineFileWarningWidget(Qt.QSplitter):
@@ -28,7 +28,7 @@ class PipelineFileWarningWidget(Qt.QSplitter):
     """
 
     def __init__(self, missing_inputs, overwritten_outputs, parent=None):
-        super(PipelineFileWarningWidget, self).__init__(QtCore.Qt.Vertical, parent)
+        super().__init__(QtCore.Qt.Vertical, parent)
         """
         Builds the check widget.
 

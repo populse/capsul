@@ -37,21 +37,20 @@ Functions
 -----------------------
 """
 
-import os
-import tempfile
-import soma.subprocess
+import dataclasses
 import json
-import io
+import os
 import sys
+import tempfile
 
-from populse_db import json_encode, json_decode
+import soma.subprocess
+from populse_db import json_decode, json_encode
+from soma.controller import Any, Controller, undefined
 
 # Capsul import
 from capsul.application import executable
 from capsul.pipeline.pipeline import Pipeline, Process, Switch
 from capsul.pipeline.process_iteration import ProcessIteration
-from soma.controller import Controller, undefined, Any
-import dataclasses
 
 
 def pipeline_node_colors(pipeline, node):
@@ -1215,7 +1214,7 @@ def load_pipeline_parameters(filename, pipeline):
     """
 
     if filename:
-        with io.open(filename, "r", encoding="utf8") as file:
+        with open(filename, "r", encoding="utf8") as file:
             dic = json.load(file)
 
         if "pipeline_parameters" not in dic:

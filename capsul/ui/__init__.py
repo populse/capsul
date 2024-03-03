@@ -1,4 +1,5 @@
 import os
+
 from soma.qt_gui.qt_backend.Qt import QVariant
 from soma.web import WebBackend, json_exception, pyqtSlot
 

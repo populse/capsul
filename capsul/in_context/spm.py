@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Specific subprocess-like functions to call SPM taking into account
 configuration stored in ExecutionContext.
@@ -8,6 +7,7 @@ import glob
 import os
 import os.path as osp
 import subprocess
+
 from soma.controller import undefined
 
 
@@ -66,7 +66,7 @@ class SPMPopen(subprocess.Popen):
 
     def __init__(self, spm_batch_filename, execution_context=None, **kwargs):
         cmd = spm_command(spm_batch_filename, execution_context=execution_context)
-        super(SPMPopen, self).__init__(cmd, **kwargs)
+        super().__init__(cmd, **kwargs)
 
 
 def spm_call(spm_batch_filename, execution_context=None, **kwargs):

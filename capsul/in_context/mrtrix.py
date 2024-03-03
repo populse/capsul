@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Specific subprocess-like functions to call mrtrix taking into account
 configuration stored in ExecutionContext.
@@ -7,9 +6,9 @@ configuration stored in ExecutionContext.
 import os
 import os.path as osp
 import subprocess
-from soma.utils.env import parse_env_lines
-from soma.controller import undefined
 
+from soma.controller import undefined
+from soma.utils.env import parse_env_lines
 
 mrtrix_runtime_env = None
 
@@ -114,7 +113,7 @@ class MrtrixPopen(subprocess.Popen):
         cmd = mrtrix_command_with_environment(
             command, execution_context=execution_context
         )
-        super(MrtrixPopen, self).__init__(cmd, **kwargs)
+        super().__init__(cmd, **kwargs)
 
 
 def mrtrix_call(command, execution_context=None, **kwargs):

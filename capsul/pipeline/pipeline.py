@@ -1,4 +1,4 @@
-""" Pipeline main class module
+"""Pipeline main class module
 
 Classes
 =======
@@ -6,22 +6,19 @@ Classes
 -----------------
 """
 
-from copy import deepcopy
 import sys
 from collections import OrderedDict
+from copy import deepcopy
 from typing import Any
 
+from soma.controller import Controller, Event, Literal, field
+from soma.sorted_dictionary import SortedDictionary
 from soma.undefined import undefined
-from soma.controller import field
 
 from ..process.process import Process
-from .topological_sort import GraphNode
-from .topological_sort import Graph
-from .process_iteration import ProcessIteration
 from .pipeline_nodes import Switch
-
-from soma.controller import Controller, Event, Literal
-from soma.sorted_dictionary import SortedDictionary
+from .process_iteration import ProcessIteration
+from .topological_sort import Graph, GraphNode
 
 try:
     from pydantic.v1 import ValidationError

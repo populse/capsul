@@ -1,11 +1,13 @@
-from capsul.api import Process
 import os
-from soma.controller import File, Directory, undefined, Literal
+
+from soma.controller import Directory, File, Literal, undefined
+
+from capsul.api import Process
 
 
 class normalization_t1_spm8_reinit(Process):
     def __init__(self, **kwargs):
-        super(normalization_t1_spm8_reinit, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.name = "normalization_t1_spm8_reinit"
 
         self.add_field(

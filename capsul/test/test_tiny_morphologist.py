@@ -1,19 +1,18 @@
 import json
-from pathlib import Path
 import shutil
 import tempfile
 import unittest
+from pathlib import Path
 
-from soma.controller import field, File
-from soma.controller import Directory, undefined
+from soma.controller import Directory, File, field, undefined
 
-from capsul.api import Capsul, Process, Pipeline
+from capsul.api import Capsul, Pipeline, Process
 from capsul.config.configuration import (
     ModuleConfiguration,
+    default_builtin_database,
     default_engine_start_workers,
 )
 from capsul.dataset import ProcessMetadata, process_schema
-from capsul.config.configuration import default_builtin_database
 
 
 class FakeSPMConfiguration(ModuleConfiguration):
@@ -294,7 +293,7 @@ class TestTinyMorphologist(unittest.TestCase):
         for subject in self.subjects:
             for session in ("m0", "m12", "m24"):
                 for data_type in ("T1w", "T2w"):
-                    subject_dir = bids / f"rawdata" / f"sub-{subject}"
+                    subject_dir = bids / "rawdata" / f"sub-{subject}"
                     session_dir = subject_dir / f"ses-{session}"
                     file = (
                         session_dir
@@ -366,9 +365,9 @@ class TestTinyMorphologist(unittest.TestCase):
                 "directory": str(fakespm),
                 "version": version,
             }
-            config["builtin"].setdefault("fakespm", {})[
-                f"fakespm_{version}"
-            ] = fakespm_config
+            config["builtin"].setdefault("fakespm", {})[f"fakespm_{version}"] = (
+                fakespm_config
+            )
 
         # Create a configuration file
         self.config_file = tmp / "capsul_config.json"
@@ -851,7 +850,9 @@ class TestTinyMorphologist(unittest.TestCase):
 
 if __name__ == "__main__":
     import sys
+
     from soma.qt_gui.qt_backend import Qt
+
     from capsul.web import CapsulBrowserWindow
 
     qt_app = Qt.QApplication.instance()

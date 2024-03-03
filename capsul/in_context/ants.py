@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Specific subprocess-like functions to call ANTS taking into account
 configuration stored in ExecutionContext.For instance::
@@ -20,9 +19,9 @@ of the ExecutionContext.
 import os
 import os.path as osp
 import subprocess
-from soma.utils.env import parse_env_lines
-from soma.controller import undefined
 
+from soma.controller import undefined
+from soma.utils.env import parse_env_lines
 
 ants_runtime_env = None
 
@@ -127,7 +126,7 @@ class ANTSPopen(subprocess.Popen):
         cmd = ants_command_with_environment(
             command, execution_context=execution_context
         )
-        super(ANTSPopen, self).__init__(cmd, **kwargs)
+        super().__init__(cmd, **kwargs)
 
 
 def ants_call(command, execution_context=None, **kwargs):

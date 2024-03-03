@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Specific subprocess-like functions to call FSL taking into account
 configuration stored in ExecutionContext.
@@ -37,7 +36,6 @@ import subprocess
 
 from soma.controller import undefined
 from soma.utils.env import parse_env_lines
-
 
 """
 If this variable is set, it contains FSL runtime env variables, allowing to run

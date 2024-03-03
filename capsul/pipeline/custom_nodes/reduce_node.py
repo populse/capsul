@@ -3,8 +3,9 @@
 ------------------------
 """
 
+from soma.controller import Controller, File, Path, Union, type_from_str, undefined
+
 from capsul.process.node import Node, Plug
-from soma.controller import Controller, File, Union, undefined, Path, type_from_str
 
 
 class ReduceNode(Node):

@@ -1,12 +1,12 @@
 import os
 import shutil
-import unittest
-import tempfile
 import sys
+import tempfile
+import unittest
 
 from soma.controller import File, field
 
-from capsul.api import Process, Pipeline, executable
+from capsul.api import Pipeline, Process, executable
 
 
 class Identity(Process):
@@ -889,6 +889,7 @@ if __name__ == "__main__":
         pipeline = executable(ComplexPipeline)
 
         from soma.qt_gui.qt_backend import Qt
+
         from capsul.qt_gui.widgets import PipelineDeveloperView
         from capsul.qt_gui.widgets.activation_inspector import ActivationInspectorApp
 

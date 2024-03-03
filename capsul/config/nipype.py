@@ -1,7 +1,8 @@
-from .configuration import ModuleConfiguration
 import os
 import os.path as osp
 import tempfile
+
+from .configuration import ModuleConfiguration
 
 
 class NipypeConfiguration(ModuleConfiguration):

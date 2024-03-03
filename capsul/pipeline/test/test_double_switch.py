@@ -1,6 +1,6 @@
 import unittest
-from capsul.api import Process, executable
-from capsul.api import Pipeline
+
+from capsul.api import Pipeline, Process, executable
 
 
 class DummyProcess(Process):
@@ -103,10 +103,12 @@ class TestDoubleSwitchPipeline(unittest.TestCase):
 
 if __name__ == "__main__":
     import sys
+
     from soma.qt_gui import qt_backend
 
     qt_backend.set_qt_backend(compatible_qt5=True)
     from soma.qt_gui.qt_backend import QtGui
+
     from capsul.qt_gui.widgets import PipelineDeveloperView
 
     app = QtGui.QApplication.instance()

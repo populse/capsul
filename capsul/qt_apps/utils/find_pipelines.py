@@ -10,17 +10,17 @@ Functions
 """
 
 # System import
-import logging
-import traceback
-import os
 import json
+import logging
+import os
 import sys
-from setuptools import find_packages
+import traceback
 from inspect import isclass
 
+from setuptools import find_packages
+
 # CAPSUL import
-from capsul.api import Pipeline
-from capsul.api import Process
+from capsul.api import Pipeline, Process
 
 # Define the logger
 logger = logging.getLogger(__name__)
@@ -190,7 +190,7 @@ def lists2dict(list_of_pipeline_description, url, d):
 
         # Continue the recursion
         else:
-            if not l[0] in d:
+            if l[0] not in d:
                 d[l[0]] = lists2dict([l[1:]], url, {})
             else:
                 d[l[0]].update(lists2dict([l[1:]], url, d[l[0]]))

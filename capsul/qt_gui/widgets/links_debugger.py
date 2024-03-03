@@ -8,14 +8,14 @@ Classes
 """
 
 # System import
-from __future__ import absolute_import
+
 import os
-import tempfile
 import re
+import tempfile
 
 # Soma import
 from soma.qt_gui import qt_backend
-from soma.qt_gui.qt_backend import QtGui, QtCore
+from soma.qt_gui.qt_backend import QtCore, QtGui
 
 
 class CapsulLinkDebuggerView(QtGui.QWidget):

@@ -10,8 +10,8 @@ Classes
 
 from soma.controller import undefined
 
-from capsul.process.process import Process
 import capsul.pipeline.pipeline
+from capsul.process.process import Process
 
 
 class IndependentExecutables:

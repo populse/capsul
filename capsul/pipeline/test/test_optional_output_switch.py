@@ -1,9 +1,9 @@
-import unittest
-from soma.controller import File, undefined
-from capsul.api import Process
-from capsul.api import Pipeline
-from capsul.api import executable
 import sys
+import unittest
+
+from soma.controller import File, undefined
+
+from capsul.api import Pipeline, Process, executable
 
 
 class DummyProcess(Process):
@@ -23,7 +23,6 @@ class DummyProcess(Process):
 
 
 class MyPipelineWithOptOut(Pipeline):
-
     """Simple Pipeline to test the OptionalOutputSwitch Node"""
 
     def pipeline_definition(self):
@@ -75,6 +74,7 @@ class TestPipeline(unittest.TestCase):
 
 if __name__ == "__main__":
     from soma.qt_gui.qt_backend import Qt
+
     from capsul.qt_gui.widgets import PipelineDeveloperView
 
     app = Qt.QApplication.instance()

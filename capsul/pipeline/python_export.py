@@ -7,9 +7,10 @@ Functions
 ------------------------
 """
 
-from soma.controller import Controller, undefined
 import os
 import sys
+
+from soma.controller import Controller, undefined
 
 
 def save_py_pipeline(pipeline, py_file):
@@ -24,11 +25,11 @@ def save_py_pipeline(pipeline, py_file):
         .py file to save the pipeline in
     """
     # imports are done locally to avoid circular imports
-    from capsul.api import Process, Pipeline
+    from capsul.api import Pipeline, Process
+    from capsul.application import executable
     from capsul.pipeline.pipeline_nodes import Switch
     from capsul.pipeline.process_iteration import ProcessIteration
     from capsul.process.process import NipypeProcess
-    from capsul.application import executable
 
     def get_repr_value(value):
         # TODO: handle None/undefined in lists/dicts etc

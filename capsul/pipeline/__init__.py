@@ -1,2 +1,1 @@
-""" Pipelining elements for CAPSUL
-"""
+"""Pipelining elements for CAPSUL"""

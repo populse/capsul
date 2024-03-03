@@ -3,7 +3,7 @@ from functools import partial
 from pathlib import Path
 from pprint import pformat
 
-from soma.qt_gui.qt_backend import Qt, loadUi, QtGui
+from soma.qt_gui.qt_backend import Qt, QtGui, loadUi
 
 execution_widget_ui = Path(__file__).parent / "execution_widget.ui"
 

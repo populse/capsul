@@ -7,23 +7,23 @@ The main function to be used contains most of the doc: see :func:`generate_paths
 """
 
 import csv
-from collections import defaultdict
 import fnmatch
 import functools
+import importlib
 import itertools
 import json
 import operator
-from pathlib import Path
 import re
 import sys
-import importlib
 import weakref
+from collections import defaultdict
+from pathlib import Path
 
-from capsul.pipeline.pipeline import Process, Pipeline, Switch
-from capsul.pipeline.process_iteration import ProcessIteration
-
-from soma.controller import Controller, Literal, Directory, field
+from soma.controller import Controller, Directory, Literal, field
 from soma.undefined import undefined
+
+from capsul.pipeline.pipeline import Pipeline, Process, Switch
+from capsul.pipeline.process_iteration import ProcessIteration
 
 global_debug = False
 
@@ -178,7 +178,7 @@ class BIDSSchema(MetadataSchema):
 
     schema_name = "bids"
 
-    folder: Literal["sourcedata", "rawdata", "derivative"]
+    folder: Literal["sourcedata", "rawdata", "derivative"]  # noqa: F821
     process: str = None
     sub: str
     ses: str
@@ -485,7 +485,7 @@ class BrainVISASchema(MetadataSchema):
 class MorphologistBIDSSchema(BrainVISASchema):
     schema_name = "morphologist_bids"
 
-    folder: Literal["sourcedata", "rawdata", "derivative"]
+    folder: Literal["sourcedata", "rawdata", "derivative"]  # noqa: F821
 
     def _path_list(self, unused_meta=None):
         if unused_meta is None:

@@ -1,23 +1,24 @@
-from uuid import uuid4
 import importlib
 import os
+from uuid import uuid4
 
+from soma.api import DictWithProxy, undefined
 from soma.controller import (
     Controller,
-    OpenKeyDictController,
-    File,
     Directory,
+    File,
+    OpenKeyDictController,
     field,
     to_json_controller,
 )
-from soma.api import DictWithProxy, undefined
 
-from .dataset import Dataset
-from .pipeline.pipeline import Process, Pipeline
-from .pipeline.process_iteration import IndependentExecutables, ProcessIteration
-from .pipeline import pipeline_tools
 from capsul.config.configuration import get_config_class
+
 from .config.configuration import ModuleConfiguration
+from .dataset import Dataset
+from .pipeline import pipeline_tools
+from .pipeline.pipeline import Pipeline, Process
+from .pipeline.process_iteration import IndependentExecutables, ProcessIteration
 
 
 class ExecutionContext(Controller):
@@ -349,9 +350,9 @@ class CapsulWorkflow(Controller):
                         field.metadata("write", False)
                         and field.name in parameters.content
                     ):
-                        nodes_dict.setdefault(dest_node.name, {})[
-                            plug_name
-                        ] = parameters.content[field.name]
+                        nodes_dict.setdefault(dest_node.name, {})[plug_name] = (
+                            parameters.content[field.name]
+                        )
                         # if debug: print('-> add write in nodes_dict')
                     else:
                         parameters.content[field.name] = nodes_dict.get(
@@ -562,9 +563,9 @@ class CapsulWorkflow(Controller):
                                     else:
                                         suffix = ""
                                     uuid = str(uuid4())
-                                    value[
-                                        i
-                                    ] = f"{prefix}.{field.name}_{i}_{uuid}{suffix}"
+                                    value[i] = (
+                                        f"{prefix}.{field.name}_{i}_{uuid}{suffix}"
+                                    )
                     # print('generate tmp:', value)
                 if value is undefined:
                     value = process.getattr(field.name, None)
@@ -656,9 +657,10 @@ class CapsulWorkflow(Controller):
         allows to run Capsul pipelines integrated into Soma-Workflow-based
         tools.
         """
-        import soma_workflow.client as swc
         import json
         import tempfile
+
+        import soma_workflow.client as swc
 
         def resolve_tmp(value, temps, ref_param, param_dict, pname):
             if isinstance(value, list):

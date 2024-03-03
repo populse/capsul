@@ -1,7 +1,9 @@
 import os
 import tempfile
-from capsul.api import Capsul, Process, Pipeline
-from soma.controller import field, File, undefined
+
+from soma.controller import File, field, undefined
+
+from capsul.api import Capsul, Pipeline, Process
 
 
 class ControlledFailure(Process):
@@ -107,7 +109,7 @@ def test_retry_pipeline():
         error = engine.database.error(engine.engine_id, execution_id)
         with open(executable.output) as f:
             result = f.read()
-        assert error == None
+        assert error is None
         assert result == "initial_value\nsuccessful\nmust_restart\nfinal_value"
         engine.raise_for_status(execution_id)
 
@@ -147,7 +149,7 @@ def test_retry_sub_pipeline():
         error = engine.database.error(engine.engine_id, execution_id)
         with open(executable.output) as f:
             result = f.read()
-        assert error == None
+        assert error is None
         assert (
             result
             == "initial_value_1\nsuccessful\nmust_restart\nfinal_value\ninitial_value_2\nsuccessful\nmust_restart\nfinal_value"

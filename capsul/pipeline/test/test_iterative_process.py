@@ -1,14 +1,14 @@
-import sys
-import unittest
 import os
-from pathlib import Path
-import tempfile
 import shutil
+import sys
+import tempfile
+import unittest
+from pathlib import Path
 
 from soma.controller import File, field
 
 # Capsul import
-from capsul.api import Process, Pipeline, Capsul
+from capsul.api import Capsul, Pipeline, Process
 from capsul.execution_context import CapsulWorkflow
 
 debug = False
@@ -300,6 +300,7 @@ class TestPipeline(unittest.TestCase):
 
 if __name__ == "__main__":
     from soma.qt_gui.qt_backend import QtGui
+
     from capsul.qt_gui.widgets import PipelineDeveloperView
 
     app = QtGui.QApplication.instance()

@@ -1,11 +1,13 @@
-from capsul.api import Process
 import os
-from soma.controller import File, Directory, undefined, Literal
+
+from soma.controller import Directory, File, Literal, undefined
+
+from capsul.api import Process
 
 
 class SulciLabellingSPAMMarkov(Process):
     def __init__(self, **kwargs):
-        super(SulciLabellingSPAMMarkov, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.name = "markovian_recognition"
 
         self.add_field(

@@ -1,11 +1,10 @@
-from contextlib import contextmanager
-from datetime import datetime
 import json
 import os
 import sqlite3
 import tempfile
+from contextlib import contextmanager
+from datetime import datetime
 from uuid import uuid4
-
 
 from . import ExecutionDatabase
 
@@ -473,7 +472,7 @@ class SQliteExecutionDatabase(ExecutionDatabase):
 
             sql = "SELECT ready, ongoing, failed, waiting, done FROM capsul_execution WHERE engine_id=? AND execution_id=?"
             row = sqlite.execute(sql, [engine_id, execution_id]).fetchone()
-            ready, ongoing, failed, waiting, done = [json.loads(i) for i in row]
+            ready, ongoing, failed, waiting, done = (json.loads(i) for i in row)
             ongoing.remove(job_id)
             if return_code != 0:
                 failed.append(job_id)
@@ -486,9 +485,9 @@ class SQliteExecutionDatabase(ExecutionDatabase):
                         sql, [engine_id, execution_id, waiting_id]
                     ).fetchone()
                     waiting_job = json.loads(row[0])
-                    waiting_job[
-                        "return_code"
-                    ] = "Not started because de dependent job failed"
+                    waiting_job["return_code"] = (
+                        "Not started because de dependent job failed"
+                    )
                     sql = "UPDATE capsul_job SET job=? WHERE engine_id=? AND execution_id=? AND job_id=?"
                     sqlite.execute(
                         sql, [json.dumps(waiting_job), engine_id, execution_id, job_id]

@@ -1,16 +1,14 @@
 # System import
 
+import glob
 import os
 import os.path as osp
-import unittest
-import glob
 import shutil
 import tempfile
+import unittest
 
 # Capsul import
-from capsul.api import executable
-from capsul.api import NipypeProcess
-from capsul.api import Capsul
+from capsul.api import Capsul, NipypeProcess, executable
 from capsul.config.configuration import ApplicationConfiguration
 
 try:

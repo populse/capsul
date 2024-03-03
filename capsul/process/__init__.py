@@ -1,2 +1,1 @@
-""" capsul.process module
-"""
+"""capsul.process module"""

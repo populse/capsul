@@ -1,4 +1,4 @@
-""" Process main class and infrastructure
+"""Process main class and infrastructure
 
 Classes
 -------
@@ -13,20 +13,21 @@ Classes
 ++++++++++++++++++++++
 """
 
-import os
-import os.path as osp
-from datetime import datetime as datetime
 import functools
 import glob
 import operator
-import tempfile
+import os
+import os.path as osp
 import shutil
 import sys
+import tempfile
 import traceback
+from datetime import datetime as datetime
 from uuid import uuid4
 
-from soma.controller import undefined, Directory
 import soma.controller as sc
+from soma.controller import Directory, undefined
+
 from .node import Node
 
 

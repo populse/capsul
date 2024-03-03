@@ -9,16 +9,16 @@ Classes
 -------------
 """
 
+import dataclasses
 import typing
-from typing import Literal, List
+from typing import List, Literal
 
 from soma.controller import Controller, field
 from soma.controller.field import WritableField
-from soma.undefined import undefined
 from soma.sorted_dictionary import SortedDictionary
+from soma.undefined import undefined
 from soma.utils.functiontools import SomaPartial
-from soma.utils.weak_proxy import weak_proxy, get_ref
-import dataclasses
+from soma.utils.weak_proxy import get_ref, weak_proxy
 
 
 class Plug(Controller):

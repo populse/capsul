@@ -6,8 +6,8 @@ import subprocess
 import sys
 import traceback
 
-from soma.undefined import undefined
 from populse_db.database import json_decode, json_encode
+from soma.undefined import undefined
 
 from .application import Capsul
 from .database import engine_database
@@ -73,7 +73,7 @@ def execute_job(database, engine_id, execution_id, job_uuid, debug=False):
 
         print(f"---- init {process.definition} ----")
         pprint(job_parameters)
-        print(f"----")
+        print("----")
     for field in process.user_fields():
         value = job_parameters.get(field.name)
         if value is not None:

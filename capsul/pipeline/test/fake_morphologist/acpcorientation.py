@@ -1,6 +1,8 @@
-from capsul.api import Process
 import os
-from soma.controller import File, Directory, undefined, Literal
+
+from soma.controller import Directory, File, Literal, undefined
+
+from capsul.api import Process
 
 try:
     import pydantic.v1 as pydantic
@@ -10,7 +12,7 @@ except ImportError:
 
 class AcpcOrientation(Process):
     def __init__(self, **kwargs):
-        super(AcpcOrientation, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.name = "StandardACPC"
 
         self.add_field(

@@ -1,11 +1,13 @@
-from capsul.api import Process
 import os
-from soma.controller import File, Directory, undefined, Literal
+
+from soma.controller import Directory, File, Literal, undefined
+
+from capsul.api import Process
 
 
 class GreyWhiteMesh(Process):
     def __init__(self, **kwargs):
-        super(GreyWhiteMesh, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.name = "GreyWhiteMesh"
 
         self.add_field(

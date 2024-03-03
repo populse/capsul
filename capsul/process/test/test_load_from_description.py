@@ -1,13 +1,13 @@
-import unittest
 import os
 import os.path as osp
-from typing import List, Tuple
-import tempfile
 import shutil
+import tempfile
+import unittest
+from typing import List, Tuple
 
-from soma.controller import field, Literal, File, Directory
+from soma.controller import Directory, File, Literal, field
 
-from capsul.api import Capsul, Process, Pipeline, executable
+from capsul.api import Capsul, Pipeline, Process, executable
 
 
 def a_function_to_wrap(

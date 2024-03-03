@@ -1,7 +1,9 @@
-from capsul.dataset import MetadataSchema, SchemaMapping, process_schema
-from soma.controller import undefined
-import importlib
 import copy
+import importlib
+
+from soma.controller import undefined
+
+from capsul.dataset import MetadataSchema, SchemaMapping, process_schema
 
 
 class BrainVISASharedSchema(MetadataSchema):

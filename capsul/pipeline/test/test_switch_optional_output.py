@@ -1,6 +1,8 @@
 import unittest
+
 from soma.controller import File
-from capsul.api import Capsul, Process, Pipeline, CapsulWorkflow
+
+from capsul.api import Capsul, CapsulWorkflow, Pipeline, Process
 
 
 class DummyProcess(Process):
@@ -71,7 +73,9 @@ class TestPipeline(unittest.TestCase):
 if __name__ == "__main__":
     if 0:
         import sys
+
         from PyQt4 import QtGui
+
         from capsul.qt_gui.widgets import PipelineDeveloperView
 
         app = QtGui.QApplication.instance()

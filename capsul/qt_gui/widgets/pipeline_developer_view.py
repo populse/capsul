@@ -31,48 +31,43 @@ Classes
 """
 
 # System import
-import os
-from pprint import pprint
-import weakref
-import tempfile
-import soma.subprocess
+import dataclasses
 import distutils.spawn
+import html
 import importlib
-import sys
 import inspect
 import json
-import io
+import os
+import sys
+import tempfile
 import traceback
-import dataclasses
-import html
+import weakref
+from pprint import pprint
+
+import soma.subprocess
 
 # Capsul import
 from soma.qt_gui import qt_backend
 
 qt_backend.set_qt_backend(compatible_qt5=True)
 
-from soma.qt_gui.qt_backend import QtCore, QtGui, Qt
-from soma.qt_gui.qt_backend.Qt import QMessageBox
-from soma.sorted_dictionary import SortedDictionary
-from capsul.api import Switch, Capsul, executable
-from capsul.pipeline import pipeline_tools
-from capsul.api import Pipeline
-from capsul.api import Process
-from capsul.pipeline.pipeline import CustomPipeline
-from capsul.application import get_node_class, is_executable
-from capsul.pipeline.pipeline_nodes import Node
-from soma.qt_gui.qt_backend.Qt import QGraphicsView
-from capsul.qt_gui.widgets.pipeline_file_warning_widget import PipelineFileWarningWidget
-from capsul.pipeline.process_iteration import ProcessIteration
 from soma import controller as sc
 from soma.controller import Controller, undefined
-from soma.utils.functiontools import SomaPartial
-from soma.utils.weak_proxy import get_ref
-from soma.utils.weak_proxy import proxy_method
-
 from soma.qt_gui.controller import ControllerWidget
-from capsul.qt_gui.widgets.attributed_process_widget import AttributedProcessWidget
+from soma.qt_gui.qt_backend import Qt, QtCore, QtGui
+from soma.qt_gui.qt_backend.Qt import QGraphicsView, QMessageBox
+from soma.sorted_dictionary import SortedDictionary
+from soma.utils.functiontools import SomaPartial
+from soma.utils.weak_proxy import get_ref, proxy_method
 
+from capsul.api import Capsul, Pipeline, Process, Switch, executable
+from capsul.application import get_node_class, is_executable
+from capsul.pipeline import pipeline_tools
+from capsul.pipeline.pipeline import CustomPipeline
+from capsul.pipeline.pipeline_nodes import Node
+from capsul.pipeline.process_iteration import ProcessIteration
+from capsul.qt_gui.widgets.attributed_process_widget import AttributedProcessWidget
+from capsul.qt_gui.widgets.pipeline_file_warning_widget import PipelineFileWarningWidget
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -2344,7 +2339,7 @@ class PipelineScene(QtGui.QGraphicsScene):
       <td>existing path</td>
     </tr>
 """
-            elif not field.type is sc.Any:
+            elif field.type is not sc.Any:
                 msg += """    <tr>
       <td></td>
       <td><font color="#a0a0a0">non-existing path</font></td>
@@ -2365,7 +2360,7 @@ class PipelineScene(QtGui.QGraphicsScene):
     def is_existing_path(value):
         if (
             value not in (None, undefined)
-            and type(value) is str
+            and isinstance(value, str)
             and os.path.exists(value)
         ):
             return True
@@ -2450,7 +2445,7 @@ class PipelineScene(QtGui.QGraphicsScene):
       <td>existing path</td>
     </tr>
 """
-            elif not field.type is sc.Any:
+            elif field.type is not sc.Any:
                 msg += """    <tr>
       <td></td>
       <td><font color="#a0a0a0">non-existing path</font></td>
@@ -4714,8 +4709,8 @@ class PipelineDeveloperView(QGraphicsView):
             # use the newer Qt5 QtWebEngine
             from soma.qt_gui.qt_backend import QtWebEngine
             from soma.qt_gui.qt_backend.QtWebEngineWidgets import (
-                QWebEngineView,
                 QWebEnginePage,
+                QWebEngineView,
             )
 
             use_webengine = True
@@ -5091,8 +5086,6 @@ class PipelineDeveloperView(QGraphicsView):
                 "node_dimension": {},
             }
             name = le.text()
-            if type(name) is not str:  # unicode ?
-                name = name.encode()
             pipeline_class = type(name, (Pipeline,), class_kwargs)
             pipeline = pipeline_class()
             self.set_pipeline(pipeline)
@@ -5240,7 +5233,7 @@ class PipelineDeveloperView(QGraphicsView):
         )
 
         if filename:
-            with io.open(filename, "r", encoding="utf8") as fileJson:
+            with open(filename, "r", encoding="utf8") as fileJson:
                 dic = json.load(fileJson)
 
             dic = json.loads(dic, object_hook=hinted_tuple_hook)

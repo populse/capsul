@@ -1,14 +1,12 @@
-import unittest
 import os
+import shutil
 import sys
 import tempfile
+import unittest
 
 from soma.controller import File
 
-from capsul.api import Capsul
-from capsul.api import Process
-from capsul.api import Pipeline
-import shutil
+from capsul.api import Capsul, Pipeline, Process
 
 
 class DummyProcess1(Process):
@@ -443,10 +441,12 @@ if __name__ == "__main__":
 
     if verbose:
         import sys
+
         from soma.qt_gui import qt_backend
 
         qt_backend.set_qt_backend(compatible_qt5=True)
         from soma.qt_gui.qt_backend import QtGui
+
         from capsul.qt_gui.widgets import PipelineDeveloperView
 
         app = QtGui.QApplication(sys.argv)

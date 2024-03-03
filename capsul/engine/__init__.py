@@ -1,14 +1,14 @@
-from datetime import datetime
 import os
 import subprocess
 import sys
+from datetime import datetime
 
 from soma.controller import Controller, undefined
 
-from ..execution_context import CapsulWorkflow, ExecutionContext
+from ..api import Pipeline
 from ..config.configuration import ModuleConfiguration
 from ..database import engine_database
-from ..api import Pipeline
+from ..execution_context import CapsulWorkflow, ExecutionContext
 
 
 def execution_context(engine_label, engine_config, executable):

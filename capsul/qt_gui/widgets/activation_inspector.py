@@ -9,9 +9,9 @@ Classes
 ----------------------------
 """
 
+import logging
 import os
 import re
-import logging
 import tempfile
 
 # Define the logger
@@ -19,13 +19,14 @@ logger = logging.getLogger(__name__)
 
 # Soma import
 from soma.qt_gui import qt_backend
-from soma.qt_gui.qt_backend import QtGui
 from soma.qt_gui.controller import ControllerWidget
+from soma.qt_gui.qt_backend import QtGui
+
+import capsul.qt_apps.resources as resources
+from capsul.api import Pipeline, executable
 
 # Capsul import
 from capsul.qt_apps.utils.application import Application
-import capsul.qt_apps.resources as resources
-from capsul.api import executable, Pipeline
 from capsul.qt_gui.widgets import PipelineDeveloperView
 
 
@@ -36,9 +37,9 @@ class ActivationInspectorApp(Application):
     """
 
     # Load some meta information
-    from capsul.info import __version__ as _version
     from capsul.info import NAME as _application_name
     from capsul.info import ORGANISATION as _organisation_name
+    from capsul.info import __version__ as _version
 
     def __init__(self, pipeline_path, record_file=None, *args, **kwargs):
         """Method to initialize the ActivationInspectorApp class.

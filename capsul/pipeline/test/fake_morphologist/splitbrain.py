@@ -1,11 +1,13 @@
-from capsul.api import Process
 import os
-from soma.controller import File, Directory, undefined, Literal
+
+from soma.controller import Directory, File, Literal, undefined
+
+from capsul.api import Process
 
 
 class SplitBrain(Process):
     def __init__(self, **kwargs):
-        super(SplitBrain, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.name = "SplitBrain"
 
         self.add_field(

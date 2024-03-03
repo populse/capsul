@@ -9,8 +9,8 @@ from soma.controller import undefined
 
 from capsul.config import ApplicationConfiguration
 from capsul.config.configuration import (
-    default_engine_start_workers,
     default_builtin_database,
+    default_engine_start_workers,
 )
 
 expected_default_builtin_database = default_builtin_database.copy()

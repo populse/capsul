@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Specific subprocess-like functions to call Matlab taking into account
 configuration stored in ExecutionContext.
@@ -6,6 +5,7 @@ configuration stored in ExecutionContext.
 
 import os
 import subprocess
+
 from soma.controller import undefined
 
 
@@ -40,7 +40,7 @@ class MatlabPopen(subprocess.Popen):
 
     def __init__(self, cmd, execution_context=None, **kwargs):
         cmd = matlab_command(cmd, execution_context=execution_context)
-        super(MatlabPopen, self).__init__(cmd, **kwargs)
+        super().__init__(cmd, **kwargs)
 
 
 def matlab_call(cmd, execution_context=None, **kwargs):
@@ -68,8 +68,9 @@ def matlab_check_output(cmd, execution_context=None, **kwargs):
 
 
 if __name__ == "__main__":
-    from capsul.api import Capsul
     import tempfile
+
+    from capsul.api import Capsul
 
     c = Capsul()
     c.config.builtin.add_module("matlab")

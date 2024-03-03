@@ -1,6 +1,7 @@
+import glob
 import os
 import sys
-import glob
+
 import capsul
 
 # jupyter nbconvert import

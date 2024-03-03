@@ -1,4 +1,5 @@
 import unittest
+
 import six
 
 from capsul.api import Process, executable

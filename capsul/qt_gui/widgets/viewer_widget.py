@@ -13,14 +13,16 @@ import os
 
 # Soma import
 import soma.subprocess
-from soma.qt_gui.qt_backend import QtGui, QtCore
 from soma.controller import undefined
+from soma.qt_gui.qt_backend import QtCore, QtGui
 
 # Qt import
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
-    _fromUtf8 = lambda s: s
+
+    def _fromUtf8(s):
+        return s
 
 
 class ViewerWidget(QtGui.QWidget):
@@ -38,7 +40,7 @@ class ViewerWidget(QtGui.QWidget):
             since the viewer node is unactivated
         """
         # Inheritance
-        super(ViewerWidget, self).__init__()
+        super().__init__()
 
         # Default parameters
         self.viewer_node_name = viewer_node_name

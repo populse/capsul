@@ -1,11 +1,13 @@
-from capsul.api import Process
 import os
-from soma.controller import File, Directory, undefined, Literal
+
+from soma.controller import Directory, File, Literal, undefined
+
+from capsul.api import Process
 
 
 class SulciLabellingANN(Process):
     def __init__(self, **kwargs):
-        super(SulciLabellingANN, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.name = "recognition2000"
 
         self.add_field(

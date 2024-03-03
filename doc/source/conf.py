@@ -9,11 +9,12 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-from __future__ import print_function
-import sys, os
-import time
+
+import os
 import shutil
 import subprocess
+import sys
+import time
 
 # Doc generation depends on being able to import capsul
 try:
@@ -22,6 +23,7 @@ except ImportError:
     raise RuntimeError("Cannot import CAPSUL, please investigate")
 
 from distutils.version import LooseVersion
+
 import sphinx
 
 if LooseVersion(sphinx.__version__) < LooseVersion("1"):
@@ -69,8 +71,9 @@ extensions = [
 
 try:
     # nbsphinx converts ipython/jupyter notebooks to sphinx docs
-    import nbsphinx
     import distutils.spawn
+
+    import nbsphinx
 
     if not distutils.spawn.find_executable("pandoc"):
         print(

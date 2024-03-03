@@ -18,7 +18,6 @@ from soma.qt_gui import qt_backend
 # qt_backend.init_matplotlib_backend()
 from soma.qt_gui.qt_backend import QtCore
 
-
 # Create the application
 try:
     from capsul.qt_apps.pipeline_viewer_app import PipelineViewerApp
