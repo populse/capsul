@@ -4,11 +4,15 @@ exclude = [
 
 [lint]
 extend-select = [
+  "B",   # https://docs.astral.sh/ruff/rules/#flake8-bugbear
   "I",   # https://docs.astral.sh/ruff/rules/#isort-i
   "UP",  # https://docs.astral.sh/ruff/rules/#pyupgrade-up
 ]
 ignore = [
   # FIXME: apply the following rules
+  "B007",
+  "B023",
+  "B026",
   "F401",
   "F841",
   "E402",
