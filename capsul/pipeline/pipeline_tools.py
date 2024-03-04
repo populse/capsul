@@ -1385,7 +1385,7 @@ class %s(Process):
                         self.value = value
 
                     def __repr__(self):
-                        return "lambda: %s" % repr(value)
+                        return "lambda: %s" % repr(self.value)
 
                 meta["default_factory"] = def_fac(field.default_factory())
                 has_default = True
