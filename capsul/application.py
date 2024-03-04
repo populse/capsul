@@ -33,7 +33,7 @@ def _is_nipype_interface(obj):
     if "nipype.interfaces.base" not in sys.modules:
         return False
     npype_base = sys.modules["nipype.interfaces.base"]
-    NipypeInterface = getattr(npype_base, "Interface")
+    NipypeInterface = npype_base.Interface
     return isinstance(obj, NipypeInterface)
 
 
@@ -48,7 +48,7 @@ def _is_nipype_interface_subclass(obj):
     if "nipype.interfaces.base" not in sys.modules:
         return False
     npype_base = sys.modules["nipype.interfaces.base"]
-    NipypeInterface = getattr(npype_base, "Interface")
+    NipypeInterface = npype_base.Interface
     return issubclass(obj, NipypeInterface)
 
 
@@ -635,7 +635,7 @@ def _get_interface_class():
         if nipype is None:
             _interface = type("Interface", (object,), {})
         else:
-            _interface = getattr(nipype, "Interface")
+            _interface = nipype.Interface
             _nipype_loaded = True
     return _interface
 
