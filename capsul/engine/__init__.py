@@ -170,7 +170,7 @@ class Engine:
                 if engine_id:
                     result["workers_count"] = database.workers_count(engine_id)
                     result["connections"] = database.engine_connections(engine_id)
-                    result["persistent"]: database.persistent(engine_id)
+                    result["persistent"] = database.persistent(engine_id)
         return result
 
     def start_workers(self):
