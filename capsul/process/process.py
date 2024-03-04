@@ -1110,7 +1110,7 @@ class NipypeProcess(FileCopyProcess):
         self.synchronize = sc.Event()
 
         # use the nipype doc for help
-        doc = getattr(nipype_instance, "__doc__")
+        doc = nipype_instance.__doc__
         if doc:
             self.__doc__ = doc
 

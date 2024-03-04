@@ -195,8 +195,7 @@ class EngineConfiguration(Controller):
         self.config_modules.append(module_name)
 
         if hasattr(cls, "module_dependencies"):
-            module_dependencies = getattr(cls, "module_dependencies")
-            for dependency in module_dependencies:
+            for dependency in cls.module_dependencies:
                 self.add_module(dependency, allow_existing=True)
 
     def remove_module(self, module_name):
@@ -506,9 +505,9 @@ class ApplicationConfiguration(Controller):
     def available_modules():
         module = sys.modules.get(__name__)
         mod_base = module.__name__.rsplit(".", 1)[0]
-        mod_path = getattr(module, "__file__")
+        mod_path = module.__file__
         if mod_path is None:
-            mod_path = getattr(module, "__path__")
+            mod_path = module.__path__
         mod_dir = os.path.dirname(mod_path)
         modules = []
         for p in os.listdir(mod_dir):

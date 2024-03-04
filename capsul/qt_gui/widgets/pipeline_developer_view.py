@@ -283,7 +283,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
                 if getattr(field, "hidden", False):
                     show = False
                 elif getattr(field, "userlevel", None) is not None:
-                    if getattr(field, "userlevel") > self.userlevel:
+                    if field.userlevel > self.userlevel:
                         show = False
             if show:
                 self.parameters[pname] = param
@@ -392,7 +392,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
             if getattr(param, "hidden", False):
                 show = False
             elif getattr(param, "userlevel", None) is not None:
-                if getattr(param, "userlevel") > self.userlevel:
+                if param.userlevel > self.userlevel:
                     show = False
             if show:
                 self.parameters[pname] = self.process.plugs[pname]
@@ -3950,7 +3950,7 @@ class PipelineDeveloperView(QGraphicsView):
         #                     gnode.update(0,0,*dimension)
         #         #####################################################
 
-        pos = getattr(scene.pipeline, "node_position")
+        pos = scene.pipeline.node_position
         if pos is not None:
             scene.pos = pos
             for node, position in pos.items():
@@ -4820,7 +4820,7 @@ class PipelineDeveloperView(QGraphicsView):
                     doc_path = "file://%s" % os.path.abspath(doc_path)
                 doc_browser.setUrl(Qt.QUrl(doc_path))
             else:
-                gethelp = getattr(node, "get_help")
+                gethelp = node.get_help
                 msg = None
                 if gethelp:
                     msg = node.get_help(returnhelp=True)
