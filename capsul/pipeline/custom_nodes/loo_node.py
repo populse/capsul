@@ -118,8 +118,8 @@ class LeaveOneOutNode(Node):
     def build_job(
         self,
         name=None,
-        referenced_input_files=[],
-        referenced_output_files=[],
+        referenced_input_files=None,
+        referenced_output_files=None,
         param_dict=None,
     ):
         from soma_workflow.custom_jobs import LeaveOneOutJob
@@ -134,6 +134,8 @@ class LeaveOneOutNode(Node):
                 pass
         param_dict = dict(param_dict)
         param_dict["index"] = index
+        referenced_input_files = referenced_input_files or []
+        referenced_output_files = referenced_output_files or []
         job = LeaveOneOutJob(
             name=name,
             referenced_input_files=referenced_input_files,

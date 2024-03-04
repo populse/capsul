@@ -38,10 +38,12 @@ class MapNode(Node):
         self,
         pipeline,
         name,
-        input_names=["inputs"],
-        output_names=["output_%d"],
+        input_names=None,
+        output_names=None,
         input_types=None,
     ):
+        input_names = input_names or ["inputs"]
+        output_names = output_names or ["output_%d"]
         in_fields = []
         out_fields = [{"name": "lengths", "optional": True}]
 
@@ -153,8 +155,8 @@ class MapNode(Node):
     def build_job(
         self,
         name=None,
-        referenced_input_files=[],
-        referenced_output_files=[],
+        referenced_input_files=None,
+        referenced_output_files=None,
         param_dict=None,
     ):
         from soma_workflow.custom_jobs import MapJob
@@ -170,6 +172,8 @@ class MapNode(Node):
                 for i in range(len(value)):
                     opname = output_name % i
                     param_dict[opname] = getattr(self, opname)
+        referenced_input_files = referenced_input_files or []
+        referenced_output_files = referenced_output_files or []
         job = MapJob(
             name=name,
             referenced_input_files=referenced_input_files,

@@ -2669,7 +2669,8 @@ class Pipeline(Process):
 
 
 class CustomPipeline(Pipeline):
-    def __init__(self, definition="custom_pipeline", json_executable={}):
+    def __init__(self, definition="custom_pipeline", json_executable=None):
+        json_executable = json_executable or {}
         object.__setattr__(self, "json_executable", json_executable)
         super().__init__(
             definition=definition,

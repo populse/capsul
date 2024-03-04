@@ -267,7 +267,7 @@ def pipeline_link_color(plug, link):
 
 
 def dot_graph_from_pipeline(
-    pipeline, nodes_sizes={}, use_nodes_pos=False, include_io=True, enlarge_boxes=0.0
+    pipeline, nodes_sizes=None, use_nodes_pos=False, include_io=True, enlarge_boxes=0.0
 ):
     """
     Build a graphviz/dot-compatible representation of the pipeline.
@@ -319,6 +319,7 @@ def dot_graph_from_pipeline(
         active = plug.activated and link[3].activated
         return (0, 0, 0), style, active, link[4]
 
+    nodes_sizes = nodes_sizes or {}
     nodes = []
     edges = {}
     has_outputs = False
@@ -408,7 +409,7 @@ def dot_graph_from_pipeline(
 
 
 def dot_graph_from_workflow(
-    pipeline, nodes_sizes={}, use_nodes_pos=False, enlarge_boxes=0.0
+    pipeline, nodes_sizes=None, use_nodes_pos=False, enlarge_boxes=0.0
 ):
     """
     Build a graphviz/dot-compatible representation of the pipeline workflow.
@@ -444,6 +445,7 @@ def dot_graph_from_workflow(
         :py:func:`save_dot_graph`
     """
 
+    nodes_sizes = nodes_sizes or {}
     graph = pipeline.workflow_graph()
     nodes = []
     edges = {}
@@ -536,7 +538,7 @@ def save_dot_graph(dot_graph, filename, **kwargs):
 def save_dot_image(
     pipeline,
     filename,
-    nodes_sizes={},
+    nodes_sizes=None,
     use_nodes_pos=False,
     include_io=True,
     enlarge_boxes=0.0,
@@ -585,6 +587,7 @@ def save_dot_image(
     **kwargs: additional attributes for the dot graph
       like nodesep=0.1 or rankdir="TB"
     """
+    nodes_sizes = nodes_sizes or {}
     if workflow:
         dgraph = dot_graph_from_workflow(
             pipeline,

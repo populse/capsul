@@ -253,7 +253,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
         sub_pipeline=None,
         colored_parameters=True,
         logical_view=False,
-        labels=[],
+        labels=None,
         show_opt_inputs=True,
         show_opt_outputs=True,
         userlevel=0,
@@ -305,7 +305,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
         self.show_opt_outputs = show_opt_outputs
 
         self.labels = []
-        self.scene_labels = labels
+        self.scene_labels = labels or []
         self.label_items = []
         my_labels = []
         steps = getattr(pipeline, "pipeline_steps", None)
@@ -1848,7 +1848,7 @@ class PipelineScene(QtGui.QGraphicsScene):
             self.removeItem(glink)
             del self.glinks[new_source_dest]
 
-    def update_paths(self, regions=[]):
+    def update_paths(self, regions=None):
         for name, i in self.gnodes.items():
             self.pos[i.name] = i.pos()
             br = i.box.boundingRect()

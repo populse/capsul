@@ -146,7 +146,7 @@ class Node(Controller):
     )
 
     def __init__(
-        self, definition=None, pipeline=None, name=None, inputs={}, outputs={}
+        self, definition=None, pipeline=None, name=None, inputs=None, outputs=None
     ):
         """Generate a Node
 
@@ -174,7 +174,7 @@ class Node(Controller):
             the pipeline object where the node is added
         name: str
             the node name
-        inputs: list of dict
+        inputs: dict
             a list of input parameters containing a dictionary with default
             values (mandatory key: name)
         outputs: dict
@@ -224,6 +224,7 @@ class Node(Controller):
         # generate a list with all the inputs and outputs
         # the second parameter (parameter_type) is False for an input,
         # True for an output
+        inputs = inputs or {}
         parameters = list(
             zip(
                 inputs,
@@ -233,6 +234,7 @@ class Node(Controller):
                 * len(inputs),
             )
         )
+        outputs = outputs or {}
         parameters.extend(
             list(
                 zip(

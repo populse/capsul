@@ -24,7 +24,7 @@ class StrCatNode(Node):
         concat_plug,
         outputs,
         make_optional=(),
-        param_types={},
+        param_types=None,
     ):
         """
         Parameters
@@ -46,6 +46,7 @@ class StrCatNode(Node):
             parameters types dict: {param_name: field_type_as_string}
 
         """
+        param_types = param_types or {}
         node_inputs = [
             dict(name=i, optional=(i in make_optional))
             for i in params
@@ -69,7 +70,8 @@ class StrCatNode(Node):
         self.cat_callback()
         self.set_callbacks()
 
-    def add_parameters(self, param_types={}):
+    def add_parameters(self, param_types=None):
+        param_types = param_types or {}
         added_fields = [self._concat_plug]
         for name in self._concat_sequence + added_fields:
             plug = self.plugs[name]
@@ -133,8 +135,8 @@ class StrCatNode(Node):
     def build_job(
         self,
         name=None,
-        referenced_input_files=[],
-        referenced_output_files=[],
+        referenced_input_files=None,
+        referenced_output_files=None,
         param_dict=None,
     ):
         from soma_workflow.custom_jobs import StrCatJob
@@ -147,6 +149,8 @@ class StrCatNode(Node):
         # [re] build the concatenated output
         self.cat_callback()
         param_dict[self._concat_plug] = getattr(self, self._concat_plug)
+        referenced_input_files = referenced_input_files or []
+        referenced_output_files = referenced_output_files or []
         job = StrCatJob(
             name=name,
             referenced_input_files=referenced_input_files,
