@@ -11,8 +11,10 @@ import json
 
 from soma.controller import Any, Controller, File, Path
 from soma.qt_gui import qt_backend
-from soma.qt_gui.controller import ControllerWidget
+
+# from soma.qt_gui.controller import ControllerWidget
 from soma.qt_gui.qt_backend import QtCore, QtGui
+from soma.web import ControllerWidget
 from soma.utils.weak_proxy import proxy_method
 
 
@@ -71,7 +73,6 @@ class AttributedProcessWidget(QtGui.QWidget):
         if exec_meta is not None:
             spl_up = QtGui.QWidget()
             spl_up.setLayout(QtGui.QVBoxLayout())
-            splitter.addWidget(spl_up)
         else:
             spl_up = self
 
@@ -80,16 +81,19 @@ class AttributedProcessWidget(QtGui.QWidget):
             c = Controller()
             c.add_field("attributes_from_input_filename", File, optional=True)
             filename_widget = ControllerWidget(c)  # , user_data=user_data)
-            spl_up.layout().addWidget(filename_widget)
+            # spl_up.layout().addWidget(filename_widget)
+            splitter.addWidget(filename_widget)
             self.input_filename_controller = c
             c.on_attribute_change.add(
                 proxy_method(self, "on_input_filename_changed"),
                 "attributes_from_input_filename",
             )
             filename_widget.setSizePolicy(
-                QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed
+                QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Preferred
             )
 
+        if spl_up is not None:
+            splitter.addWidget(spl_up)
         # groupbox area to show attributes
         attrib_widget = QtGui.QGroupBox("Attributes:")
         attrib_widget.setFlat(True)
