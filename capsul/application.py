@@ -503,8 +503,7 @@ def process_from_function(function):
             for i in annotations
             if i != "result" and getattr(self, i, undefined) is not undefined
         }
-        result = function(**kwargs)
-        setattr(self, "result", result)
+        self.result = function(**kwargs)
 
     namespace = {
         "__annotations__": annotations,
