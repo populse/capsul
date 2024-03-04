@@ -2460,10 +2460,10 @@ class Pipeline(Process):
     def dispatch_value(self, node, name, value):
         """Propagate the value from a pipeline plug through links"""
         # print(f"!dispatch! {node.name}.{name} = {value}")
-        for node, plug in self.dispatch_plugs(node, name):
-            # print(f"!dispatch! -> {node.name}.{plug}")
-            if getattr(node, plug, undefined) != value:
-                setattr(node, plug, value)
+        for snode, plug in self.dispatch_plugs(node, name):
+            # print(f"!dispatch! -> {snode.name}.{plug}")
+            if getattr(snode, plug, undefined) != value:
+                setattr(snode, plug, value)
 
     def dispatch_plugs(self, node, name):
         """generator through linked plugs"""

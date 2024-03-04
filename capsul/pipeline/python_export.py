@@ -139,7 +139,7 @@ def save_py_pipeline(pipeline, py_file):
 
             if isinstance(snode, Pipeline):
                 sself_str = '%s.nodes["%s"]' % (self_str, "%s")
-                for node_name, snode in snode.nodes.items():
+                for node_name, _ in snode.nodes.items():
                     scnode = cnode.nodes[node_name]
 
                     if node_name == "":
