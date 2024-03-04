@@ -131,7 +131,7 @@ if __name__ == "__main__":
         if not app:
             app = QtGui.QApplication(sys.argv)
         pipeline = executable(MyPipeline)
-        setattr(pipeline.nodes_activation, "way11", False)
+        pipeline.nodes_activation.way11 = False
         view1 = PipelineDeveloperView(pipeline)
         view1.show()
         app.exec_()
