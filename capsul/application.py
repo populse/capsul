@@ -258,7 +258,7 @@ def executable(definition, **kwargs):
             raise TypeError(
                 f"Class {definition} cannot be used to create a Process "
                 "because its module cannot be imported : {e}"
-            )
+            ) from e
         cls = getattr(module, object_name, None)
         if cls is not definition:
             raise TypeError(

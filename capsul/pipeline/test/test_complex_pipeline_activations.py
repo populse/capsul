@@ -857,10 +857,10 @@ class TestComplexPipeline(unittest.TestCase):
             node_name = split[-1]
             try:
                 node = node_pipeline.nodes[node_name]
-            except KeyError:
+            except KeyError as e:
                 raise KeyError(
                     f"Pipeline {node_pipeline.pipeline} has no node named {node_name}"
-                )
+                ) from e
             try:
                 what = "activation of node {0}".format(
                     full_node_name or "main pipeline node"
@@ -876,10 +876,10 @@ class TestComplexPipeline(unittest.TestCase):
                 if expected is not None:
                     got = node.enabled
                     self.assertEqual(expected, got)
-            except AssertionError:
+            except AssertionError as e:
                 raise AssertionError(
                     f"Wrong activation within ComplexPipeline with parameters {kwargs}: {what} is supposed to be {expected} but is {got}"
-                )
+                ) from e
 
 
 if __name__ == "__main__":

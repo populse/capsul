@@ -19,8 +19,8 @@ import time
 # Doc generation depends on being able to import capsul
 try:
     import capsul
-except ImportError:
-    raise RuntimeError("Cannot import CAPSUL, please investigate")
+except ImportError as e:
+    raise RuntimeError("Cannot import CAPSUL, please investigate") from e
 
 from distutils.version import LooseVersion
 

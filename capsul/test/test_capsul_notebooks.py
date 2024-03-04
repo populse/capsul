@@ -8,10 +8,10 @@ import capsul
 try:
     import nbformat
     from jupyter_core.command import main as main_jupyter
-except ImportError:
+except ImportError as e:
     raise ImportError(
         "cannot import nbformat and/or jupyter_core.command: " "cannot test notebooks"
-    )
+    ) from e
 
 from soma.test_utils import test_notebook as tnb
 
