@@ -738,7 +738,7 @@ class TestPipelineMethods(unittest.TestCase):
 
         with self.capsul.engine() as ce:
             ce.run(pipeline1, timeout=5)
-        pipeline1.out
+        assert pipeline1.out
 
         save_pipeline_parameters(self.path, pipeline1)
 
