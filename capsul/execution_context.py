@@ -772,15 +772,15 @@ def find_temporary_to_generate(executable):
         field.generate_temporary = False
         if isinstance(node, ProcessIteration):
             node.process.field(field.name).generate_temporary = field.generate_temporary
-        for node, parameter in executable.get_linked_items(
+        for snode, parameter in executable.get_linked_items(
             node, field.name, direction="links_from", in_outer_pipelines=True
         ):
             if isinstance(node, ProcessIteration):
-                stack.append((node.process, node.process.field(parameter)))
-                # print('!temporaries!   + ', node.process.full_name, ':', parameter)
+                stack.append((snode.process, snode.process.field(parameter)))
+                # print('!temporaries!   + ', snode.process.full_name, ':', parameter)
             else:
-                stack.append((node, node.field(parameter)))
-                # print('!temporaries!   + ', node.full_name, ':', parameter)
+                stack.append((snode, snode.field(parameter)))
+                # print('!temporaries!   + ', snode.full_name, ':', parameter)
 
     # print('!temporaries!  parameters with temporary')
     # for n, p in temporaries:
