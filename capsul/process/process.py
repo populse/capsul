@@ -663,7 +663,8 @@ class FileCopyProcess(Process):
         del self._former_output_directory
         return output_values
 
-    def _move_files(self, src_directory, dst_directory, value, moved_dict={}):
+    def _move_files(self, src_directory, dst_directory, value, moved_dict=None):
+        moved_dict = moved_dict or {}
         if isinstance(value, (list, tuple)):
             new_value = [
                 self._move_files(src_directory, dst_directory, item, moved_dict)

@@ -82,8 +82,8 @@ class CrossValidationFoldNode(Node):
     def build_job(
         self,
         name=None,
-        referenced_input_files=[],
-        referenced_output_files=[],
+        referenced_input_files=None,
+        referenced_output_files=None,
         param_dict=None,
     ):
         from soma_workflow.custom_jobs import CrossValidationFoldJob
@@ -97,6 +97,8 @@ class CrossValidationFoldNode(Node):
         param_dict["test"] = self.test
         param_dict["nfolds"] = self.nfolds
         param_dict["fold"] = self.fold
+        referenced_input_files = referenced_input_files or []
+        referenced_output_files = referenced_input_files or []
         job = CrossValidationFoldJob(
             name=name,
             referenced_input_files=referenced_input_files,

@@ -34,10 +34,12 @@ class ReduceNode(Node):
         self,
         pipeline,
         name,
-        input_names=["input_%d"],
-        output_names=["outputs"],
+        input_names=None,
+        output_names=None,
         input_types=None,
     ):
+        input_names = input_names or ["input_%d"]
+        output_names = output_names or ["outputs"]
         in_fields = [
             {"name": "lengths", "optional": True},
             {"name": "skip_empty", "optional": True},
@@ -209,8 +211,8 @@ class ReduceNode(Node):
     def build_job(
         self,
         name=None,
-        referenced_input_files=[],
-        referenced_output_files=[],
+        referenced_input_files=None,
+        referenced_output_files=None,
         param_dict=None,
     ):
         from soma_workflow.custom_jobs import MapJob
@@ -227,6 +229,8 @@ class ReduceNode(Node):
             value = getattr(self, output_name, undefined)
             if value not in (None, undefined):
                 param_dict[output_name] = value
+        referenced_input_files = referenced_input_files or []
+        referenced_output_files = referenced_output_files or []
         job = MapJob(
             name=name,
             referenced_input_files=referenced_input_files,
