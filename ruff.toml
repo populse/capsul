@@ -19,7 +19,6 @@ ignore = [
   "E741",
   "E501",
   "UP015",
-  "UP030",
   "UP031",
   "UP032",
   # https://docs.astral.sh/ruff/rules/redundant-open-modes/

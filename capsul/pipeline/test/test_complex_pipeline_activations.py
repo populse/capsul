@@ -862,14 +862,14 @@ class TestComplexPipeline(unittest.TestCase):
                     f"Pipeline {node_pipeline.pipeline} has no node named {node_name}"
                 ) from e
             try:
-                what = "activation of node {0}".format(
+                what = "activation of node {}".format(
                     full_node_name or "main pipeline node"
                 )
                 expected = node_activations.get("_activated")
                 if expected is not None:
                     got = node.activated
                     self.assertEqual(expected, got)
-                what = "enabled for node {0}".format(
+                what = "enabled for node {}".format(
                     full_node_name or "main pipeline node"
                 )
                 expected = node_activations.get("_enabled")
