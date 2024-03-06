@@ -1,7 +1,12 @@
 ci:
   autoupdate_commit_msg: 'chore: update pre-commit hooks'
 
-exclude: '^(doc/source|capsul)/sphinxext/'
+exclude: |
+  (?x)^(
+    doc/source/sphinxext|
+    capsul/sphinxext|
+    LICENSE
+  )
 
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
