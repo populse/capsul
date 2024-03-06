@@ -40,10 +40,10 @@ Functions
 import dataclasses
 import json
 import os
+import subprocess
 import sys
 import tempfile
 
-import soma.subprocess
 from populse_db import json_decode, json_encode
 from soma.controller import Any, Controller, undefined
 
@@ -612,7 +612,7 @@ def save_dot_image(
         formats = {"txt": "plain"}
         format = formats.get(ext, ext)
     cmd = ["dot", "-T%s" % ext, "-o", filename, dot_filename]
-    soma.subprocess.check_call(cmd)
+    subprocess.check_call(cmd)
     os.unlink(dot_filename)
 
 
