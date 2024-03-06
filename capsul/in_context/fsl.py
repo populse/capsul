@@ -100,18 +100,14 @@ def fsl_command_with_environment(
             cmd = [
                 shell,
                 "-c",
-                'setenv FSLDIR "{0}"; setenv PATH "{0}/bin:$PATH"; source {0}/etc/fslconf/fsl.csh;exec {1}{2} '.format(
-                    fsldir, fsl_prefix, command[0]
-                )
+                f'setenv FSLDIR "{fsldir}"; setenv PATH "{fsldir}/bin:$PATH"; source {fsldir}/etc/fslconf/fsl.csh;exec {fsl_prefix}{command[0]} '
                 + " ".join("'%s'" % i.replace("'", "\\'") for i in command[1:]),
             ]
         else:
             cmd = [
                 shell,
                 "-c",
-                'export FSLDIR="{0}"; export PATH="{0}/bin:$PATH"; . {0}/etc/fslconf/fsl.sh;exec {1}{2} '.format(
-                    fsldir, fsl_prefix, command[0]
-                )
+                f'export FSLDIR="{fsldir}"; export PATH="{fsldir}/bin:$PATH"; . {fsldir}/etc/fslconf/fsl.sh;exec {fsl_prefix}{command[0]} '
                 + " ".join("'%s'" % i.replace("'", "\\'") for i in command[1:]),
             ]
     else:
