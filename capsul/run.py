@@ -45,6 +45,7 @@ def run_job(
             env=env,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
+            encoding=sys.getdefaultencoding(),
         )
         if set_pid_function is not None:
             set_pid_function(proc.pid)
