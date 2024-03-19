@@ -35,7 +35,6 @@ class TestConfiguration(unittest.TestCase):
             "builtin": {
                 "config_modules": ["spm", "matlab"],
                 "database": "builtin",
-                "persistent": True,
                 "start_workers": default_engine_start_workers,
                 "matlab": {},
                 "spm": {
@@ -66,7 +65,6 @@ class TestConfiguration(unittest.TestCase):
                 "site": {
                     "builtin": {
                         "database": "builtin",
-                        "persistent": True,
                         "start_workers": default_engine_start_workers,
                     },
                     "databases": {
@@ -84,7 +82,6 @@ class TestConfiguration(unittest.TestCase):
             "builtin": {
                 "config_modules": ["spm", "matlab"],
                 "database": "builtin",
-                "persistent": True,
                 "start_workers": default_engine_start_workers,
                 "matlab": {},
                 "spm": {
@@ -112,7 +109,6 @@ class TestConfiguration(unittest.TestCase):
                 "app_name": "single_conf",
                 "site": {
                     "builtin": {
-                        "persistent": True,
                         "database": "builtin",
                         "start_workers": default_engine_start_workers,
                     },
@@ -162,7 +158,6 @@ class TestConfiguration(unittest.TestCase):
             "builtin": {
                 "config_modules": ["spm", "matlab"],
                 "database": "builtin",
-                "persistent": True,
                 "start_workers": default_engine_start_workers,
                 "matlab": {},
                 "spm": {

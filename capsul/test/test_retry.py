@@ -94,7 +94,7 @@ def test_retry_pipeline():
     executable.file = tmp_failure.name
     executable.output = tmp_result.name
 
-    with Capsul().engine() as engine:
+    with Capsul(database_path="").engine() as engine:
         engine.assess_ready_to_start(executable)
         execution_id = engine.start(executable)
         engine.wait(execution_id, timeout=30)
@@ -104,6 +104,7 @@ def test_retry_pipeline():
         assert error == "Some jobs failed"
         assert result == "initial_value\nsuccessful"
         engine.prepare_pipeline_for_retry(executable, execution_id)
+        engine.dispose(execution_id)
         execution_id = engine.start(executable)
         engine.wait(execution_id, timeout=30)
         error = engine.database.error(engine.engine_id, execution_id)
@@ -112,6 +113,7 @@ def test_retry_pipeline():
         assert error is None
         assert result == "initial_value\nsuccessful\nmust_restart\nfinal_value"
         engine.raise_for_status(execution_id)
+        engine.dispose(execution_id)
 
 
 def test_retry_sub_pipeline():
@@ -123,7 +125,7 @@ def test_retry_sub_pipeline():
     executable.file2 = tmp_failure2.name
     executable.output = tmp_result.name
 
-    with Capsul().engine() as engine:
+    with Capsul(database_path="").engine() as engine:
         engine.assess_ready_to_start(executable)
         execution_id = engine.start(executable)
         engine.wait(execution_id, timeout=30)
@@ -133,6 +135,7 @@ def test_retry_sub_pipeline():
         assert error == "Some jobs failed"
         assert result == "initial_value_1\nsuccessful"
         engine.prepare_pipeline_for_retry(executable, execution_id)
+        engine.dispose(execution_id)
         execution_id = engine.start(executable)
         engine.wait(execution_id, timeout=30)
         error = engine.database.error(engine.engine_id, execution_id)
@@ -144,6 +147,7 @@ def test_retry_sub_pipeline():
             == "initial_value_1\nsuccessful\nmust_restart\nfinal_value\ninitial_value_2\nsuccessful"
         )
         engine.prepare_pipeline_for_retry(executable, execution_id)
+        engine.dispose(execution_id)
         execution_id = engine.start(executable)
         engine.wait(execution_id, timeout=30)
         error = engine.database.error(engine.engine_id, execution_id)
@@ -155,3 +159,4 @@ def test_retry_sub_pipeline():
             == "initial_value_1\nsuccessful\nmust_restart\nfinal_value\ninitial_value_2\nsuccessful\nmust_restart\nfinal_value"
         )
         engine.raise_for_status(execution_id)
+        engine.dispose(execution_id)

@@ -375,7 +375,10 @@ class TestTinyMorphologist(unittest.TestCase):
             json.dump(config, f)
 
         self.capsul = Capsul(
-            "test_tiny_morphologist", site_file=self.config_file, user_file=None
+            "test_tiny_morphologist",
+            site_file=self.config_file,
+            user_file=None,
+            database_path="",
         )
         return super().setUp()
 
@@ -392,7 +395,6 @@ class TestTinyMorphologist(unittest.TestCase):
             },
             "builtin": {
                 "database": "builtin",
-                "persistent": True,
                 "start_workers": default_engine_start_workers,
                 "dataset": {
                     "input": {

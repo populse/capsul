@@ -1,4 +1,3 @@
-import json
 import os
 import tempfile
 from contextlib import contextmanager
@@ -6,6 +5,7 @@ from datetime import datetime
 from uuid import uuid4
 
 from populse_db import Storage
+from soma.undefined import undefined
 
 from . import ExecutionDatabase
 
@@ -114,14 +114,19 @@ class PopulseDBExecutionDatabase(ExecutionDatabase):
             db.capsul_connection[self.uuid] = {"date": datetime.now()}
 
     def _exit(self):
-        with self.storage.data(write=True) as db:
-            del db.capsul_connection[self.uuid]
+        if os.path.exists(self.path):
+            with self.storage.data(write=True) as db:
+                del db.capsul_connection[self.uuid]
+            self.check_shutdown()
 
     def get_or_create_engine(self, engine, update_database=False):
         with self.storage.data(write=True) as db:
             row = db.capsul_engine.search(
                 label=engine.label, fields=["engine_id"], as_list=True
             )
+            persistent = engine.config.persistent
+            if persistent is undefined:
+                persistent = db.tmp.get() is None
             if row:
                 engine_id = row[0]
                 if update_database:
@@ -129,7 +134,7 @@ class PopulseDBExecutionDatabase(ExecutionDatabase):
                     db.capsul_engine[engine_id].update(
                         {
                             "congig": engine.config.json(),
-                            "persistent": engine.config.persistent,
+                            "persistent": persistent,
                         }
                     )
             else:
@@ -143,7 +148,7 @@ class PopulseDBExecutionDatabase(ExecutionDatabase):
                     "workers": [],
                     # executions: list of execution_id
                     "executions": [],
-                    "persistent": engine.config.persistent,
+                    "persistent": persistent,
                     # connections: number of connections
                     "connections": 0,
                 }
@@ -188,14 +193,12 @@ class PopulseDBExecutionDatabase(ExecutionDatabase):
 
     def worker_ended(self, engine_id, worker_id):
         with self.storage.data(write=True) as db:
+            if not db:
+                return
             workers = db.capsul_engine[engine_id].workers.get()
-            if workers:
+            if workers and worker_id in workers:
                 workers.remove(worker_id)
                 db.capsul_engine[engine_id].workers = workers
-            else:
-                raise ValueError(
-                    f"Invalid engine_id or worker_id: engine_id={engine_id}, worker_id={worker_id}"
-                )
 
     def persistent(self, engine_id):
         if os.path.exists(self.path):
@@ -233,6 +236,7 @@ class PopulseDBExecutionDatabase(ExecutionDatabase):
                         db.capsul_job.search_and_delete(engine_id=engine_id)
                 else:
                     db.capsul_engine[engine_id].connections = connections
+        self.check_shutdown()
 
     def executions_summary(self, engine_id):
         result = []
@@ -318,6 +322,8 @@ class PopulseDBExecutionDatabase(ExecutionDatabase):
                 ].execution_context.get()
 
     def pop_job_json(self, engine_id, start_time):
+        if not os.path.exists(self.path):
+            return None, None
         with self.storage.data(write=True) as db:
             executions = db.capsul_engine[engine_id].executions.get()
             if executions is None:
@@ -540,22 +546,22 @@ class PopulseDBExecutionDatabase(ExecutionDatabase):
                         if result != ("directories_creation",):
                             yield result
 
-    def dispose(self, engine_id, execution_id):
+    def dispose(self, engine_id, execution_id, bypass_persistence=False):
         with self.storage.data(write=True) as db:
+            db.capsul_execution[engine_id, execution_id].dispose = True
             status = db.capsul_execution[engine_id, execution_id].status.get()
-            if status == "ended":
-                persistent, executions = db.capsul_engine[engine_id].get(
-                    fields=["persistent", "executions"], as_list=True
+            if status == "ended" and (
+                bypass_persistence or not db.capsul_engine[engine_id].persistent.get()
+            ):
+                db.capsul_job.search_and_delete(
+                    engine_id=engine_id, execution_id=execution_id
                 )
-                if not persistent:
-                    db.capsul_job.search_and_delete(
-                        engine_id=engine_id, execution_id=execution_id
-                    )
-                    db.capsul_execution.search_and_delete(
-                        engine_id=engine_id, execution_id=execution_id
-                    )
-                    executions.remove(execution_id)
-                    db.capsul_engine[engine_id].executions = executions
+                db.capsul_execution.search_and_delete(
+                    engine_id=engine_id, execution_id=execution_id
+                )
+                executions = db.capsul_engine[engine_id].executions.get()
+                executions.remove(execution_id)
+                db.capsul_engine[engine_id].executions = executions
 
     def check_shutdown(self):
         database_empty = False
@@ -603,6 +609,7 @@ class PopulseDBExecutionDatabase(ExecutionDatabase):
                     db.capsul_execution.search_and_delete(engine_id=engine_id)
                     db.capsul_engine.search_and_delete(engine_id=engine_id)
                     db.capsul_job.search_and_delete(engine_id=engine_id)
+                    self.check_shutdown()
             return tmp
 
     def tmp(self, engine_id, execution_id):
