@@ -73,9 +73,7 @@ class HiddenTechnicalBlock(BaseAdmonition):
                     # Item content is a string or buffer
                     item_content = [x.replace("\n", "") for x in fo.readlines()]
                     for string_content in item_content:
-                        new_content.append(
-                            str(string_content), source=self.content
-                        )
+                        new_content.append(str(string_content), source=self.content)
                     fo.close()
                 except MyError as e:
                     item_content = "Can't open the resource file " "'{0}'".format(

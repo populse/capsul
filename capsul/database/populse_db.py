@@ -59,6 +59,7 @@ schemas = [
                     "execution_id": [str, {"primary_key": True}],
                     "job_id": [str, {"primary_key": True}],
                     "job": dict,
+                    "killed": bool,
                 }
             ],
         },
@@ -311,7 +312,10 @@ class PopulseDBExecutionDatabase(ExecutionDatabase):
                     dispose=False,
                 )
                 for job in jobs:
-                    db.capsul_job[engine_id, execution_id, job["uuid"]] = {"job": job}
+                    db.capsul_job[engine_id, execution_id, job["uuid"]] = {
+                        "job": job,
+                        "killed": False,
+                    }
             return execution_id
 
     def execution_context_json(self, engine_id, execution_id):
@@ -490,6 +494,21 @@ class PopulseDBExecutionDatabase(ExecutionDatabase):
         if os.path.exists(self.path):
             with self.storage.data() as db:
                 return db.capsul_job[engine_id, execution_id, job_id].job.get()
+
+    def kill_jobs(self, engine_id, execution_id, job_ids=None):
+        """Request killing of jobs"""
+        # we just set a flag to 1 associated with the jobs to be killed.
+        # Workers will poll for it while jobs are running, and react
+        # accordingly.
+        with self.storage.data(write=True) as db:
+            if job_ids is None:
+                job_ids = db.capsul_execution[engine_id, execution_id].ongoing.get()
+            for job_id in job_ids:
+                db.capsul_job[engine_id, execution_id, job_id].killed = True
+
+    def job_kill_requested(self, engine_id, execution_id, job_id):
+        with self.storage.data(write=True) as db:
+            return db.capsul_job[engine_id, execution_id, job_id].killed.get()
 
     def execution_report_json(self, engine_id, execution_id):
         if os.path.exists(self.path):
