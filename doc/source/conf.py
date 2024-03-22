@@ -319,18 +319,18 @@ except ImportError:
 pyversion = '%d.%d' % sys.version_info[:2]
 
 extlinks = {
-  #'somabase': ('http://brainvisa.info/soma-base-' + somabase_version + '/sphinx/%s',
+  #'somabase': ('https://brainvisa.info/soma-base-' + somabase_version + '/sphinx/%s',
     #'somabase '),
-  #'somaworkflow': ('http://brainvisa.info/soma-workflow-' + somaworkflow_version + '/sphinx/%s',
+  #'somaworkflow': ('https://brainvisa.info/soma-workflow-' + somaworkflow_version + '/sphinx/%s',
     #'somaworkflow '),
-  'somabase': ('http://brainvisa.info/soma-base/sphinx/%s',
+  'somabase': ('https://brainvisa.info/soma-base/sphinx/%s',
     'somabase '),
-  'somaworkflow': ('http://brainvisa.info/soma-workflow/sphinx/%s',
+  'somaworkflow': ('https://brainvisa.info/soma-workflow/sphinx/%s',
     'somaworkflow '),
 }
 
 # Example configuration for intersphinx: refer to the Python standard library.
-#intersphinx_mapping = {'http://docs.python.org/': None}
+#intersphinx_mapping = {'https://docs.python.org/': None}
 
 docpath = os.path.join(os.path.dirname(os.path.dirname(
     os.path.dirname(soma.__file__))), 'share', 'doc')
