@@ -7,9 +7,9 @@
 CAPSUL
 =======
 
-Capsul is a free and open-source `Python <http://python.org>`_ library for encapsulating algorithms and chain them in pipelines. It has unique features for building and dealing with complex pipelines. It is designed to make it easy to execute pipelines in various environments ranging from a local computer to a remote computing center. Capsul is connected to :somaworkflow:`soma-workflow <index.html>` in order to manage all the difficulties of running a lot of pipelines in parallel.
+Capsul is a free and open-source `Python <https://python.org>`_ library for encapsulating algorithms and chain them in pipelines. It has unique features for building and dealing with complex pipelines. It is designed to make it easy to execute pipelines in various environments ranging from a local computer to a remote computing center. Capsul is connected to :somaworkflow:`soma-workflow <index.html>` in order to manage all the difficulties of running a lot of pipelines in parallel.
 
-* doc of the current stable release: http://brainvisa.info/capsul/
+* doc of the current stable release: https://brainvisa.info/capsul/
 * sources on gitHub: https://github.com/populse/capsul
 
 
@@ -28,7 +28,7 @@ Main features
 
 * Pipeline execution can optionally make use of :somaworkflow:`soma-workflow <index.html>`, which manages execution dependencies between pipeline nodes and can run in parallel independent ones, can run and monitor pipelines either locally or remotely on a distant computing resource (a cluster for instance).
 
-* Capsul has a compatibility with `Nipype <http://nipype.readthedocs.io/en/latest/>`_ interfaces which can be directly used as pipeline nodes.
+* Capsul has a compatibility with `Nipype <https://nipype.readthedocs.io/en/latest/>`_ interfaces which can be directly used as pipeline nodes.
 
 
 Technical features
@@ -55,4 +55,4 @@ Documentation contents
 License
 -------
 
-CAPSUL is released under the `CeCILL-B <http://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html>`_ software license, which is much similar to the BSD license.
+CAPSUL is released under the `CeCILL-B <https://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html>`_ software license, which is much similar to the BSD license.
