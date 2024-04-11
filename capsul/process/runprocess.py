@@ -319,12 +319,12 @@ def main():
                       'parameters are too long (in a large iteration, '
                       'typically). The file syntax is one line per parameter, '
                       'with no further parsing. It will be processed after '
-                      'all the current commanline arguments, not right now as '
-                      'the argument appears. But if a parameter has already '
-                      'been set (via commandline), it will not be replaced: '
-                      'first set arguments have priority. If the params file '
-                      'itself contains a --params parameter, then another '
-                      'file will be read afterwards, and so on.')
+                      'all the current commandline arguments, not right now '
+                      'as the argument appears. But if a parameter has '
+                      'already been set (via commandline), it will not be '
+                      'replaced: first set arguments have priority. If the '
+                      'params file itself contains a --params parameter, '
+                      'then another file will be read afterwards, and so on.')
     parser.add_option_group(group1)
 
     group2 = OptionGroup(parser, 'Processing',
