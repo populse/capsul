@@ -439,12 +439,12 @@
                       <span class="s1">&#39;parameters are too long (in a large iteration, &#39;</span>
                       <span class="s1">&#39;typically). The file syntax is one line per parameter, &#39;</span>
                       <span class="s1">&#39;with no further parsing. It will be processed after &#39;</span>
-                      <span class="s1">&#39;all the current commanline arguments, not right now as &#39;</span>
-                      <span class="s1">&#39;the argument appears. But if a parameter has already &#39;</span>
-                      <span class="s1">&#39;been set (via commandline), it will not be replaced: &#39;</span>
-                      <span class="s1">&#39;first set arguments have priority. If the params file &#39;</span>
-                      <span class="s1">&#39;itself contains a --params parameter, then another &#39;</span>
-                      <span class="s1">&#39;file will be read afterwards, and so on.&#39;</span><span class="p">)</span>
+                      <span class="s1">&#39;all the current commandline arguments, not right now &#39;</span>
+                      <span class="s1">&#39;as the argument appears. But if a parameter has &#39;</span>
+                      <span class="s1">&#39;already been set (via commandline), it will not be &#39;</span>
+                      <span class="s1">&#39;replaced: first set arguments have priority. If the &#39;</span>
+                      <span class="s1">&#39;params file itself contains a --params parameter, &#39;</span>
+                      <span class="s1">&#39;then another file will be read afterwards, and so on.&#39;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_option_group</span><span class="p">(</span><span class="n">group1</span><span class="p">)</span>
 
     <span class="n">group2</span> <span class="o">=</span> <span class="n">OptionGroup</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="s1">&#39;Processing&#39;</span><span class="p">,</span>
