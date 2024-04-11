@@ -431,6 +431,20 @@
                       <span class="s1">&#39;studyconfig file). If not specified neither on the &#39;</span>
                       <span class="s1">&#39;commandline nor study configfile, taken as the same as &#39;</span>
                       <span class="s1">&#39;input.&#39;</span><span class="p">)</span>
+    <span class="n">group1</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;--params&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;paramsfile&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s1">&#39;specify a file containing commandline parameters. &#39;</span>
+                      <span class="s1">&#39;The file will contain arguments for this commandline &#39;</span>
+                      <span class="s1">&#39;(argv): it is an alternative to providing them here. &#39;</span>
+                      <span class="s1">&#39;It can be useful to reuse parameters, or when the &#39;</span>
+                      <span class="s1">&#39;parameters are too long (in a large iteration, &#39;</span>
+                      <span class="s1">&#39;typically). The file syntax is one line per parameter, &#39;</span>
+                      <span class="s1">&#39;with no further parsing. It will be processed after &#39;</span>
+                      <span class="s1">&#39;all the current commanline arguments, not right now as &#39;</span>
+                      <span class="s1">&#39;the argument appears. But if a parameter has already &#39;</span>
+                      <span class="s1">&#39;been set (via commandline), it will not be replaced: &#39;</span>
+                      <span class="s1">&#39;first set arguments have priority. If the params file &#39;</span>
+                      <span class="s1">&#39;itself contains a --params parameter, then another &#39;</span>
+                      <span class="s1">&#39;file will be read afterwards, and so on.&#39;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_option_group</span><span class="p">(</span><span class="n">group1</span><span class="p">)</span>
 
     <span class="n">group2</span> <span class="o">=</span> <span class="n">OptionGroup</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="s1">&#39;Processing&#39;</span><span class="p">,</span>
@@ -514,6 +528,17 @@
 
     <span class="n">parser</span><span class="o">.</span><span class="n">disable_interspersed_args</span><span class="p">()</span>
     <span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="k">while</span> <span class="n">options</span><span class="o">.</span><span class="n">paramsfile</span><span class="p">:</span>
+        <span class="n">pfile</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">paramsfile</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">paramsfile</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">pfile</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">new_argv</span> <span class="o">=</span> <span class="p">[</span><span class="n">l</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()]</span>
+        <span class="n">new_options</span><span class="p">,</span> <span class="n">new_args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">new_argv</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">new_options</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+        <span class="n">args</span> <span class="o">+=</span> <span class="n">new_args</span>
 
     <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">config</span><span class="p">:</span>
         <span class="n">engine</span> <span class="o">=</span> <span class="n">capsul_engine</span><span class="p">()</span>
