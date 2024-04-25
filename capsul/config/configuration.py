@@ -10,12 +10,8 @@ from soma.undefined import undefined
 from ..dataset import Dataset
 
 default_builtin_database = {
-    "type": "sqlite",
-    "path": "$HOME/.config/{app_name}/database.sqlite",
-}
-default_builtin_database = {
-    "type": "redis+socket",
-    "path": "$HOME/.config/{app_name}/database.redis",
+    "type": "populse-db",
+    "path": "$HOME/.config/{app_name}/capsul.sqlite",
 }
 
 default_engine_start_workers = {
@@ -160,7 +156,7 @@ class EngineConfiguration(Controller):
     python_modules: list[str]
 
     database: str = "builtin"
-    persistent: bool = True
+    persistent: bool
 
     start_workers: field(
         type_=dict, default_factory=lambda: default_engine_start_workers

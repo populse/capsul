@@ -184,7 +184,7 @@ class TestFakeMorphologist(unittest.TestCase):
             "test_fake_morphologist",
             site_file=self.config_file,
             user_file=None,
-            database_path=osp.join(self.tmp, "capsul_engine_database.rdb"),
+            database_path=osp.join(self.tmp, "capsul_engine_database.sqlite"),
         )
         return super().setUp()
 
@@ -200,14 +200,13 @@ class TestFakeMorphologist(unittest.TestCase):
         expected_config = {
             "databases": {
                 "builtin": {
-                    "path": osp.join(self.tmp, "capsul_engine_database.rdb"),
+                    "path": osp.join(self.tmp, "capsul_engine_database.sqlite"),
                     "type": default_builtin_database["type"],
                 }
             },
             "builtin": {
                 "config_modules": ["spm", "matlab"],
                 "database": "builtin",
-                "persistent": True,
                 "start_workers": default_engine_start_workers,
                 "dataset": {
                     "input": {

@@ -15,7 +15,7 @@ from ..execution_context import ExecutionContext
 from ..pipeline.pipeline import Pipeline, Process
 
 database_classes = {
-    "sqlite": "capsul.database.sqlite:SQliteExecutionDatabase",
+    "populse-db": "capsul.database.populse_db:PopulseDBExecutionDatabase",
     "redis": "capsul.database.redis:RedisExecutionDatabase",
     "redis+socket": "capsul.database.redis:RedisExecutionDatabase",
 }
@@ -117,7 +117,7 @@ class ExecutionDatabase:
     def workers_command(self, engine_id):
         db_config = dict(self.worker_database_config(self.engine_id))
         # fix db path in case it is different from the initial config
-        # (happens if path == '')
+        # (happens if path == "")
         db_config["path"] = self.path
         db_config = json.dumps(db_config, separators=(",", ":"))
         workers_command = []

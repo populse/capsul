@@ -56,13 +56,13 @@ class PollingThread(threading.Thread):
             self.job_pid = pid
 
 
-def worflow_loop(db_config, engine_id):
+def worker_loop(db_config, engine_id):
     try:
         with engine_database(db_config) as database:
             worker_id = database.worker_started(engine_id)
             poll_thread = PollingThread(database, engine_id)
             poll_thread.start()
-            # print(f'!worker {worker_id}! started', engine_id)
+            # print(f"!worker {worker_id}! started", engine_id)
             try:
                 execution_id, job_uuid = database.pop_job(
                     engine_id, start_time=datetime.now()
@@ -71,8 +71,9 @@ def worflow_loop(db_config, engine_id):
                     if not job_uuid:
                         # Empty string means no job available yet
                         time.sleep(0.2)
+                        # print(f"!worker {worker_id}! wait", (execution_id, job_uuid))
                     elif job_uuid == "start_execution":
-                        # print(f'!worker {worker_id}! start', execution_id)
+                        # print(f"!worker {worker_id}! start", execution_id)
                         # This part is done before the processing of any job
                         tmp = os.path.join(
                             tempfile.gettempdir(), f"capsul_execution_{execution_id}"
@@ -83,7 +84,7 @@ def worflow_loop(db_config, engine_id):
                         except Exception:
                             os.rmdir(tmp)
                     elif job_uuid == "end_execution":
-                        # print(f'!worker {worker_id}! end', execution_id)
+                        # print(f"!worker {worker_id}! end", execution_id)
                         tmp = database.end_execution(engine_id, execution_id)
                         if tmp and os.path.exists(tmp):
                             shutil.rmtree(tmp)
@@ -101,7 +102,12 @@ def worflow_loop(db_config, engine_id):
                         )
                         with poll_thread.lock:
                             poll_thread.job_pid = None
-                        # print(f'!worker {worker_id}! job', execution_id, job_uuid, database.job_finished)
+                        # print(
+                        #     f"!worker {worker_id}! job",
+                        #     execution_id,
+                        #     job_uuid,
+                        #     database.job_finished,
+                        # )
                         database.job_finished(
                             engine_id,
                             execution_id,
@@ -115,7 +121,7 @@ def worflow_loop(db_config, engine_id):
                         engine_id, start_time=datetime.now()
                     )
             finally:
-                # print(f'!worker {worker_id}! ended' )
+                # print(f"!worker {worker_id}! ended")
                 with poll_thread.lock:
                     poll_thread.stop_me = True
                 poll_thread.join()
@@ -138,10 +144,10 @@ if __name__ == "__main__":
     pid = os.fork()
     if pid == 0:
         os.setsid()
-        worflow_loop(db_config, engine_id)
+        worker_loop(db_config, engine_id)
 
         # import cProfile
         # import tempfile
         # f = tempfile.mktemp(prefix='worker_profile_', dir='/tmp')
         # print('!!!', f)
-        # cProfile.run('worflow_loop(db_config, engine_id)', f)
+        # cProfile.run('worker_loop(db_config, engine_id)', f)

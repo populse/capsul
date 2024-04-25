@@ -55,7 +55,7 @@ class SimplePipelineTests(unittest.TestCase):
         p = capsul.api.executable(PipelineWithInputAndOutputFiles)
         p.input_file = "input.txt"
         p.output_file = "output.txt"
-        with Capsul().engine() as ce:
+        with Capsul(database_path="").engine() as ce:
             ce.run(p)
         assert p.process_has_run
 
@@ -82,7 +82,7 @@ class SimplePipelineTests(unittest.TestCase):
         )
         p.input = "input.txt"
         p.output = "output.txt"
-        with Capsul().engine() as ce:
+        with Capsul(database_path="").engine() as ce:
             ce.run(p)
         assert p.process_has_run
 
@@ -90,7 +90,7 @@ class SimplePipelineTests(unittest.TestCase):
         p = capsul.api.executable("capsul.test.simple_pipeline_with_output")
         with tempfile.NamedTemporaryFile("r") as tmpfile:
             p.output_file = tmpfile.name
-            with Capsul().engine() as ce:
+            with Capsul(database_path="").engine() as ce:
                 ce.run(p)
             assert tmpfile.read() == "ProcessWithOutputFile has run!\n"
 
@@ -119,7 +119,7 @@ class SimplePipelineTests(unittest.TestCase):
                 },
             }
         )
-        with Capsul().engine() as ce:
+        with Capsul(database_path="").engine() as ce:
             ce.run(p)
         assert p.process_has_run
         assert p.name_of_intermediate_file
