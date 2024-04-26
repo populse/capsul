@@ -83,7 +83,7 @@ class PopulseDBExecutionDatabase(ExecutionDatabase):
                     label=label, fields=["engine_id"], as_list=True
                 )
                 if s:
-                    return s[0]
+                    return s[0][0]
 
     def _enter(self):
         self.uuid = str(uuid4())
