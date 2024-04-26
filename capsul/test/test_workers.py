@@ -1,8 +1,10 @@
 from capsul.api import Capsul
 import time
 
+
 def noop() -> None:
     pass
+
 
 def test_start_workers():
     capsul = Capsul(database_path="")
@@ -17,11 +19,15 @@ def test_start_workers():
                     break
                 time.sleep(0.2)
             else:
-                raise RuntimeError(f'expected {wc} workers to be created, got {engine.database.workers_count(engine.engine_id)}')
+                raise RuntimeError(
+                    f"expected {wc} workers to be created, got {engine.database.workers_count(engine.engine_id)}"
+                )
             engine.dispose(noop_id)
             for i in range(100):
                 if engine.database.workers_count(engine.engine_id) == 0:
                     break
                 time.sleep(0.2)
             else:
-                raise RuntimeError(f'expected workers to be stopped; running workers = {engine.database.workers_count(engine.engine_id)}')
+                raise RuntimeError(
+                    f"expected workers to be stopped; running workers = {engine.database.workers_count(engine.engine_id)}"
+                )

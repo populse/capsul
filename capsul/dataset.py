@@ -1247,8 +1247,7 @@ class ProcessMetadata(Controller):
 
         if parameters is None:
             parameters = [
-                field.name
-                for field in executable.user_fields()  # if field.path_type
+                field.name for field in executable.user_fields()  # if field.path_type
             ]
         if self.debug:
             if self._current_iteration is not None:
