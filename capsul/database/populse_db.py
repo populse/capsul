@@ -129,7 +129,7 @@ class PopulseDBExecutionDatabase(ExecutionDatabase):
             if persistent is undefined:
                 persistent = db.tmp.get() is None
             if row:
-                engine_id = row[0]
+                engine_id = row[0][0]
                 if update_database:
                     # Update configuration stored in database
                     db.capsul_engine[engine_id].update(
@@ -219,7 +219,6 @@ class PopulseDBExecutionDatabase(ExecutionDatabase):
             if row:
                 connections, persistent, executions = row
                 connections -= 1
-                db.capsul_engine[engine_id].label = None
                 if connections == 0 and not persistent:
                     # Check if some executions had not been disposed
                     erase = True
@@ -260,7 +259,6 @@ class PopulseDBExecutionDatabase(ExecutionDatabase):
                                 "done",
                                 "failed",
                             ],
-                            as_list=True,
                         )
                         if info:
                             for i in ("waiting", "ready", "ongoing", "done", "failed"):
@@ -329,7 +327,11 @@ class PopulseDBExecutionDatabase(ExecutionDatabase):
         if not os.path.exists(self.path):
             return None, None
         with self.storage.data(write=True) as db:
-            executions = db.capsul_engine[engine_id].executions.get()
+            if db is None:
+                # database doesn't exist anymore
+                executions = None
+            else:
+                executions = db.capsul_engine[engine_id].executions.get()
             if executions is None:
                 # engine_id does not exist anymore
                 # return None to say to workers that they can die
