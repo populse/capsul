@@ -1,5 +1,6 @@
-from capsul.api import Capsul
 import time
+
+from capsul.api import Capsul
 
 
 def noop() -> None:
