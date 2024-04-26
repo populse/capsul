@@ -151,7 +151,7 @@ class Capsul:
             if field.name != "databases":
                 yield self.engine(field.name)
 
-    def engine(self, name="builtin", update_database=False):
+    def engine(self, name="builtin", workers_count=None, update_database=False):
         """Get a :class:`~capsul.engine.Engine` instance"""
         from .engine import Engine
 
@@ -159,6 +159,9 @@ class Capsul:
         engine_config = getattr(self.config, name, None)
         if engine_config is None:
             raise ValueError(f'engine "{name}" is not configured.')
+        if workers_count is not None:
+            engine_config.start_workers = engine_config.start_workers.copy()
+            engine_config.start_workers["count"] = workers_count
         return Engine(
             name,
             engine_config,

@@ -19,7 +19,7 @@ schemas = [
                     "label": [str, {"index": True}],
                     "config": dict,
                     "workers": list[str],
-                    "executions": list[dict],
+                    "executions": list[str],
                     "persistent": bool,
                     "connections": int,
                 }
@@ -183,14 +183,14 @@ class PopulseDBExecutionDatabase(ExecutionDatabase):
         return self.config
 
     def worker_started(self, engine_id):
-        with self.storage.data(write=True) as db:
+        with self.storage.data(write=True, exclusive=True) as db:
             worker_id = str(uuid4())
             workers = db.capsul_engine[engine_id].workers.get()
             if workers is not None:
                 workers.append(worker_id)
                 db.capsul_engine[engine_id].workers = workers
-                return worker_id
-            raise ValueError(f"Invalid engine_id: {engine_id}")
+        return worker_id
+        raise ValueError(f"Invalid engine_id: {engine_id}")
 
     def worker_ended(self, engine_id, worker_id):
         with self.storage.data(write=True) as db:
@@ -395,9 +395,9 @@ class PopulseDBExecutionDatabase(ExecutionDatabase):
                         waiting_job["return_code"] = (
                             "Not started because de dependent job failed"
                         )
-                        db.capsul_job[
-                            engine_id, execution_id, waiting_id
-                        ].job = waiting_job
+                        db.capsul_job[engine_id, execution_id, waiting_id].job = (
+                            waiting_job
+                        )
                         waiting.remove(waiting_id)
                         failed.append(waiting_id)
                     stack.update(waiting_job.get("waited_by", []))
@@ -427,9 +427,9 @@ class PopulseDBExecutionDatabase(ExecutionDatabase):
 
             if not ongoing and not ready:
                 if failed:
-                    db.capsul_execution[
-                        engine_id, execution_id
-                    ].error = "Some jobs failed"
+                    db.capsul_execution[engine_id, execution_id].error = (
+                        "Some jobs failed"
+                    )
                 db.capsul_execution[engine_id, execution_id].update(
                     {
                         "status": "finalization",
@@ -483,12 +483,12 @@ class PopulseDBExecutionDatabase(ExecutionDatabase):
             indices = job.get("parameters_index", {})
             for name, value in output_parameters.items():
                 values[indices[name]] = value
-            db.capsul_job[
-                engine_id, execution_id, job_id
-            ].job.output_parameters = output_parameters
-            db.capsul_execution[
-                engine_id, execution_id
-            ].workflow_parameters_values = values
+            db.capsul_job[engine_id, execution_id, job_id].job.output_parameters = (
+                output_parameters
+            )
+            db.capsul_execution[engine_id, execution_id].workflow_parameters_values = (
+                values
+            )
 
     def job_json(self, engine_id, execution_id, job_id):
         if os.path.exists(self.path):
