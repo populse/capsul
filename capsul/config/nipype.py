@@ -10,7 +10,7 @@ class NipypeConfiguration(ModuleConfiguration):
 
     name = "nipype"
 
-    def is_valid_config(self, requirements):
+    def is_valid_config(self, requirements, explain=False):
         return True
 
     @staticmethod

@@ -10,9 +10,11 @@ class MRTrixConfiguration(ModuleConfiguration):
     directory: Directory = field(optional=True)
     name = "mrtrix"
 
-    def is_valid_config(self, requirements):
+    def is_valid_config(self, requirements, explain=False):
         required_version = requirements.get("version")
         if required_version and getattr(self, "version", undefined) != required_version:
+            if explain:
+                return f"{self.name} configuration does not match required version {required_version}."
             return False
         return True
 

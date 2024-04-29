@@ -25,29 +25,39 @@ class MatlabConfiguration(ModuleConfiguration):
 
     name = "matlab"
 
-    def is_valid_config(self, requirements):
+    def is_valid_config(self, requirements, explain=False):
         if (
             getattr(self, "executable", undefined) is undefined
             and getattr(self, "mcr_directory", undefined) is undefined
         ):
             # at least one of those must be defined and valid
+            if explain:
+                return f"{self.name} configuration must have either 'executable' or 'mcr_directory' attribute to be defined."
             return False
         required_version = requirements.get("version")
         if required_version and getattr(self, "version", undefined) != required_version:
+            if explain:
+                return f"{self.name} configuration does not match required version {required_version}."
             return False
         require_mcr = requirements.get("mcr", None)
         if require_mcr:
             if getattr(self, "mcr_directory", undefined) is undefined:
                 # no MCR defined
+                if explain:
+                    return f"{self.name} configuration requires 'mcr_directory' attribute to be defined."
                 return False
             mcr_version = requirements.get("mcr_version")
             if mcr_version and getattr(self, "mcr_version", undefined) != mcr_version:
                 # MCR has not the expected version
+                if explain:
+                    return f"{self.name} configuration does not match required MCR version {mcr_version}."
                 return False
         elif require_mcr is False:
             # non-MCR explicitly required
             if getattr(self, "executable", undefined) is undefined:
                 # executable is not defined
+                if explain:
+                    return f"{self.name} configuration requires 'executable' attribute to be defined."
                 return False
         return True
 

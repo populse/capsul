@@ -36,6 +36,7 @@ def execution_context(engine_label, engine_config, executable):
     done_req = []  # record requirements to avoid loops
     valid_configs = {}
     needed_modules = set()
+    invalid_needed_configs = {}
 
     # just now we filter configurations with requirements.
     while req_to_check:
@@ -59,15 +60,26 @@ def execution_context(engine_label, engine_config, executable):
                 valid_configs.setdefault(module_name, {})[module_field] = module_config
                 if isinstance(added_req, dict):
                     req_to_check.update(added_req)
+            else:
+                if module_name in needed_modules:
+                   # Keep the invalid config in order to be able to display explanation
+                   # later
+                   invalid_needed_configs.setdefault(module_name, {})[module_field] = module_config
 
     # now check we have only one module for each
     for module_name in needed_modules:
         valid_module_configs = valid_configs.get(module_name)
         if valid_module_configs is None:
-            raise RuntimeError(
-                f'Execution environment "{engine_label}" has no '
-                f"valid configuration for module {module_name}"
-            )
+            message = f'Execution environment "{engine_label}" has no ' \
+                      f"valid configuration for module {module_name}."
+            
+            for module_field, module_config in invalid_needed_configs.get(module_name, {}).items():
+                # Get explanation about invalid config rejection
+                explaination = module_config.is_valid_config(requirements, explain=True)
+                message += f"\n  - {module_field.name} is not valid for requirements: {explaination}"
+
+            raise RuntimeError(message)
+        
         if len(valid_module_configs) > 1:
             # print(f"several {module_name} valid condfigs:")
             # for field, v in valid_module_configs.items():
