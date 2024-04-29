@@ -162,7 +162,7 @@ class EngineConfiguration(Controller):
     python_modules: list[str]
 
     database: str = "builtin"
-    persistent: bool
+    persistent: bool = True
 
     start_workers: field(
         type_=dict, default_factory=lambda: default_engine_start_workers
