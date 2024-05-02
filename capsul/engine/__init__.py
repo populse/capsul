@@ -321,9 +321,7 @@ class Engine:
 
     def stop(self, execution_id, kill_running=True):
         """Stop a running execution"""
-        self.database.stop_execution(self.engine_id, execution_id)
-        if kill_running:
-            self.kill_jobs(execution_id)
+        self.database.stop_execution(self.engine_id, execution_id, kill_running)
 
     def kill_jobs(self, execution_id, job_ids=None):
         """Kill running jobs during execution

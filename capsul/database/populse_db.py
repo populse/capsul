@@ -497,6 +497,14 @@ class PopulseDBExecutionDatabase(ExecutionDatabase):
             with self.storage.data() as db:
                 return db.capsul_job[engine_id, execution_id, job_id].job.get()
 
+    def stop_execution(self, engine_id, execution_id, kill_jobs=True):
+        with self.storage.data(write=True) as db:
+            db.capsul_execution[engine_id, execution_id].stop = True
+            if kill_jobs:
+                job_ids = db.capsul_execution[engine_id, execution_id].ongoing.get()
+                for job_id in job_ids:
+                    db.capsul_job[engine_id, execution_id, job_id].killed = True
+
     def kill_jobs(self, engine_id, execution_id, job_ids=None):
         """Request killing of jobs"""
         # we just set a flag to 1 associated with the jobs to be killed.

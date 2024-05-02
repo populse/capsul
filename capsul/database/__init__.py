@@ -642,8 +642,5 @@ class ExecutionDatabase:
     def error(self, engine_id, execution_id):
         raise NotImplementedError
 
-    def stop_execution(self, engine_id, execution_id):
-        raise NotImplementedError
-
-    def kill_jobs(self, engine_id, execution_id, job_ids):
+    def stop_execution(self, engine_id, execution_id, kill_jobs=True):
         raise NotImplementedError
