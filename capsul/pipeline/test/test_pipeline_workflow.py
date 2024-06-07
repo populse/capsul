@@ -11,8 +11,11 @@ from capsul.api import Process
 from capsul.api import Pipeline, PipelineNode
 from capsul.pipeline import pipeline_workflow
 from capsul.study_config.study_config import StudyConfig
+from soma_workflow.configuration import \
+    change_soma_workflow_directory, restore_soma_workflow_directory
 import tempfile
 import shutil
+import socket
 
 
 class DummyProcess(Process):
@@ -186,9 +189,14 @@ class TestPipelineWorkflow(unittest.TestCase):
         study_config.somaworkflow_keep_succeeded_workflows = False
         self.exec_ids = []
 
+        # use a custom temporary soma-workflow dir to avoid concurrent
+        # access problems
+        change_soma_workflow_directory(self.tmpdir, socket.gethostname())
+
     def tearDown(self):
         for exec_id in self.exec_ids:
             self.study_config.engine.dispose(exec_id)
+        restore_soma_workflow_directory()
         try:
             shutil.rmtree(self.tmpdir)
         except Exception:
