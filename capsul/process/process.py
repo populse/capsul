@@ -290,7 +290,7 @@ class Process(Node):
         # Update the documentation with a description of the pipeline
         # when the xml to pipeline wrapper has been used
         if returnhelp and hasattr(self, "_pipeline_desc"):
-            str_desc = "".join(["    {0}".format(line) for line in self._pipeline_desc])
+            str_desc = "".join(f"    {line}" for line in self._pipeline_desc)
             doctring += [
                 ".. hidden-code-block:: python",
                 "    :starthidden: True",
@@ -307,26 +307,24 @@ class Process(Node):
         # when the function to process wrapper has been used
         if hasattr(self, "_func_name") and hasattr(self, "_func_module"):
             doctring += [
-                "This process has been wrapped from {0}.{1}.".format(
-                    self._func_module, self._func_name
-                ),
+                f"This process has been wrapped from {self._func_module}.{self._func_name}.",
                 "",
             ]
             if returnhelp:
                 doctring += [
-                    ".. currentmodule:: {0}".format(self._func_module),
+                    f".. currentmodule:: {self._func_module}",
                     "",
                     ".. autosummary::",
                     "    :toctree: ./",
                     "",
-                    "    {0}".format(self._func_name),
+                    f"    {self._func_name}",
                     "",
                 ]
 
         # Append the input and output fields help
         if use_labels:
-            in_label = [".. _%s.%s_inputs:\n\n" % (self.__module__, self.name)]
-            out_label = [".. _%s.%s_outputs:\n\n" % (self.__module__, self.name)]
+            in_label = [f".. _{self.__module__}.{self.name}_inputs:\n\n"]
+            out_label = [f".. _{self.__module__}.{self.name}_outputs:\n\n"]
         else:
             in_label = []
             out_label = []
