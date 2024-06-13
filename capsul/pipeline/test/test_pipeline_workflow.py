@@ -11,8 +11,11 @@ from capsul.api import Process
 from capsul.api import Pipeline, PipelineNode
 from capsul.pipeline import pipeline_workflow
 from capsul.study_config.study_config import StudyConfig
+from soma_workflow.configuration import \
+    change_soma_workflow_directory, restore_soma_workflow_directory
 import tempfile
 import shutil
+import socket
 
 
 class DummyProcess(Process):
@@ -154,12 +157,22 @@ class DummyPipelineIterSimple(Pipeline):
 
 class TestPipelineWorkflow(unittest.TestCase):
 
+    _swf_dir = None
+
     def setUp(self):
+        # use a custom temporary soma-workflow dir to avoid concurrent
+        # access problems
+        if TestPipelineWorkflow._swf_dir is None:
+            TestPipelineWorkflow._swf_dir = tempfile.mkdtemp()
+            change_soma_workflow_directory(TestPipelineWorkflow._swf_dir,
+                                           socket.gethostname())
+
+        self.tmpdir = tempfile.mkdtemp()
+
         study_config = StudyConfig() #modules=StudyConfig.default_modules \
-                                   #+ ['FomConfig'])
+                                     #+ ['FomConfig'])
         self.pipeline = DummyPipeline()
         self.pipeline.set_study_config(study_config)
-        self.tmpdir = tempfile.mkdtemp()
         self.pipeline.input = osp.join(self.tmpdir, 'file_in.nii')
         self.pipeline.output1 = osp.join(self.tmpdir, 'file_out1.nii')
         self.pipeline.output2 = osp.join(self.tmpdir, 'file_out2.nii')
@@ -189,8 +202,18 @@ class TestPipelineWorkflow(unittest.TestCase):
     def tearDown(self):
         for exec_id in self.exec_ids:
             self.study_config.engine.dispose(exec_id)
+        del self.study_config
         try:
             shutil.rmtree(self.tmpdir)
+        except Exception:
+            pass
+
+    def tearDownClass():
+        if TestPipelineWorkflow._swf_dir is not None:
+            restore_soma_workflow_directory()
+        try:
+            shutil.rmtree(TestPipelineWorkflow._swf_dir)
+            TestPipelineWorkflow._swf_dir = None
         except Exception:
             pass
 
