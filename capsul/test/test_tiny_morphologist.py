@@ -408,6 +408,7 @@ class TestTinyMorphologist(unittest.TestCase):
                         "metadata_schema": "brainvisa",
                     },
                 },
+                "persistent": True,
                 "fakespm": {
                     "fakespm_12": {
                         "directory": str(self.tmp / "software" / "fakespm-12"),

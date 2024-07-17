@@ -222,6 +222,7 @@ class TestFakeMorphologist(unittest.TestCase):
                         "metadata_schema": "brainvisa_shared",
                     },
                 },
+                "persistent": True,
                 "spm": {
                     "spm_12_standalone": {
                         "directory": str(self.tmp / "software" / "fakespm-12"),
