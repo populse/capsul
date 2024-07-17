@@ -37,6 +37,7 @@ class TestConfiguration(unittest.TestCase):
                 "database": "builtin",
                 "start_workers": default_engine_start_workers,
                 "matlab": {},
+                "persistent": True,
                 "spm": {
                     "spm12_standalone": {
                         "directory": "/usr/local/spm12_standalone",
@@ -65,6 +66,7 @@ class TestConfiguration(unittest.TestCase):
                 "site": {
                     "builtin": {
                         "database": "builtin",
+                        "persistent": True,
                         "start_workers": default_engine_start_workers,
                     },
                     "databases": {
@@ -84,6 +86,7 @@ class TestConfiguration(unittest.TestCase):
                 "database": "builtin",
                 "start_workers": default_engine_start_workers,
                 "matlab": {},
+                "persistent": True,
                 "spm": {
                     "spm12_standalone": {
                         "directory": "/usr/local/spm12_standalone",
@@ -110,6 +113,7 @@ class TestConfiguration(unittest.TestCase):
                 "site": {
                     "builtin": {
                         "database": "builtin",
+                        "persistent": True,
                         "start_workers": default_engine_start_workers,
                     },
                     "databases": {
@@ -160,6 +164,7 @@ class TestConfiguration(unittest.TestCase):
                 "database": "builtin",
                 "start_workers": default_engine_start_workers,
                 "matlab": {},
+                "persistent": True,
                 "spm": {
                     "spm12_standalone": {
                         "directory": "/usr/local/spm12_standalone",

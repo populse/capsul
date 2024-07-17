@@ -9,6 +9,7 @@ import types
 from pathlib import Path
 
 from soma.controller import Controller, field
+from soma.singleton import Singleton
 from soma.undefined import undefined
 
 from .config.configuration import ApplicationConfiguration
@@ -396,7 +397,7 @@ def executable_from_python(definition, item):
 
     # If item is a Process class.
     elif isinstance(item, type) and issubclass(item, Process):
-        result = executable(item)
+        result = item(definition=definition)
 
     # If item is a Nipye
     # interface instance, wrap this structure in a Process class
