@@ -83,7 +83,7 @@
 
 
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -918,7 +918,13 @@
                 <span class="n">output_params</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">param</span><span class="p">)</span>
             <span class="n">output_params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_param_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">json_utils</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">output_params</span><span class="p">),</span> <span class="n">f</span><span class="p">)</span></div>
+                <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">json_utils</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">output_params</span><span class="p">),</span> <span class="n">f</span><span class="p">)</span>
+
+        <span class="c1"># if there was no exception, we assume the process has succeeded.</span>
+        <span class="c1"># sys.exit(0)</span>
+        <span class="c1"># no error, do a dirty exit, but avoid cleanup crashes after the</span>
+        <span class="c1"># process has succeeded...</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">_exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Process.get_log">
@@ -2245,13 +2251,13 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -2267,7 +2273,7 @@
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2024, Populse team &lt;support@brainvisa.info&gt;.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
     </div>
   </body>
 </html>
