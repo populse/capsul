@@ -783,6 +783,12 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
             with open(out_param_file, 'w') as f:
                 json.dump(json_utils.to_json(output_params), f)
 
+        # if there was no exception, we assume the process has succeeded.
+        # sys.exit(0)
+        # no error, do a dirty exit, but avoid cleanup crashes after the
+        # process has succeeded...
+        os._exit(0)
+
     def get_log(self):
         """ Load the logging file.
 
