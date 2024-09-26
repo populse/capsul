@@ -63,10 +63,14 @@ from capsul.api import capsul_engine
 from capsul.api import Pipeline
 from capsul.attributes.completion_engine import ProcessCompletionEngine
 import os
+import os.path as osp
 import logging
-import sys, re
+import sys
+import re
 from optparse import OptionParser, OptionGroup
 from traits.api import Undefined, List
+import tempfile
+import subprocess
 try:
     import yaml
 except ImportError:
@@ -285,6 +289,7 @@ def main():
         axon-runprocess capsul://capsul.engine.write_engine_config engine.json
 
     Then the file ``engine.json`` will be OK.
+    Alternatively, using "--config axon" will do this for you internally.
     '''
 
     # Set up logging on stderr. This must be called before any logging takes
@@ -298,9 +303,12 @@ def main():
         description='Processing configuration, database options')
     group1.add_option('--studyconfig', dest='studyconfig',
         help='load StudyConfig configuration from the given file (JSON)')
-    group1.add_option('--config', dest='config',
+    group1.add_option(
+        '--config', dest='config',
         help='load Capsul engine configuration from the given file (JSON) '
-        '(CapsulEngine shape, not Studyconfig -- use --studyconfig otherwise)')
+        '(CapsulEngine shape, not Studyconfig -- use --studyconfig '
+        'otherwise). Using "--config axon" will run the conversion process in '
+        'Axon and import the config.')
     group1.add_option('-i', '--input', dest='input_directory',
                       help='input data directory (if not specified in '
                       'studyconfig file). If not specified neither on the '
@@ -311,6 +319,20 @@ def main():
                       'studyconfig file). If not specified neither on the '
                       'commandline nor study configfile, taken as the same as '
                       'input.')
+    group1.add_option('--if', '--input-fom', dest='input_fom',
+                      default='morphologist-bids-1.0',
+                      help='input FOM (File Organization Model). Decides '
+                      'which files and direrctories layout for the input '
+                      'data. Generally "morphologist-bids-1.0" or '
+                      '"morphologist-auto-nonoverlap-1.0". Default: '
+                      '"morphologist-bids-1.0"')
+    group1.add_option('--of', '--output-fom', dest='output_fom',
+                      default='morphologist-bids-1.0',
+                      help='input FOM (File Organization Model). Decides '
+                      'which files and direrctories layout for the output '
+                      'data. Generally "morphologist-bids-1.0" or '
+                      '"morphologist-auto-nonoverlap-1.0". Default: '
+                      '"morphologist-bids-1.0"')
     group1.add_option('--params', dest='paramsfile', default=None,
                       help='specify a file containing commandline parameters. '
                       'The file will contain arguments for this commandline '
@@ -420,31 +442,44 @@ def main():
                 setattr(options, k, v)
         args += new_args
 
+    engine = capsul_engine()
+    engine.load_modules(['fom', 'axon'])
+    study_config = engine.study_config
+
     if options.config:
-        engine = capsul_engine()
-        with open(options.config) as f:
+        config_file = options.config
+        tmp = None
+        if not osp.exists(options.config) and options.config == 'axon':
+            tmp = tempfile.mkstemp(prefix='capsul_conf', suffix='.json')
+            os.close(tmp[0])
+            cmd = ['axon-runprocess',
+                    'capsul://capsul.engine.write_engine_config',
+                    tmp[1]]
+            subprocess.check_call(cmd)
+            config_file = tmp[1]
+        with open(config_file) as f:
             if yaml:
                 conf = yaml.load(f, Loader=yaml.SafeLoader)
             else:
                 conf = json.load(f)
+        if tmp:
+            os.unlink(tmp[1])
         for env, c in conf.items():
             engine.import_configs(env, c)
-        study_config = engine.study_config
     elif options.studyconfig:
-        study_config = StudyConfig(
-            modules=StudyConfig.default_modules
-                + ['FomConfig', 'BrainVISAConfig'])
         with open(options.studyconfig) as f:
             if yaml:
                 scdict = yaml.load(f, Loader=yaml.SafeLoader)
             else:
                 scdict = json.load(f)
         study_config.set_study_configuration(scdict)
+        engine = study_config.engine
     else:
         study_config = StudyConfig(
             modules=StudyConfig.default_modules + ['FomConfig'])
         study_config.read_configuration()
         study_config.use_fom = True
+        engine = study_config.engine
 
     if options.input_directory:
         study_config.input_directory = options.input_directory
@@ -460,6 +495,13 @@ def main():
         = options.keep_succeded_workflow
     study_config.somaworkflow_keep_failed_workflows \
         = not options.delete_failed_workflow
+
+    with engine.settings as session:
+        config = session.config('fom', 'global')
+        if options.input_fom is not None:
+            config.input_fom = options.input_fom
+        if options.output_fom is not None:
+            config.output_fom = options.output_fom
 
     kwre = re.compile(r'([a-zA-Z_](\.?[a-zA-Z0-9_])*)\s*=\s*(.*)$')
 
