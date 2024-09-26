@@ -169,10 +169,14 @@
 <span class="kn">from</span> <span class="nn">capsul.api</span> <span class="kn">import</span> <span class="n">Pipeline</span>
 <span class="kn">from</span> <span class="nn">capsul.attributes.completion_engine</span> <span class="kn">import</span> <span class="n">ProcessCompletionEngine</span>
 <span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">from</span> <span class="nn">optparse</span> <span class="kn">import</span> <span class="n">OptionParser</span><span class="p">,</span> <span class="n">OptionGroup</span>
 <span class="kn">from</span> <span class="nn">traits.api</span> <span class="kn">import</span> <span class="n">Undefined</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">yaml</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
@@ -405,6 +409,7 @@
 <span class="s1">        axon-runprocess capsul://capsul.engine.write_engine_config engine.json</span>
 
 <span class="s1">    Then the file ``engine.json`` will be OK.</span>
+<span class="s1">    Alternatively, using &quot;--config axon&quot; will do this for you internally.</span>
 <span class="s1">    &#39;&#39;&#39;</span>
 
     <span class="c1"># Set up logging on stderr. This must be called before any logging takes</span>
@@ -418,9 +423,12 @@
         <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Processing configuration, database options&#39;</span><span class="p">)</span>
     <span class="n">group1</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;--studyconfig&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;studyconfig&#39;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s1">&#39;load StudyConfig configuration from the given file (JSON)&#39;</span><span class="p">)</span>
-    <span class="n">group1</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;--config&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;config&#39;</span><span class="p">,</span>
+    <span class="n">group1</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+        <span class="s1">&#39;--config&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;config&#39;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s1">&#39;load Capsul engine configuration from the given file (JSON) &#39;</span>
-        <span class="s1">&#39;(CapsulEngine shape, not Studyconfig -- use --studyconfig otherwise)&#39;</span><span class="p">)</span>
+        <span class="s1">&#39;(CapsulEngine shape, not Studyconfig -- use --studyconfig &#39;</span>
+        <span class="s1">&#39;otherwise). Using &quot;--config axon&quot; will run the conversion process in &#39;</span>
+        <span class="s1">&#39;Axon and import the config.&#39;</span><span class="p">)</span>
     <span class="n">group1</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;-i&#39;</span><span class="p">,</span> <span class="s1">&#39;--input&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;input_directory&#39;</span><span class="p">,</span>
                       <span class="n">help</span><span class="o">=</span><span class="s1">&#39;input data directory (if not specified in &#39;</span>
                       <span class="s1">&#39;studyconfig file). If not specified neither on the &#39;</span>
@@ -431,6 +439,20 @@
                       <span class="s1">&#39;studyconfig file). If not specified neither on the &#39;</span>
                       <span class="s1">&#39;commandline nor study configfile, taken as the same as &#39;</span>
                       <span class="s1">&#39;input.&#39;</span><span class="p">)</span>
+    <span class="n">group1</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;--if&#39;</span><span class="p">,</span> <span class="s1">&#39;--input-fom&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;input_fom&#39;</span><span class="p">,</span>
+                      <span class="n">default</span><span class="o">=</span><span class="s1">&#39;morphologist-bids-1.0&#39;</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s1">&#39;input FOM (File Organization Model). Decides &#39;</span>
+                      <span class="s1">&#39;which files and direrctories layout for the input &#39;</span>
+                      <span class="s1">&#39;data. Generally &quot;morphologist-bids-1.0&quot; or &#39;</span>
+                      <span class="s1">&#39;&quot;morphologist-auto-nonoverlap-1.0&quot;. Default: &#39;</span>
+                      <span class="s1">&#39;&quot;morphologist-bids-1.0&quot;&#39;</span><span class="p">)</span>
+    <span class="n">group1</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;--of&#39;</span><span class="p">,</span> <span class="s1">&#39;--output-fom&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;output_fom&#39;</span><span class="p">,</span>
+                      <span class="n">default</span><span class="o">=</span><span class="s1">&#39;morphologist-bids-1.0&#39;</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s1">&#39;input FOM (File Organization Model). Decides &#39;</span>
+                      <span class="s1">&#39;which files and direrctories layout for the output &#39;</span>
+                      <span class="s1">&#39;data. Generally &quot;morphologist-bids-1.0&quot; or &#39;</span>
+                      <span class="s1">&#39;&quot;morphologist-auto-nonoverlap-1.0&quot;. Default: &#39;</span>
+                      <span class="s1">&#39;&quot;morphologist-bids-1.0&quot;&#39;</span><span class="p">)</span>
     <span class="n">group1</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;--params&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;paramsfile&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                       <span class="n">help</span><span class="o">=</span><span class="s1">&#39;specify a file containing commandline parameters. &#39;</span>
                       <span class="s1">&#39;The file will contain arguments for this commandline &#39;</span>
@@ -540,31 +562,44 @@
                 <span class="nb">setattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
         <span class="n">args</span> <span class="o">+=</span> <span class="n">new_args</span>
 
+    <span class="n">engine</span> <span class="o">=</span> <span class="n">capsul_engine</span><span class="p">()</span>
+    <span class="n">engine</span><span class="o">.</span><span class="n">load_modules</span><span class="p">([</span><span class="s1">&#39;fom&#39;</span><span class="p">,</span> <span class="s1">&#39;axon&#39;</span><span class="p">])</span>
+    <span class="n">study_config</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">study_config</span>
+
     <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">config</span><span class="p">:</span>
-        <span class="n">engine</span> <span class="o">=</span> <span class="n">capsul_engine</span><span class="p">()</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">config</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">config_file</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">config</span><span class="p">)</span> <span class="ow">and</span> <span class="n">options</span><span class="o">.</span><span class="n">config</span> <span class="o">==</span> <span class="s1">&#39;axon&#39;</span><span class="p">:</span>
+            <span class="n">tmp</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkstemp</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;capsul_conf&#39;</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s1">&#39;.json&#39;</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;axon-runprocess&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;capsul://capsul.engine.write_engine_config&#39;</span><span class="p">,</span>
+                    <span class="n">tmp</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+            <span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+            <span class="n">config_file</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">yaml</span><span class="p">:</span>
                 <span class="n">conf</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">SafeLoader</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">conf</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">tmp</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">tmp</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
         <span class="k">for</span> <span class="n">env</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">conf</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">engine</span><span class="o">.</span><span class="n">import_configs</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
-        <span class="n">study_config</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">study_config</span>
     <span class="k">elif</span> <span class="n">options</span><span class="o">.</span><span class="n">studyconfig</span><span class="p">:</span>
-        <span class="n">study_config</span> <span class="o">=</span> <span class="n">StudyConfig</span><span class="p">(</span>
-            <span class="n">modules</span><span class="o">=</span><span class="n">StudyConfig</span><span class="o">.</span><span class="n">default_modules</span>
-                <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;FomConfig&#39;</span><span class="p">,</span> <span class="s1">&#39;BrainVISAConfig&#39;</span><span class="p">])</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">studyconfig</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">yaml</span><span class="p">:</span>
                 <span class="n">scdict</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">SafeLoader</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">scdict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
         <span class="n">study_config</span><span class="o">.</span><span class="n">set_study_configuration</span><span class="p">(</span><span class="n">scdict</span><span class="p">)</span>
+        <span class="n">engine</span> <span class="o">=</span> <span class="n">study_config</span><span class="o">.</span><span class="n">engine</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">study_config</span> <span class="o">=</span> <span class="n">StudyConfig</span><span class="p">(</span>
             <span class="n">modules</span><span class="o">=</span><span class="n">StudyConfig</span><span class="o">.</span><span class="n">default_modules</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;FomConfig&#39;</span><span class="p">])</span>
         <span class="n">study_config</span><span class="o">.</span><span class="n">read_configuration</span><span class="p">()</span>
         <span class="n">study_config</span><span class="o">.</span><span class="n">use_fom</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">engine</span> <span class="o">=</span> <span class="n">study_config</span><span class="o">.</span><span class="n">engine</span>
 
     <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">input_directory</span><span class="p">:</span>
         <span class="n">study_config</span><span class="o">.</span><span class="n">input_directory</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">input_directory</span>
@@ -580,6 +615,13 @@
         <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">keep_succeded_workflow</span>
     <span class="n">study_config</span><span class="o">.</span><span class="n">somaworkflow_keep_failed_workflows</span> \
         <span class="o">=</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">delete_failed_workflow</span>
+
+    <span class="k">with</span> <span class="n">engine</span><span class="o">.</span><span class="n">settings</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s1">&#39;fom&#39;</span><span class="p">,</span> <span class="s1">&#39;global&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">input_fom</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">input_fom</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">input_fom</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">output_fom</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">output_fom</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">output_fom</span>
 
     <span class="n">kwre</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;([a-zA-Z_](\.?[a-zA-Z0-9_])*)\s*=\s*(.*)$&#39;</span><span class="p">)</span>
 
