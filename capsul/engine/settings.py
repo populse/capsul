@@ -504,7 +504,7 @@ class SettingsSession:
                 environments.update([r[0] for r in res])
         return environments
 
-class SettingsConfig(object):
+class SettingsConfig:
     def __init__(self, populse_session, collection, id, environment,
                  notifiers=[]):
         super(SettingsConfig, self).__setattr__('_dbs', populse_session)
