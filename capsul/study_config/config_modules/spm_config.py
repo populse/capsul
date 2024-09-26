@@ -84,6 +84,8 @@ class SPMConfig(StudyConfigModule):
         #  WARNING ref to self in callback
         self.study_config.engine.settings.module_notifiers[
             'capsul.engine.module.spm'] = [self.sync_from_engine]
+        self.study_config.engine.settings.module_notifiers[
+            'capsul.engine.module.matlab'] = [self.sync_from_engine]
 
     def sync_from_engine(self, param=None, value=None):
         if getattr(self, '_syncing', False):
