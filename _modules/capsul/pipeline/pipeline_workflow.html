@@ -1421,7 +1421,7 @@
 <span class="sd">            to Workflow constructor)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">def</span> <span class="nf">_update_links</span><span class="p">(</span><span class="n">links1</span><span class="p">,</span> <span class="n">links2</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">dest_node</span><span class="p">,</span> <span class="n">slink</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">links2</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">dest_node</span><span class="p">,</span> <span class="n">slink</span> <span class="ow">in</span> <span class="n">links2</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="n">nlink</span> <span class="o">=</span> <span class="n">links1</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">dest_node</span><span class="p">,</span> <span class="p">{})</span>
                 <span class="n">nlink</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">slink</span><span class="p">)</span>
 
@@ -1433,7 +1433,7 @@
         <span class="n">links</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="n">nodes</span> <span class="o">=</span> <span class="p">[(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span>
-                 <span class="k">for</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">pipeline</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
+                 <span class="k">for</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
                  <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">activated</span> <span class="ow">and</span> <span class="n">node</span><span class="o">.</span><span class="n">enabled</span>
                     <span class="ow">and</span> <span class="n">node</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">pipeline_node</span><span class="p">]</span>
         <span class="n">all_nodes</span> <span class="o">=</span> <span class="p">[]</span>
