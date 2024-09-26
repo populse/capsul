@@ -1310,7 +1310,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
             to Workflow constructor)
         """
         def _update_links(links1, links2):
-            for dest_node, slink in six.iteritems(links2):
+            for dest_node, slink in links2.items():
                 nlink = links1.setdefault(dest_node, {})
                 nlink.update(slink)
 
@@ -1322,7 +1322,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
         links = {}
 
         nodes = [(pipeline, node_name, node)
-                 for node_name, node in six.iteritems(pipeline.nodes)
+                 for node_name, node in pipeline.nodes.items()
                  if node.activated and node.enabled
                     and node is not pipeline.pipeline_node]
         all_nodes = []
