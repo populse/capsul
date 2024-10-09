@@ -9,9 +9,6 @@ Classes
 -------------------------
 '''
 
-from __future__ import print_function
-
-from __future__ import absolute_import
 import sys
 import six
 from traits.api import List, Undefined
@@ -192,7 +189,13 @@ class ProcessIteration(Process):
         no_output_value = None
         size = None
         size_error = False
-        for parameter in self.iterative_parameters:
+        iterative_parameters = self.iterative_parameters
+        if hasattr(self.process, 'pipeline_node'):
+            iterative_parameters = [
+                p for p in iterative_parameters
+                if self.process.pipeline_node.plug[p].activated]
+
+        for parameter in iterative_parameters:
             trait = self.trait(parameter)
             value = getattr(self, parameter)
             psize = len(value)
@@ -225,20 +228,20 @@ class ProcessIteration(Process):
                         break
 
         if size_error:
-            raise ValueError('Iterative parameter values must be lists of the same size: %s' % ','.join('%s=%d' % (n, len(getattr(self,n))) for n in self.iterative_parameters))
+            raise ValueError('Iterative parameter values must be lists of the same size: %s' % ','.join('%s=%d' % (n, len(getattr(self,n))) for n in iterative_parameters))
         if size == 0:
             return
 
         for parameter in self.regular_parameters:
             setattr(self.process, parameter, getattr(self, parameter))
         if no_output_value:
-            for parameter in self.iterative_parameters:
+            for parameter in iterative_parameters:
                 trait = self.trait(parameter)
                 if trait.output:
                     setattr(self, parameter, [])
             outputs = {}
             for iteration in range(size):
-                for parameter in self.iterative_parameters:
+                for parameter in iterative_parameters:
                     #if not no_output_value or not self.trait(parameter).output:
                     value = getattr(self, parameter)
                     if len(value) > iteration:
@@ -247,7 +250,7 @@ class ProcessIteration(Process):
                 # operate completion
                 self.complete_iteration(iteration)
                 self.process()
-                for parameter in self.iterative_parameters:
+                for parameter in iterative_parameters:
                     trait = self.trait(parameter)
                     if trait.output:
                         outputs.setdefault(parameter,[]).append(
@@ -258,7 +261,7 @@ class ProcessIteration(Process):
                 setattr(self, parameter, value)
         else:
             for iteration in range(size):
-                for parameter in self.iterative_parameters:
+                for parameter in iterative_parameters:
                     setattr(self.process, parameter,
                             getattr(self, parameter)[iteration])
                 # operate completion
