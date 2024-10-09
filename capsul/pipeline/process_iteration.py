@@ -193,7 +193,7 @@ class ProcessIteration(Process):
         if hasattr(self.process, 'pipeline_node'):
             iterative_parameters = [
                 p for p in iterative_parameters
-                if self.process.pipeline_node.plug[p].activated]
+                if self.process.pipeline_node.plugs[p].activated]
 
         for parameter in iterative_parameters:
             trait = self.trait(parameter)
