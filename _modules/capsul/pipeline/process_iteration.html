@@ -304,7 +304,7 @@
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;pipeline_node&#39;</span><span class="p">):</span>
             <span class="n">iterative_parameters</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">iterative_parameters</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">pipeline_node</span><span class="o">.</span><span class="n">plug</span><span class="p">[</span><span class="n">p</span><span class="p">]</span><span class="o">.</span><span class="n">activated</span><span class="p">]</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">pipeline_node</span><span class="o">.</span><span class="n">plugs</span><span class="p">[</span><span class="n">p</span><span class="p">]</span><span class="o">.</span><span class="n">activated</span><span class="p">]</span>
 
         <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">iterative_parameters</span><span class="p">:</span>
             <span class="n">trait</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span>
