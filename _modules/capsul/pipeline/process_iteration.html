@@ -115,9 +115,6 @@
 <span class="sd">-------------------------</span>
 <span class="sd">&#39;&#39;&#39;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
-
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">six</span>
 <span class="kn">from</span> <span class="nn">traits.api</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Undefined</span>
@@ -303,7 +300,13 @@
         <span class="n">no_output_value</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">size</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">size_error</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">iterative_parameters</span><span class="p">:</span>
+        <span class="n">iterative_parameters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iterative_parameters</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;pipeline_node&#39;</span><span class="p">):</span>
+            <span class="n">iterative_parameters</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">iterative_parameters</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">pipeline_node</span><span class="o">.</span><span class="n">plug</span><span class="p">[</span><span class="n">p</span><span class="p">]</span><span class="o">.</span><span class="n">activated</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">iterative_parameters</span><span class="p">:</span>
             <span class="n">trait</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span>
             <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameter</span><span class="p">)</span>
             <span class="n">psize</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
@@ -336,20 +339,20 @@
                         <span class="k">break</span>
 
         <span class="k">if</span> <span class="n">size_error</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Iterative parameter values must be lists of the same size: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">=</span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">n</span><span class="p">)))</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">iterative_parameters</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Iterative parameter values must be lists of the same size: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">=</span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">n</span><span class="p">)))</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">iterative_parameters</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span>
 
         <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">regular_parameters</span><span class="p">:</span>
             <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="n">parameter</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameter</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">no_output_value</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">iterative_parameters</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">iterative_parameters</span><span class="p">:</span>
                 <span class="n">trait</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">trait</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
                     <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameter</span><span class="p">,</span> <span class="p">[])</span>
             <span class="n">outputs</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="k">for</span> <span class="n">iteration</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">size</span><span class="p">):</span>
-                <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">iterative_parameters</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">iterative_parameters</span><span class="p">:</span>
                     <span class="c1">#if not no_output_value or not self.trait(parameter).output:</span>
                     <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameter</span><span class="p">)</span>
                     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">iteration</span><span class="p">:</span>
@@ -358,7 +361,7 @@
                 <span class="c1"># operate completion</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">complete_iteration</span><span class="p">(</span><span class="n">iteration</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
-                <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">iterative_parameters</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">iterative_parameters</span><span class="p">:</span>
                     <span class="n">trait</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">trait</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
                         <span class="n">outputs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">parameter</span><span class="p">,[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
@@ -369,7 +372,7 @@
                 <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameter</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">iteration</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">size</span><span class="p">):</span>
-                <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">iterative_parameters</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">iterative_parameters</span><span class="p">:</span>
                     <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="n">parameter</span><span class="p">,</span>
                             <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameter</span><span class="p">)[</span><span class="n">iteration</span><span class="p">])</span>
                 <span class="c1"># operate completion</span>
