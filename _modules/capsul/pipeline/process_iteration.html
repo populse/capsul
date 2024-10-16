@@ -316,30 +316,30 @@
                 <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">size</span> <span class="o">=</span> <span class="n">psize</span>
                 <span class="k">elif</span> <span class="n">size</span> <span class="o">!=</span> <span class="n">psize</span><span class="p">:</span>
-                    <span class="n">size_error</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">size_error</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s1"> (size </span><span class="si">{</span><span class="n">psize</span><span class="si">}</span><span class="s1"> != </span><span class="si">{</span><span class="n">size</span><span class="si">}</span><span class="s1">)&#39;</span>
                     <span class="k">break</span>
                 <span class="k">if</span> <span class="n">trait</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">no_output_value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                         <span class="n">no_output_value</span> <span class="o">=</span> <span class="kc">False</span>
                     <span class="k">elif</span> <span class="n">no_output_value</span><span class="p">:</span>
-                        <span class="n">size_error</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="n">size_error</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s1"> (size = </span><span class="si">{</span><span class="n">psize</span><span class="si">}</span><span class="s1"> but other parameter has no value)&#39;</span>
                         <span class="k">break</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">trait</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">no_output_value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                         <span class="n">no_output_value</span> <span class="o">=</span> <span class="kc">True</span>
                     <span class="k">elif</span> <span class="ow">not</span> <span class="n">no_output_value</span><span class="p">:</span>
-                        <span class="n">size_error</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="n">size_error</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s1"> (size = </span><span class="si">{</span><span class="n">psize</span><span class="si">}</span><span class="s1">, has no value)&#39;</span>
                         <span class="k">break</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                         <span class="n">size</span> <span class="o">=</span> <span class="n">psize</span>
                     <span class="k">elif</span> <span class="n">size</span> <span class="o">!=</span> <span class="n">psize</span><span class="p">:</span>
-                        <span class="n">size_error</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="n">size_error</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">parameter</span><span class="si">}</span><span class="s1"> (size </span><span class="si">{</span><span class="n">psize</span><span class="si">}</span><span class="s1"> != </span><span class="si">{</span><span class="n">size</span><span class="si">}</span><span class="s1">)&#39;</span>
                         <span class="k">break</span>
 
         <span class="k">if</span> <span class="n">size_error</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Iterative parameter values must be lists of the same size: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">=</span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">n</span><span class="p">)))</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">iterative_parameters</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Iterative parameter </span><span class="si">{</span><span class="n">size_error</span><span class="si">}</span><span class="s1"> values must be lists of the same size: %s&#39;</span> <span class="o">%</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">=</span><span class="si">%d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">n</span><span class="p">)))</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">iterative_parameters</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span>
 
