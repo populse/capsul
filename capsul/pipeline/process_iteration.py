@@ -205,30 +205,30 @@ class ProcessIteration(Process):
                 if size is None:
                     size = psize
                 elif size != psize:
-                    size_error = True
+                    size_error = f'{parameter} (size {psize} != {size})'
                     break
                 if trait.output:
                     if no_output_value is None:
                         no_output_value = False
                     elif no_output_value:
-                        size_error = True
+                        size_error = f'{parameter} (size = {psize} but other parameter has no value)'
                         break
             else:
                 if trait.output:
                     if no_output_value is None:
                         no_output_value = True
                     elif not no_output_value:
-                        size_error = True
+                        size_error = f'{parameter} (size = {psize}, has no value)'
                         break
                 else:
                     if size is None:
                         size = psize
                     elif size != psize:
-                        size_error = True
+                        size_error = f'{parameter} (size {psize} != {size})'
                         break
 
         if size_error:
-            raise ValueError('Iterative parameter values must be lists of the same size: %s' % ','.join('%s=%d' % (n, len(getattr(self,n))) for n in iterative_parameters))
+            raise ValueError(f'Iterative parameter {size_error} values must be lists of the same size: %s' % ', '.join('%s=%d' % (n, len(getattr(self,n))) for n in iterative_parameters))
         if size == 0:
             return
 
