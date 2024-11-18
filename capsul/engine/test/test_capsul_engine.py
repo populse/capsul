@@ -106,7 +106,7 @@ def check_nipype_spm():
             for l in f.readlines():
                 if l.startswith('SPM_HOME='):
                     spm_path = l.split('=', 1)[1].strip()
-                    spm_path = os.path.expandvars(mcr_path).strip()
+                    spm_path = os.path.expandvars(spm_path).strip()
                     spm_standalone_paths.append(spm_path)
                 elif l.startswith('MCR_HOME='):
                     mcr_path = l.split('=', 1)[1].strip()
