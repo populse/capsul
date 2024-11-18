@@ -97,24 +97,34 @@ def tearDownModule():
 
 def check_nipype_spm():
     # look for hardcoded paths, I have no other way at hand...
-    spm_standalone_paths = ['/usr/local/spm12-standalone',
-                            '/volatile/local/spm12-standalone',
-                            '/drf/local/spm12-standalone',
-                            '/i2bm/local/spm12-standalone']
+    spm_standalone_paths = []
+    mcr_path = None
+    spm_exe = which('spm12')
+    if spm_exe:
+        # installed as in neurospin
+        with open(spm_exe) as f:
+            for l in f.readlines():
+                if l.startswith('SPM_HOME='):
+                    spm_path = l.split('=', 1)[1].strip()
+                    spm_path = os.path.expandvars(mcr_path).strip()
+                    spm_standalone_paths.append(spm_path)
+                elif l.startswith('MCR_HOME='):
+                    mcr_path = l.split('=', 1)[1].strip()
+                    mcr_path = os.path.expandvars(mcr_path).strip()
+    if not spm_standalone_paths and 'CONDA_PREFIX' in os.environ:
+        spm_standalone_paths.append(
+            os.path.join(os.getenv('CONDA_PREFIX'), 'share/spm12-standalone'))
+
+    spm_standalone_paths += ['/usr/local/spm12-standalone',
+                             '/volatile/local/spm12-standalone',
+                             '/drf/local/spm12-standalone',
+                             '/i2bm/local/spm12-standalone']
     spm_standalone_path = [p for p in spm_standalone_paths if os.path.isdir(p)]
     if not spm_standalone_path:
         return None
     spm_standalone_path = spm_standalone_path[0]
-    mcr_path = None
     mcr = glob.glob(osp.join(spm_standalone_path, 'mcr', 'v*'))
     if not mcr or len(mcr) != 1:
-        spm_exe = which('spm12')
-        if spm_exe:
-            # installed as in neurospin
-            with open(spm_exe) as f:
-                for l in f.readlines():
-                    if l.startswith('MCR_HOME='):
-                        mcr_path = l.split('=', 1)[1]
         if not mcr_path:
             mcr_paths = ['/usr/local/matlab/MATLAB_Runtime',
                          '/volatile/local/spm12-standalone/mcr',
