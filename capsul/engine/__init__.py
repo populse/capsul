@@ -207,7 +207,7 @@ class CapsulEngine(Controller):
     @property
     def settings(self):
         if self._settings is None:
-            self._settings = Settings(self.database.db)
+            self._settings = Settings(self.database.storage)
         return self._settings
 
     @property
@@ -525,10 +525,10 @@ def database_factory(database_location):
             engine_directory = osp.abspath(osp.dirname(path))
         populse_db = database_location
     elif database_location.endswith(".sqlite"):
-        populse_db = "sqlite:///%s" % database_location
+        populse_db = f"sqlite://{database_location}"
         engine_directory = osp.abspath(osp.dirname(database_location))
     elif database_location == ":memory:":
-        populse_db = "sqlite:///:memory:"
+        populse_db = "sqlite://:memory:"
     else:
         raise ValueError("Invalid database location: %s" % database_location)
 

@@ -27,10 +27,10 @@ def init_settings(capsul_engine):
     with capsul_engine.settings as settings:
         settings.ensure_module_fields('python',
         [dict(name='executable',
-              type='string',
+              type='str',
               description='Full path of the python executable'),
         dict(name='path',
-              type='list_string',
+              type='list[string]',
               description='paths to prepend to sys.path'),
          ])
 

@@ -17,7 +17,7 @@ schemas = [
             "json_value": [
                 {
                     "name": [str, {"primary_key": True}],
-                    "value": dict,
+                    "json_dict": dict,
                 }
             ],
             "path_metadata": [
@@ -41,7 +41,6 @@ schemas = [
 
 class PopulseDBEngine(DatabaseEngine):
     def __init__(self, database_engine):
-        print('!!!!!!!!!!!!!', database_engine)
         self.storage = Storage(database_engine)
         with self.storage.schema() as schema:
             schema.add_schema("capsul.engine.database_populse")
@@ -50,83 +49,34 @@ class PopulseDBEngine(DatabaseEngine):
         self.close()
 
     def close(self):
-        self.db = None
+        self.storage = None
 
-    def commit(self):
-        # self.dbs.save_modifications()
-        with self.db as dbs:
-            dbs.save_modifications()
-
-    def rollback(self):
-        # self.dbs.unsave_modifications()
-        with self.db as dbs:
-            dbs.unsave_modifications()
 
     def set_named_directory(self, name, path):
         if path:
             path = osp.normpath(osp.abspath(path))
-        # doc = self.dbs.get_document('named_directory', name)
-        # if doc is None:
-        # if path:
-        # doc = {'name': name,
-        #'path': path}
-        # self.dbs.add_document('named_directory', doc)
-        # else:
-        # if path:
-        # self.dbs.set_value('named_directory', name, 'path', path)
-        # else:
-        # self.dbs.remove_document('named_directory', name)
-        with self.db as dbs:
-            doc = dbs.get_document("named_directory", name)
-            if doc is None:
-                if path:
-                    doc = {"name": name, "path": path}
-                    dbs.add_document("named_directory", doc)
+        with self.storage.data(write=True) as db:
+            if path:
+                db.named_directory[name] = path
             else:
-                if path:
-                    dbs.set_value("named_directory", name, "path", path)
-                else:
-                    dbs.remove_document("named_directory", name)
+                del db.named_directory[name]
 
     def named_directory(self, name):
-        # return self.dbs.get_value('named_directory', name, 'path')
-        with self.db as dbs:
-            return dbs.get_value("named_directory", name, "path")
+        with self.storage.data() as db:
+            return db.named_directory[name].path.get()
 
     def named_directories(self):
-        # return self.dbs.filter_documents('named_directory', 'all')
-        with self.db as dbs:
-            return dbs.filter_documents("named_directory", "all")
+        with self.storage.data() as db:
+            for row in db.named_directory.search(fields=["name"], as_list=True):
+                yield row[0]
 
     def set_json_value(self, name, json_value):
-        # doc = self.dbs.get_document('json_value', name)
-        # json_dict = {'value': json_value}
-        # if doc is None:
-        # doc = {'name': name,
-        #'json_dict': json_dict
-        # }
-        # self.dbs.add_document('json_value', doc)
-        # else:
-        # self.dbs.set_value('json_value', name, 'json_dict', json_dict)
-        with self.db as dbs:
-            doc = dbs.get_document("json_value", name)
-            json_dict = {"value": json_value}
-            if doc is None:
-                doc = {"name": name, "json_dict": json_dict}
-                dbs.add_document("json_value", doc)
-            else:
-                dbs.set_value("json_value", name, "json_dict", json_dict)
+        with self.storage.data(write=True) as db:
+            db["json_value"][name].json_dict = json_value
 
     def json_value(self, name):
-        # doc = self.dbs.get_document('json_value', name)
-        # if doc:
-        # return doc['json_dict']['value']
-        # return None
-        with self.db as dbs:
-            doc = dbs.get_document("json_value", name)
-            if doc:
-                return doc["json_dict"]["value"]
-            return None
+        with self.storage.data(write=True) as db:
+            return db["json_value"][name].json_dict.get()
 
     def set_path_metadata(self, path, metadata):
         named_directory = metadata.get("named_directory")
