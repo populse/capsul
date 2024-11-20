@@ -330,7 +330,9 @@ def dispose(engine, execution_id, conditional=False):
     '''
     keep = False
     if conditional:
-        if not engine.study_config.somaworkflow_keep_succeeded_workflows:
+        if engine.study_config.somaworkflow_keep_succeeded_workflows:
+            keep = True
+        else:
             keep = False
             if engine.study_config.somaworkflow_keep_failed_workflows:
                 # must see it it failed or not
