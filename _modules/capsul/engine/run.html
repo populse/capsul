@@ -457,7 +457,9 @@
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">keep</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="k">if</span> <span class="n">conditional</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">engine</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">somaworkflow_keep_succeeded_workflows</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">engine</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">somaworkflow_keep_succeeded_workflows</span><span class="p">:</span>
+            <span class="n">keep</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
             <span class="n">keep</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="k">if</span> <span class="n">engine</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">somaworkflow_keep_failed_workflows</span><span class="p">:</span>
                 <span class="c1"># must see it it failed or not</span>
