@@ -56,7 +56,7 @@ def check_notably_invalid_config(conf):
     '''
     invalid = []
     for k in ('executable', ):
-        if getattr(conf, k, None) is None:
+        if conf.get(k) is None:
             invalid.append(k)
     return invalid
 

@@ -227,7 +227,7 @@ class TestPipelineWorkflow(unittest.TestCase):
                 self.pipeline, study_config=self.study_config)
 
 
-    def test_full_wf(self):
+    def test_full_pipeline_wf(self):
         engine = self.study_config.engine
         self.pipeline.enable_all_pipeline_steps()
         msgs = []

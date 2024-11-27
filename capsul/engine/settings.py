@@ -132,7 +132,7 @@ class Settings:
         with self as settings:
             if uses is None:
                 uses = {}
-                with settings.populse_db.data() as data:
+                with settings._storage.data() as data:
                     for collection in data.collection_names():
                         if collection.startswith(Settings.collection_prefix):
                             module_name = collection[len(Settings.collection_prefix) :]
@@ -160,7 +160,7 @@ class Settings:
                     ("ALL" if query == "any" else query),
                 )
                 collection = "%s%s" % (Settings.collection_prefix, module)
-                with settings.populse_db.data() as data:
+                with settings._storage.data() as data:
                     if data.has_collection(collection):
                         docs = data[collection].search(full_query)
                     else:
@@ -197,7 +197,7 @@ class Settings:
                         ("ALL" if query == "any" else query),
                     )
                     query_env = Settings.global_environment
-                    with settings.populse_db.data() as data:
+                    with settings._storage.data() as data:
                         if data.has_collection(collection):
                             docs = data[collection].search(full_query)
                         else:
@@ -407,7 +407,7 @@ class SettingsSession:
             id = str(uuid4())
         collection = self.collection_name(module)
         with self._storage.data(write=True) as data:
-            data[collection]["%s-%s" % (id, environment)] = document
+            data[collection][f"{id}-{environment}"] = document
         config = SettingsConfig(
             self._storage,
             collection,
@@ -533,7 +533,7 @@ class SettingsConfig:
     def __getattr__(self, name):
         if name in ("_id", "_environment"):
             return super(SettingsConfig, self).__getattribute__(name)
-        with self._storage.data(write=True) as data:
+        with self._storage.data() as data:
             value = data[self._collection][f"{self._id}-{self._environment}"][
                 name
             ].get()

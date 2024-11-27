@@ -179,10 +179,7 @@ def check_notably_invalid_config(conf):
         list of invalid config keys
     """
     invalid = []
-    # for k in ('directory', 'version'):
-    #    if getattr(conf, k, None) is None:
-    #        invalid.append(k)
-    if getattr(conf, "directory", None) is None:
+    if conf.get("directory") is None:
         invalid.append("directory")
     return invalid
 
