@@ -30,7 +30,7 @@ def init_settings(capsul_engine):
               type='str',
               description='Full path of the python executable'),
         dict(name='path',
-              type='list[string]',
+              type='list[str]',
               description='paths to prepend to sys.path'),
          ])
 

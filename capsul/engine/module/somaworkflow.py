@@ -49,7 +49,7 @@ def init_settings(capsul_engine):
                 ),
                 dict(
                     name="transfer_paths",
-                    type="list[string]",
+                    type="list[str]",
                     description="list of paths where files have to be transferred "
                     "by soma-workflow",
                 ),

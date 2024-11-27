@@ -51,7 +51,7 @@ def init_settings(capsul_engine):
                 ),
                 dict(
                     name="fom_path",
-                    type="list[string]",
+                    type="list[str]",
                     description="list of additional directories where to look "
                     "for FOMs",
                 ),
