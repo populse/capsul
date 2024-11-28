@@ -230,7 +230,8 @@ def update_formats(capsul_engine, environment):
         directories["input"] = config.input_directory
         directories["output"] = config.output_directory
 
-        fields = config._dbs.get_fields_names(config._collection)
+        with config._storage.data() as data:
+            fields = data[config._collection].keys()
         formats = tuple(
             getattr(config, key)
             for key in fields
@@ -279,7 +280,8 @@ def load_fom(capsul_engine, schema, config, session, environment="global"):
     store["all_foms"][schema] = fom
 
     # Create FOM completion data
-    fields = config._dbs.get_fields_names(config._collection)
+    with config._storage.data() as data:
+        fields = data[config._collection].keys()
     formats = tuple(
         getattr(config, key)
         for key in fields
