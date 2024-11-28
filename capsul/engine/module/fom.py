@@ -274,7 +274,10 @@ def load_fom(capsul_engine, schema, config, session, environment="global"):
         ] + soma_app.fom_path
     else:
         soma_app.fom_path = list(soma_app.fom_path)
-    fom = soma_app.fom_manager.load_foms(schema)
+    try:
+        fom = soma_app.fom_manager.load_foms(schema)
+    except KeyError:
+        return None, None, None
     soma_app.fom_path = old_fom_path
     store = capsul_engine._modules_data["fom"]
     store["all_foms"][schema] = fom
