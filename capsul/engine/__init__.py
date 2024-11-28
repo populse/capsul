@@ -540,7 +540,7 @@ def database_factory(database_location):
 
 def capsul_engine(database_location=None, require=None):
     """
-    User facrory for creating capsul engines.
+    User factory for creating capsul engines.
 
     If no database_location is given, it will default to an internal (in-
     memory) database with no persistent settings or history values.
