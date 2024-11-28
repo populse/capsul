@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os.path as osp
 
 from capsul.engine.database import DatabaseEngine
