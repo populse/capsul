@@ -345,7 +345,7 @@ class Settings:
 
 class SettingsSession:
     """
-    Settings use/modifiction session, returned by "with settings as session:"
+    Settings use/modification session, returned by "with settings as session:"
     """
 
     def __init__(self, populse_db_storage, module_notifiers=None):
