@@ -318,7 +318,8 @@ class Settings:
                                     for k, v in config.items()
                                     if k not in ("config_id", "config_environment")
                                 }
-                                conf.set_values(values)
+                                if values:
+                                    conf.set_values(values)
                             else:
                                 session.new_config(module, environment, config)
                         except Exception as e:
