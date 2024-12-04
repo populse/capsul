@@ -254,6 +254,8 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
                 print('assign iteration parameter', parameter, ':\n', e,
                       file=sys.stderr)
         for parameter in parameters:
+            if parameter in iterative_parameters:
+                continue
             try:
                 value = getattr(process.process, parameter)
                 setattr(process, parameter, value)
