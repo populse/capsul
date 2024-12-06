@@ -273,10 +273,8 @@ class Settings:
                     env_conf = {}
                     for module in modules:
                         mod_conf = {}
-                        for config in session.configs(module, env):
-                            id = "%s-%s" % (config._id, env)
-                            doc = data[session.collection_name(module)][id]
-                            items = dict(doc._items())
+                        for cf_i, config in enumerate(session.configs(module, env)):
+                            items = data[session.collection_name(module)].get()[cf_i]
                             if "config_id" in items:
                                 items["config_id"] = items["config_id"][: -len(env) - 1]
                             mod_conf[config._id] = items
