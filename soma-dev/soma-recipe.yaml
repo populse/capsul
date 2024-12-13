@@ -1,0 +1,21 @@
+package:
+  name: capsul
+
+soma-dev:
+  internal-dependencies:
+    - soma-python
+
+  type: interpreted
+
+requirements:
+  run:
+    - redis-py <4.5.0
+    - redis-server <7
+    - pyyaml
+
+tests:
+  - script: "python -m capsul.test"
+    requirements:
+      run:
+        - pytest
+        - notebook
