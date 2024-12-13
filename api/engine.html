@@ -105,14 +105,501 @@
             
   <section id="capsul-engine-module">
 <h1>capsul.engine module<a class="headerlink" href="#capsul-engine-module" title="Link to this heading">¶</a></h1>
-<section id="main-module">
-<h2>Main module<a class="headerlink" href="#main-module" title="Link to this heading">¶</a></h2>
+<div class="graphviz"><img src="../_images/inheritance-247231e14284be742c4fb61bec12cd51dc39a7c5.png" alt="Inheritance diagram of capsul.engine, capsul.engine.database_json, capsul.engine.database_populse, capsul.engine.database, capsul.engine.module" usemap="#inheritance8def285678" class="inheritance graphviz" /></div>
+<map id="inheritance8def285678" name="inheritance8def285678">
+<area shape="rect" id="node1" href="https://docs.enthought.com/traits/traits_api_reference/ctraits.html#traits.ctraits.CHasTraits" target="_top" title="Base class for HasTraits." alt="" coords="24,104,115,129"/>
+<area shape="rect" id="node4" href="https://docs.enthought.com/traits/traits_api_reference/has_traits.html#traits.has_traits.HasTraits" target="_top" title="Enables any Python class derived from it to have trait attributes." alt="" coords="208,104,291,129"/>
+<area shape="rect" id="node2" href="#capsul.engine.CapsulEngine" target="_top" title="A CapsulEngine is the mandatory entry point of all software using Capsul." alt="" coords="500,104,611,129"/>
+<area shape="rect" id="node3" href="https://populse.github.io/soma-base/api.html#soma.controller.controller.Controller" target="_top" title="A Controller contains some traits: attributes typing and observer" alt="" coords="365,104,452,129"/>
+<area shape="rect" id="node5" href="#capsul.engine.database.DatabaseEngine" target="_top" title="A :py:class:`DatabaseEngine` is the base class for all engines " alt="" coords="5,31,133,56"/>
+<area shape="rect" id="node6" href="#capsul.engine.database_json.JSONDBEngine" target="_top" title="A JSON dictionary implementation of :py:class:`capsul.engine.database.DatabaseEngine`" alt="" coords="191,5,308,31"/>
+<area shape="rect" id="node7" href="#capsul.engine.database_populse.PopulseDBEngine" target="_top" title="PopulseDBEngine" alt="" coords="181,55,317,80"/>
+</map><section id="module-capsul.engine">
+<span id="main-module"></span><h2>Main module<a class="headerlink" href="#module-capsul.engine" title="Link to this heading">¶</a></h2>
+<p>This module defines the main API to interact with Capsul processes.
+In order to execute a process, it is mandatory to have an instance of
+<a class="reference internal" href="#capsul.engine.CapsulEngine" title="capsul.engine.CapsulEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">CapsulEngine</span></code></a>. Such an instance can be created with factory
+<a class="reference internal" href="#capsul.engine.capsul_engine" title="capsul.engine.capsul_engine"><code class="xref py py-func docutils literal notranslate"><span class="pre">capsul_engine()</span></code></a></p>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h3>
+<section id="capsulengine">
+<h4><a class="reference internal" href="#capsul.engine.CapsulEngine" title="capsul.engine.CapsulEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">CapsulEngine</span></code></a><a class="headerlink" href="#capsulengine" title="Link to this heading">¶</a></h4>
 </section>
-<section id="capsul-engine-database-json-submodule">
-<h2>capsul.engine.database_json submodule<a class="headerlink" href="#capsul-engine-database-json-submodule" title="Link to this heading">¶</a></h2>
 </section>
-<section id="capsul-engine-database-populse-submodule">
-<h2>capsul.engine.database_populse submodule<a class="headerlink" href="#capsul-engine-database-populse-submodule" title="Link to this heading">¶</a></h2>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">¶</a></h3>
+<section id="database-factory">
+<h4><a class="reference internal" href="#capsul.engine.database_factory" title="capsul.engine.database_factory"><code class="xref py py-func docutils literal notranslate"><span class="pre">database_factory()</span></code></a><a class="headerlink" href="#database-factory" title="Link to this heading">¶</a></h4>
+</section>
+<section id="capsul-engine">
+<h4><a class="reference internal" href="#capsul.engine.capsul_engine" title="capsul.engine.capsul_engine"><code class="xref py py-func docutils literal notranslate"><span class="pre">capsul_engine()</span></code></a><a class="headerlink" href="#capsul-engine" title="Link to this heading">¶</a></h4>
+</section>
+<section id="activate-configuration">
+<h4><a class="reference internal" href="#capsul.engine.activate_configuration" title="capsul.engine.activate_configuration"><code class="xref py py-func docutils literal notranslate"><span class="pre">activate_configuration()</span></code></a><a class="headerlink" href="#activate-configuration" title="Link to this heading">¶</a></h4>
+</section>
+</section>
+<dl class="py class">
+<dt class="sig sig-object py" id="capsul.engine.CapsulEngine">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.engine.</span></span><span class="sig-name descname"><span class="pre">CapsulEngine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">database_location</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">database</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine.html#CapsulEngine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.CapsulEngine" title="Link to this definition">¶</a></dt>
+<dd><p>A CapsulEngine is the mandatory entry point of all software using Capsul.
+It contains objects to store configuration and metadata, defines execution
+environment(s) (possibly remote) and performs pipelines execution.</p>
+<p>A CapsulEngine must be created using capsul.engine.capsul_engine function.
+For instance:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">capsul.engine</span> <span class="kn">import</span> <span class="n">capsul_engine</span>
+<span class="n">ce</span> <span class="o">=</span> <span class="n">capsul_engine</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Or:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">capsul.api</span> <span class="kn">import</span> <span class="n">capsul_engine</span>
+<span class="n">ce</span> <span class="o">=</span> <span class="n">capsul_engine</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>By default, CapsulEngine only stores necessary configuration. But it may be
+necessary to modify the Python environment globally to apply this
+configuration. For instance, Nipype must be configured globally. If SPM is
+configured in CapsulEngine, it is necessary to explicitly activate the
+configuration in order to modify the global configuration of Nipype for
+SPM. This activation is done by explicitly activating the execution
+context of the capsul engine with the following code, inside a running
+process:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">capsul.engine</span> <span class="kn">import</span> <span class="n">capsul_engine</span><span class="p">,</span> <span class="n">activate_configuration</span>
+<span class="n">ce</span> <span class="o">=</span> <span class="n">capsul_engine</span><span class="p">()</span>
+<span class="c1"># Nipype is not configured here</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">capsul_engine</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">select_configurations</span><span class="p">(</span>
+    <span class="s1">&#39;global&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;nipype&#39;</span><span class="p">:</span> <span class="s1">&#39;any&#39;</span><span class="p">})</span>
+<span class="n">activate_configuration</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+<span class="c1"># Nipype is configured here</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>CapsulEngine is the replacement of the older
+<a class="reference internal" href="study_config.html#capsul.study_config.study_config.StudyConfig" title="capsul.study_config.study_config.StudyConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">StudyConfig</span></code></a>, which is still
+present in Capsul 2.2 for backward compatibility, but will disappear in
+later versions. In Capsul 2.2 both objects exist, and are synchronized
+internally, which means that a StudyConfig object will also create a
+CapsulEngine, and the other way, and modifications in the StudyConfig
+object will change the corresponding item in CapsulEngine and vice
+versa. Functionalities of StudyConfig are moving internally to
+CapsulEngine, StudyConfig being merely a wrapper.</p>
+</div>
+<p><strong>Using CapsulEngine</strong></p>
+<p>It is used to store configuration variables, and to handle execution within
+the configured context. The configuration has 2 independent axes:
+configuration modules, which provide additional configuration variables,
+and “environments” which typically represent computing resources.</p>
+<p><em>Computing resources</em></p>
+<p>Capsul is using <a class="extlink-somaworkflow reference external" href="https://brainvisa.info/soma-workflow/sphinx/index.html">Soma-Workflow</a> to run
+processes, and is thus able to connect and execute on a remote computing
+server. The remote computing resource may have a different configuration
+from the client one (paths for software or data, available external
+software etc). So configurations specific to different computing resources
+should be handled in CapsulEngine. For this, the configuration section is
+split into several configuration entries, one for each computing resource.</p>
+<p>As this is a little bit complex to handle at first, a “global”
+configuration (what we call “environment”) is used to maintain all common
+configuration options. It is typically used to work on the local machine,
+especially for users who only work locally.</p>
+<p>Configuration is stored in a database (either internal or persistent),
+through the <a class="reference internal" href="#capsul.engine.settings.Settings" title="capsul.engine.settings.Settings"><code class="xref py py-class docutils literal notranslate"><span class="pre">Settings</span></code></a> object found in
+<code class="docutils literal notranslate"><span class="pre">CapsulEngine.settings</span></code>.
+Access and modification of settings should occur within a session block
+using <code class="docutils literal notranslate"><span class="pre">with</span> <span class="pre">capsul_engine.settings</span> <span class="pre">as</span> <span class="pre">session</span></code>. See the
+<a class="reference internal" href="#capsul.engine.settings.Settings" title="capsul.engine.settings.Settings"><code class="xref py py-class docutils literal notranslate"><span class="pre">Settings</span></code></a> class for details.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">capsul.api</span> <span class="kn">import</span> <span class="n">capsul_engine</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ce</span> <span class="o">=</span> <span class="n">capsul_engine</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">config</span> <span class="o">=</span> <span class="n">ce</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">select_configurations</span><span class="p">(</span><span class="s1">&#39;global&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">config</span> <span class="o">=</span> <span class="n">ce</span><span class="o">.</span><span class="n">global_config</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+<span class="go">{&#39;capsul_engine&#39;: {&#39;uses&#39;: {&#39;capsul.engine.module.fsl&#39;: &#39;ALL&#39;,</span>
+<span class="go">  &#39;capsul.engine.module.matlab&#39;: &#39;ALL&#39;,</span>
+<span class="go">  &#39;capsul.engine.module.spm&#39;: &#39;ALL&#39;}}}</span>
+</pre></div>
+</div>
+<p>Whenever a new computing resource is used, it can be added as a new
+environment key to all configuration operations.</p>
+<p>Note that the settings store all possible configurations for all
+environments (or computing resources), but are not “activated”: this is
+only done at runtime in specific process execution functions: each process
+may need to select and use a different configuration from other ones, and
+activate it individually.</p>
+<p><a class="reference internal" href="process.html#capsul.process.process.Process" title="capsul.process.process.Process"><code class="xref py py-class docutils literal notranslate"><span class="pre">Process</span></code></a> subclasses or instances may
+provide their configuration requirements via their
+<a class="reference internal" href="process.html#capsul.process.process.Process.requirements" title="capsul.process.process.Process.requirements"><code class="xref py py-meth docutils literal notranslate"><span class="pre">requirements()</span></code></a> method. This method
+returns a dictionary of request strings (one element per needed module)
+that will be used to select one configuration amongst the available
+settings entries of each required module.</p>
+<p><em>configuration modules</em></p>
+<p>The configuration is handled through a set of configuration modules. Each
+is dedicated for a topic (for instance handling a specific external
+software paths, or managing process parameters completion, etc). A module
+adds a settings table in the database, with its own variables, and is able
+to manage runtime configuration of programs, if needed, through its
+<code class="docutils literal notranslate"><span class="pre">activate_configurations</span></code> function. Capsul comes with a
+set of predefined modules:
+<a class="reference internal" href="#module-capsul.engine.module.attributes" title="capsul.engine.module.attributes"><code class="xref py py-class docutils literal notranslate"><span class="pre">attributes</span></code></a>,
+<a class="reference internal" href="#module-capsul.engine.module.axon" title="capsul.engine.module.axon"><code class="xref py py-class docutils literal notranslate"><span class="pre">axon</span></code></a>,
+<a class="reference internal" href="#module-capsul.engine.module.fom" title="capsul.engine.module.fom"><code class="xref py py-class docutils literal notranslate"><span class="pre">fom</span></code></a>,
+<a class="reference internal" href="#module-capsul.engine.module.fsl" title="capsul.engine.module.fsl"><code class="xref py py-class docutils literal notranslate"><span class="pre">fsl</span></code></a>,
+<a class="reference internal" href="#module-capsul.engine.module.matlab" title="capsul.engine.module.matlab"><code class="xref py py-class docutils literal notranslate"><span class="pre">matlab</span></code></a>,
+<a class="reference internal" href="#module-capsul.engine.module.spm" title="capsul.engine.module.spm"><code class="xref py py-class docutils literal notranslate"><span class="pre">spm</span></code></a></p>
+<p><strong>Methods</strong></p>
+<p>The CapsulEngine constructor should not be called directly.
+Use <a class="reference internal" href="#capsul.engine.capsul_engine" title="capsul.engine.capsul_engine"><code class="xref py py-func docutils literal notranslate"><span class="pre">capsul_engine()</span></code></a> factory function instead.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="capsul.engine.CapsulEngine.connect">
+<span class="sig-name descname"><span class="pre">connect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">computing_resource</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine.html#CapsulEngine.connect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.CapsulEngine.connect" title="Link to this definition">¶</a></dt>
+<dd><p>Connect the capsul engine to a computing resource</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="capsul.engine.CapsulEngine.connected_to">
+<span class="sig-name descname"><span class="pre">connected_to</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine.html#CapsulEngine.connected_to"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.CapsulEngine.connected_to" title="Link to this definition">¶</a></dt>
+<dd><p>Return the name of the computing resource this capsul engine is
+connected to or None if it is not connected.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="capsul.engine.CapsulEngine.detailed_information">
+<span class="sig-name descname"><span class="pre">detailed_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">execution_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine.html#CapsulEngine.detailed_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.CapsulEngine.detailed_information" title="Link to this definition">¶</a></dt>
+<dd><p>Return complete (and possibly big) information about a process
+execution.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="capsul.engine.CapsulEngine.disconnect">
+<span class="sig-name descname"><span class="pre">disconnect</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine.html#CapsulEngine.disconnect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.CapsulEngine.disconnect" title="Link to this definition">¶</a></dt>
+<dd><p>Disconnect from a computing resource.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="capsul.engine.CapsulEngine.dispose">
+<span class="sig-name descname"><span class="pre">dispose</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">execution_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditional</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine.html#CapsulEngine.dispose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.CapsulEngine.dispose" title="Link to this definition">¶</a></dt>
+<dd><p>Update the database with the current state of a process execution and
+free the resources used in the computing resource (i.e. remove the
+workflow from SomaWorkflow).</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">conditional</span></code> is set to True, then dispose is only done if the
+configuration does not specify to keep succeeded / failed workflows.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="capsul.engine.CapsulEngine.executions">
+<span class="sig-name descname"><span class="pre">executions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine.html#CapsulEngine.executions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.CapsulEngine.executions" title="Link to this definition">¶</a></dt>
+<dd><p>List the execution identifiers of all processes that have been started
+but not disposed in the connected computing resource. Raises an
+exception if the computing resource is not connected.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="capsul.engine.CapsulEngine.get_iteration_pipeline">
+<span class="sig-name descname"><span class="pre">get_iteration_pipeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pipeline_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">process_or_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iterative_plugs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_not_export</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">make_optional</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine.html#CapsulEngine.get_iteration_pipeline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.CapsulEngine.get_iteration_pipeline" title="Link to this definition">¶</a></dt>
+<dd><p>Create a pipeline with an iteration node iterating the given
+process.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pipeline_name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – pipeline name</p></li>
+<li><p><strong>node_name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – iteration node name in the pipeline</p></li>
+<li><p><strong>process_or_id</strong> (<em>process description</em>) – as in <a class="reference internal" href="#capsul.engine.CapsulEngine.get_process_instance" title="capsul.engine.CapsulEngine.get_process_instance"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_process_instance()</span></code></a></p></li>
+<li><p><strong>iterative_plugs</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a><em> (</em><em>optional</em><em>)</em>) – passed to <code class="xref py py-meth docutils literal notranslate"><span class="pre">Pipeline.add_iterative_process()</span></code></p></li>
+<li><p><strong>do_not_export</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – passed to <code class="xref py py-meth docutils literal notranslate"><span class="pre">Pipeline.add_iterative_process()</span></code></p></li>
+<li><p><strong>make_optional</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – passed to <code class="xref py py-meth docutils literal notranslate"><span class="pre">Pipeline.add_iterative_process()</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>pipeline</strong></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code> instance</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="capsul.engine.CapsulEngine.get_process_instance">
+<span class="sig-name descname"><span class="pre">get_process_instance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process_or_id</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine.html#CapsulEngine.get_process_instance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.CapsulEngine.get_process_instance" title="Link to this definition">¶</a></dt>
+<dd><p>The only official way to get a process instance is to use this method.
+For now, it simply calls self.study_config.get_process_instance
+but it will change in the future.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="capsul.engine.CapsulEngine.import_configs">
+<span class="sig-name descname"><span class="pre">import_configs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">environment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cont_on_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine.html#CapsulEngine.import_configs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.CapsulEngine.import_configs" title="Link to this definition">¶</a></dt>
+<dd><p>Import config values from a dictionary as given by
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">Settings.select_configurations()</span></code>.</p>
+<p>Compared to <code class="xref py py-meth docutils literal notranslate"><span class="pre">Settings.import_configs()</span></code> this method (at
+<a class="reference internal" href="#capsul.engine.CapsulEngine" title="capsul.engine.CapsulEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">CapsulEngine</span></code></a> level) also loads the required modules.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="capsul.engine.CapsulEngine.interrupt">
+<span class="sig-name descname"><span class="pre">interrupt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">execution_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine.html#CapsulEngine.interrupt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.CapsulEngine.interrupt" title="Link to this definition">¶</a></dt>
+<dd><p>Try to stop the execution of a process. Does not wait for the process
+to be terminated.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="capsul.engine.CapsulEngine.load_module">
+<span class="sig-name descname"><span class="pre">load_module</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine.html#CapsulEngine.load_module"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.CapsulEngine.load_module" title="Link to this definition">¶</a></dt>
+<dd><p>Load a module if it has not already been loaded (is this case,
+nothing is done)</p>
+<p>A module is a fully qualified name of a Python module (as accepted
+by Python import statement). Such a module must define the two
+following functions (and may define two others, see below):</p>
+<p>def load_module(capsul_engine, module_name):
+def set_environ(config, environ):</p>
+<p>load_module of each module is called once before reading and applying
+the configuration. It can be used to add traits to the CapsulEngine
+in order to define the configuration options that are used by the
+module. Values of these traits are automatically stored in
+configuration in database when self.save() is used, and they are
+retrieved from database before initializing modules.</p>
+<p>set_environ is called in the context of the processing (i.e. on
+the, possibly remote, machine that runs the pipelines). It receives
+the configuration as a JSON compatible dictionary (for instance a
+CapsulEngine attribute <cite>capsul_engine.spm.directory</cite> would be
+config[‘spm’][‘directory’]). The function must modify the environ
+dictionary to set the environment variables that must be defined
+for pipeline configuration. These variables are typically used by
+modules in capsul.in_context module to manage running external
+software with appropriate configuration.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="capsul.engine.CapsulEngine.load_modules">
+<span class="sig-name descname"><span class="pre">load_modules</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">require</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine.html#CapsulEngine.load_modules"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.CapsulEngine.load_modules" title="Link to this definition">¶</a></dt>
+<dd><p>Call self.load_module for each required module. The list of modules
+to load is located in self.modules (if it is None,
+capsul.module.default_modules is used).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="capsul.engine.CapsulEngine.raise_for_status">
+<span class="sig-name descname"><span class="pre">raise_for_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">status</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">execution_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine.html#CapsulEngine.raise_for_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.CapsulEngine.raise_for_status" title="Link to this definition">¶</a></dt>
+<dd><p>Raise an exception if a process execution failed</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="capsul.engine.CapsulEngine.start">
+<span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">workflow</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">history</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_pipeline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine.html#CapsulEngine.start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.CapsulEngine.start" title="Link to this definition">¶</a></dt>
+<dd><p>Asynchronously start the execution of a process or pipeline in the
+connected computing environment. Returns an identifier of
+the process execution and can be used to get the status of the
+execution or wait for its termination.</p>
+<p>TODO:
+if history is True, an entry of the process execution is stored in
+the database. The content of this entry is to be defined but it will
+contain the process parameters (to restart the process) and will be
+updated on process termination (for instance to store execution time
+if possible).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>process</strong> (<a class="reference internal" href="process.html#capsul.process.process.Process" title="capsul.process.process.Process"><em>Process</em></a><em> or </em><em>Pipeline instance</em>)</p></li>
+<li><p><strong>workflow</strong> (<em>Workflow instance</em><em> (</em><em>optional - if already defined before call</em><em>)</em>)</p></li>
+<li><p><strong>history</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em> (</em><em>optional</em><em>)</em>) – TODO: not implemented yet.</p></li>
+<li><p><strong>get_pipeline</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em> (</em><em>optional</em><em>)</em>) – if True, start() will return a tuple (execution_id, pipeline). The
+pipeline is normally the input pipeline (process) if it is actually
+a pipeline. But if the input process is a “single process”, it will
+be inserted into a small pipeline for execution. This pipeline will
+be the one actually run, and may be passed to <a class="reference internal" href="#capsul.engine.CapsulEngine.wait" title="capsul.engine.CapsulEngine.wait"><code class="xref py py-meth docutils literal notranslate"><span class="pre">wait()</span></code></a> to set
+output parameters.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>execution_id</strong> (<em>int</em>) – execution identifier (actually a soma-workflow id)</p></li>
+<li><p><strong>pipeline</strong> (<em>Pipeline instance (optional)</em>) – only returned if get_pipeline is True.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="capsul.engine.CapsulEngine.status">
+<span class="sig-name descname"><span class="pre">status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">execution_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine.html#CapsulEngine.status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.CapsulEngine.status" title="Link to this definition">¶</a></dt>
+<dd><p>Return a simple value with the status of an execution (queued,
+running, terminated, error, etc.)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="capsul.engine.CapsulEngine.wait">
+<span class="sig-name descname"><span class="pre">wait</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">execution_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pipeline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine.html#CapsulEngine.wait"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.CapsulEngine.wait" title="Link to this definition">¶</a></dt>
+<dd><p>Wait for the end of a process execution (either normal termination,
+interruption or error).</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="capsul.engine.activate_configuration">
+<span class="sig-prename descclassname"><span class="pre">capsul.engine.</span></span><span class="sig-name descname"><span class="pre">activate_configuration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">selected_configurations</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine.html#activate_configuration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.activate_configuration" title="Link to this definition">¶</a></dt>
+<dd><p>Activate a selected configuration (set of modules) for runtime.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="capsul.engine.activate_module">
+<span class="sig-prename descclassname"><span class="pre">capsul.engine.</span></span><span class="sig-name descname"><span class="pre">activate_module</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine.html#activate_module"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.activate_module" title="Link to this definition">¶</a></dt>
+<dd><p>Activate a module configuration for runtime. This function is called by
+activate_configuration() and assumes the global variable
+<code class="docutils literal notranslate"><span class="pre">capsul.engine.configurations</span></code> is properly setup.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="capsul.engine.capsul_engine">
+<span class="sig-prename descclassname"><span class="pre">capsul.engine.</span></span><span class="sig-name descname"><span class="pre">capsul_engine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">database_location</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">require</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine.html#capsul_engine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.capsul_engine" title="Link to this definition">¶</a></dt>
+<dd><p>User facrory for creating capsul engines.</p>
+<p>If no database_location is given, it will default to an internal (in-
+memory) database with no persistent settings or history values.</p>
+<p>Configuration is read from a dictionary stored in two database entries.
+The first entry has the key ‘global_config’ (i.e.
+database.json_value(‘global_config’)), it contains the configuration
+values that are shared by all processing engines. The second entry is
+computing_config`. It contains a dictionary with one item per computing
+resource where the key is the resource name and the value is configuration
+values that are specific to this computing resource.</p>
+<p>Before initialization of the CapsulEngine, modules are loaded. The
+list of loaded modules is searched in the ‘modules’ value in the
+database (i.e. in database.json_value(‘modules’)) ; if no list is
+defined in the database, capsul.module.default_modules is used.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="capsul.engine.database_factory">
+<span class="sig-prename descclassname"><span class="pre">capsul.engine.</span></span><span class="sig-name descname"><span class="pre">database_factory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">database_location</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine.html#database_factory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.database_factory" title="Link to this definition">¶</a></dt>
+<dd><p>Create a DatabaseEngine from its location string. This location can be
+either a sqlite file path (ending with ‘.sqlite’ or ‘:memory:’ for an
+in memory database for testing) or a populse_db URL, or None.</p>
+</dd></dl>
+
+</section>
+<section id="module-capsul.engine.database_json">
+<span id="capsul-engine-database-json-submodule"></span><h2>capsul.engine.database_json submodule<a class="headerlink" href="#module-capsul.engine.database_json" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="capsul.engine.database_json.JSONDBEngine">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.engine.database_json.</span></span><span class="sig-name descname"><span class="pre">JSONDBEngine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">json_filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/database_json.html#JSONDBEngine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.database_json.JSONDBEngine" title="Link to this definition">¶</a></dt>
+<dd><p>A JSON dictionary implementation of <a class="reference internal" href="#capsul.engine.database.DatabaseEngine" title="capsul.engine.database.DatabaseEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">capsul.engine.database.DatabaseEngine</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="capsul.engine.database_json.JSONDBEngine.json_value">
+<span class="sig-name descname"><span class="pre">json_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/database_json.html#JSONDBEngine.json_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.database_json.JSONDBEngine.json_value" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieve a value previously stored with set_json_value()</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="capsul.engine.database_json.JSONDBEngine.named_directories">
+<span class="sig-name descname"><span class="pre">named_directories</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/database_json.html#JSONDBEngine.named_directories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.database_json.JSONDBEngine.named_directories" title="Link to this definition">¶</a></dt>
+<dd><p>List the names of all named directories. This method may return any
+iterable value (list, generator, etc.)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="capsul.engine.database_json.JSONDBEngine.named_directory">
+<span class="sig-name descname"><span class="pre">named_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/database_json.html#JSONDBEngine.named_directory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.database_json.JSONDBEngine.named_directory" title="Link to this definition">¶</a></dt>
+<dd><p>Return the absolute path of a named directory.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="capsul.engine.database_json.JSONDBEngine.path_metadata">
+<span class="sig-name descname"><span class="pre">path_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">named_directory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/database_json.html#JSONDBEngine.path_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.database_json.JSONDBEngine.path_metadata" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieve metadata associated with a path.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="capsul.engine.database_json.JSONDBEngine.set_json_value">
+<span class="sig-name descname"><span class="pre">set_json_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">json_value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/database_json.html#JSONDBEngine.set_json_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.database_json.JSONDBEngine.set_json_value" title="Link to this definition">¶</a></dt>
+<dd><p>Store a json value and associate it with a key given in “name”.
+The value can be retrieved with method json_value().</p>
+<p>&#64;param name: unique key used to identify and retrieve the value
+&#64;type name: C{string}
+&#64;param json_value: a value to store in the database
+&#64;type  name: any JSON compatible value</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="capsul.engine.database_json.JSONDBEngine.set_named_directory">
+<span class="sig-name descname"><span class="pre">set_named_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/database_json.html#JSONDBEngine.set_named_directory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.database_json.JSONDBEngine.set_named_directory" title="Link to this definition">¶</a></dt>
+<dd><p>Associate an absolute path to a generic name. This allow to always
+use a location independent name for a directory such as ‘spm_template’
+and to customize the real absolute path in the configuration. These
+named directories are used when setting/retrieving path metadata with
+set_path_metadata() and path_metadata().</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="capsul.engine.database_json.JSONDBEngine.set_path_metadata">
+<span class="sig-name descname"><span class="pre">set_path_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">named_directory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/database_json.html#JSONDBEngine.set_path_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.database_json.JSONDBEngine.set_path_metadata" title="Link to this definition">¶</a></dt>
+<dd><p>Set metadata associated to a path. The metadata are associated to the
+result of self.check_path(path, named_directory). metadata can be any
+JSON serializable value.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-capsul.engine.database_populse">
+<span id="capsul-engine-database-populse-submodule"></span><h2>capsul.engine.database_populse submodule<a class="headerlink" href="#module-capsul.engine.database_populse" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="capsul.engine.database_populse.PopulseDBEngine">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.engine.database_populse.</span></span><span class="sig-name descname"><span class="pre">PopulseDBEngine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">database_engine</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/database_populse.html#PopulseDBEngine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.database_populse.PopulseDBEngine" title="Link to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="capsul.engine.database_populse.PopulseDBEngine.json_value">
+<span class="sig-name descname"><span class="pre">json_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/database_populse.html#PopulseDBEngine.json_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.database_populse.PopulseDBEngine.json_value" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieve a value previously stored with set_json_value()</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="capsul.engine.database_populse.PopulseDBEngine.named_directories">
+<span class="sig-name descname"><span class="pre">named_directories</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/database_populse.html#PopulseDBEngine.named_directories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.database_populse.PopulseDBEngine.named_directories" title="Link to this definition">¶</a></dt>
+<dd><p>List the names of all named directories. This method may return any
+iterable value (list, generator, etc.)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="capsul.engine.database_populse.PopulseDBEngine.named_directory">
+<span class="sig-name descname"><span class="pre">named_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/database_populse.html#PopulseDBEngine.named_directory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.database_populse.PopulseDBEngine.named_directory" title="Link to this definition">¶</a></dt>
+<dd><p>Return the absolute path of a named directory.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="capsul.engine.database_populse.PopulseDBEngine.path_metadata">
+<span class="sig-name descname"><span class="pre">path_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/database_populse.html#PopulseDBEngine.path_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.database_populse.PopulseDBEngine.path_metadata" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieve metadata associated with a path.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="capsul.engine.database_populse.PopulseDBEngine.set_json_value">
+<span class="sig-name descname"><span class="pre">set_json_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">json_value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/database_populse.html#PopulseDBEngine.set_json_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.database_populse.PopulseDBEngine.set_json_value" title="Link to this definition">¶</a></dt>
+<dd><p>Store a json value and associate it with a key given in “name”.
+The value can be retrieved with method json_value().</p>
+<p>&#64;param name: unique key used to identify and retrieve the value
+&#64;type name: C{string}
+&#64;param json_value: a value to store in the database
+&#64;type  name: any JSON compatible value</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="capsul.engine.database_populse.PopulseDBEngine.set_named_directory">
+<span class="sig-name descname"><span class="pre">set_named_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/database_populse.html#PopulseDBEngine.set_named_directory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.database_populse.PopulseDBEngine.set_named_directory" title="Link to this definition">¶</a></dt>
+<dd><p>Associate an absolute path to a generic name. This allow to always
+use a location independent name for a directory such as ‘spm_template’
+and to customize the real absolute path in the configuration. These
+named directories are used when setting/retrieving path metadata with
+set_path_metadata() and path_metadata().</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="capsul.engine.database_populse.PopulseDBEngine.set_path_metadata">
+<span class="sig-name descname"><span class="pre">set_path_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/database_populse.html#PopulseDBEngine.set_path_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.database_populse.PopulseDBEngine.set_path_metadata" title="Link to this definition">¶</a></dt>
+<dd><p>Set metadata associated to a path. The metadata are associated to the
+result of self.check_path(path, named_directory). metadata can be any
+JSON serializable value.</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="module-capsul.engine.database">
 <span id="capsul-engine-database-submodule"></span><h2>capsul.engine.database submodule<a class="headerlink" href="#module-capsul.engine.database" title="Link to this heading">¶</a></h2>
@@ -126,8 +613,8 @@ name).</p>
 <p>To instantiate a <a class="reference internal" href="#capsul.engine.database.DatabaseEngine" title="capsul.engine.database.DatabaseEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">DatabaseEngine</span></code></a> one must use the factory
 To date, two concrete <a class="reference internal" href="#capsul.engine.database.DatabaseEngine" title="capsul.engine.database.DatabaseEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">DatabaseEngine</span></code></a> implementations exist:</p>
 <ul class="simple">
-<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">capsul.engine.database_json.JSONDBEngine</span></code></p></li>
-<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">capsul.engine.database_populse.PopulseDBEngine</span></code></p></li>
+<li><p><a class="reference internal" href="#capsul.engine.database_json.JSONDBEngine" title="capsul.engine.database_json.JSONDBEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">capsul.engine.database_json.JSONDBEngine</span></code></a></p></li>
+<li><p><a class="reference internal" href="#capsul.engine.database_populse.PopulseDBEngine" title="capsul.engine.database_populse.PopulseDBEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">capsul.engine.database_populse.PopulseDBEngine</span></code></a></p></li>
 </ul>
 <dl class="py method">
 <dt class="sig sig-object py" id="capsul.engine.database.DatabaseEngine.check_path">
@@ -199,35 +686,494 @@ JSON serializable value.</p>
 </dd></dl>
 
 </section>
-<section id="capsul-engine-module-submodule">
-<h2>capsul.engine.module submodule<a class="headerlink" href="#capsul-engine-module-submodule" title="Link to this heading">¶</a></h2>
-<section id="attributes">
-<h3>attributes<a class="headerlink" href="#attributes" title="Link to this heading">¶</a></h3>
+<section id="module-capsul.engine.module">
+<span id="capsul-engine-module-submodule"></span><h2>capsul.engine.module submodule<a class="headerlink" href="#module-capsul.engine.module" title="Link to this heading">¶</a></h2>
+<section id="module-capsul.engine.module.attributes">
+<span id="attributes"></span><h3>attributes<a class="headerlink" href="#module-capsul.engine.module.attributes" title="Link to this heading">¶</a></h3>
+<p>Attributes completion config module</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="capsul.engine.module.attributes.edition_widget">
+<span class="sig-prename descclassname"><span class="pre">capsul.engine.module.attributes.</span></span><span class="sig-name descname"><span class="pre">edition_widget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">engine</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">environment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'attributes'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/module/attributes.html#edition_widget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.module.attributes.edition_widget" title="Link to this definition">¶</a></dt>
+<dd><p>Edition GUI for attributes config - see
+<code class="xref py py-class docutils literal notranslate"><span class="pre">SettingsEditor</span></code></p>
+</dd></dl>
+
 </section>
-<section id="axon">
-<h3>axon<a class="headerlink" href="#axon" title="Link to this heading">¶</a></h3>
+<section id="module-capsul.engine.module.axon">
+<span id="axon"></span><h3>axon<a class="headerlink" href="#module-capsul.engine.module.axon" title="Link to this heading">¶</a></h3>
+<p>Configuration module which links with <a class="reference external" href="http://brainvisa.info/axon/user_doc">Axon</a></p>
+<dl class="py function">
+<dt class="sig sig-object py" id="capsul.engine.module.axon.check_configurations">
+<span class="sig-prename descclassname"><span class="pre">capsul.engine.module.axon.</span></span><span class="sig-name descname"><span class="pre">check_configurations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/module/axon.html#check_configurations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.module.axon.check_configurations" title="Link to this definition">¶</a></dt>
+<dd><p>Checks if the activated configuration is valid to use BrainVisa and returns
+an error message if there is an error or None if everything is good.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="capsul.engine.module.axon.check_notably_invalid_config">
+<span class="sig-prename descclassname"><span class="pre">capsul.engine.module.axon.</span></span><span class="sig-name descname"><span class="pre">check_notably_invalid_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/module/axon.html#check_notably_invalid_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.module.axon.check_notably_invalid_config" title="Link to this definition">¶</a></dt>
+<dd><p>Checks if the given module config is obviously invalid, for instance if a mandatory path is not filled</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>invalid</strong> – list of invalid config keys</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#list" title="(in Python v3.9)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="capsul.engine.module.axon.complete_configurations">
+<span class="sig-prename descclassname"><span class="pre">capsul.engine.module.axon.</span></span><span class="sig-name descname"><span class="pre">complete_configurations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/module/axon.html#complete_configurations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.module.axon.complete_configurations" title="Link to this definition">¶</a></dt>
+<dd><p>Try to automatically set or complete the capsul.engine.configurations for
+Axon.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="capsul.engine.module.axon.edition_widget">
+<span class="sig-prename descclassname"><span class="pre">capsul.engine.module.axon.</span></span><span class="sig-name descname"><span class="pre">edition_widget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">engine</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">environment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'axon'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/module/axon.html#edition_widget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.module.axon.edition_widget" title="Link to this definition">¶</a></dt>
+<dd><p>Edition GUI for axon config - see
+<code class="xref py py-class docutils literal notranslate"><span class="pre">SettingsEditor</span></code></p>
+</dd></dl>
+
 </section>
-<section id="fom">
-<h3>fom<a class="headerlink" href="#fom" title="Link to this heading">¶</a></h3>
-</section>
-<section id="fsl">
-<h3>fsl<a class="headerlink" href="#fsl" title="Link to this heading">¶</a></h3>
-</section>
-<section id="matlab">
-<h3>matlab<a class="headerlink" href="#matlab" title="Link to this heading">¶</a></h3>
-</section>
-<section id="python">
-<h3>python<a class="headerlink" href="#python" title="Link to this heading">¶</a></h3>
-</section>
-<section id="spm">
-<h3>spm<a class="headerlink" href="#spm" title="Link to this heading">¶</a></h3>
+<section id="module-capsul.engine.module.fom">
+<span id="fom"></span><h3>fom<a class="headerlink" href="#module-capsul.engine.module.fom" title="Link to this heading">¶</a></h3>
+<p>Config module for <a class="reference internal" href="attributes.html#module-capsul.attributes.fom_completion_engine" title="capsul.attributes.fom_completion_engine"><code class="xref py py-mod docutils literal notranslate"><span class="pre">File</span> <span class="pre">Organization</span> <span class="pre">models</span> <span class="pre">(FOMs)</span></code></a></p>
+<section id="id2">
+<h4>Classes<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h4>
+<section id="fomconfig">
+<h5><code class="xref py py-class docutils literal notranslate"><span class="pre">FomConfig</span></code><a class="headerlink" href="#fomconfig" title="Link to this heading">¶</a></h5>
 </section>
 </section>
-<section id="capsul-engine-run-submodule">
-<h2>capsul.engine.run submodule<a class="headerlink" href="#capsul-engine-run-submodule" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="capsul.engine.module.fom.edition_widget">
+<span class="sig-prename descclassname"><span class="pre">capsul.engine.module.fom.</span></span><span class="sig-name descname"><span class="pre">edition_widget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">engine</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">environment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fom'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/module/fom.html#edition_widget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.module.fom.edition_widget" title="Link to this definition">¶</a></dt>
+<dd><p>Edition GUI for FOM config - see
+<code class="xref py py-class docutils literal notranslate"><span class="pre">SettingsEditor</span></code></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="capsul.engine.module.fom.update_fom">
+<span class="sig-prename descclassname"><span class="pre">capsul.engine.module.fom.</span></span><span class="sig-name descname"><span class="pre">update_fom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">capsul_engine</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">environment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'global'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/module/fom.html#update_fom"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.module.fom.update_fom" title="Link to this definition">¶</a></dt>
+<dd><p>Load configured FOMs and create FOM completion data</p>
+</dd></dl>
+
 </section>
-<section id="capsul-engine-settings-submodule">
-<h2>capsul.engine.settings submodule<a class="headerlink" href="#capsul-engine-settings-submodule" title="Link to this heading">¶</a></h2>
+<section id="module-capsul.engine.module.fsl">
+<span id="fsl"></span><h3>fsl<a class="headerlink" href="#module-capsul.engine.module.fsl" title="Link to this heading">¶</a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="capsul.engine.module.fsl.activate_configurations">
+<span class="sig-prename descclassname"><span class="pre">capsul.engine.module.fsl.</span></span><span class="sig-name descname"><span class="pre">activate_configurations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/module/fsl.html#activate_configurations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.module.fsl.activate_configurations" title="Link to this definition">¶</a></dt>
+<dd><p>Activate the FSL module (set env variables) from the global configurations,
+in order to use them via <a class="reference internal" href="in_context.html#module-capsul.in_context.fsl" title="capsul.in_context.fsl"><code class="xref py py-mod docutils literal notranslate"><span class="pre">capsul.in_context.fsl</span></code></a> functions</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="capsul.engine.module.fsl.check_configurations">
+<span class="sig-prename descclassname"><span class="pre">capsul.engine.module.fsl.</span></span><span class="sig-name descname"><span class="pre">check_configurations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/module/fsl.html#check_configurations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.module.fsl.check_configurations" title="Link to this definition">¶</a></dt>
+<dd><p>Checks if the activated configuration is valid to run FSL and returns an
+error message if there is an error or None if everything is good.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="capsul.engine.module.fsl.check_notably_invalid_config">
+<span class="sig-prename descclassname"><span class="pre">capsul.engine.module.fsl.</span></span><span class="sig-name descname"><span class="pre">check_notably_invalid_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/module/fsl.html#check_notably_invalid_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.module.fsl.check_notably_invalid_config" title="Link to this definition">¶</a></dt>
+<dd><p>Checks if the given module config is obviously invalid, for instance if a mandatory path is not filled</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>invalid</strong> – list of invalid config keys</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#list" title="(in Python v3.9)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="capsul.engine.module.fsl.complete_configurations">
+<span class="sig-prename descclassname"><span class="pre">capsul.engine.module.fsl.</span></span><span class="sig-name descname"><span class="pre">complete_configurations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/module/fsl.html#complete_configurations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.module.fsl.complete_configurations" title="Link to this definition">¶</a></dt>
+<dd><p>Try to automatically set or complete the capsul.engine.configurations for FSL.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="capsul.engine.module.fsl.edition_widget">
+<span class="sig-prename descclassname"><span class="pre">capsul.engine.module.fsl.</span></span><span class="sig-name descname"><span class="pre">edition_widget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">engine</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">environment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fsl'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/module/fsl.html#edition_widget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.module.fsl.edition_widget" title="Link to this definition">¶</a></dt>
+<dd><p>Edition GUI for FSL config - see
+<code class="xref py py-class docutils literal notranslate"><span class="pre">SettingsEditor</span></code></p>
+</dd></dl>
+
+</section>
+<section id="module-capsul.engine.module.matlab">
+<span id="matlab"></span><h3>matlab<a class="headerlink" href="#module-capsul.engine.module.matlab" title="Link to this heading">¶</a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="capsul.engine.module.matlab.check_configurations">
+<span class="sig-prename descclassname"><span class="pre">capsul.engine.module.matlab.</span></span><span class="sig-name descname"><span class="pre">check_configurations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/module/matlab.html#check_configurations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.module.matlab.check_configurations" title="Link to this definition">¶</a></dt>
+<dd><p>Check if the activated configuration is valid for Matlab and return
+an error message if there is an error or None if everything is good.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="capsul.engine.module.matlab.check_notably_invalid_config">
+<span class="sig-prename descclassname"><span class="pre">capsul.engine.module.matlab.</span></span><span class="sig-name descname"><span class="pre">check_notably_invalid_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/module/matlab.html#check_notably_invalid_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.module.matlab.check_notably_invalid_config" title="Link to this definition">¶</a></dt>
+<dd><p>Checks if the given module config is obviously invalid, for instance if a mandatory path is not filled</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>invalid</strong> – list of invalid config keys</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#list" title="(in Python v3.9)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="capsul.engine.module.matlab.edition_widget">
+<span class="sig-prename descclassname"><span class="pre">capsul.engine.module.matlab.</span></span><span class="sig-name descname"><span class="pre">edition_widget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">engine</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">environment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'matlab'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/module/matlab.html#edition_widget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.module.matlab.edition_widget" title="Link to this definition">¶</a></dt>
+<dd><p>Edition GUI for matlab config - see
+<code class="xref py py-class docutils literal notranslate"><span class="pre">SettingsEditor</span></code></p>
+</dd></dl>
+
+</section>
+<section id="module-capsul.engine.module.python">
+<span id="python"></span><h3>python<a class="headerlink" href="#module-capsul.engine.module.python" title="Link to this heading">¶</a></h3>
+<p>Python configuration module for CAPSUL</p>
+<p>This config module allows the customization of python executable and python path in process execution. It can (as every config module) assign specific config values for different environments (computing resources, typically).</p>
+<p>Python configuration is slightly different from other config modules in the way that it cannot be handled during execution inside a python library: python executable and modules path have to be setup before starting python and loading modules. So the config here sometimes has to be prepared from client side and hard-coded in the job to run.</p>
+<p>For this reason, what we call here “python jobs” have a special handling. “python jobs” are <a class="reference internal" href="process.html#capsul.process.process.Process" title="capsul.process.process.Process"><code class="xref py py-class docutils literal notranslate"><span class="pre">Process</span></code></a> classes defining a <code class="xref py py-meth docutils literal notranslate"><span class="pre">_run_process()</span></code> method, and not <a class="reference internal" href="process.html#capsul.process.process.Process.get_commandline" title="capsul.process.process.Process.get_commandline"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_commandline()</span></code></a>. Processing are thus python functions or methods, and need the capsul library to run.</p>
+<p>Python jobs are handled in workflow building (<a class="reference internal" href="pipeline.html#module-capsul.pipeline.pipeline_workflow" title="capsul.pipeline.pipeline_workflow"><code class="xref py py-mod docutils literal notranslate"><span class="pre">capsul.pipeline.pipeline_workflow</span></code></a>), and jobs on engine side should not have to bother about it.</p>
+<p>The python config module is not mandatory: if no specific configuration is needed, jobs are run using the python command from the path, following the client <code class="docutils literal notranslate"><span class="pre">sys.executable</span></code> short name (if the client runs <code class="docutils literal notranslate"><span class="pre">/usr/bin/python3</span></code>, the engine will try to use <code class="docutils literal notranslate"><span class="pre">python3</span></code> from the <code class="docutils literal notranslate"><span class="pre">PATH</span></code>.</p>
+<p>The python config module is used optionally (if there is a config, it is used, otherwise no error is produced), and automatically for all jobs: no need to declare it in jobs <a class="reference internal" href="process.html#capsul.process.process.Process.requirements" title="capsul.process.process.Process.requirements"><code class="xref py py-meth docutils literal notranslate"><span class="pre">requirements()</span></code></a> method.</p>
+<p>Inside process execution, the module is otherwise handled like any other.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="capsul.engine.module.python.activate_configurations">
+<span class="sig-prename descclassname"><span class="pre">capsul.engine.module.python.</span></span><span class="sig-name descname"><span class="pre">activate_configurations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/module/python.html#activate_configurations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.module.python.activate_configurations" title="Link to this definition">¶</a></dt>
+<dd><p>Activate the python module from the global configurations</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="capsul.engine.module.python.check_notably_invalid_config">
+<span class="sig-prename descclassname"><span class="pre">capsul.engine.module.python.</span></span><span class="sig-name descname"><span class="pre">check_notably_invalid_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/module/python.html#check_notably_invalid_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.module.python.check_notably_invalid_config" title="Link to this definition">¶</a></dt>
+<dd><p>Checks if the given module config is obviously invalid, for instance if a mandatory path is not filled</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>invalid</strong> – list of invalid config keys</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#list" title="(in Python v3.9)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="capsul.engine.module.python.edition_widget">
+<span class="sig-prename descclassname"><span class="pre">capsul.engine.module.python.</span></span><span class="sig-name descname"><span class="pre">edition_widget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">engine</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">environment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'python'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/module/python.html#edition_widget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.module.python.edition_widget" title="Link to this definition">¶</a></dt>
+<dd><p>Edition GUI for python config - see
+<code class="xref py py-class docutils literal notranslate"><span class="pre">SettingsEditor</span></code></p>
+</dd></dl>
+
+</section>
+<section id="module-capsul.engine.module.spm">
+<span id="spm"></span><h3>spm<a class="headerlink" href="#module-capsul.engine.module.spm" title="Link to this heading">¶</a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="capsul.engine.module.spm.activate_configurations">
+<span class="sig-prename descclassname"><span class="pre">capsul.engine.module.spm.</span></span><span class="sig-name descname"><span class="pre">activate_configurations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/module/spm.html#activate_configurations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.module.spm.activate_configurations" title="Link to this definition">¶</a></dt>
+<dd><p>Activate the SPM module (set env variables) from the global configurations,
+in order to use them via <a class="reference internal" href="in_context.html#module-capsul.in_context.spm" title="capsul.in_context.spm"><code class="xref py py-mod docutils literal notranslate"><span class="pre">capsul.in_context.spm</span></code></a> functions</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="capsul.engine.module.spm.check_notably_invalid_config">
+<span class="sig-prename descclassname"><span class="pre">capsul.engine.module.spm.</span></span><span class="sig-name descname"><span class="pre">check_notably_invalid_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/module/spm.html#check_notably_invalid_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.module.spm.check_notably_invalid_config" title="Link to this definition">¶</a></dt>
+<dd><p>Checks if the given module config is obviously invalid, for instance if a mandatory path is not filled</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>invalid</strong> – list of invalid config keys</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#list" title="(in Python v3.9)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="capsul.engine.module.spm.edition_widget">
+<span class="sig-prename descclassname"><span class="pre">capsul.engine.module.spm.</span></span><span class="sig-name descname"><span class="pre">edition_widget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">engine</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">environment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'any'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/module/spm.html#edition_widget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.module.spm.edition_widget" title="Link to this definition">¶</a></dt>
+<dd><p>Edition GUI for SPM config - see
+<code class="xref py py-class docutils literal notranslate"><span class="pre">SettingsEditor</span></code></p>
+</dd></dl>
+
+</section>
+</section>
+<section id="module-capsul.engine.run">
+<span id="capsul-engine-run-submodule"></span><h2>capsul.engine.run submodule<a class="headerlink" href="#module-capsul.engine.run" title="Link to this heading">¶</a></h2>
+<p>Implementation of <a class="reference internal" href="#capsul.engine.CapsulEngine" title="capsul.engine.CapsulEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">CapsulEngine</span></code></a> processing methods.
+They have been moved to this file for clarity.</p>
+<p>Running is always using <a class="reference external" href="https://github.com/populse/soma-workflow/">Soma-Workflow</a>.</p>
+<dl class="py exception">
+<dt class="sig sig-object py" id="capsul.engine.run.WorkflowExecutionError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.engine.run.</span></span><span class="sig-name descname"><span class="pre">WorkflowExecutionError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">controller</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">workflow_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">workflow_kept</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/run.html#WorkflowExecutionError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.run.WorkflowExecutionError" title="Link to this definition">¶</a></dt>
+<dd><p>Exception class raised when a workflow execution fails.
+It holds references to the
+<code class="xref py py-class docutils literal notranslate"><span class="pre">WorkflowController</span></code> and the workflow id</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="capsul.engine.run.detailed_information">
+<span class="sig-prename descclassname"><span class="pre">capsul.engine.run.</span></span><span class="sig-name descname"><span class="pre">detailed_information</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">engine</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">execution_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/run.html#detailed_information"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.run.detailed_information" title="Link to this definition">¶</a></dt>
+<dd><p>Return complete (and possibly big) information about a process
+execution.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="capsul.engine.run.dispose">
+<span class="sig-prename descclassname"><span class="pre">capsul.engine.run.</span></span><span class="sig-name descname"><span class="pre">dispose</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">engine</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">execution_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditional</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/run.html#dispose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.run.dispose" title="Link to this definition">¶</a></dt>
+<dd><p>Update the database with the current state of a process execution and
+free the resources used in the computing resource (i.e. remove the
+workflow from SomaWorkflow).</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">conditional</span></code> is set to True, then dispose is only done if the
+configuration does not specify to keep succeeded / failed workflows.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="capsul.engine.run.interrupt">
+<span class="sig-prename descclassname"><span class="pre">capsul.engine.run.</span></span><span class="sig-name descname"><span class="pre">interrupt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">engine</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">execution_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/run.html#interrupt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.run.interrupt" title="Link to this definition">¶</a></dt>
+<dd><p>Try to stop the execution of a process. Does not wait for the process
+to be terminated.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="capsul.engine.run.raise_for_status">
+<span class="sig-prename descclassname"><span class="pre">capsul.engine.run.</span></span><span class="sig-name descname"><span class="pre">raise_for_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">engine</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">execution_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/run.html#raise_for_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.run.raise_for_status" title="Link to this definition">¶</a></dt>
+<dd><p>Raise an exception if a process execution failed</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="capsul.engine.run.start">
+<span class="sig-prename descclassname"><span class="pre">capsul.engine.run.</span></span><span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">engine</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">workflow</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">history</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_pipeline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/run.html#start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.run.start" title="Link to this definition">¶</a></dt>
+<dd><p>Asynchronously start the execution of a process or pipeline in the
+connected computing environment. Returns an identifier of
+the process execution and can be used to get the status of the
+execution or wait for its termination.</p>
+<p>TODO:
+if history is True, an entry of the process execution is stored in
+the database. The content of this entry is to be defined but it will
+contain the process parameters (to restart the process) and will be
+updated on process termination (for instance to store execution time
+if possible).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>engine</strong> (<a class="reference internal" href="#capsul.engine.CapsulEngine" title="capsul.engine.CapsulEngine"><em>CapsulEngine</em></a>)</p></li>
+<li><p><strong>process</strong> (<a class="reference internal" href="process.html#capsul.process.process.Process" title="capsul.process.process.Process"><em>Process</em></a><em> or </em><em>Pipeline instance</em>)</p></li>
+<li><p><strong>workflow</strong> (<em>Workflow instance</em><em> (</em><em>optional - if already defined before call</em><em>)</em>)</p></li>
+<li><p><strong>history</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em> (</em><em>optional</em><em>)</em>) – TODO: not implemented yet.</p></li>
+<li><p><strong>get_pipeline</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em> (</em><em>optional</em><em>)</em>) – if True, start() will return a tuple (execution_id, pipeline). The
+pipeline is normally the input pipeline (process) if it is actually
+a pipeline. But if the input process is a “single process”, it will
+be inserted into a small pipeline for execution. This pipeline will
+be the one actually run, and may be passed to <a class="reference internal" href="#capsul.engine.run.wait" title="capsul.engine.run.wait"><code class="xref py py-meth docutils literal notranslate"><span class="pre">wait()</span></code></a> to set
+output parameters.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>execution_id</strong> (<em>int</em>) – execution identifier (actually a soma-workflow id)</p></li>
+<li><p><strong>pipeline</strong> (<em>Pipeline instance (optional)</em>) – only returned if get_pipeline is True.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="capsul.engine.run.status">
+<span class="sig-prename descclassname"><span class="pre">capsul.engine.run.</span></span><span class="sig-name descname"><span class="pre">status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">engine</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">execution_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/run.html#status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.run.status" title="Link to this definition">¶</a></dt>
+<dd><p>Return a simple value with the status of an execution (queued,
+running, terminated, error, etc.)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="capsul.engine.run.wait">
+<span class="sig-prename descclassname"><span class="pre">capsul.engine.run.</span></span><span class="sig-name descname"><span class="pre">wait</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">engine</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">execution_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pipeline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/run.html#wait"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.run.wait" title="Link to this definition">¶</a></dt>
+<dd><p>Wait for the end of a process execution (either normal termination,
+interruption or error).</p>
+</dd></dl>
+
+</section>
+<section id="module-capsul.engine.settings">
+<span id="capsul-engine-settings-submodule"></span><h2>capsul.engine.settings submodule<a class="headerlink" href="#module-capsul.engine.settings" title="Link to this heading">¶</a></h2>
+<p>This module provides classes to store CapsulEngine settings for several execution environment and choose a configuration for a given execution environment. Setting management in Capsul has several features that makes it different from classical ways to deal with configuration:</p>
+<ul class="simple">
+<li><p>CapsulEngine must be able to deal with several configurations for the same software. For instance, one can configure both SPM 8 and SPM 12 and choose later the one to use.</p></li>
+<li><p>A single pipeline may use various configurations of a software. For instance a pipeline could compare the results of SPM 8 and SPM 12.</p></li>
+<li><p>Settings definition must be modular. It must be possible to define possible settings values either in Capsul (for well known for instance) or in external modules that can be installed separately.</p></li>
+<li><p>Capsul must deal with module dependencies. For instance the settings of SPM may depends on the settings of Matlab. But this dependency exists only if a non standalone SPM version is used. Therefore, dependencies between modules may depends on settings values.</p></li>
+<li><p>CapsulEngine settings must provide the possibility to express a requirement on settings. For instance a process may require to have version of SPM greater or equal to 12.</p></li>
+<li><p>The configuration of a module can be defined for a specific execution environment. Settings must allow to deal with several executions environments (e.g. a local machine and a computing cluster). Each environment may have a different configuration (for instance the SPM installation directory is not the same on the local computer and on a computing cluster).</p></li>
+</ul>
+<p>To implement all these features, it was necessary to have a settings storage system providing a query language to express requirements such as <code class="docutils literal notranslate"><span class="pre">spm.version</span> <span class="pre">&gt;=</span> <span class="pre">12</span></code>. Populse_db was thus chosen as the storage and query system for settings. Some of the settings API choices have been influenced by populse_db API.</p>
+<p>CapsulEngine settings are organized in modules. Each module defines and documents the schema of values that can be set for its configuration. Typically, a module is dedicated to a software. For instance the module for SPM accepts confiurations containing a version (a string), an install directory (a string), a standalone/matlab flag (a boolean), etc. This schema is used to record configuration documents for the module. There can be several configuration documents per module. Each document corresponds to a full configuration of the module (for instance a document for SPM 8 configuration and another for SPM 12, or one for SPM 12 standalone and another for SPM 12 with matlab).</p>
+<p>Settings cannot be used directly to configure the execution of a software. It is necessary to first select a single configuration document for each module. This configurations selection step is done by the <a class="reference internal" href="#capsul.engine.settings.Settings.select_configurations" title="capsul.engine.settings.Settings.select_configurations"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Settings.select_configurations()</span></code></a> method.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="capsul.engine.settings.Settings">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.engine.settings.</span></span><span class="sig-name descname"><span class="pre">Settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">populse_db</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/settings.html#Settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.settings.Settings" title="Link to this definition">¶</a></dt>
+<dd><p>Main class for the management of CapsulEngine settings. Since these
+settings are always stored in a populse_db database, it is necessary to
+activate a settings session in order to read or modify settings. This is
+done by using a with clause:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">capsul.api</span> <span class="kn">import</span> <span class="n">capsul_engine</span>
+
+<span class="c1"># Create a CapsulEngine</span>
+<span class="n">ce</span> <span class="o">=</span> <span class="n">capsul_engine</span><span class="p">()</span>
+<span class="k">with</span> <span class="n">ce</span><span class="o">.</span><span class="n">settings</span> <span class="k">as</span> <span class="n">settings</span><span class="p">:</span>
+    <span class="c1"># Read or modify settings here</span>
+    <span class="n">conf</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">new_config</span><span class="p">(</span><span class="s1">&#39;spm&#39;</span><span class="p">,</span> <span class="s1">&#39;global&#39;</span><span class="p">,</span>
+                               <span class="p">{</span><span class="s1">&#39;version&#39;</span><span class="p">:</span> <span class="s1">&#39;12&#39;</span><span class="p">,</span> <span class="s1">&#39;standalone&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+    <span class="c1"># modify value</span>
+    <span class="n">conf</span><span class="o">.</span><span class="n">directory</span> <span class="o">=</span> <span class="s1">&#39;/usr/local/spm12-standalone&#39;</span>
+</pre></div>
+</div>
+<p>Create a settings instance using the given populse_db instance</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="capsul.engine.settings.Settings.get_all_environments">
+<span class="sig-name descname"><span class="pre">get_all_environments</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/settings.html#Settings.get_all_environments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.settings.Settings.get_all_environments" title="Link to this definition">¶</a></dt>
+<dd><p>Get all environment values in the database</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="capsul.engine.settings.Settings.import_configs">
+<span class="sig-name descname"><span class="pre">import_configs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">environment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cont_on_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/settings.html#Settings.import_configs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.settings.Settings.import_configs" title="Link to this definition">¶</a></dt>
+<dd><p>Import config values from a dictionary as given by
+<a class="reference internal" href="#capsul.engine.settings.Settings.select_configurations" title="capsul.engine.settings.Settings.select_configurations"><code class="xref py py-meth docutils literal notranslate"><span class="pre">select_configurations()</span></code></a>.</p>
+<p>Compared to <code class="xref py py-meth docutils literal notranslate"><span class="pre">CapsulEngine.import_configs()</span></code> this method (at
+<a class="reference internal" href="#capsul.engine.settings.Settings" title="capsul.engine.settings.Settings"><code class="xref py py-class docutils literal notranslate"><span class="pre">Settings</span></code></a> level) does not load the required modules.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="capsul.engine.settings.Settings.module_name">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">module_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/settings.html#Settings.module_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.settings.Settings.module_name" title="Link to this definition">¶</a></dt>
+<dd><p>Return a complete module name (which must be a valid Python module
+name) given a possibly abbreviated module name. This method must
+be used whenever a module name is written by a user (for instance
+in a configuration file.
+This method add the prefix <cite>‘capsul.engine.module.’</cite> if the module
+name does not contain a dot.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="capsul.engine.settings.Settings.select_configurations">
+<span class="sig-name descname"><span class="pre">select_configurations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">environment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_invalid_mods</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/settings.html#Settings.select_configurations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.settings.Settings.select_configurations" title="Link to this definition">¶</a></dt>
+<dd><p>Select a configuration for a given environment. A configuration is
+a dictionary whose keys are module names and values are
+configuration documents. The returned set of configuration per module
+can be activaded with <cite>capsul.api.activate_configuration()</cite>.</p>
+<p>The <cite>uses</cite> parameter determine which modules
+must be included in the configuration. If not given, this method
+considers all configurations for every module defined in settings.
+This parameter is a dictionary whose keys are a module name and
+values are populse_db queries used to select module.</p>
+<p>The environment parameter defines the execution environment in which
+the configurations will be used. For each module, configurations are
+filtered with the query. First, values are searched in the given
+environment and, if no result is found, the <cite>‘global’</cite> environment
+(the value defined in <cite>Settings.global_environment</cite>) is used.</p>
+<p>If <cite>check_invalid_mods</cite> is True, then each selected config module is
+checked for missing values and discarded if there are.</p>
+<p class="rubric">Example</p>
+<p>To select a SPM version greater than 8 for an environment called
+<cite>‘my_environment’</cite> one could use the following code:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">config</span> <span class="o">=</span> <span class="n">ce</span><span class="o">.</span><span class="n">select_configurations</span><span class="p">(</span><span class="s1">&#39;my_environment&#39;</span><span class="p">,</span>
+                                  <span class="n">uses</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;spm&#39;</span><span class="p">:</span> <span class="s1">&#39;version &gt; 8&#39;</span><span class="p">})</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="capsul.engine.settings.SettingsSession">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.engine.settings.</span></span><span class="sig-name descname"><span class="pre">SettingsSession</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">populse_session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module_notifiers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/settings.html#SettingsSession"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.settings.SettingsSession" title="Link to this definition">¶</a></dt>
+<dd><p>Settings use/modifiction session, returned by “with settings as session:”</p>
+<p>SettingsSession are created with Settings.__enter__ using a <cite>with</cite>
+statement.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="capsul.engine.settings.SettingsSession.collection_name">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">collection_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/settings.html#SettingsSession.collection_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.settings.SettingsSession.collection_name" title="Link to this definition">¶</a></dt>
+<dd><p>Return the name of the populse_db collection corresponding to a
+settings module. The result is the full name of the module
+prefixed by Settings.collection_prefix (i.e. <cite>‘settings/’</cite>).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="capsul.engine.settings.SettingsSession.config">
+<span class="sig-name descname"><span class="pre">config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">environment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">any</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/settings.html#SettingsSession.config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.settings.SettingsSession.config" title="Link to this definition">¶</a></dt>
+<dd><p>Selects configurations (like in <a class="reference internal" href="#capsul.engine.settings.SettingsSession.configs" title="capsul.engine.settings.SettingsSession.configs"><code class="xref py py-meth docutils literal notranslate"><span class="pre">configs()</span></code></a>) and ensures at most
+one one is selected</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>module</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – module name</p></li>
+<li><p><strong>environment</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – environment id (‘global’ etc)</p></li>
+<li><p><strong>selection</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> (</em><em>optional</em><em>)</em>) – to select the configuration</p></li>
+<li><p><strong>any</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em> (</em><em>optional</em><em>)</em>) – When more than one config is found, if <code class="docutils literal notranslate"><span class="pre">any</span></code> is True (default),
+return any of them (the first one). If <code class="docutils literal notranslate"><span class="pre">any</span></code> is False, return
+None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>config</strong> – None if no matching config is found or more than one if any is
+False</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>SettingsConfig instance or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="capsul.engine.settings.SettingsSession.configs">
+<span class="sig-name descname"><span class="pre">configs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">environment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/settings.html#SettingsSession.configs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.settings.SettingsSession.configs" title="Link to this definition">¶</a></dt>
+<dd><p>Returns a generator that iterates over all configuration
+documents created for the given module and environment.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="capsul.engine.settings.SettingsSession.ensure_module_fields">
+<span class="sig-name descname"><span class="pre">ensure_module_fields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fields</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/settings.html#SettingsSession.ensure_module_fields"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.settings.SettingsSession.ensure_module_fields" title="Link to this definition">¶</a></dt>
+<dd><p>Make sure that the given module exists in settings and create the given fields if they do not exist. <cite>fields</cite> is a list of dictionaries with three items:
+- name: the name of the key
+- type: the data type of the field (in populse_db format)
+- description: the documentation of the field</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="capsul.engine.settings.SettingsSession.get_all_environments">
+<span class="sig-name descname"><span class="pre">get_all_environments</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/settings.html#SettingsSession.get_all_environments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.settings.SettingsSession.get_all_environments" title="Link to this definition">¶</a></dt>
+<dd><p>Get all environment values in the database</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="capsul.engine.settings.SettingsSession.new_config">
+<span class="sig-name descname"><span class="pre">new_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">environment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/settings.html#SettingsSession.new_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.settings.SettingsSession.new_config" title="Link to this definition">¶</a></dt>
+<dd><p>Creates a new configuration document for a module in the given
+environment. Values is a dictionary used to set values for the
+document. The document mut have a unique string identifier in
+the <cite>Settings.config_id_field</cite> (i.e. <cite>‘config_id’</cite>), if None is
+given in <cite>values</cite> a unique random value is created (with
+<cite>uuid.uuid4()</cite>).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="capsul.engine.settings.SettingsSession.remove_config">
+<span class="sig-name descname"><span class="pre">remove_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">environment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/settings.html#SettingsSession.remove_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.settings.SettingsSession.remove_config" title="Link to this definition">¶</a></dt>
+<dd><p>Removes a configuration (document in the database) for a given module /
+environment, identified by its <cite>Settings.config_id_field</cite> value.</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 </section>
 
@@ -242,9 +1188,68 @@ JSON serializable value.</p>
     <h3><a href="../index.html">Table of Contents</a></h3>
     <ul>
 <li><a class="reference internal" href="#">capsul.engine module</a><ul>
-<li><a class="reference internal" href="#main-module">Main module</a></li>
-<li><a class="reference internal" href="#capsul-engine-database-json-submodule">capsul.engine.database_json submodule</a></li>
-<li><a class="reference internal" href="#capsul-engine-database-populse-submodule">capsul.engine.database_populse submodule</a></li>
+<li><a class="reference internal" href="#module-capsul.engine">Main module</a><ul>
+<li><a class="reference internal" href="#classes">Classes</a><ul>
+<li><a class="reference internal" href="#capsulengine"><code class="xref py py-class docutils literal notranslate"><span class="pre">CapsulEngine</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#functions">Functions</a><ul>
+<li><a class="reference internal" href="#database-factory"><code class="xref py py-func docutils literal notranslate"><span class="pre">database_factory()</span></code></a></li>
+<li><a class="reference internal" href="#capsul-engine"><code class="xref py py-func docutils literal notranslate"><span class="pre">capsul_engine()</span></code></a></li>
+<li><a class="reference internal" href="#activate-configuration"><code class="xref py py-func docutils literal notranslate"><span class="pre">activate_configuration()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#capsul.engine.CapsulEngine"><code class="docutils literal notranslate"><span class="pre">CapsulEngine</span></code></a><ul>
+<li><a class="reference internal" href="#capsul.engine.CapsulEngine.connect"><code class="docutils literal notranslate"><span class="pre">CapsulEngine.connect()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.CapsulEngine.connected_to"><code class="docutils literal notranslate"><span class="pre">CapsulEngine.connected_to()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.CapsulEngine.detailed_information"><code class="docutils literal notranslate"><span class="pre">CapsulEngine.detailed_information()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.CapsulEngine.disconnect"><code class="docutils literal notranslate"><span class="pre">CapsulEngine.disconnect()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.CapsulEngine.dispose"><code class="docutils literal notranslate"><span class="pre">CapsulEngine.dispose()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.CapsulEngine.executions"><code class="docutils literal notranslate"><span class="pre">CapsulEngine.executions()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.CapsulEngine.get_iteration_pipeline"><code class="docutils literal notranslate"><span class="pre">CapsulEngine.get_iteration_pipeline()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.CapsulEngine.get_process_instance"><code class="docutils literal notranslate"><span class="pre">CapsulEngine.get_process_instance()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.CapsulEngine.import_configs"><code class="docutils literal notranslate"><span class="pre">CapsulEngine.import_configs()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.CapsulEngine.interrupt"><code class="docutils literal notranslate"><span class="pre">CapsulEngine.interrupt()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.CapsulEngine.load_module"><code class="docutils literal notranslate"><span class="pre">CapsulEngine.load_module()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.CapsulEngine.load_modules"><code class="docutils literal notranslate"><span class="pre">CapsulEngine.load_modules()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.CapsulEngine.raise_for_status"><code class="docutils literal notranslate"><span class="pre">CapsulEngine.raise_for_status()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.CapsulEngine.start"><code class="docutils literal notranslate"><span class="pre">CapsulEngine.start()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.CapsulEngine.status"><code class="docutils literal notranslate"><span class="pre">CapsulEngine.status()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.CapsulEngine.wait"><code class="docutils literal notranslate"><span class="pre">CapsulEngine.wait()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#capsul.engine.activate_configuration"><code class="docutils literal notranslate"><span class="pre">activate_configuration()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.activate_module"><code class="docutils literal notranslate"><span class="pre">activate_module()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.capsul_engine"><code class="docutils literal notranslate"><span class="pre">capsul_engine()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.database_factory"><code class="docutils literal notranslate"><span class="pre">database_factory()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-capsul.engine.database_json">capsul.engine.database_json submodule</a><ul>
+<li><a class="reference internal" href="#capsul.engine.database_json.JSONDBEngine"><code class="docutils literal notranslate"><span class="pre">JSONDBEngine</span></code></a><ul>
+<li><a class="reference internal" href="#capsul.engine.database_json.JSONDBEngine.json_value"><code class="docutils literal notranslate"><span class="pre">JSONDBEngine.json_value()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.database_json.JSONDBEngine.named_directories"><code class="docutils literal notranslate"><span class="pre">JSONDBEngine.named_directories()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.database_json.JSONDBEngine.named_directory"><code class="docutils literal notranslate"><span class="pre">JSONDBEngine.named_directory()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.database_json.JSONDBEngine.path_metadata"><code class="docutils literal notranslate"><span class="pre">JSONDBEngine.path_metadata()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.database_json.JSONDBEngine.set_json_value"><code class="docutils literal notranslate"><span class="pre">JSONDBEngine.set_json_value()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.database_json.JSONDBEngine.set_named_directory"><code class="docutils literal notranslate"><span class="pre">JSONDBEngine.set_named_directory()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.database_json.JSONDBEngine.set_path_metadata"><code class="docutils literal notranslate"><span class="pre">JSONDBEngine.set_path_metadata()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-capsul.engine.database_populse">capsul.engine.database_populse submodule</a><ul>
+<li><a class="reference internal" href="#capsul.engine.database_populse.PopulseDBEngine"><code class="docutils literal notranslate"><span class="pre">PopulseDBEngine</span></code></a><ul>
+<li><a class="reference internal" href="#capsul.engine.database_populse.PopulseDBEngine.json_value"><code class="docutils literal notranslate"><span class="pre">PopulseDBEngine.json_value()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.database_populse.PopulseDBEngine.named_directories"><code class="docutils literal notranslate"><span class="pre">PopulseDBEngine.named_directories()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.database_populse.PopulseDBEngine.named_directory"><code class="docutils literal notranslate"><span class="pre">PopulseDBEngine.named_directory()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.database_populse.PopulseDBEngine.path_metadata"><code class="docutils literal notranslate"><span class="pre">PopulseDBEngine.path_metadata()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.database_populse.PopulseDBEngine.set_json_value"><code class="docutils literal notranslate"><span class="pre">PopulseDBEngine.set_json_value()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.database_populse.PopulseDBEngine.set_named_directory"><code class="docutils literal notranslate"><span class="pre">PopulseDBEngine.set_named_directory()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.database_populse.PopulseDBEngine.set_path_metadata"><code class="docutils literal notranslate"><span class="pre">PopulseDBEngine.set_path_metadata()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li><a class="reference internal" href="#module-capsul.engine.database">capsul.engine.database submodule</a><ul>
 <li><a class="reference internal" href="#capsul.engine.database.DatabaseEngine"><code class="docutils literal notranslate"><span class="pre">DatabaseEngine</span></code></a><ul>
 <li><a class="reference internal" href="#capsul.engine.database.DatabaseEngine.check_path"><code class="docutils literal notranslate"><span class="pre">DatabaseEngine.check_path()</span></code></a></li>
@@ -259,18 +1264,86 @@ JSON serializable value.</p>
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#capsul-engine-module-submodule">capsul.engine.module submodule</a><ul>
-<li><a class="reference internal" href="#attributes">attributes</a></li>
-<li><a class="reference internal" href="#axon">axon</a></li>
-<li><a class="reference internal" href="#fom">fom</a></li>
-<li><a class="reference internal" href="#fsl">fsl</a></li>
-<li><a class="reference internal" href="#matlab">matlab</a></li>
-<li><a class="reference internal" href="#python">python</a></li>
-<li><a class="reference internal" href="#spm">spm</a></li>
+<li><a class="reference internal" href="#module-capsul.engine.module">capsul.engine.module submodule</a><ul>
+<li><a class="reference internal" href="#module-capsul.engine.module.attributes">attributes</a><ul>
+<li><a class="reference internal" href="#capsul.engine.module.attributes.edition_widget"><code class="docutils literal notranslate"><span class="pre">edition_widget()</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#capsul-engine-run-submodule">capsul.engine.run submodule</a></li>
-<li><a class="reference internal" href="#capsul-engine-settings-submodule">capsul.engine.settings submodule</a></li>
+<li><a class="reference internal" href="#module-capsul.engine.module.axon">axon</a><ul>
+<li><a class="reference internal" href="#capsul.engine.module.axon.check_configurations"><code class="docutils literal notranslate"><span class="pre">check_configurations()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.module.axon.check_notably_invalid_config"><code class="docutils literal notranslate"><span class="pre">check_notably_invalid_config()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.module.axon.complete_configurations"><code class="docutils literal notranslate"><span class="pre">complete_configurations()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.module.axon.edition_widget"><code class="docutils literal notranslate"><span class="pre">edition_widget()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-capsul.engine.module.fom">fom</a><ul>
+<li><a class="reference internal" href="#id2">Classes</a><ul>
+<li><a class="reference internal" href="#fomconfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">FomConfig</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#capsul.engine.module.fom.edition_widget"><code class="docutils literal notranslate"><span class="pre">edition_widget()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.module.fom.update_fom"><code class="docutils literal notranslate"><span class="pre">update_fom()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-capsul.engine.module.fsl">fsl</a><ul>
+<li><a class="reference internal" href="#capsul.engine.module.fsl.activate_configurations"><code class="docutils literal notranslate"><span class="pre">activate_configurations()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.module.fsl.check_configurations"><code class="docutils literal notranslate"><span class="pre">check_configurations()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.module.fsl.check_notably_invalid_config"><code class="docutils literal notranslate"><span class="pre">check_notably_invalid_config()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.module.fsl.complete_configurations"><code class="docutils literal notranslate"><span class="pre">complete_configurations()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.module.fsl.edition_widget"><code class="docutils literal notranslate"><span class="pre">edition_widget()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-capsul.engine.module.matlab">matlab</a><ul>
+<li><a class="reference internal" href="#capsul.engine.module.matlab.check_configurations"><code class="docutils literal notranslate"><span class="pre">check_configurations()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.module.matlab.check_notably_invalid_config"><code class="docutils literal notranslate"><span class="pre">check_notably_invalid_config()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.module.matlab.edition_widget"><code class="docutils literal notranslate"><span class="pre">edition_widget()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-capsul.engine.module.python">python</a><ul>
+<li><a class="reference internal" href="#capsul.engine.module.python.activate_configurations"><code class="docutils literal notranslate"><span class="pre">activate_configurations()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.module.python.check_notably_invalid_config"><code class="docutils literal notranslate"><span class="pre">check_notably_invalid_config()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.module.python.edition_widget"><code class="docutils literal notranslate"><span class="pre">edition_widget()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-capsul.engine.module.spm">spm</a><ul>
+<li><a class="reference internal" href="#capsul.engine.module.spm.activate_configurations"><code class="docutils literal notranslate"><span class="pre">activate_configurations()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.module.spm.check_notably_invalid_config"><code class="docutils literal notranslate"><span class="pre">check_notably_invalid_config()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.module.spm.edition_widget"><code class="docutils literal notranslate"><span class="pre">edition_widget()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-capsul.engine.run">capsul.engine.run submodule</a><ul>
+<li><a class="reference internal" href="#capsul.engine.run.WorkflowExecutionError"><code class="docutils literal notranslate"><span class="pre">WorkflowExecutionError</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.run.detailed_information"><code class="docutils literal notranslate"><span class="pre">detailed_information()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.run.dispose"><code class="docutils literal notranslate"><span class="pre">dispose()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.run.interrupt"><code class="docutils literal notranslate"><span class="pre">interrupt()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.run.raise_for_status"><code class="docutils literal notranslate"><span class="pre">raise_for_status()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.run.start"><code class="docutils literal notranslate"><span class="pre">start()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.run.status"><code class="docutils literal notranslate"><span class="pre">status()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.run.wait"><code class="docutils literal notranslate"><span class="pre">wait()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-capsul.engine.settings">capsul.engine.settings submodule</a><ul>
+<li><a class="reference internal" href="#capsul.engine.settings.Settings"><code class="docutils literal notranslate"><span class="pre">Settings</span></code></a><ul>
+<li><a class="reference internal" href="#capsul.engine.settings.Settings.get_all_environments"><code class="docutils literal notranslate"><span class="pre">Settings.get_all_environments()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.settings.Settings.import_configs"><code class="docutils literal notranslate"><span class="pre">Settings.import_configs()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.settings.Settings.module_name"><code class="docutils literal notranslate"><span class="pre">Settings.module_name()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.settings.Settings.select_configurations"><code class="docutils literal notranslate"><span class="pre">Settings.select_configurations()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#capsul.engine.settings.SettingsSession"><code class="docutils literal notranslate"><span class="pre">SettingsSession</span></code></a><ul>
+<li><a class="reference internal" href="#capsul.engine.settings.SettingsSession.collection_name"><code class="docutils literal notranslate"><span class="pre">SettingsSession.collection_name()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.settings.SettingsSession.config"><code class="docutils literal notranslate"><span class="pre">SettingsSession.config()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.settings.SettingsSession.configs"><code class="docutils literal notranslate"><span class="pre">SettingsSession.configs()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.settings.SettingsSession.ensure_module_fields"><code class="docutils literal notranslate"><span class="pre">SettingsSession.ensure_module_fields()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.settings.SettingsSession.get_all_environments"><code class="docutils literal notranslate"><span class="pre">SettingsSession.get_all_environments()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.settings.SettingsSession.new_config"><code class="docutils literal notranslate"><span class="pre">SettingsSession.new_config()</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.settings.SettingsSession.remove_config"><code class="docutils literal notranslate"><span class="pre">SettingsSession.remove_config()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

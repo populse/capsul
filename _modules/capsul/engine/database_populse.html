@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+    <title>CAPSUL &#8212; CAPSUL - Chain algorithm in pipelines and execute in many contexts</title>
+  <!-- htmltitle is before nature.css - we use this hack to load bootstrap first -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="../../../_static/css/bootstrap.min.css" media="screen" />
+  <link rel="stylesheet" href="../../../_static/css/bootstrap-responsive.css"/>
+  <link rel="icon" href="../../../_static/capsul_logo.svg"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=f0b81668" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+    
+    <script src="../../../_static/documentation_options.js?v=983e91d6"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+
+  <!-- sidebar -->
+  
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="../../../_static/js/bootstrap.min.js" type="application/javascript"></script>
+
+  <script type="application/javascript">
+    $("div.buttonNext, div.buttonPrevious").hover(
+       function () {
+           $(this).css('background-color', '#FF9C34');
+       },
+       function () {
+           $(this).css('background-color', '#A7D6E2');
+       }
+    );
+    var bodywrapper = $('.bodywrapper');
+    var sidebarbutton = $('#sidebarbutton');
+    sidebarbutton.css({'height': '900px'});
+  </script>
+
+  <div class="header" style="display: inline; width: 80%; margin-left:10%;">
+    <a href="../../../index.html">
+    <img src="../../../_static/capsul_logo.svg" alt="Capsul logo" style="display: inline; height:4em;"/>
+    </a >
+    <div class="navbar" style="display: inline;">
+      <ul>
+        <li><a href="../../../index.html">Home</a></li>
+        <li><a href="../../../installation.html">Installation</a></li>
+        <li class="btn-li">
+          <div class="btn-group">
+            <a href="../../../documentation.html">Documentation</a>
+            <a class="btn dropdown-toggle" data-toggle="dropdown">
+              <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+              <li class="link-title">CAPSUL</li>
+              <li><a href="../../../user_guide_tree/index.html">User guide</a></li>
+              <li><a href="../../../api/index.html">API</a></li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <!-- form action="search.html" method="get" style="display: inline-block;"></form>
+            <input type="text" class="search-header" name="q" placeholder="search documentation..." value=""></input>
+            <button type="submit" >search</button>
+          </form -->
+          <form class="search_box" method="get" action="http://www.google.com/search" style="display: inline-block;">
+            <input class="search-header" type="text" name="q" placeholder="search documentation..." />
+            <input class="submit" type="image" src="../../../_static/find_read.png" value="Search" />
+            <input type="hidden" name="sitesearch" value="brainvisa.info/capsul" />
+          </form>
+        </li>
+      </ul>
+    </div> <!-- end navbar -->
+  </div>
+
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CAPSUL</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../engine.html" accesskey="U">capsul.engine</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">CAPSUL</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for capsul.engine.database_populse</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
+<span class="kn">import</span> <span class="nn">six</span>
+<span class="kn">import</span> <span class="nn">uuid</span>
+
+<span class="kn">from</span> <span class="nn">capsul.engine.database</span> <span class="kn">import</span> <span class="n">DatabaseEngine</span>
+
+<span class="kn">from</span> <span class="nn">populse_db.database</span> <span class="kn">import</span> <span class="n">Database</span>
+
+
+<div class="viewcode-block" id="PopulseDBEngine">
+<a class="viewcode-back" href="../../../api/engine.html#capsul.engine.database_populse.PopulseDBEngine">[docs]</a>
+<span class="k">class</span> <span class="nc">PopulseDBEngine</span><span class="p">(</span><span class="n">DatabaseEngine</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">database_engine</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="o">=</span> <span class="n">Database</span><span class="p">(</span><span class="n">database_engine</span><span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="k">as</span> <span class="n">dbs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">dbs</span><span class="o">.</span><span class="n">get_collection</span><span class="p">(</span><span class="s1">&#39;path_metadata&#39;</span><span class="p">):</span>
+                <span class="c1"># Create the schema if it does not exist</span>
+                <span class="n">dbs</span><span class="o">.</span><span class="n">add_collection</span><span class="p">(</span><span class="s1">&#39;named_directory&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">)</span>
+                <span class="n">dbs</span><span class="o">.</span><span class="n">add_field</span><span class="p">(</span><span class="s1">&#39;named_directory&#39;</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">,</span> <span class="s1">&#39;string&#39;</span><span class="p">)</span>
+                
+                <span class="n">dbs</span><span class="o">.</span><span class="n">add_collection</span><span class="p">(</span><span class="s1">&#39;json_value&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">)</span>
+                <span class="n">dbs</span><span class="o">.</span><span class="n">add_field</span><span class="p">(</span><span class="s1">&#39;json_value&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">,</span> <span class="s1">&#39;json&#39;</span><span class="p">)</span>
+                
+                <span class="n">dbs</span><span class="o">.</span><span class="n">add_collection</span><span class="p">(</span><span class="s1">&#39;path_metadata&#39;</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">)</span>
+                <span class="n">dbs</span><span class="o">.</span><span class="n">add_field</span><span class="p">(</span><span class="s1">&#39;path_metadata&#39;</span><span class="p">,</span> <span class="s1">&#39;named_directory&#39;</span><span class="p">,</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> 
+                              <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Reference to a base directory whose &#39;</span>
+                              <span class="s1">&#39;path is stored in named_directory collection&#39;</span><span class="p">)</span>
+        <span class="c1">#self.dbs = self.db.__enter__()</span>
+            
+    
+    <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    
+    
+    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1">#self.db.__exit__(None, None, None)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1">#self.dbs = None</span>
+    
+    
+    <span class="k">def</span> <span class="nf">commit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1">#self.dbs.save_modifications()</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="k">as</span> <span class="n">dbs</span><span class="p">:</span>
+            <span class="n">dbs</span><span class="o">.</span><span class="n">save_modifications</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">rollback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1">#self.dbs.unsave_modifications()</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="k">as</span> <span class="n">dbs</span><span class="p">:</span>
+            <span class="n">dbs</span><span class="o">.</span><span class="n">unsave_modifications</span><span class="p">()</span>
+
+<div class="viewcode-block" id="PopulseDBEngine.set_named_directory">
+<a class="viewcode-back" href="../../../api/engine.html#capsul.engine.database_populse.PopulseDBEngine.set_named_directory">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_named_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">path</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+        <span class="c1">#doc = self.dbs.get_document(&#39;named_directory&#39;, name)</span>
+        <span class="c1">#if doc is None:</span>
+            <span class="c1">#if path:</span>
+                <span class="c1">#doc = {&#39;name&#39;: name,</span>
+                       <span class="c1">#&#39;path&#39;: path}</span>
+                <span class="c1">#self.dbs.add_document(&#39;named_directory&#39;, doc)</span>
+        <span class="c1">#else:</span>
+            <span class="c1">#if path:</span>
+                <span class="c1">#self.dbs.set_value(&#39;named_directory&#39;, name, &#39;path&#39;, path)</span>
+            <span class="c1">#else:</span>
+                <span class="c1">#self.dbs.remove_document(&#39;named_directory&#39;, name)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="k">as</span> <span class="n">dbs</span><span class="p">:</span>
+            <span class="n">doc</span> <span class="o">=</span> <span class="n">dbs</span><span class="o">.</span><span class="n">get_document</span><span class="p">(</span><span class="s1">&#39;named_directory&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">doc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">path</span><span class="p">:</span>
+                    <span class="n">doc</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+                          <span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">path</span><span class="p">}</span>
+                    <span class="n">dbs</span><span class="o">.</span><span class="n">add_document</span><span class="p">(</span><span class="s1">&#39;named_directory&#39;</span><span class="p">,</span> <span class="n">doc</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">path</span><span class="p">:</span>
+                    <span class="n">dbs</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="s1">&#39;named_directory&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">dbs</span><span class="o">.</span><span class="n">remove_document</span><span class="p">(</span><span class="s1">&#39;named_directory&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PopulseDBEngine.named_directory">
+<a class="viewcode-back" href="../../../api/engine.html#capsul.engine.database_populse.PopulseDBEngine.named_directory">[docs]</a>
+    <span class="k">def</span> <span class="nf">named_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="c1">#return self.dbs.get_value(&#39;named_directory&#39;, name, &#39;path&#39;)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="k">as</span> <span class="n">dbs</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">dbs</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s1">&#39;named_directory&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="s1">&#39;path&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PopulseDBEngine.named_directories">
+<a class="viewcode-back" href="../../../api/engine.html#capsul.engine.database_populse.PopulseDBEngine.named_directories">[docs]</a>
+    <span class="k">def</span> <span class="nf">named_directories</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1">#return self.dbs.filter_documents(&#39;named_directory&#39;, &#39;all&#39;)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="k">as</span> <span class="n">dbs</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">dbs</span><span class="o">.</span><span class="n">filter_documents</span><span class="p">(</span><span class="s1">&#39;named_directory&#39;</span><span class="p">,</span> <span class="s1">&#39;all&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PopulseDBEngine.set_json_value">
+<a class="viewcode-back" href="../../../api/engine.html#capsul.engine.database_populse.PopulseDBEngine.set_json_value">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_json_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">json_value</span><span class="p">):</span>
+        <span class="c1">#doc = self.dbs.get_document(&#39;json_value&#39;, name)</span>
+        <span class="c1">#json_dict = {&#39;value&#39;: json_value}</span>
+        <span class="c1">#if doc is None:</span>
+            <span class="c1">#doc = {&#39;name&#39;: name,</span>
+                   <span class="c1">#&#39;json_dict&#39;: json_dict</span>
+                  <span class="c1">#}</span>
+            <span class="c1">#self.dbs.add_document(&#39;json_value&#39;, doc)</span>
+        <span class="c1">#else:</span>
+            <span class="c1">#self.dbs.set_value(&#39;json_value&#39;, name, &#39;json_dict&#39;, json_dict)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="k">as</span> <span class="n">dbs</span><span class="p">:</span>
+            <span class="n">doc</span> <span class="o">=</span> <span class="n">dbs</span><span class="o">.</span><span class="n">get_document</span><span class="p">(</span><span class="s1">&#39;json_value&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+            <span class="n">json_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">json_value</span><span class="p">}</span>
+            <span class="k">if</span> <span class="n">doc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">doc</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+                      <span class="s1">&#39;json_dict&#39;</span><span class="p">:</span> <span class="n">json_dict</span>
+                      <span class="p">}</span>
+                <span class="n">dbs</span><span class="o">.</span><span class="n">add_document</span><span class="p">(</span><span class="s1">&#39;json_value&#39;</span><span class="p">,</span> <span class="n">doc</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">dbs</span><span class="o">.</span><span class="n">set_value</span><span class="p">(</span><span class="s1">&#39;json_value&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="s1">&#39;json_dict&#39;</span><span class="p">,</span> <span class="n">json_dict</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PopulseDBEngine.json_value">
+<a class="viewcode-back" href="../../../api/engine.html#capsul.engine.database_populse.PopulseDBEngine.json_value">[docs]</a>
+    <span class="k">def</span> <span class="nf">json_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="c1">#doc = self.dbs.get_document(&#39;json_value&#39;, name)</span>
+        <span class="c1">#if doc:</span>
+            <span class="c1">#return doc[&#39;json_dict&#39;][&#39;value&#39;]</span>
+        <span class="c1">#return None</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="k">as</span> <span class="n">dbs</span><span class="p">:</span>
+            <span class="n">doc</span> <span class="o">=</span> <span class="n">dbs</span><span class="o">.</span><span class="n">get_document</span><span class="p">(</span><span class="s1">&#39;json_value&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">doc</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">doc</span><span class="p">[</span><span class="s1">&#39;json_dict&#39;</span><span class="p">][</span><span class="s1">&#39;value&#39;</span><span class="p">]</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="PopulseDBEngine.set_path_metadata">
+<a class="viewcode-back" href="../../../api/engine.html#capsul.engine.database_populse.PopulseDBEngine.set_path_metadata">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_path_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">metadata</span><span class="p">):</span>
+        <span class="n">named_directory</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;named_directory&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">named_directory</span><span class="p">:</span>
+            <span class="n">base_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">named_directory</span><span class="p">(</span><span class="s1">&#39;capsul_engine&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">base_path</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">named_directory</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Path &quot;</span><span class="si">%s</span><span class="s1">&quot; is defined as relative to named directory </span><span class="si">%s</span><span class="s1"> but it does not start with &quot;</span><span class="si">%s</span><span class="s1">&quot;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">named_directory</span><span class="p">,</span> <span class="n">base_path</span><span class="p">))</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">base_path</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">isabs</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Cannot determine relative path for &quot;</span><span class="si">%s</span><span class="s1">&quot; because its base named directory &quot;</span><span class="si">%s</span><span class="s1">&quot; is unknown&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">named_directory</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">isabs</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">nd</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">named_directories</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">nd</span><span class="o">.</span><span class="n">path</span><span class="p">):</span>
+                        <span class="n">named_directory</span> <span class="o">=</span> <span class="n">nd</span><span class="o">.</span><span class="n">name</span><span class="p">()</span>
+                        <span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">nd</span><span class="o">.</span><span class="n">path</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="k">break</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">named_directory</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># capsul_engine is the default named directory for relative paths</span>
+                <span class="n">named_directory</span> <span class="o">=</span> <span class="s1">&#39;capsul_engine&#39;</span>
+
+        <span class="n">doc</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">doc</span><span class="p">[</span><span class="s1">&#39;path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">path</span>
+        <span class="k">if</span> <span class="n">named_directory</span><span class="p">:</span>
+            <span class="n">doc</span><span class="p">[</span><span class="s1">&#39;named_directory&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">named_directory</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="k">as</span> <span class="n">dbs</span><span class="p">:</span>
+            <span class="n">dbs</span><span class="o">.</span><span class="n">add_document</span><span class="p">(</span><span class="s1">&#39;path_metadata&#39;</span><span class="p">,</span> <span class="n">doc</span><span class="p">)</span></div>
+
+            
+
+<div class="viewcode-block" id="PopulseDBEngine.path_metadata">
+<a class="viewcode-back" href="../../../api/engine.html#capsul.engine.database_populse.PopulseDBEngine.path_metadata">[docs]</a>
+    <span class="k">def</span> <span class="nf">path_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">isabs</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">nd</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">named_directories</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">nd</span><span class="o">.</span><span class="n">path</span><span class="p">):</span>
+                    <span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">nd</span><span class="o">.</span><span class="n">path</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
+                    <span class="k">break</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="k">as</span> <span class="n">dbs</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">dbs</span><span class="o">.</span><span class="n">get_document</span><span class="p">(</span><span class="s1">&#39;path_metadata&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CAPSUL</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../engine.html" >capsul.engine</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">CAPSUL</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2024, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
+    </div>
+  </body>
+</html>
