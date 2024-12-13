@@ -9,8 +9,6 @@ soma-dev:
 
 requirements:
   run:
-    - redis-py <4.5.0
-    - redis-server <7
     - pyyaml
 
 tests:
