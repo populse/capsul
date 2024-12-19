@@ -90,14 +90,32 @@ class ProcessParamError(Exception):
 
 def set_process_param_from_str(process, k, arg):
     """Set a process parameter from a string representation."""
+    if '.' in k:
+        sub_node_name, k2 = k.split('.', 1)
+        sub_node = process.nodes.get(sub_node_name)
+        if sub_node is not None:
+            try:
+                return set_process_param_from_str(sub_node, k2, arg)
+            except KeyError:
+                sub_proc = getattr(sub_node, 'process', None)
+                if sub_proc is not None:
+                    return set_process_param_from_str(sub_proc, k2, arg)
     if not process.trait(k):
+        if hasattr(process, k):
+            # print('set non-trait value:', process, k, repr(arg))
+            setattr(process, k, arg)
+            return
+        if hasattr(process, 'pipeline_node') \
+                and hasattr(process.pipeline_node, k):
+            setattr(process.pipeline_node, k, arg)
+            return
         raise ProcessParamError("Unknown parameter {0} for process {1}"
                                 .format(k, process.name))
     try:
         evaluate = process.trait(k).trait_type.evaluate
     except AttributeError:
         evaluate = None
-    print('set_process_param_from_str:', process, k, repr(arg))
+    # print('set_process_param_from_str:', process, k, repr(arg))
     if evaluate:
         arg = evaluate(arg)
     setattr(process, k, arg)
@@ -290,6 +308,11 @@ def main():
 
     Then the file ``engine.json`` will be OK.
     Alternatively, using "--config axon" will do this for you internally.
+
+    It is possible to reach sub-process parameters in a pipeline by addressing
+    their node in the parent pipeline:
+
+    python -m capsul morphologist.capsul.morphologist Renorm.enabled=False
     '''
 
     # Set up logging on stderr. This must be called before any logging takes
@@ -449,7 +472,7 @@ def main():
     if options.config:
         config_file = options.config
         tmp = None
-        if not osp.exists(options.config) and options.config == 'axon':
+        if options.config == 'axon':
             tmp = tempfile.mkstemp(prefix='capsul_conf', suffix='.json')
             os.close(tmp[0])
             cmd = ['axon-runprocess',
