@@ -201,14 +201,32 @@
 <a class="viewcode-back" href="../../../api/process.html#capsul.process.runprocess.set_process_param_from_str">[docs]</a>
 <span class="k">def</span> <span class="nf">set_process_param_from_str</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">arg</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Set a process parameter from a string representation.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s1">&#39;.&#39;</span> <span class="ow">in</span> <span class="n">k</span><span class="p">:</span>
+        <span class="n">sub_node_name</span><span class="p">,</span> <span class="n">k2</span> <span class="o">=</span> <span class="n">k</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">sub_node</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sub_node_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">sub_node</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">set_process_param_from_str</span><span class="p">(</span><span class="n">sub_node</span><span class="p">,</span> <span class="n">k2</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="n">sub_proc</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sub_node</span><span class="p">,</span> <span class="s1">&#39;process&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">sub_proc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">set_process_param_from_str</span><span class="p">(</span><span class="n">sub_proc</span><span class="p">,</span> <span class="n">k2</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">process</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+            <span class="c1"># print(&#39;set non-trait value:&#39;, process, k, repr(arg))</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;pipeline_node&#39;</span><span class="p">)</span> \
+                <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">pipeline_node</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">pipeline_node</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+            <span class="k">return</span>
         <span class="k">raise</span> <span class="n">ProcessParamError</span><span class="p">(</span><span class="s2">&quot;Unknown parameter </span><span class="si">{0}</span><span class="s2"> for process </span><span class="si">{1}</span><span class="s2">&quot;</span>
                                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">process</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">evaluate</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="o">.</span><span class="n">trait_type</span><span class="o">.</span><span class="n">evaluate</span>
     <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
         <span class="n">evaluate</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;set_process_param_from_str:&#39;</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">arg</span><span class="p">))</span>
+    <span class="c1"># print(&#39;set_process_param_from_str:&#39;, process, k, repr(arg))</span>
     <span class="k">if</span> <span class="n">evaluate</span><span class="p">:</span>
         <span class="n">arg</span> <span class="o">=</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
     <span class="nb">setattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
@@ -410,6 +428,11 @@
 
 <span class="s1">    Then the file ``engine.json`` will be OK.</span>
 <span class="s1">    Alternatively, using &quot;--config axon&quot; will do this for you internally.</span>
+
+<span class="s1">    It is possible to reach sub-process parameters in a pipeline by addressing</span>
+<span class="s1">    their node in the parent pipeline:</span>
+
+<span class="s1">    python -m capsul morphologist.capsul.morphologist Renorm.enabled=False</span>
 <span class="s1">    &#39;&#39;&#39;</span>
 
     <span class="c1"># Set up logging on stderr. This must be called before any logging takes</span>
@@ -569,7 +592,7 @@
     <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">config</span><span class="p">:</span>
         <span class="n">config_file</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">config</span>
         <span class="n">tmp</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">config</span><span class="p">)</span> <span class="ow">and</span> <span class="n">options</span><span class="o">.</span><span class="n">config</span> <span class="o">==</span> <span class="s1">&#39;axon&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">config</span> <span class="o">==</span> <span class="s1">&#39;axon&#39;</span><span class="p">:</span>
             <span class="n">tmp</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkstemp</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;capsul_conf&#39;</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s1">&#39;.json&#39;</span><span class="p">)</span>
             <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
             <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;axon-runprocess&#39;</span><span class="p">,</span>
