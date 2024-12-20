@@ -407,7 +407,10 @@ class SettingsSession:
             id = str(uuid4())
         collection = self.collection_name(module)
         with self._storage.data(write=True) as data:
-            data[collection][f"{id}-{environment}"] = document
+            if data is not None:
+                data[collection][f"{id}-{environment}"] = document
+            else:
+                print("Data session is None, unable to insert document.")
         config = SettingsConfig(
             self._storage,
             collection,
