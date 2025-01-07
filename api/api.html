@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="../_static/css/bootstrap-responsive.css"/>
   <link rel="icon" href="../_static/capsul_logo.svg"/>
 
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
     
@@ -103,8 +103,35 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <section id="capsul-api-module">
-<h1>capsul.api module<a class="headerlink" href="#capsul-api-module" title="Link to this heading">¶</a></h1>
+  <section id="module-capsul.api">
+<span id="capsul-api-module"></span><h1>capsul.api module<a class="headerlink" href="#module-capsul.api" title="Link to this heading">¶</a></h1>
+<p>The high-level capsul.api module pre-imports the main objects from several sub-modules:</p>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="process.html#capsul.process.process.Process" title="capsul.process.process.Process"><code class="xref py py-class docutils literal notranslate"><span class="pre">Process</span></code></a></p></li>
+<li><p><a class="reference internal" href="process.html#capsul.process.process.NipypeProcess" title="capsul.process.process.NipypeProcess"><code class="xref py py-class docutils literal notranslate"><span class="pre">NipypeProcess</span></code></a></p></li>
+<li><p><a class="reference internal" href="process.html#capsul.process.process.ProcessResult" title="capsul.process.process.ProcessResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessResult</span></code></a></p></li>
+<li><p><a class="reference internal" href="process.html#capsul.process.process.FileCopyProcess" title="capsul.process.process.FileCopyProcess"><code class="xref py py-class docutils literal notranslate"><span class="pre">FileCopyProcess</span></code></a></p></li>
+<li><p><a class="reference internal" href="process.html#capsul.process.process.InteractiveProcess" title="capsul.process.process.InteractiveProcess"><code class="xref py py-class docutils literal notranslate"><span class="pre">InteractiveProcess</span></code></a></p></li>
+<li><p><a class="reference internal" href="pipeline.html#capsul.pipeline.pipeline.Pipeline" title="capsul.pipeline.pipeline.Pipeline"><code class="xref py py-class docutils literal notranslate"><span class="pre">Pipeline</span></code></a></p></li>
+<li><p><a class="reference internal" href="pipeline.html#capsul.pipeline.pipeline_nodes.Plug" title="capsul.pipeline.pipeline_nodes.Plug"><code class="xref py py-class docutils literal notranslate"><span class="pre">Plug</span></code></a></p></li>
+<li><p><a class="reference internal" href="pipeline.html#capsul.pipeline.pipeline_nodes.Node" title="capsul.pipeline.pipeline_nodes.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a></p></li>
+<li><p><a class="reference internal" href="pipeline.html#capsul.pipeline.pipeline_nodes.ProcessNode" title="capsul.pipeline.pipeline_nodes.ProcessNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessNode</span></code></a></p></li>
+<li><p><a class="reference internal" href="pipeline.html#capsul.pipeline.pipeline_nodes.PipelineNode" title="capsul.pipeline.pipeline_nodes.PipelineNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">PipelineNode</span></code></a></p></li>
+<li><p><a class="reference internal" href="pipeline.html#capsul.pipeline.pipeline_nodes.Switch" title="capsul.pipeline.pipeline_nodes.Switch"><code class="xref py py-class docutils literal notranslate"><span class="pre">Switch</span></code></a></p></li>
+<li><p><a class="reference internal" href="pipeline.html#capsul.pipeline.pipeline_nodes.OptionalOutputSwitch" title="capsul.pipeline.pipeline_nodes.OptionalOutputSwitch"><code class="xref py py-class docutils literal notranslate"><span class="pre">OptionalOutputSwitch</span></code></a></p></li>
+<li><p><a class="reference internal" href="study_config.html#capsul.study_config.study_config.StudyConfig" title="capsul.study_config.study_config.StudyConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">StudyConfig</span></code></a></p></li>
+</ul>
+</section>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="engine.html#capsul.engine.capsul_engine" title="capsul.engine.capsul_engine"><code class="xref py py-func docutils literal notranslate"><span class="pre">capsul_engine()</span></code></a></p></li>
+<li><p><a class="reference internal" href="study_config.html#capsul.study_config.process_instance.get_process_instance" title="capsul.study_config.process_instance.get_process_instance"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_process_instance()</span></code></a></p></li>
+<li><p><a class="reference internal" href="utils.html#capsul.utils.finder.find_processes" title="capsul.utils.finder.find_processes"><code class="xref py py-func docutils literal notranslate"><span class="pre">find_processes()</span></code></a></p></li>
+</ul>
+</section>
 </section>
 
 
@@ -114,6 +141,17 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">capsul.api module</a><ul>
+<li><a class="reference internal" href="#classes">Classes</a></li>
+<li><a class="reference internal" href="#functions">Functions</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
         </div>
       </div>
       <div class="clearer"></div>
@@ -132,7 +170,7 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-    &#169; Copyright 2024, Populse team &lt;support@brainvisa.info&gt;.
+    &#169; Copyright 2025, Populse team &lt;support@brainvisa.info&gt;.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
     </div>
   </body>

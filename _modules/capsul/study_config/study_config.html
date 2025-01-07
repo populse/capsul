@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="../../../_static/css/bootstrap-responsive.css"/>
   <link rel="icon" href="../../../_static/capsul_logo.svg"/>
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
     
@@ -122,41 +122,41 @@
 <span class="sd">&#39;&#39;&#39;</span>
 
 <span class="c1"># System import</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">print_function</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">absolute_import</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">six</span>
-<span class="kn">import</span> <span class="nn">weakref</span>
-<span class="kn">import</span> <span class="nn">threading</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">six</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">weakref</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
 <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">7</span><span class="p">):</span>
-    <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">OrderedDict</span>
 <span class="k">else</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">soma.sorted_dictionary</span> <span class="kn">import</span> <span class="n">SortedDictionary</span> <span class="k">as</span> <span class="n">OrderedDict</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">soma.sorted_dictionary</span><span class="w"> </span><span class="kn">import</span> <span class="n">SortedDictionary</span> <span class="k">as</span> <span class="n">OrderedDict</span>
 
 <span class="c1"># Define the logger</span>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <span class="c1"># Trait import</span>
-<span class="kn">from</span> <span class="nn">traits.api</span> <span class="kn">import</span> <span class="n">File</span><span class="p">,</span> <span class="n">Directory</span><span class="p">,</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">String</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">,</span> <span class="n">Int</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">traits.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">File</span><span class="p">,</span> <span class="n">Directory</span><span class="p">,</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">String</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">,</span> <span class="n">Int</span>
 
 <span class="c1"># Soma import</span>
-<span class="kn">from</span> <span class="nn">soma.controller</span> <span class="kn">import</span> <span class="n">Controller</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">soma.controller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Controller</span>
 
 <span class="c1"># Capsul import</span>
-<span class="kn">from</span> <span class="nn">capsul.pipeline.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
-<span class="kn">from</span> <span class="nn">capsul.process.process</span> <span class="kn">import</span> <span class="n">Process</span>
-<span class="kn">from</span> <span class="nn">capsul.study_config.run</span> <span class="kn">import</span> <span class="n">run_process</span>
-<span class="kn">from</span> <span class="nn">capsul.pipeline.pipeline_nodes</span> <span class="kn">import</span> <span class="n">Node</span>
-<span class="kn">from</span> <span class="nn">capsul.study_config.process_instance</span> <span class="kn">import</span> <span class="n">get_process_instance</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">capsul.pipeline.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pipeline</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">capsul.process.process</span><span class="w"> </span><span class="kn">import</span> <span class="n">Process</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">capsul.study_config.run</span><span class="w"> </span><span class="kn">import</span> <span class="n">run_process</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">capsul.pipeline.pipeline_nodes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Node</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">capsul.study_config.process_instance</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_process_instance</span>
 
 
 <div class="viewcode-block" id="StudyConfig">
 <a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.study_config.StudyConfig">[docs]</a>
-<span class="k">class</span> <span class="nc">StudyConfig</span><span class="p">(</span><span class="n">Controller</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">StudyConfig</span><span class="p">(</span><span class="n">Controller</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Class to store the study parameters and processing options.</span>
 
 <span class="sd">    StudyConfig is deprecated and will probably be removed in Capsul 3.</span>
@@ -264,7 +264,7 @@
              <span class="s2">&quot;&lt;name&gt; is the name of the process.&quot;</span><span class="p">,</span>
         <span class="n">groups</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;study&#39;</span><span class="p">])</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">study_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">init_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">modules</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">study_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">init_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">modules</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">engine</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">override_config</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Initialize the StudyConfig class</span>
 
@@ -293,7 +293,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">study_name</span> <span class="o">=</span> <span class="n">study_name</span>
 
         <span class="k">if</span> <span class="n">engine</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="kn">from</span> <span class="nn">capsul.engine</span> <span class="kn">import</span> <span class="n">capsul_engine</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.engine</span><span class="w"> </span><span class="kn">import</span> <span class="n">capsul_engine</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">engine</span> <span class="o">=</span> <span class="n">capsul_engine</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">study_config</span> <span class="o">=</span> <span class="n">weakref</span><span class="o">.</span><span class="n">proxy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -337,7 +337,7 @@
 
 <div class="viewcode-block" id="StudyConfig.initialize_modules">
 <a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.study_config.StudyConfig.initialize_modules">[docs]</a>
-    <span class="k">def</span> <span class="nf">initialize_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">initialize_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Modules initialization, calls initialize_module on each config module.</span>
 <span class="sd">        This is not done during module instantiation to allow interactions</span>
@@ -381,7 +381,7 @@
 
 <div class="viewcode-block" id="StudyConfig.load_module">
 <a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.study_config.StudyConfig.load_module">[docs]</a>
-    <span class="k">def</span> <span class="nf">load_module</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_module_name</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_module</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_module_name</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load an optional StudyConfig module.</span>
 
@@ -408,7 +408,7 @@
 
 <div class="viewcode-block" id="StudyConfig.run">
 <a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.study_config.StudyConfig.run">[docs]</a>
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process_or_pipeline</span><span class="p">,</span> <span class="n">output_directory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process_or_pipeline</span><span class="p">,</span> <span class="n">output_directory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">execute_qc_nodes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">configuration_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Method to execute a process or a pipeline in a study configuration</span>
@@ -560,7 +560,7 @@
 
 <div class="viewcode-block" id="StudyConfig.reset_process_counter">
 <a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.study_config.StudyConfig.reset_process_counter">[docs]</a>
-    <span class="k">def</span> <span class="nf">reset_process_counter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset_process_counter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to reset the process counter to one.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">process_counter</span> <span class="o">=</span> <span class="mi">1</span></div>
@@ -568,7 +568,7 @@
 
 <div class="viewcode-block" id="StudyConfig.read_configuration">
 <a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.study_config.StudyConfig.read_configuration">[docs]</a>
-    <span class="k">def</span> <span class="nf">read_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Find the configuration for the current study (whose name is defined</span>
 <span class="sd">        in self study_name) and returns a dictionary that is a merge between</span>
 <span class="sd">        global options and study specific options.</span>
@@ -643,7 +643,7 @@
 
 <div class="viewcode-block" id="StudyConfig.get_configuration_dict">
 <a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.study_config.StudyConfig.get_configuration_dict">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_configuration_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_configuration_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Returns a json compatible dictionary containing current</span>
 <span class="sd">        configuration.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -655,7 +655,7 @@
 
 <div class="viewcode-block" id="StudyConfig.save_configuration">
 <a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.study_config.StudyConfig.save_configuration">[docs]</a>
-    <span class="k">def</span> <span class="nf">save_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Save study configuration as json file.</span>
 
 <span class="sd">        Parameters</span>
@@ -674,7 +674,7 @@
 
 <div class="viewcode-block" id="StudyConfig.update_study_configuration">
 <a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.study_config.StudyConfig.update_study_configuration">[docs]</a>
-    <span class="k">def</span> <span class="nf">update_study_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json_fname</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_study_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json_fname</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Update the study configuration from a json file.</span>
 
 <span class="sd">        Parameters</span>
@@ -693,7 +693,7 @@
 
 <div class="viewcode-block" id="StudyConfig.add_trait">
 <a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.study_config.StudyConfig.add_trait">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_trait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">trait</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_trait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">trait</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Add a new trait.</span>
 
 <span class="sd">        Parameters</span>
@@ -720,7 +720,7 @@
 
 <div class="viewcode-block" id="StudyConfig.set_study_configuration">
 <a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.study_config.StudyConfig.set_study_configuration">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_study_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_config</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_study_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_config</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to set the new configuration of the study.</span>
 
 <span class="sd">        If a study configuration element can&#39;t be updated properly,</span>
@@ -751,7 +751,7 @@
 
 <div class="viewcode-block" id="StudyConfig.set_trait_value">
 <a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.study_config.StudyConfig.set_trait_value">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_trait_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trait_name</span><span class="p">,</span> <span class="n">trait_value</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_trait_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trait_name</span><span class="p">,</span> <span class="n">trait_value</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to set the value of a parameter.</span>
 
 <span class="sd">        Parameters</span>
@@ -767,7 +767,7 @@
 
 <div class="viewcode-block" id="StudyConfig.get_trait">
 <a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.study_config.StudyConfig.get_trait">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_trait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trait_name</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_trait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trait_name</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to access the &#39;trait_name&#39; study configuration element.</span>
 
 <span class="sd">        Notes</span>
@@ -792,7 +792,7 @@
 
 <div class="viewcode-block" id="StudyConfig.get_trait_value">
 <a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.study_config.StudyConfig.get_trait_value">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_trait_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trait_name</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_trait_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trait_name</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to access the value of the &#39;trait_name&#39; study</span>
 <span class="sd">        configuration element.</span>
 
@@ -818,7 +818,7 @@
 
 <div class="viewcode-block" id="StudyConfig.get_process_instance">
 <a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.study_config.StudyConfig.get_process_instance">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_process_instance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process_or_id</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_process_instance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process_or_id</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Return a Process instance given an identifier.</span>
 
 <span class="sd">        The identifier is either:</span>
@@ -869,7 +869,7 @@
 
 <div class="viewcode-block" id="StudyConfig.get_iteration_pipeline">
 <a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.study_config.StudyConfig.get_iteration_pipeline">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_iteration_pipeline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pipeline_name</span><span class="p">,</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">process_or_id</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_iteration_pipeline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pipeline_name</span><span class="p">,</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">process_or_id</span><span class="p">,</span>
                                <span class="n">iterative_plugs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">do_not_export</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                <span class="n">make_optional</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Create a pipeline with an iteration node iterating the given</span>
@@ -906,7 +906,7 @@
 
 <div class="viewcode-block" id="default_study_config">
 <a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.study_config.default_study_config">[docs]</a>
-<span class="k">def</span> <span class="nf">default_study_config</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">default_study_config</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    On the first call create a StudyConfig instance with default configuration</span>
 <span class="sd">    (eventually reading configuration files). Then returns this instance on all</span>
@@ -922,12 +922,12 @@
 
 <div class="viewcode-block" id="StudyConfigModule">
 <a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.study_config.StudyConfigModule">[docs]</a>
-<span class="k">class</span> <span class="nc">StudyConfigModule</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">StudyConfigModule</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    :class:`StudyConfig` module base class (abstract)</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The name of a module that can be used in configuration to select</span>
 <span class="sd">        modules to load.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -937,12 +937,12 @@
     <span class="c1"># overridden be derived module classes.</span>
     <span class="n">dependencies</span> <span class="o">=</span> <span class="p">[]</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">study_config</span><span class="p">,</span> <span class="n">configuration</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">study_config</span><span class="p">,</span> <span class="n">configuration</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span> <span class="o">=</span> <span class="n">study_config</span>
 
 <div class="viewcode-block" id="StudyConfigModule.initialize_module">
 <a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.study_config.StudyConfigModule.initialize_module">[docs]</a>
-    <span class="k">def</span> <span class="nf">initialize_module</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">initialize_module</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Method called to initialize selected study configuration modules</span>
 <span class="sd">        on startup. This method does nothing but can be overridden by modules.</span>
 <span class="sd">        &quot;&quot;&quot;</span></div>
@@ -950,7 +950,7 @@
 
 <div class="viewcode-block" id="StudyConfigModule.initialize_callbacks">
 <a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.study_config.StudyConfigModule.initialize_callbacks">[docs]</a>
-    <span class="k">def</span> <span class="nf">initialize_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">initialize_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Method called just after the first call to initialize_modules.</span>
 <span class="sd">        &quot;&quot;&quot;</span></div>
 </div>
@@ -959,7 +959,7 @@
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="c1"># Test the configuration time</span>
-    <span class="kn">import</span> <span class="nn">timeit</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">timeit</span>
 
     <span class="c1"># Standard configuration</span>
     <span class="n">tic</span> <span class="o">=</span> <span class="n">timeit</span><span class="o">.</span><span class="n">default_timer</span><span class="p">()</span>
@@ -1000,7 +1000,7 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-    &#169; Copyright 2024, Populse team &lt;support@brainvisa.info&gt;.
+    &#169; Copyright 2025, Populse team &lt;support@brainvisa.info&gt;.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
     </div>
   </body>

@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="../../../../_static/css/bootstrap-responsive.css"/>
   <link rel="icon" href="../../../../_static/capsul_logo.svg"/>
 
-    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=fd3f3429" />
     
@@ -114,17 +114,17 @@
 <span class="sd">------------------------</span>
 <span class="sd">&#39;&#39;&#39;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">traits.api</span> <span class="kn">import</span> <span class="n">Directory</span><span class="p">,</span> <span class="n">Undefined</span>
-<span class="kn">from</span> <span class="nn">soma</span> <span class="kn">import</span> <span class="n">config</span> <span class="k">as</span> <span class="n">soma_config</span>
-<span class="kn">from</span> <span class="nn">capsul.study_config.study_config</span> <span class="kn">import</span> <span class="n">StudyConfigModule</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">print_function</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">traits.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">Directory</span><span class="p">,</span> <span class="n">Undefined</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">soma</span><span class="w"> </span><span class="kn">import</span> <span class="n">config</span> <span class="k">as</span> <span class="n">soma_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">capsul.study_config.study_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">StudyConfigModule</span>
 
 
 <div class="viewcode-block" id="BrainVISAConfig">
 <a class="viewcode-back" href="../../../../api/study_config.html#capsul.study_config.config_modules.brainvisa_config.BrainVISAConfig">[docs]</a>
-<span class="k">class</span> <span class="nc">BrainVISAConfig</span><span class="p">(</span><span class="n">StudyConfigModule</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BrainVISAConfig</span><span class="p">(</span><span class="n">StudyConfigModule</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Configuration module allowing to use `BrainVISA / Axon &lt;http://brainvisa.info/axon/user_doc&gt;`_ shared data in Capsul processes.</span>
 
@@ -135,7 +135,7 @@
 <span class="sd">        Study shared directory</span>
 <span class="sd">     &#39;&#39;&#39;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">study_config</span><span class="p">,</span> <span class="n">configuration</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">study_config</span><span class="p">,</span> <span class="n">configuration</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">BrainVISAConfig</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="n">configuration</span><span class="p">)</span>
         <span class="n">study_config</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">&#39;shared_directory&#39;</span><span class="p">,</span><span class="n">Directory</span><span class="p">(</span>
             <span class="n">Undefined</span><span class="p">,</span>
@@ -152,10 +152,10 @@
 
 <div class="viewcode-block" id="BrainVISAConfig.initialize_module">
 <a class="viewcode-back" href="../../../../api/study_config.html#capsul.study_config.config_modules.brainvisa_config.BrainVISAConfig.initialize_module">[docs]</a>
-    <span class="k">def</span> <span class="nf">initialize_module</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">initialize_module</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="kn">from</span> <span class="nn">capsul.engine</span> <span class="kn">import</span> <span class="n">CapsulEngine</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.engine</span><span class="w"> </span><span class="kn">import</span> <span class="n">CapsulEngine</span>
 
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">engine</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">CapsulEngine</span><span class="p">:</span>
             <span class="c1"># engine is a proxy, thus we are initialized from a real</span>
@@ -180,7 +180,7 @@
 
 <div class="viewcode-block" id="BrainVISAConfig.initialize_callbacks">
 <a class="viewcode-back" href="../../../../api/study_config.html#capsul.study_config.config_modules.brainvisa_config.BrainVISAConfig.initialize_callbacks">[docs]</a>
-    <span class="k">def</span> <span class="nf">initialize_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">initialize_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">on_trait_change</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sync_to_engine</span><span class="p">,</span>
                                           <span class="p">[</span><span class="s1">&#39;shared_directory&#39;</span><span class="p">,</span> <span class="s1">&#39;user_level&#39;</span><span class="p">])</span>
         <span class="c1">#  WARNING ref to self in callback</span>
@@ -189,7 +189,7 @@
 
 
 
-    <span class="k">def</span> <span class="nf">sync_to_engine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sync_to_engine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_syncing&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
             <span class="k">return</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_syncing</span> <span class="o">=</span> <span class="kc">True</span>
@@ -213,7 +213,7 @@
             <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_syncing</span>
 
 
-    <span class="k">def</span> <span class="nf">sync_from_engine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sync_from_engine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_syncing&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
             <span class="k">return</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_syncing</span> <span class="o">=</span> <span class="kc">True</span>
@@ -256,7 +256,7 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-    &#169; Copyright 2024, Populse team &lt;support@brainvisa.info&gt;.
+    &#169; Copyright 2025, Populse team &lt;support@brainvisa.info&gt;.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
     </div>
   </body>

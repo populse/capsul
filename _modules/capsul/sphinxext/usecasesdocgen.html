@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="../../../_static/css/bootstrap-responsive.css"/>
   <link rel="icon" href="../../../_static/capsul_logo.svg"/>
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
     
@@ -114,13 +114,13 @@
 <span class="c1">##########################################################################</span>
 
 <span class="c1"># System import</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
-<span class="kn">import</span> <span class="nn">inspect</span>
-<span class="kn">import</span> <span class="nn">ast</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">six</span>
-<span class="kn">from</span> <span class="nn">six.moves</span> <span class="kn">import</span> <span class="nb">range</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ast</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">six</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">six.moves</span><span class="w"> </span><span class="kn">import</span> <span class="nb">range</span>
 
 <span class="c1"># Define logger</span>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
@@ -128,10 +128,10 @@
 
 <div class="viewcode-block" id="UseCasesHelperWriter">
 <a class="viewcode-back" href="../../../api/sphinxext.html#capsul.sphinxext.usecasesdocgen.UseCasesHelperWriter">[docs]</a>
-<span class="k">class</span> <span class="nc">UseCasesHelperWriter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">UseCasesHelperWriter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; A basic class to convert the pilot codes to rst use cases</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pilots</span><span class="p">,</span> <span class="n">rst_extension</span><span class="o">=</span><span class="s2">&quot;.rst&quot;</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pilots</span><span class="p">,</span> <span class="n">rst_extension</span><span class="o">=</span><span class="s2">&quot;.rst&quot;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Initialize the UseCasesHelper class</span>
 
 <span class="sd">        Parameters</span>
@@ -146,7 +146,7 @@
 
 <div class="viewcode-block" id="UseCasesHelperWriter.getsource">
 <a class="viewcode-back" href="../../../api/sphinxext.html#capsul.sphinxext.usecasesdocgen.UseCasesHelperWriter.getsource">[docs]</a>
-    <span class="k">def</span> <span class="nf">getsource</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">getsource</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">function</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Method that returns the source code of a function</span>
 
 <span class="sd">        Parameters</span>
@@ -164,7 +164,7 @@
 
 <div class="viewcode-block" id="UseCasesHelperWriter.generate_usecases_doc">
 <a class="viewcode-back" href="../../../api/sphinxext.html#capsul.sphinxext.usecasesdocgen.UseCasesHelperWriter.generate_usecases_doc">[docs]</a>
-    <span class="k">def</span> <span class="nf">generate_usecases_doc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src_code</span><span class="p">,</span> <span class="n">module_name</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_usecases_doc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src_code</span><span class="p">,</span> <span class="n">module_name</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Make autodoc documentation of pilots</span>
 
 <span class="sd">        Parameters</span>
@@ -249,7 +249,7 @@
 
 <div class="viewcode-block" id="UseCasesHelperWriter.write_usecases_docs">
 <a class="viewcode-back" href="../../../api/sphinxext.html#capsul.sphinxext.usecasesdocgen.UseCasesHelperWriter.write_usecases_docs">[docs]</a>
-    <span class="k">def</span> <span class="nf">write_usecases_docs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">returnrst</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_usecases_docs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outdir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">returnrst</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Generate Use Cases reST files.</span>
 
 <span class="sd">        Parameters</span>
@@ -308,7 +308,7 @@
 
 <div class="viewcode-block" id="UseCasesHelperWriter.write_index">
 <a class="viewcode-back" href="../../../api/sphinxext.html#capsul.sphinxext.usecasesdocgen.UseCasesHelperWriter.write_index">[docs]</a>
-    <span class="k">def</span> <span class="nf">write_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outdir</span><span class="p">,</span> <span class="n">froot</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="n">relative_to</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outdir</span><span class="p">,</span> <span class="n">froot</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="n">relative_to</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                     <span class="n">rst_extension</span><span class="o">=</span><span class="s2">&quot;.rst&quot;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Make a reST API index file from written files</span>
 
@@ -396,7 +396,7 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-    &#169; Copyright 2024, Populse team &lt;support@brainvisa.info&gt;.
+    &#169; Copyright 2025, Populse team &lt;support@brainvisa.info&gt;.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
     </div>
   </body>

@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="../../../../_static/css/bootstrap-responsive.css"/>
   <link rel="icon" href="../../../../_static/capsul_logo.svg"/>
 
-    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=fd3f3429" />
     
@@ -114,19 +114,19 @@
 <span class="sd">-------------------------</span>
 <span class="sd">&#39;&#39;&#39;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">six</span>
-<span class="kn">from</span> <span class="nn">traits.api</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">Str</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">DictStrStr</span>
-<span class="kn">from</span> <span class="nn">capsul.study_config.study_config</span> <span class="kn">import</span> <span class="n">StudyConfigModule</span>
-<span class="kn">from</span> <span class="nn">capsul.attributes.attributes_factory</span> <span class="kn">import</span> <span class="n">AttributesFactory</span>
-<span class="kn">from</span> <span class="nn">capsul.attributes.attributes_schema</span> <span class="kn">import</span> <span class="n">AttributesSchema</span><span class="p">,</span> \
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">six</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">traits.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">Str</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">DictStrStr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">capsul.study_config.study_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">StudyConfigModule</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">capsul.attributes.attributes_factory</span><span class="w"> </span><span class="kn">import</span> <span class="n">AttributesFactory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">capsul.attributes.attributes_schema</span><span class="w"> </span><span class="kn">import</span> <span class="n">AttributesSchema</span><span class="p">,</span> \
     <span class="n">ProcessAttributes</span>
 
 
 <div class="viewcode-block" id="AttributesConfig">
 <a class="viewcode-back" href="../../../../api/study_config.html#capsul.study_config.config_modules.attributes_config.AttributesConfig">[docs]</a>
-<span class="k">class</span> <span class="nc">AttributesConfig</span><span class="p">(</span><span class="n">StudyConfigModule</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AttributesConfig</span><span class="p">(</span><span class="n">StudyConfigModule</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;Attributes-based completion configuration module for StudyConfig</span>
 
 <span class="sd">    This module adds the following options (traits) in the</span>
@@ -144,7 +144,7 @@
 
     <span class="n">dependencies</span> <span class="o">=</span> <span class="p">[]</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">study_config</span><span class="p">,</span> <span class="n">configuration</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">study_config</span><span class="p">,</span> <span class="n">configuration</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">AttributesConfig</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="n">configuration</span><span class="p">)</span>
         <span class="n">default_paths</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;capsul.attributes.completion_engine_factory&#39;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span>
@@ -168,10 +168,10 @@
 
 <div class="viewcode-block" id="AttributesConfig.initialize_module">
 <a class="viewcode-back" href="../../../../api/study_config.html#capsul.study_config.config_modules.attributes_config.AttributesConfig.initialize_module">[docs]</a>
-    <span class="k">def</span> <span class="nf">initialize_module</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">initialize_module</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="kn">from</span> <span class="nn">capsul.engine</span> <span class="kn">import</span> <span class="n">CapsulEngine</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.engine</span><span class="w"> </span><span class="kn">import</span> <span class="n">CapsulEngine</span>
 
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">engine</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">CapsulEngine</span><span class="p">:</span>
             <span class="c1"># engine is a proxy, thus we are initialized from a real</span>
@@ -189,7 +189,7 @@
 
 <div class="viewcode-block" id="AttributesConfig.initialize_callbacks">
 <a class="viewcode-back" href="../../../../api/study_config.html#capsul.study_config.config_modules.attributes_config.AttributesConfig.initialize_callbacks">[docs]</a>
-    <span class="k">def</span> <span class="nf">initialize_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">initialize_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">on_trait_change</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">update_module</span><span class="p">,</span>
             <span class="p">[</span><span class="s1">&#39;attributes_schemas&#39;</span><span class="p">,</span> <span class="s1">&#39;process_completion&#39;</span><span class="p">,</span>
@@ -201,14 +201,14 @@
 
 
 
-    <span class="k">def</span> <span class="nf">update_module</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_module</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="c1">#if param == &#39;attributes_schema_paths&#39;:</span>
             <span class="c1">#factory = self.study_config.modules_data.attributes_factory</span>
             <span class="c1">#factory.module_path = self.study_config.attributes_schema_paths</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sync_to_engine</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
 
-    <span class="k">def</span> <span class="nf">sync_to_engine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sync_to_engine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">settings</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
             <span class="n">config</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s1">&#39;attributes&#39;</span><span class="p">,</span> <span class="s1">&#39;global&#39;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">config</span><span class="p">:</span>
@@ -226,7 +226,7 @@
                     <span class="nb">setattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
 
-    <span class="k">def</span> <span class="nf">sync_from_engine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sync_from_engine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">param</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">value</span> <span class="o">=</span> <span class="n">Undefined</span>
@@ -270,7 +270,7 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-    &#169; Copyright 2024, Populse team &lt;support@brainvisa.info&gt;.
+    &#169; Copyright 2025, Populse team &lt;support@brainvisa.info&gt;.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
     </div>
   </body>

@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="../_static/css/bootstrap-responsive.css"/>
   <link rel="icon" href="../_static/capsul_logo.svg"/>
 
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
     
@@ -111,7 +111,7 @@
 <h3>Using completion<a class="headerlink" href="#using-completion" title="Link to this heading">¶</a></h3>
 <p>Process parameters completion for filenames is working using attributes assigned to a process or to its parameters. For instance a given data organization may organize data by study, center, subject, … These study, center, subject elements can be seen as attributes.</p>
 <p>Using an existing completion model is a matter of configuration in StudyConfig. One must use the AttributesModule of StudyConfig, then specify which organization schemas to use.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">capsul.api</span> <span class="kn">import</span> <span class="n">StudyConfig</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">capsul.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">StudyConfig</span>
 
 <span class="n">study_config</span> <span class="o">=</span> <span class="n">StudyConfig</span><span class="p">(</span><span class="s1">&#39;test_study&#39;</span><span class="p">,</span> <span class="n">modules</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;AttributesConfig&#39;</span><span class="p">])</span>
 <span class="n">study_config</span><span class="o">.</span><span class="n">input_directory</span> <span class="o">=</span> <span class="s1">&#39;/tmp/in&#39;</span>
@@ -155,8 +155,8 @@
 <section id="graphical-interface">
 <h3>Graphical interface<a class="headerlink" href="#graphical-interface" title="Link to this heading">¶</a></h3>
 <p>Once PyQt4 or PySide QApplication is created:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">capsul.qt_gui.widgets.attributed_process_widget</span> \
-    <span class="kn">import</span> <span class="nn">AttributedProcessWidget</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">capsul.qt_gui.widgets.attributed_process_widget</span> \
+    <span class="kn">import</span><span class="w"> </span><span class="nn">AttributedProcessWidget</span>
 
 <span class="n">cwid</span> <span class="o">=</span> <span class="n">AttributedProcessWidget</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">enable_attr_from_filename</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                                <span class="n">enable_load_buttons</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -169,16 +169,16 @@
 <p>It may require to define a few classes to handle the different aspects.</p>
 <section id="path-building-from-attributes">
 <h4>Path building from attributes<a class="headerlink" href="#path-building-from-attributes" title="Link to this heading">¶</a></h4>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyPathCompletion</span><span class="p">(</span><span class="n">PathCompletionEngineFactory</span><span class="p">,</span> <span class="n">PathCompletionEngine</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">MyPathCompletion</span><span class="p">(</span><span class="n">PathCompletionEngineFactory</span><span class="p">,</span> <span class="n">PathCompletionEngine</span><span class="p">):</span>
     <span class="n">factory_id</span> <span class="o">=</span> <span class="s1">&#39;custom_ex&#39;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">MyPathCompletion</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">get_path_completion_engine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_path_completion_engine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">attributes_to_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">parameter</span><span class="p">,</span> <span class="n">attributes</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">attributes_to_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">parameter</span><span class="p">,</span> <span class="n">attributes</span><span class="p">):</span>
         <span class="n">study_config</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">get_study_config</span><span class="p">()</span>
         <span class="n">att_dict</span> <span class="o">=</span> <span class="n">attributes</span><span class="o">.</span><span class="n">get_parameters_attributes</span><span class="p">()[</span><span class="n">parameter</span><span class="p">]</span>
         <span class="n">elements</span> <span class="o">=</span> <span class="p">[</span><span class="n">process</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">parameter</span><span class="p">]</span>
@@ -198,17 +198,17 @@
 </section>
 <section id="declaring-attributes-sets">
 <h4>Declaring attributes sets<a class="headerlink" href="#declaring-attributes-sets" title="Link to this heading">¶</a></h4>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">CustomAttributesSchema</span><span class="p">(</span><span class="n">AttributesSchema</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">CustomAttributesSchema</span><span class="p">(</span><span class="n">AttributesSchema</span><span class="p">):</span>
     <span class="n">factory_id</span> <span class="o">=</span> <span class="s1">&#39;custom_ex&#39;</span>
 
-    <span class="k">class</span> <span class="nc">Acquisition</span><span class="p">(</span><span class="n">EditableAttributes</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Acquisition</span><span class="p">(</span><span class="n">EditableAttributes</span><span class="p">):</span>
         <span class="n">center</span> <span class="o">=</span> <span class="n">String</span><span class="p">()</span>
         <span class="n">subject</span> <span class="o">=</span> <span class="n">String</span><span class="p">()</span>
 
-    <span class="k">class</span> <span class="nc">Group</span><span class="p">(</span><span class="n">EditableAttributes</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Group</span><span class="p">(</span><span class="n">EditableAttributes</span><span class="p">):</span>
         <span class="n">group</span> <span class="o">=</span> <span class="n">String</span><span class="p">()</span>
 
-    <span class="k">class</span> <span class="nc">Processing</span><span class="p">(</span><span class="n">EditableAttributes</span><span class="p">):</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Processing</span><span class="p">(</span><span class="n">EditableAttributes</span><span class="p">):</span>
         <span class="n">analysis</span> <span class="o">=</span> <span class="n">String</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -216,10 +216,10 @@
 </section>
 <section id="declaring-process-and-parameters-attributes">
 <h4>Declaring process and parameters attributes<a class="headerlink" href="#declaring-process-and-parameters-attributes" title="Link to this heading">¶</a></h4>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">DummyProcessAttributes</span><span class="p">(</span><span class="n">ProcessAttributes</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">DummyProcessAttributes</span><span class="p">(</span><span class="n">ProcessAttributes</span><span class="p">):</span>
     <span class="n">factory_id</span> <span class="o">=</span> <span class="s1">&#39;DummyProcess&#39;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">schema_dict</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">schema_dict</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">DummyProcessAttributes</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">schema_dict</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_parameter_attributes</span><span class="p">(</span><span class="s1">&#39;truc&#39;</span><span class="p">,</span> <span class="s1">&#39;input&#39;</span><span class="p">,</span> <span class="s1">&#39;Acquisition&#39;</span><span class="p">,</span>
                                       <span class="nb">dict</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;array&#39;</span><span class="p">))</span>
@@ -241,7 +241,7 @@
 <section id="using-foms">
 <h3>Using FOMs<a class="headerlink" href="#using-foms" title="Link to this heading">¶</a></h3>
 <p>FOMs are integrated in the completion system. It is activated using the FomConfig module of StudyConfig:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">capsul.api</span> <span class="kn">import</span> <span class="n">StudyConfig</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">capsul.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">StudyConfig</span>
 
 <span class="n">study_config</span> <span class="o">=</span> <span class="n">StudyConfig</span><span class="p">(</span><span class="s1">&#39;test_study&#39;</span><span class="p">,</span> <span class="n">modules</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;FomConfig&#39;</span><span class="p">])</span>
 <span class="n">study_config</span><span class="o">.</span><span class="n">inpupt_fom</span> <span class="o">=</span> <span class="s1">&#39;morphologist-auto-1.0&#39;</span>
@@ -260,7 +260,7 @@
 <section id="defining-foms">
 <h3>Defining FOMs<a class="headerlink" href="#defining-foms" title="Link to this heading">¶</a></h3>
 <p>FOMs are JSON files placed in a FOM path defined somewhere in the application - generally <code class="docutils literal notranslate"><span class="pre">&lt;brainvisa_dir&gt;/share/fom</span></code>. They define how a set of attributes are used to build paths for processes parameters.</p>
-<p>In Capsul a StudyConfig option, <cite>StudyConfig.fom_path</cite> is defined in the <code class="xref py py-class docutils literal notranslate"><span class="pre">FomConfig</span></code> module to handle the FOM search path.</p>
+<p>In Capsul a StudyConfig option, <cite>StudyConfig.fom_path</cite> is defined in the <a class="reference internal" href="../api/study_config.html#capsul.study_config.config_modules.fom_config.FomConfig" title="capsul.study_config.config_modules.fom_config.FomConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">FomConfig</span></code></a> module to handle the FOM search path.</p>
 <p>Ex:</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
 <span class="w">    </span><span class="nt">&quot;fom_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;morphologist-auto-nonoverlap-1.0&quot;</span><span class="p">,</span>
@@ -322,8 +322,8 @@
 <section id="iterating-processing-over-multiple-data">
 <h1>Iterating processing over multiple data<a class="headerlink" href="#iterating-processing-over-multiple-data" title="Link to this heading">¶</a></h1>
 <p>Iterating is done by creating a small pipeline containing an iterative node. This can be done using the utility method <a class="reference internal" href="../api/study_config.html#capsul.study_config.study_config.StudyConfig.get_iteration_pipeline" title="capsul.study_config.study_config.StudyConfig.get_iteration_pipeline"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_iteration_pipeline()</span></code></a> of <a class="reference internal" href="../api/study_config.html#capsul.study_config.study_config.StudyConfig" title="capsul.study_config.study_config.StudyConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">StudyConfig</span></code></a>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">capsul.api</span> <span class="kn">import</span> <span class="n">Pipeline</span><span class="p">,</span> <span class="n">StudyConfig</span>
-<span class="kn">from</span> <span class="nn">capsul.attributes.completion_engine</span> <span class="kn">import</span> <span class="n">ProcessCompletionEngine</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">capsul.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pipeline</span><span class="p">,</span> <span class="n">StudyConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">capsul.attributes.completion_engine</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessCompletionEngine</span>
 
 <span class="n">study_config</span> <span class="o">=</span> <span class="n">StudyConfig</span><span class="p">(</span><span class="s1">&#39;test_study&#39;</span><span class="p">,</span> <span class="n">modules</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;FomConfig&#39;</span><span class="p">])</span>
 <span class="n">study_config</span><span class="o">.</span><span class="n">input_fom</span> <span class="o">=</span> <span class="s1">&#39;morphologist-auto-nonoverlap-1.0&#39;</span>
@@ -401,7 +401,7 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-    &#169; Copyright 2024, Populse team &lt;support@brainvisa.info&gt;.
+    &#169; Copyright 2025, Populse team &lt;support@brainvisa.info&gt;.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
     </div>
   </body>

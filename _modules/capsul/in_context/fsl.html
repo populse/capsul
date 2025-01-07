@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="../../../_static/css/bootstrap-responsive.css"/>
   <link rel="icon" href="../../../_static/capsul_logo.svg"/>
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
     
@@ -126,16 +126,16 @@
 <span class="sd">of the ExecutionContext.</span>
 <span class="sd">&#39;&#39;&#39;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">absolute_import</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
-<span class="kn">import</span> <span class="nn">soma.subprocess</span>
-<span class="kn">import</span> <span class="nn">six</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os.path</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">osp</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">soma.subprocess</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">six</span>
 
-<span class="kn">from</span> <span class="nn">traits.api</span> <span class="kn">import</span> <span class="n">Undefined</span>
-<span class="kn">from</span> <span class="nn">soma.path</span> <span class="kn">import</span> <span class="n">find_in_path</span>
-<span class="kn">from</span> <span class="nn">soma.utils.env</span> <span class="kn">import</span> <span class="n">parse_env_lines</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">traits.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">Undefined</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">soma.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_in_path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">soma.utils.env</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_env_lines</span>
 
 
 <span class="sd">&#39;&#39;&#39;</span>
@@ -146,7 +146,7 @@
 
 <div class="viewcode-block" id="fsl_command_with_environment">
 <a class="viewcode-back" href="../../../api/in_context.html#capsul.in_context.fsl.fsl_command_with_environment">[docs]</a>
-<span class="k">def</span> <span class="nf">fsl_command_with_environment</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">use_prefix</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">fsl_command_with_environment</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">use_prefix</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                                  <span class="n">use_runtime_env</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Given an FSL command where first element is a command name without</span>
@@ -199,7 +199,7 @@
 
 <div class="viewcode-block" id="fsl_env">
 <a class="viewcode-back" href="../../../api/in_context.html#capsul.in_context.fsl.fsl_env">[docs]</a>
-<span class="k">def</span> <span class="nf">fsl_env</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">fsl_env</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    get FSL env variables by running the setup script in a separate bash</span>
 <span class="sd">    process</span>
@@ -243,11 +243,11 @@
 
 <div class="viewcode-block" id="FslPopen">
 <a class="viewcode-back" href="../../../api/in_context.html#capsul.in_context.fsl.FslPopen">[docs]</a>
-<span class="k">class</span> <span class="nc">FslPopen</span><span class="p">(</span><span class="n">soma</span><span class="o">.</span><span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FslPopen</span><span class="p">(</span><span class="n">soma</span><span class="o">.</span><span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Equivalent to Python subprocess.Popen for FSL commands</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">cmd</span> <span class="o">=</span> <span class="n">fsl_command_with_environment</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
         <span class="n">env</span> <span class="o">=</span> <span class="n">fsl_env</span><span class="p">()</span>
         <span class="k">if</span> <span class="s1">&#39;env&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
@@ -260,7 +260,7 @@
 
 <div class="viewcode-block" id="fsl_call">
 <a class="viewcode-back" href="../../../api/in_context.html#capsul.in_context.fsl.fsl_call">[docs]</a>
-<span class="k">def</span> <span class="nf">fsl_call</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">fsl_call</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Equivalent to Python subprocess.call for FSL commands</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -276,7 +276,7 @@
 
 <div class="viewcode-block" id="fsl_check_call">
 <a class="viewcode-back" href="../../../api/in_context.html#capsul.in_context.fsl.fsl_check_call">[docs]</a>
-<span class="k">def</span> <span class="nf">fsl_check_call</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">fsl_check_call</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Equivalent to Python subprocess.check_call for FSL commands</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -293,7 +293,7 @@
 
 <div class="viewcode-block" id="fsl_check_output">
 <a class="viewcode-back" href="../../../api/in_context.html#capsul.in_context.fsl.fsl_check_output">[docs]</a>
-<span class="k">def</span> <span class="nf">fsl_check_output</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">fsl_check_output</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Equivalent to Python subprocess.check_output for FSL commands</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -333,7 +333,7 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-    &#169; Copyright 2024, Populse team &lt;support@brainvisa.info&gt;.
+    &#169; Copyright 2025, Populse team &lt;support@brainvisa.info&gt;.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
     </div>
   </body>

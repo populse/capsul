@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="../../../_static/css/bootstrap-responsive.css"/>
   <link rel="icon" href="../../../_static/capsul_logo.svg"/>
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
     
@@ -148,39 +148,39 @@
 <span class="sd">-----------------------</span>
 <span class="sd">&#39;&#39;&#39;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">print_function</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">absolute_import</span>
 
 <span class="c1"># System import</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">tempfile</span>
-<span class="kn">import</span> <span class="nn">soma.subprocess</span>
-<span class="kn">import</span> <span class="nn">six</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">datetime</span>
-<span class="kn">import</span> <span class="nn">io</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">soma.subprocess</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">six</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">date</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">datetime</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
 
 <span class="c1"># Define the logger</span>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <span class="c1"># Trait import</span>
 <span class="k">try</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">traits</span> <span class="kn">import</span> <span class="n">api</span> <span class="k">as</span> <span class="n">traits</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">traits</span><span class="w"> </span><span class="kn">import</span> <span class="n">api</span> <span class="k">as</span> <span class="n">traits</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">enthought.traits</span> <span class="kn">import</span> <span class="n">api</span> <span class="k">as</span> <span class="n">traits</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">enthought.traits</span><span class="w"> </span><span class="kn">import</span> <span class="n">api</span> <span class="k">as</span> <span class="n">traits</span>
 
 <span class="c1"># Capsul import</span>
-<span class="kn">from</span> <span class="nn">capsul.pipeline.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span><span class="p">,</span> <span class="n">PipelineNode</span><span class="p">,</span> <span class="n">Switch</span><span class="p">,</span> \
+<span class="kn">from</span><span class="w"> </span><span class="nn">capsul.pipeline.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pipeline</span><span class="p">,</span> <span class="n">PipelineNode</span><span class="p">,</span> <span class="n">Switch</span><span class="p">,</span> \
     <span class="n">ProcessNode</span><span class="p">,</span> <span class="n">OptionalOutputSwitch</span>
-<span class="kn">from</span> <span class="nn">capsul.pipeline.process_iteration</span> <span class="kn">import</span> <span class="n">ProcessIteration</span>
-<span class="kn">from</span> <span class="nn">soma.controller</span> <span class="kn">import</span> <span class="n">Controller</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">capsul.pipeline.process_iteration</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessIteration</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">soma.controller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Controller</span>
 
 
 <div class="viewcode-block" id="pipeline_node_colors">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.pipeline_node_colors">[docs]</a>
-<span class="k">def</span> <span class="nf">pipeline_node_colors</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">pipeline_node_colors</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Node color to display boxes in GUI and graphviz graphs. Depending on the</span>
 <span class="sd">    node type (process, pipeline, switch) and its activation, colors will</span>
@@ -201,7 +201,7 @@
 <span class="sd">        &quot;switch&quot; or &quot;pipeline&quot;.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
 
-    <span class="k">def</span> <span class="nf">_color_disabled</span><span class="p">(</span><span class="n">color</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_color_disabled</span><span class="p">(</span><span class="n">color</span><span class="p">):</span>
         <span class="n">target</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.86</span><span class="p">,</span> <span class="mf">0.94</span><span class="p">,</span> <span class="mf">0.86</span><span class="p">]</span>
         <span class="n">new_color</span> <span class="o">=</span> <span class="p">((</span><span class="n">color</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">target</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
                      <span class="p">(</span><span class="n">color</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">target</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
@@ -336,7 +336,7 @@
 
 <div class="viewcode-block" id="pipeline_link_color">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.pipeline_link_color">[docs]</a>
-<span class="k">def</span> <span class="nf">pipeline_link_color</span><span class="p">(</span><span class="n">plug</span><span class="p">,</span> <span class="n">link</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">pipeline_link_color</span><span class="p">(</span><span class="n">plug</span><span class="p">,</span> <span class="n">link</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Link color and style for graphical display and graphviz graphs.</span>
 
@@ -373,7 +373,7 @@
 
 <div class="viewcode-block" id="dot_graph_from_pipeline">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.dot_graph_from_pipeline">[docs]</a>
-<span class="k">def</span> <span class="nf">dot_graph_from_pipeline</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">nodes_sizes</span><span class="o">=</span><span class="p">{},</span> <span class="n">use_nodes_pos</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">dot_graph_from_pipeline</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">nodes_sizes</span><span class="o">=</span><span class="p">{},</span> <span class="n">use_nodes_pos</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                             <span class="n">include_io</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">enlarge_boxes</span><span class="o">=</span><span class="mf">0.</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Build a graphviz/dot-compatible representation of the pipeline.</span>
@@ -417,7 +417,7 @@
 <span class="sd">        :py:func:`save_dot_graph`</span>
 <span class="sd">    &#39;&#39;&#39;</span>
 
-    <span class="k">def</span> <span class="nf">_link_color</span><span class="p">(</span><span class="n">plug</span><span class="p">,</span> <span class="n">link</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_link_color</span><span class="p">(</span><span class="n">plug</span><span class="p">,</span> <span class="n">link</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">link</span><span class="p">[</span><span class="mi">4</span><span class="p">]:</span>  <span class="c1"># weak link</span>
             <span class="n">style</span> <span class="o">=</span> <span class="s1">&#39;dotted&#39;</span>
         <span class="k">else</span><span class="p">:</span>
@@ -511,7 +511,7 @@
 
 <div class="viewcode-block" id="dot_graph_from_workflow">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.dot_graph_from_workflow">[docs]</a>
-<span class="k">def</span> <span class="nf">dot_graph_from_workflow</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">nodes_sizes</span><span class="o">=</span><span class="p">{},</span> <span class="n">use_nodes_pos</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">dot_graph_from_workflow</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">nodes_sizes</span><span class="o">=</span><span class="p">{},</span> <span class="n">use_nodes_pos</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                             <span class="n">enlarge_boxes</span><span class="o">=</span><span class="mf">0.</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Build a graphviz/dot-compatible representation of the pipeline workflow.</span>
@@ -584,7 +584,7 @@
 
 <div class="viewcode-block" id="save_dot_graph">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.save_dot_graph">[docs]</a>
-<span class="k">def</span> <span class="nf">save_dot_graph</span><span class="p">(</span><span class="n">dot_graph</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">save_dot_graph</span><span class="p">(</span><span class="n">dot_graph</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Write a graphviz/dot input file, which can be used to generate an</span>
 <span class="sd">    image representation of the graph, or to make dot automatically</span>
@@ -601,7 +601,7 @@
 <span class="sd">      like nodesep=0.1 or rankdir=&quot;TB&quot;</span>
 <span class="sd">    &#39;&#39;&#39;</span>
 
-    <span class="k">def</span> <span class="nf">_str_repr</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_str_repr</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
             <span class="k">return</span> <span class="s1">&#39;&quot;</span><span class="si">%s</span><span class="s1">&quot;&#39;</span> <span class="o">%</span> <span class="n">item</span>
         <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
@@ -638,7 +638,7 @@
 
 <div class="viewcode-block" id="save_dot_image">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.save_dot_image">[docs]</a>
-<span class="k">def</span> <span class="nf">save_dot_image</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">nodes_sizes</span><span class="o">=</span><span class="p">{},</span> <span class="n">use_nodes_pos</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">save_dot_image</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">nodes_sizes</span><span class="o">=</span><span class="p">{},</span> <span class="n">use_nodes_pos</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                    <span class="n">include_io</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">enlarge_boxes</span><span class="o">=</span><span class="mf">0.</span><span class="p">,</span> <span class="n">workflow</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                    <span class="nb">format</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
@@ -706,7 +706,7 @@
 
 <div class="viewcode-block" id="disable_runtime_steps_with_existing_outputs">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.disable_runtime_steps_with_existing_outputs">[docs]</a>
-<span class="k">def</span> <span class="nf">disable_runtime_steps_with_existing_outputs</span><span class="p">(</span><span class="n">pipeline</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">disable_runtime_steps_with_existing_outputs</span><span class="p">(</span><span class="n">pipeline</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Disable steps in a pipeline which outputs contain existing files. This</span>
 <span class="sd">    disabling is the &quot;runtime steps disabling&quot; one (see</span>
@@ -760,7 +760,7 @@
 
 <div class="viewcode-block" id="nodes_with_existing_outputs">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.nodes_with_existing_outputs">[docs]</a>
-<span class="k">def</span> <span class="nf">nodes_with_existing_outputs</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">exclude_inactive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">nodes_with_existing_outputs</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">exclude_inactive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                                 <span class="n">recursive</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">exclude_inputs</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Checks nodes in a pipeline which outputs contain existing files on the</span>
@@ -847,7 +847,7 @@
 
 <div class="viewcode-block" id="nodes_with_missing_inputs">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.nodes_with_missing_inputs">[docs]</a>
-<span class="k">def</span> <span class="nf">nodes_with_missing_inputs</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">nodes_with_missing_inputs</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Checks nodes in a pipeline which inputs contain invalid inputs.</span>
 <span class="sd">    Inputs which are files non-existing on the filesystem (so, which cannot</span>
@@ -933,7 +933,7 @@
 
 <div class="viewcode-block" id="where_is_plug_value_from">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.where_is_plug_value_from">[docs]</a>
-<span class="k">def</span> <span class="nf">where_is_plug_value_from</span><span class="p">(</span><span class="n">plug</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">where_is_plug_value_from</span><span class="p">(</span><span class="n">plug</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Find where the given (input) plug takes its value from.</span>
 <span class="sd">    It has to be the output of an uphill process, or be unconnected.</span>
@@ -992,7 +992,7 @@
 
 <div class="viewcode-block" id="find_plug_connection_sources">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.find_plug_connection_sources">[docs]</a>
-<span class="k">def</span> <span class="nf">find_plug_connection_sources</span><span class="p">(</span><span class="n">plug</span><span class="p">,</span> <span class="n">pipeline</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_plug_connection_sources</span><span class="p">(</span><span class="n">plug</span><span class="p">,</span> <span class="n">pipeline</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    A bit like :func:`where_is_plug_value_from` but looks for all incoming</span>
 <span class="sd">    connection sources</span>
@@ -1052,7 +1052,7 @@
 
 <div class="viewcode-block" id="find_plug_connection_destinations">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.find_plug_connection_destinations">[docs]</a>
-<span class="k">def</span> <span class="nf">find_plug_connection_destinations</span><span class="p">(</span><span class="n">plug</span><span class="p">,</span> <span class="n">pipeline</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_plug_connection_destinations</span><span class="p">(</span><span class="n">plug</span><span class="p">,</span> <span class="n">pipeline</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    A bit like :func:`find_plug_connection_sources` but the other way</span>
 
@@ -1112,7 +1112,7 @@
 
 <div class="viewcode-block" id="dump_pipeline_state_as_dict">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.dump_pipeline_state_as_dict">[docs]</a>
-<span class="k">def</span> <span class="nf">dump_pipeline_state_as_dict</span><span class="p">(</span><span class="n">pipeline</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">dump_pipeline_state_as_dict</span><span class="p">(</span><span class="n">pipeline</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Get a pipeline state (parameters values, nodes activation, selected</span>
 <span class="sd">    steps... in a dictionary.</span>
@@ -1136,7 +1136,7 @@
 <span class="sd">        pipeline state</span>
 <span class="sd">    &#39;&#39;&#39;</span>
 
-    <span class="k">def</span> <span class="nf">should_keep_value</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">plug</span><span class="p">,</span> <span class="n">components</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">should_keep_value</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">plug</span><span class="p">,</span> <span class="n">components</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Tells if a plug has already been taken into account in the plugs graph.</span>
 
@@ -1162,7 +1162,7 @@
 <span class="sd">        connected plug).</span>
 <span class="sd">        &#39;&#39;&#39;</span>
 
-        <span class="k">def</span> <span class="nf">_component</span><span class="p">(</span><span class="n">plug</span><span class="p">,</span> <span class="n">components</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">_component</span><span class="p">(</span><span class="n">plug</span><span class="p">,</span> <span class="n">components</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">comp</span> <span class="ow">in</span> <span class="n">components</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">plug</span> <span class="ow">in</span> <span class="n">comp</span><span class="p">:</span>
                     <span class="k">return</span> <span class="n">comp</span>
@@ -1191,7 +1191,7 @@
         <span class="n">components</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">comp</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">allowed</span>
 
-    <span class="k">def</span> <span class="nf">prune_empty_dicts</span><span class="p">(</span><span class="n">state_dict</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prune_empty_dicts</span><span class="p">(</span><span class="n">state_dict</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Remove empty dictionaries, and nodes containing empty dicts in pipeline</span>
 <span class="sd">        state dictionary</span>
@@ -1255,7 +1255,7 @@
 
 <div class="viewcode-block" id="set_pipeline_state_from_dict">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.set_pipeline_state_from_dict">[docs]</a>
-<span class="k">def</span> <span class="nf">set_pipeline_state_from_dict</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">state_dict</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">set_pipeline_state_from_dict</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">state_dict</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Set a pipeline (or process) state from a dict description.</span>
 
@@ -1286,7 +1286,7 @@
 
 <div class="viewcode-block" id="get_output_directories">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.get_output_directories">[docs]</a>
-<span class="k">def</span> <span class="nf">get_output_directories</span><span class="p">(</span><span class="n">process</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_output_directories</span><span class="p">(</span><span class="n">process</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Get output directories for a process, pipeline, or node</span>
 
@@ -1347,7 +1347,7 @@
 
 <div class="viewcode-block" id="create_output_directories">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.create_output_directories">[docs]</a>
-<span class="k">def</span> <span class="nf">create_output_directories</span><span class="p">(</span><span class="n">process</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_output_directories</span><span class="p">(</span><span class="n">process</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Create output directories for a process, pipeline or node.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -1359,7 +1359,7 @@
 
 <div class="viewcode-block" id="save_pipeline">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.save_pipeline">[docs]</a>
-<span class="k">def</span> <span class="nf">save_pipeline</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">save_pipeline</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Save the pipeline either in XML, JSON, or .py source file</span>
 
@@ -1373,9 +1373,9 @@
 <span class="sd">        guessed from its extension. If file is not a string, then format will</span>
 <span class="sd">        default to xml.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="kn">from</span> <span class="nn">capsul.pipeline.xml</span> <span class="kn">import</span> <span class="n">save_xml_pipeline</span>
-    <span class="kn">from</span> <span class="nn">capsul.pipeline.python_export</span> <span class="kn">import</span> <span class="n">save_py_pipeline</span>
-    <span class="kn">from</span> <span class="nn">capsul.pipeline.json_io</span> <span class="kn">import</span> <span class="n">save_json_pipeline</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.pipeline.xml</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_xml_pipeline</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.pipeline.python_export</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_py_pipeline</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.pipeline.json_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_json_pipeline</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">Pipeline</span><span class="p">):</span>
         <span class="c1"># &quot;pipeline&quot; is actually a single process (or should, if it is not a</span>
@@ -1409,7 +1409,7 @@
 
 <div class="viewcode-block" id="load_pipeline_parameters">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.load_pipeline_parameters">[docs]</a>
-<span class="k">def</span> <span class="nf">load_pipeline_parameters</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_pipeline_parameters</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Loading and setting pipeline parameters (inputs and outputs) from a Json file.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1439,12 +1439,12 @@
 
 <div class="viewcode-block" id="save_pipeline_parameters">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.save_pipeline_parameters">[docs]</a>
-<span class="k">def</span> <span class="nf">save_pipeline_parameters</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">save_pipeline_parameters</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Saving pipeline parameters (inputs and outputs) to a Json file.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">check_value</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_value</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Checking if the value is a list, Undefined, a date or a time</span>
 <span class="sd">        :param val: value</span>
@@ -1488,7 +1488,7 @@
 
 <div class="viewcode-block" id="find_node">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.find_node">[docs]</a>
-<span class="k">def</span> <span class="nf">find_node</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_node</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39; Find the given node in the pipeline or a sub-pipeline</span>
 
 <span class="sd">    Returns</span>
@@ -1513,7 +1513,7 @@
 
 <div class="viewcode-block" id="is_node_enabled">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.is_node_enabled">[docs]</a>
-<span class="k">def</span> <span class="nf">is_node_enabled</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">node_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_node_enabled</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">node_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39; Checks if the given node is enabled in the pipeline.</span>
 <span class="sd">    It may be disabled if it has its ``enabled`` or ``activated`` properties set to False, or if it is part of a disabled step.</span>
 <span class="sd">    The node may be given as a Node instance, or its name in the pipeline.</span>
@@ -1548,9 +1548,9 @@
 
 
 
-<span class="k">def</span> <span class="nf">trait_str</span><span class="p">(</span><span class="n">trait</span><span class="p">,</span> <span class="n">with_att</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">trait_str</span><span class="p">(</span><span class="n">trait</span><span class="p">,</span> <span class="n">with_att</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="nf">str_from_trait_id</span><span class="p">(</span><span class="n">tid</span><span class="p">,</span> <span class="n">with_att</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">str_from_trait_id</span><span class="p">(</span><span class="n">tid</span><span class="p">,</span> <span class="n">with_att</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="n">vals</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="n">tid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Enum&#39;</span><span class="p">:</span>
             <span class="n">vals</span> <span class="o">+=</span> <span class="p">[</span><span class="nb">repr</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">trait</span><span class="o">.</span><span class="n">handler</span><span class="o">.</span><span class="n">values</span><span class="p">]</span>
@@ -1571,7 +1571,7 @@
 
         <span class="k">return</span> <span class="n">t_str</span>
 
-    <span class="kn">from</span> <span class="nn">soma.controller.trait_utils</span> <span class="kn">import</span> <span class="n">trait_ids</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">soma.controller.trait_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">trait_ids</span>
 
     <span class="n">tid</span> <span class="o">=</span> <span class="n">trait_ids</span><span class="p">(</span><span class="n">trait</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">str_from_trait_id</span><span class="p">(</span><span class="n">tid</span><span class="p">,</span> <span class="n">with_att</span><span class="p">)</span>
@@ -1579,7 +1579,7 @@
 
 <div class="viewcode-block" id="write_fake_process">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.write_fake_process">[docs]</a>
-<span class="k">def</span> <span class="nf">write_fake_process</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">sleep_time</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">write_fake_process</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">sleep_time</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39; Write a &quot;fake process&quot; with same class name and parameters as the input</span>
 <span class="sd">    process, but with a fake execution function meant for tests.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -1648,7 +1648,7 @@
 
 <div class="viewcode-block" id="write_fake_pipeline">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.write_fake_pipeline">[docs]</a>
-<span class="k">def</span> <span class="nf">write_fake_pipeline</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">module_name</span><span class="p">,</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">sleep_time</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">write_fake_pipeline</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">module_name</span><span class="p">,</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">sleep_time</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39; Write a &quot;fake pipeline&quot; with same class name, structure, and parameters</span>
 <span class="sd">    as the input pipeline, but replacing its processes with &quot;fake&quot; processes</span>
 <span class="sd">    which do not actually do a real job while executing.</span>
@@ -1662,7 +1662,7 @@
 
     <span class="n">meta_forbidden</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="s1">&#39;_metadata&#39;</span><span class="p">}</span>
 
-    <span class="k">def</span> <span class="nf">replace_node</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">module_name</span><span class="p">,</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">done</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">replace_node</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">module_name</span><span class="p">,</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">done</span><span class="p">):</span>
         <span class="n">basename</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
         <span class="n">modname</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">module_name</span><span class="p">,</span> <span class="n">basename</span><span class="p">])</span>
         <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dirname</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">.py&#39;</span> <span class="o">%</span> <span class="n">basename</span><span class="p">)</span>
@@ -1758,7 +1758,7 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-    &#169; Copyright 2024, Populse team &lt;support@brainvisa.info&gt;.
+    &#169; Copyright 2025, Populse team &lt;support@brainvisa.info&gt;.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
     </div>
   </body>

@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="../_static/css/bootstrap-responsive.css"/>
   <link rel="icon" href="../_static/capsul_logo.svg"/>
 
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
     
@@ -111,9 +111,9 @@
 <area shape="rect" id="node2" href="https://docs.python.org/3.9/library/subprocess.html#subprocess.Popen" target="_top" title="Execute a child program in a new process." alt="" coords="5,31,77,56"/>
 <area shape="rect" id="node3" href="#capsul.in_context.spm.SPMPopen" target="_top" title="Equivalent to Python subprocess.Popen for SPM batch" alt="" coords="125,55,216,80"/>
 </map><p id="module-capsul.in_context">The <code class="docutils literal notranslate"><span class="pre">in_context</span></code> module provides functions to call some external software from Capsul processes (SPM, FSL, etc.). The main functions perform calls to the software in a similar way as <code class="docutils literal notranslate"><span class="pre">subprocess</span></code> functions (<a class="reference external" href="https://docs.python.org/3.9/library/subprocess.html#subprocess.Popen" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Popen</span></code></a>, <a class="reference external" href="https://docs.python.org/3.9/library/subprocess.html#subprocess.call" title="(in Python v3.9)"><code class="xref py py-func docutils literal notranslate"><span class="pre">call()</span></code></a>, <a class="reference external" href="https://docs.python.org/3.9/library/subprocess.html#subprocess.check_call" title="(in Python v3.9)"><code class="xref py py-func docutils literal notranslate"><span class="pre">check_call()</span></code></a> and <a class="reference external" href="https://docs.python.org/3.9/library/subprocess.html#subprocess.check_output" title="(in Python v3.9)"><code class="xref py py-func docutils literal notranslate"><span class="pre">subprocess.check_output()</span></code></a>). These functions are only valid when the software environment <em>context</em> is activated.
-Activating the context is normally done using the <code class="docutils literal notranslate"><span class="pre">with</span></code> statement on a <code class="xref py py-class docutils literal notranslate"><span class="pre">CapsulEngine</span></code> object:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">capsul.engine</span> <span class="kn">import</span> <span class="n">capsul_engine</span>
-<span class="kn">from</span> <span class="nn">capsul.in_context.fsl</span> <span class="kn">import</span> <span class="n">fsl_check_call</span>
+Activating the context is normally done using the <code class="docutils literal notranslate"><span class="pre">with</span></code> statement on a <a class="reference internal" href="engine.html#capsul.engine.CapsulEngine" title="capsul.engine.CapsulEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">CapsulEngine</span></code></a> object:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">capsul.engine</span><span class="w"> </span><span class="kn">import</span> <span class="n">capsul_engine</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">capsul.in_context.fsl</span><span class="w"> </span><span class="kn">import</span> <span class="n">fsl_check_call</span>
 
 <span class="n">ce</span> <span class="o">=</span> <span class="n">capsul_engine</span><span class="p">()</span>
 <span class="c1"># .. configure it ...</span>
@@ -128,8 +128,8 @@ Activating the context is normally done using the <code class="docutils literal 
 configuration stored in ExecutionContext. To functions and class in
 this module it is mandatory to activate an ExecutionContext (using a
 with statement). For instance:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">capsul.engine</span> <span class="kn">import</span> <span class="n">capsul_engine</span>
-<span class="kn">from</span> <span class="nn">capsul.in_context.fsl</span> <span class="kn">import</span> <span class="n">fsl_check_call</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">capsul.engine</span><span class="w"> </span><span class="kn">import</span> <span class="n">capsul_engine</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">capsul.in_context.fsl</span><span class="w"> </span><span class="kn">import</span> <span class="n">fsl_check_call</span>
 
 <span class="n">ce</span> <span class="o">=</span> <span class="n">capsul_engine</span><span class="p">()</span>
 <span class="k">with</span> <span class="n">ce</span><span class="p">:</span>
@@ -191,8 +191,8 @@ process</p>
 configuration stored in ExecutionContext. To functions and class in
 this module it is mandatory to activate an ExecutionContext (using a
 with statement). For instance:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">capsul.engine</span> <span class="kn">import</span> <span class="n">capsul_engine</span>
-<span class="kn">from</span> <span class="nn">capsul.in_context.spm</span> <span class="kn">import</span> <span class="n">spm_check_call</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">capsul.engine</span><span class="w"> </span><span class="kn">import</span> <span class="n">capsul_engine</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">capsul.in_context.spm</span><span class="w"> </span><span class="kn">import</span> <span class="n">spm_check_call</span>
 
 <span class="n">ce</span> <span class="o">=</span> <span class="n">capsul_engine</span><span class="p">()</span>
 <span class="k">with</span> <span class="n">ce</span><span class="p">:</span>
@@ -279,7 +279,7 @@ command line must be the SPM batch file to execute with Matlab.</p>
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-    &#169; Copyright 2024, Populse team &lt;support@brainvisa.info&gt;.
+    &#169; Copyright 2025, Populse team &lt;support@brainvisa.info&gt;.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
     </div>
   </body>

@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="../../../_static/css/bootstrap-responsive.css"/>
   <link rel="icon" href="../../../_static/capsul_logo.svg"/>
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
     
@@ -115,19 +115,19 @@
 <span class="sd">-----------------------------------------</span>
 <span class="sd">&#39;&#39;&#39;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">print_function</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
-<span class="kn">from</span> <span class="nn">capsul.pipeline.process_iteration</span> <span class="kn">import</span> <span class="n">ProcessIteration</span>
-<span class="kn">from</span> <span class="nn">capsul.attributes.completion_engine</span> <span class="kn">import</span> <span class="n">ProcessCompletionEngine</span><span class="p">,</span> \
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">capsul.pipeline.process_iteration</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessIteration</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">capsul.attributes.completion_engine</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessCompletionEngine</span><span class="p">,</span> \
     <span class="n">ProcessCompletionEngineFactory</span>
-<span class="kn">from</span> <span class="nn">capsul.pipeline.pipeline_nodes</span> <span class="kn">import</span> <span class="n">ProcessNode</span>
-<span class="kn">from</span> <span class="nn">capsul.attributes.attributes_schema</span> <span class="kn">import</span> <span class="n">ProcessAttributes</span>
-<span class="kn">from</span> <span class="nn">soma.controller</span> <span class="kn">import</span> <span class="n">Controller</span><span class="p">,</span><span class="n">ControllerTrait</span>
-<span class="kn">import</span> <span class="nn">traits.api</span> <span class="k">as</span> <span class="nn">traits</span>
-<span class="kn">import</span> <span class="nn">six</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">from</span> <span class="nn">six.moves</span> <span class="kn">import</span> <span class="nb">range</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">capsul.pipeline.pipeline_nodes</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessNode</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">capsul.attributes.attributes_schema</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessAttributes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">soma.controller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Controller</span><span class="p">,</span><span class="n">ControllerTrait</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">traits.api</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">traits</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">six</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">six.moves</span><span class="w"> </span><span class="kn">import</span> <span class="nb">range</span>
 
 <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
     <span class="n">xrange</span> <span class="o">=</span> <span class="nb">range</span>
@@ -135,7 +135,7 @@
 
 <div class="viewcode-block" id="ProcessCompletionEngineIteration">
 <a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.completion_engine_iteration.ProcessCompletionEngineIteration">[docs]</a>
-<span class="k">class</span> <span class="nc">ProcessCompletionEngineIteration</span><span class="p">(</span><span class="n">ProcessCompletionEngine</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ProcessCompletionEngineIteration</span><span class="p">(</span><span class="n">ProcessCompletionEngine</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    :class:`~capsul.attributes.completion_engine.ProcessCompletionEngine`</span>
 <span class="sd">    specialization for iterative process.</span>
@@ -144,7 +144,7 @@
 <span class="sd">    Completion performs a single iteration step, stored in</span>
 <span class="sd">    self.capsul_iteration_step</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">ProcessCompletionEngineIteration</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">process</span><span class="o">=</span><span class="n">process</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="c1">#self.add_trait(&#39;capsul_iteration_step&#39;, traits.Int(0))</span>
@@ -154,7 +154,7 @@
 
 <div class="viewcode-block" id="ProcessCompletionEngineIteration.get_iterated_attributes">
 <a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.completion_engine_iteration.ProcessCompletionEngineIteration.get_iterated_attributes">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_iterated_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_iterated_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">process</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span>
@@ -181,7 +181,7 @@
 
 <div class="viewcode-block" id="ProcessCompletionEngineIteration.get_induced_iterative_parameters">
 <a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.completion_engine_iteration.ProcessCompletionEngineIteration.get_induced_iterative_parameters">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_induced_iterative_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_induced_iterative_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;Iterating over some parameters, and triggering completion through</span>
 <span class="sd">        attributes, imply that some other parameters will also vary with the</span>
 <span class="sd">        iteration.</span>
@@ -218,7 +218,7 @@
 
 <div class="viewcode-block" id="ProcessCompletionEngineIteration.get_attribute_values">
 <a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.completion_engine_iteration.ProcessCompletionEngineIteration.get_attribute_values">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_attribute_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_attribute_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39; Get attributes Controller associated to a process</span>
 
 <span class="sd">        Returns</span>
@@ -258,7 +258,7 @@
 
 
 
-    <span class="k">def</span> <span class="nf">iteration_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process_inputs</span><span class="o">=</span><span class="p">{}):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">iteration_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process_inputs</span><span class="o">=</span><span class="p">{}):</span>
         <span class="n">process</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">ProcessNode</span><span class="p">):</span>
             <span class="n">process</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">process</span>
@@ -297,7 +297,7 @@
 
 <div class="viewcode-block" id="ProcessCompletionEngineIteration.complete_parameters">
 <a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.completion_engine_iteration.ProcessCompletionEngineIteration.complete_parameters">[docs]</a>
-    <span class="k">def</span> <span class="nf">complete_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process_inputs</span><span class="o">=</span><span class="p">{},</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">complete_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process_inputs</span><span class="o">=</span><span class="p">{},</span>
                             <span class="n">complete_iterations</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">complete_iterations</span><span class="p">:</span>
@@ -373,8 +373,6 @@
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;assign iteration parameter&#39;</span><span class="p">,</span> <span class="n">parameter</span><span class="p">,</span> <span class="s1">&#39;:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span>
                       <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">iterative_parameters</span><span class="p">:</span>
-                <span class="k">continue</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="n">parameter</span><span class="p">)</span>
                 <span class="nb">setattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">parameter</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
@@ -386,7 +384,7 @@
 
 <div class="viewcode-block" id="ProcessCompletionEngineIteration.complete_iteration_step">
 <a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.completion_engine_iteration.ProcessCompletionEngineIteration.complete_iteration_step">[docs]</a>
-    <span class="k">def</span> <span class="nf">complete_iteration_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">complete_iteration_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39; Complete the parameters on the iterated process for a given</span>
 <span class="sd">        iteration step.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -460,7 +458,7 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-    &#169; Copyright 2024, Populse team &lt;support@brainvisa.info&gt;.
+    &#169; Copyright 2025, Populse team &lt;support@brainvisa.info&gt;.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
     </div>
   </body>

@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="../_static/css/bootstrap-responsive.css"/>
   <link rel="icon" href="../_static/capsul_logo.svg"/>
 
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
     
@@ -159,7 +159,7 @@ directly return the value and the value name (an output value must
 always have a name), type and documentations must be in the element’s
 attributes (see below). Here is an example of a process defined as a
 function returning a value:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">capsul.process.xml</span> <span class="kn">import</span> <span class="n">xml_process</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">capsul.process.xml</span><span class="w"> </span><span class="kn">import</span> <span class="n">xml_process</span>
 
 <span class="nd">@xml_process</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
 <span class="s1">&lt;process capsul_xml=&quot;2.0&quot;&gt;</span>
@@ -168,7 +168,7 @@ function returning a value:</p>
 <span class="s1">    &lt;return name=&quot;addition&quot; type=&quot;int&quot; doc=&quot;a + b&quot;/&gt;</span>
 <span class="s1">&lt;/process&gt;</span>
 <span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
      <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
 </pre></div>
 </div>
@@ -179,7 +179,7 @@ list or in a dictionary. If it is a list the order of the <code class="docutils 
 elements is used to match the values in the list and the process
 parameter names. If it is a dictionary, each key must correspond to a
 <code class="docutils literal notranslate"><span class="pre">name</span></code> attribute in an <code class="docutils literal notranslate"><span class="pre">&lt;output&gt;</span></code> element. For instance:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">capsul.process.xml</span> <span class="kn">import</span> <span class="n">xml_process</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">capsul.process.xml</span><span class="w"> </span><span class="kn">import</span> <span class="n">xml_process</span>
 
 <span class="nd">@xml_process</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
 <span class="s1">&lt;process capsul_xml=&quot;2.0&quot;&gt;</span>
@@ -191,7 +191,7 @@ parameter names. If it is a dictionary, each key must correspond to a
 <span class="s1">    &lt;/return&gt;</span>
 <span class="s1">&lt;/process&gt;</span>
 <span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">divide</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">divide</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
      <span class="k">return</span> <span class="p">{</span>
         <span class="s1">&#39;quotient&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">a</span> <span class="o">/</span> <span class="n">b</span><span class="p">),</span>
         <span class="s1">&#39;remainder&#39;</span><span class="p">:</span> <span class="n">a</span> <span class="o">%</span> <span class="n">b</span><span class="p">,</span>
@@ -278,7 +278,7 @@ via the process output parameter(s).</p></li>
 <p>There are two ways to perform the association between the function and
 the XML. The recommended method is to use a decorator to explicitly
 define the XML string associated to the function. Here is an example :</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">capsul.process.xml</span> <span class="kn">import</span> <span class="n">xml_process</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">capsul.process.xml</span><span class="w"> </span><span class="kn">import</span> <span class="n">xml_process</span>
 
 <span class="nd">@xml_process</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
 <span class="s1">&lt;process capsul_xml=&quot;2.0&quot;&gt;</span>
@@ -289,14 +289,14 @@ define the XML string associated to the function. Here is an example :</p>
 <span class="s1"> desc=&quot;If set, define the output file name. Otherwise, the name is generated using a &quot;threshold_&quot; prefix on the input file name.&quot;/&gt;</span>
 <span class="s1">&lt;/process&gt;</span>
 <span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">threshold</span><span class="p">(</span><span class="n">input_image</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;gt&#39;</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">output_location</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">threshold</span><span class="p">(</span><span class="n">input_image</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;gt&#39;</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">output_location</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
      <span class="k">pass</span>
 </pre></div>
 </div>
 <p>It is also possible to put the XML in the docstring of the function.
 However, this method is not recommend and should be avoided if possible.
 Example :</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">threshold</span><span class="p">(</span><span class="n">input_image</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;gt&#39;</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">output_location</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">threshold</span><span class="p">(</span><span class="n">input_image</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;gt&#39;</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">output_location</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    &lt;process capsul_xml=&quot;2.0&quot;&gt;</span>
 <span class="sd">        &lt;input name=&quot;input_image&quot; type=&quot;file&quot; desc=&quot;Path of a NIFTI-1 image file.&quot;/&gt;</span>
@@ -312,7 +312,7 @@ Example :</p>
 </section>
 <section id="processes-examples">
 <h3>Processes examples<a class="headerlink" href="#processes-examples" title="Link to this heading">¶</a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">capsul.process.xml</span> <span class="kn">import</span> <span class="n">xml_process</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">capsul.process.xml</span><span class="w"> </span><span class="kn">import</span> <span class="n">xml_process</span>
 
 <span class="nd">@xml_process</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
 <span class="s1">&lt;process capsul_xml=&quot;2.0&quot;&gt;</span>
@@ -323,7 +323,7 @@ Example :</p>
 <span class="s1">    &lt;output name=&quot;output_image&quot; input_filename=&quot;output_image&quot; type=&quot;file&quot; doc=&quot;Output file name.&quot;/&gt;</span>
 <span class="s1">&lt;/process&gt;</span>
 <span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">threshold</span><span class="p">(</span><span class="n">input_image</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;gt&#39;</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">threshold</span><span class="p">(</span><span class="n">input_image</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;gt&#39;</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
      <span class="k">pass</span>
 
 <span class="nd">@xml_process</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
@@ -333,7 +333,7 @@ Example :</p>
 <span class="s1">    &lt;output name=&quot;output_image&quot; input_filename=&quot;output_location&quot; type=&quot;file&quot; doc=&quot;Output file name.&quot;/&gt;</span>
 <span class="s1">&lt;/process&gt;</span>
 <span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">mask</span><span class="p">(</span><span class="n">input_image</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">output_location</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">mask</span><span class="p">(</span><span class="n">input_image</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">output_location</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
      <span class="k">pass</span>
 </pre></div>
 </div>
@@ -693,7 +693,7 @@ module (and recursively in all its sub-modules) with the function
 <code class="docutils literal notranslate"><span class="pre">find_processes(module_name)</span></code> (in <code class="docutils literal notranslate"><span class="pre">capsul.process.finder</span></code>). For
 instance, to try to instantiate all processes and pipelines defined in
 the module <code class="docutils literal notranslate"><span class="pre">clinfmri</span></code> :</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">capsul.api</span> <span class="kn">import</span> <span class="n">get_process_instance</span><span class="p">,</span> <span class="n">find_processes</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">capsul.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_process_instance</span><span class="p">,</span> <span class="n">find_processes</span>
 
 <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">find_processes</span><span class="p">(</span><span class="s1">&#39;clinfmri&#39;</span><span class="p">):</span>
     <span class="k">try</span><span class="p">:</span>
@@ -795,7 +795,7 @@ in the XML file).</p>
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-    &#169; Copyright 2024, Populse team &lt;support@brainvisa.info&gt;.
+    &#169; Copyright 2025, Populse team &lt;support@brainvisa.info&gt;.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
     </div>
   </body>

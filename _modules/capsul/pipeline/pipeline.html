@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="../../../_static/css/bootstrap-responsive.css"/>
   <link rel="icon" href="../../../_static/capsul_logo.svg"/>
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
     
@@ -113,55 +113,55 @@
 <span class="sd">-----------------</span>
 <span class="sd">&#39;&#39;&#39;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">print_function</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">absolute_import</span>
 
 <span class="c1"># System import</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
-<span class="kn">import</span> <span class="nn">tempfile</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">shutil</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">six</span>
-<span class="kn">from</span> <span class="nn">soma.utils.weak_proxy</span> <span class="kn">import</span> <span class="n">weak_proxy</span><span class="p">,</span> <span class="n">get_ref</span>
-<span class="kn">from</span> <span class="nn">six.moves</span> <span class="kn">import</span> <span class="nb">range</span>
-<span class="kn">from</span> <span class="nn">six.moves</span> <span class="kn">import</span> <span class="nb">zip</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">six</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">soma.utils.weak_proxy</span><span class="w"> </span><span class="kn">import</span> <span class="n">weak_proxy</span><span class="p">,</span> <span class="n">get_ref</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">six.moves</span><span class="w"> </span><span class="kn">import</span> <span class="nb">range</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">six.moves</span><span class="w"> </span><span class="kn">import</span> <span class="nb">zip</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">OrderedDict</span>
 
 <span class="c1"># Define the logger</span>
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <span class="c1"># Trait import</span>
 <span class="k">try</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">traits.api</span> <span class="k">as</span> <span class="nn">traits</span>
-    <span class="kn">from</span> <span class="nn">traits.api</span> <span class="kn">import</span> <span class="p">(</span><span class="n">File</span><span class="p">,</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">Bool</span><span class="p">,</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">traits.api</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">traits</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">traits.api</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">File</span><span class="p">,</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">Bool</span><span class="p">,</span>
                             <span class="n">Event</span><span class="p">,</span> <span class="n">Directory</span><span class="p">,</span> <span class="n">Trait</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Set</span><span class="p">)</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">enthought.traits.api</span> <span class="k">as</span> <span class="nn">traits</span>
-    <span class="kn">from</span> <span class="nn">enthought.traits.api</span> <span class="kn">import</span> <span class="p">(</span><span class="n">File</span><span class="p">,</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">Bool</span><span class="p">,</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">enthought.traits.api</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">traits</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">enthought.traits.api</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">File</span><span class="p">,</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">Bool</span><span class="p">,</span>
                                       <span class="n">Event</span><span class="p">,</span> <span class="n">Directory</span><span class="p">,</span> <span class="n">Trait</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Set</span><span class="p">)</span>
 
 <span class="c1"># Capsul import</span>
-<span class="kn">from</span> <span class="nn">capsul.process.process</span> <span class="kn">import</span> <span class="n">Process</span><span class="p">,</span> <span class="n">NipypeProcess</span>
-<span class="kn">from</span> <span class="nn">.topological_sort</span> <span class="kn">import</span> <span class="n">GraphNode</span>
-<span class="kn">from</span> <span class="nn">.topological_sort</span> <span class="kn">import</span> <span class="n">Graph</span>
-<span class="kn">from</span> <span class="nn">.pipeline_nodes</span> <span class="kn">import</span> <span class="n">Plug</span>
-<span class="kn">from</span> <span class="nn">.pipeline_nodes</span> <span class="kn">import</span> <span class="n">ProcessNode</span>
-<span class="kn">from</span> <span class="nn">.pipeline_nodes</span> <span class="kn">import</span> <span class="n">PipelineNode</span>
-<span class="kn">from</span> <span class="nn">.pipeline_nodes</span> <span class="kn">import</span> <span class="n">Switch</span>
-<span class="kn">from</span> <span class="nn">.pipeline_nodes</span> <span class="kn">import</span> <span class="n">OptionalOutputSwitch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">capsul.process.process</span><span class="w"> </span><span class="kn">import</span> <span class="n">Process</span><span class="p">,</span> <span class="n">NipypeProcess</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.topological_sort</span><span class="w"> </span><span class="kn">import</span> <span class="n">GraphNode</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.topological_sort</span><span class="w"> </span><span class="kn">import</span> <span class="n">Graph</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.pipeline_nodes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Plug</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.pipeline_nodes</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessNode</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.pipeline_nodes</span><span class="w"> </span><span class="kn">import</span> <span class="n">PipelineNode</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.pipeline_nodes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Switch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.pipeline_nodes</span><span class="w"> </span><span class="kn">import</span> <span class="n">OptionalOutputSwitch</span>
 
 <span class="c1"># Soma import</span>
-<span class="kn">from</span> <span class="nn">soma.controller</span> <span class="kn">import</span> <span class="n">Controller</span>
-<span class="kn">from</span> <span class="nn">soma.controller</span> <span class="kn">import</span> <span class="n">ControllerTrait</span>
-<span class="kn">from</span> <span class="nn">soma.controller.trait_utils</span> <span class="kn">import</span> <span class="n">relax_exists_constraint</span>
-<span class="kn">from</span> <span class="nn">soma.sorted_dictionary</span> <span class="kn">import</span> <span class="n">SortedDictionary</span>
-<span class="kn">from</span> <span class="nn">soma.utils.functiontools</span> <span class="kn">import</span> <span class="n">SomaPartial</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">soma.controller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Controller</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">soma.controller</span><span class="w"> </span><span class="kn">import</span> <span class="n">ControllerTrait</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">soma.controller.trait_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">relax_exists_constraint</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">soma.sorted_dictionary</span><span class="w"> </span><span class="kn">import</span> <span class="n">SortedDictionary</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">soma.utils.functiontools</span><span class="w"> </span><span class="kn">import</span> <span class="n">SomaPartial</span>
 
 <div class="viewcode-block" id="Pipeline">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline">[docs]</a>
-<span class="k">class</span> <span class="nc">Pipeline</span><span class="p">(</span><span class="n">Process</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Pipeline</span><span class="p">(</span><span class="n">Process</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Pipeline containing Process nodes, and links between node parameters.</span>
 
 <span class="sd">    A Pipeline is normally subclassed, and its :py:meth:`pipeline_definition`</span>
@@ -317,7 +317,7 @@
     <span class="c1"># this value to False will make it visible.</span>
     <span class="n">hide_nodes_activation</span> <span class="o">=</span> <span class="kc">True</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">autoexport_nodes_parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">autoexport_nodes_parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Initialize the Pipeline class</span>
 
 <span class="sd">        Parameters</span>
@@ -383,7 +383,7 @@
 
 <div class="viewcode-block" id="Pipeline.pipeline_definition">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.pipeline_definition">[docs]</a>
-    <span class="k">def</span> <span class="nf">pipeline_definition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pipeline_definition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Define pipeline structure, nodes, sub-pipelines, switches, and</span>
 <span class="sd">        links.</span>
 
@@ -395,7 +395,7 @@
 
 <div class="viewcode-block" id="Pipeline.autoexport_nodes_parameters">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.autoexport_nodes_parameters">[docs]</a>
-    <span class="k">def</span> <span class="nf">autoexport_nodes_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_optional</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">autoexport_nodes_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_optional</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Automatically export nodes plugs to the pipeline.</span>
 
 <span class="sd">        Some parameters can be explicitly preserved from exportation if they</span>
@@ -428,7 +428,7 @@
 
 <div class="viewcode-block" id="Pipeline.add_trait">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.add_trait">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_trait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">trait</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_trait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">trait</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Add a trait to the pipeline</span>
 
 <span class="sd">        Parameters</span>
@@ -454,7 +454,7 @@
 
 <div class="viewcode-block" id="Pipeline.remove_trait">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.remove_trait">[docs]</a>
-    <span class="k">def</span> <span class="nf">remove_trait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">remove_trait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Remove a trait to the pipeline</span>
 
 <span class="sd">        Parameters</span>
@@ -488,7 +488,7 @@
 
 <div class="viewcode-block" id="Pipeline.reorder_traits">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.reorder_traits">[docs]</a>
-    <span class="k">def</span> <span class="nf">reorder_traits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reorder_traits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">names</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Reimplementation of :class:`~soma.controller.controller.Controller`</span>
 <span class="sd">        method :meth:`~~soma.controller.controller.Controller.reorder_traits`</span>
 <span class="sd">        so that we also reorder the pipeline node plugs.</span>
@@ -504,7 +504,7 @@
               <span class="o">+</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">old_keys</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">names</span><span class="p">]</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_make_subprocess_context_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_make_subprocess_context_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39; build full contextual name on process instance</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">pipeline_name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;context_name&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -513,7 +513,7 @@
         <span class="n">context_name</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">pipeline_name</span><span class="p">,</span> <span class="n">name</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">context_name</span>
 
-    <span class="k">def</span> <span class="nf">_set_subprocess_context_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_subprocess_context_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39; set full contextual name on process instance</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">pipeline_name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;context_name&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -537,7 +537,7 @@
 
 <div class="viewcode-block" id="Pipeline.add_process">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.add_process">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">do_not_export</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">do_not_export</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                     <span class="n">make_optional</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">inputs_to_copy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                     <span class="n">inputs_to_clean</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">skip_invalid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Add a new node in the pipeline</span>
@@ -619,7 +619,7 @@
         <span class="c1"># the module level because there are circular dependencies between</span>
         <span class="c1"># modules. For instance, Pipeline class needs get_process_instance</span>
         <span class="c1"># which needs create_xml_pipeline which needs Pipeline class.</span>
-        <span class="kn">from</span> <span class="nn">capsul.study_config.process_instance</span> <span class="kn">import</span> <span class="n">get_process_instance</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.study_config.process_instance</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_process_instance</span>
         <span class="k">if</span> <span class="n">skip_invalid</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_skip_invalid_nodes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
         <span class="c1"># Create a process node</span>
@@ -696,7 +696,7 @@
 
 <div class="viewcode-block" id="Pipeline.remove_node">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.remove_node">[docs]</a>
-    <span class="k">def</span> <span class="nf">remove_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_name</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">remove_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_name</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Remove a node from the pipeline</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node_name</span><span class="p">]</span>
@@ -723,7 +723,7 @@
 
 <div class="viewcode-block" id="Pipeline.add_iterative_process">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.add_iterative_process">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_iterative_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">iterative_plugs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_iterative_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">iterative_plugs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                               <span class="n">do_not_export</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">make_optional</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                               <span class="n">inputs_to_copy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">inputs_to_clean</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                               <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -752,8 +752,8 @@
             <span class="c1"># the module level because there are circular dependencies between</span>
             <span class="c1"># modules. For instance, Pipeline class needs get_process_instance</span>
             <span class="c1"># which needs create_xml_pipeline which needs Pipeline class.</span>
-            <span class="kn">from</span> <span class="nn">capsul.study_config.process_instance</span> \
-                <span class="kn">import</span> <span class="nn">get_process_instance</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.study_config.process_instance</span> \
+                <span class="kn">import</span><span class="w"> </span><span class="nn">get_process_instance</span>
             <span class="n">process</span> <span class="o">=</span> <span class="n">get_process_instance</span><span class="p">(</span><span class="n">process</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">iterative_plugs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">forbidden</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s1">&#39;nodes_activation&#39;</span><span class="p">,</span> <span class="s1">&#39;selection_changed&#39;</span><span class="p">,</span>
@@ -761,7 +761,7 @@
             <span class="n">iterative_plugs</span> <span class="o">=</span> <span class="p">[</span><span class="n">pname</span> <span class="k">for</span> <span class="n">pname</span> <span class="ow">in</span> <span class="n">process</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()</span>
                                <span class="k">if</span> <span class="n">pname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">forbidden</span><span class="p">]</span>
 
-        <span class="kn">from</span> <span class="nn">.process_iteration</span> <span class="kn">import</span> <span class="n">ProcessIteration</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.process_iteration</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessIteration</span>
         <span class="n">context_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_subprocess_context_name</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span>
             <span class="n">name</span><span class="p">,</span>
@@ -774,7 +774,7 @@
 
 <div class="viewcode-block" id="Pipeline.call_process_method">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.call_process_method">[docs]</a>
-    <span class="k">def</span> <span class="nf">call_process_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process_name</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">call_process_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process_name</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span>
                             <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Call a method of a process previously added</span>
 <span class="sd">        with add_process or add_iterative_process.</span>
@@ -792,7 +792,7 @@
     
 <div class="viewcode-block" id="Pipeline.add_switch">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.add_switch">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_switch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">export_switch</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_switch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">export_switch</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                    <span class="n">make_optional</span><span class="o">=</span><span class="p">(),</span> <span class="n">output_types</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">switch_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                    <span class="n">opt_nodes</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Add a switch node in the pipeline</span>
@@ -880,7 +880,7 @@
 
 <div class="viewcode-block" id="Pipeline.add_optional_output_switch">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.add_optional_output_switch">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_optional_output_switch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_optional_output_switch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Add an optional output switch node in the pipeline</span>
 
 <span class="sd">        An optional switch activates or disables its input/output link</span>
@@ -948,7 +948,7 @@
 
 <div class="viewcode-block" id="Pipeline.add_custom_node">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.add_custom_node">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_custom_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">node_type</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_custom_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">node_type</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                         <span class="n">make_optional</span><span class="o">=</span><span class="p">(),</span> <span class="n">do_not_export</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Inserts a custom node (Node subclass instance which is not a Process)</span>
@@ -977,7 +977,7 @@
         <span class="c1"># the module level because there are circular dependencies between</span>
         <span class="c1"># modules. For instance, Pipeline class needs get_process_instance</span>
         <span class="c1"># which needs create_xml_pipeline which needs Pipeline class.</span>
-        <span class="kn">from</span> <span class="nn">capsul.study_config.process_instance</span> <span class="kn">import</span> <span class="n">get_node_instance</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.study_config.process_instance</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_node_instance</span>
         <span class="n">node</span> <span class="o">=</span> <span class="n">get_node_instance</span><span class="p">(</span><span class="n">node_type</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
                                  <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">node</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1013,7 +1013,7 @@
 
 <div class="viewcode-block" id="Pipeline.parse_link">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.parse_link">[docs]</a>
-    <span class="k">def</span> <span class="nf">parse_link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">link</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse_link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">link</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Parse a link coming from export_parameter method.</span>
 
 <span class="sd">        Parameters</span>
@@ -1071,7 +1071,7 @@
 
 <div class="viewcode-block" id="Pipeline.parse_parameter">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.parse_parameter">[docs]</a>
-    <span class="k">def</span> <span class="nf">parse_parameter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse_parameter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Parse parameter of a node from its description.</span>
 
 <span class="sd">        Parameters</span>
@@ -1135,7 +1135,7 @@
 
 <div class="viewcode-block" id="Pipeline.add_link">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.add_link">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">link</span><span class="p">,</span> <span class="n">weak_link</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">allow_export</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">link</span><span class="p">,</span> <span class="n">weak_link</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">allow_export</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Add a link between pipeline nodes.</span>
 
 <span class="sd">        If the destination node is a switch, force the source plug to be not</span>
@@ -1261,7 +1261,7 @@
 
 <div class="viewcode-block" id="Pipeline.remove_link">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.remove_link">[docs]</a>
-    <span class="k">def</span> <span class="nf">remove_link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">link</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">remove_link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">link</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Remove a link between pipeline nodes</span>
 
 <span class="sd">        Parameters</span>
@@ -1318,7 +1318,7 @@
 
 <div class="viewcode-block" id="Pipeline.export_parameter">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.export_parameter">[docs]</a>
-    <span class="k">def</span> <span class="nf">export_parameter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">plug_name</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">export_parameter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">plug_name</span><span class="p">,</span>
                          <span class="n">pipeline_parameter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">weak_link</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                          <span class="n">is_enabled</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">is_optional</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                          <span class="n">allow_existing_plug</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -1408,7 +1408,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">add_link</span><span class="p">(</span><span class="n">link_desc</span><span class="p">,</span> <span class="n">weak_link</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_set_node_enabled</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">is_enabled</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_node_enabled</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">is_enabled</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to enable or disabled a node</span>
 
 <span class="sd">        Parameters</span>
@@ -1424,7 +1424,7 @@
 
 <div class="viewcode-block" id="Pipeline.propagate_metadata">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.propagate_metadata">[docs]</a>
-    <span class="k">def</span> <span class="nf">propagate_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">metadata</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">propagate_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">metadata</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set metadata on a node parameter, and propagate these values to the</span>
 <span class="sd">        connected plugs.</span>
@@ -1461,7 +1461,7 @@
 
 <div class="viewcode-block" id="Pipeline.all_nodes">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.all_nodes">[docs]</a>
-    <span class="k">def</span> <span class="nf">all_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">all_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Iterate over all pipeline nodes including sub-pipeline nodes.</span>
 
 <span class="sd">        Returns</span>
@@ -1478,7 +1478,7 @@
                         <span class="k">yield</span> <span class="n">sub_node</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_check_local_node_activation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_local_node_activation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Try to activate a node and its plugs according to its</span>
 <span class="sd">        state and the state of its direct neighbouring nodes.</span>
 
@@ -1538,7 +1538,7 @@
                             <span class="n">plugs_activated</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">plug_name</span><span class="p">,</span> <span class="n">plug</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">plugs_activated</span>
 
-    <span class="k">def</span> <span class="nf">_check_local_node_deactivation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_local_node_deactivation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Check plugs that have to be deactivated according to node</span>
 <span class="sd">        activation state and to the state of its direct neighbouring nodes.</span>
 
@@ -1553,7 +1553,7 @@
 <span class="sd">            list of (plug_name,plug) containing all plugs that have been</span>
 <span class="sd">            deactivated</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">def</span> <span class="nf">check_plug_activation</span><span class="p">(</span><span class="n">plug</span><span class="p">,</span> <span class="n">links</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">check_plug_activation</span><span class="p">(</span><span class="n">plug</span><span class="p">,</span> <span class="n">links</span><span class="p">):</span>
             <span class="c1"># After the following for loop, plug_activated can have three</span>
             <span class="c1"># values:</span>
             <span class="c1">#  True  if there is a non weak link connected to an</span>
@@ -1631,7 +1631,7 @@
                         <span class="n">plugs_deactivated</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">plug_name</span><span class="p">,</span> <span class="n">plug</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">plugs_deactivated</span>
 
-    <span class="k">def</span> <span class="nf">delay_update_nodes_and_plugs_activation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">delay_update_nodes_and_plugs_activation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent_pipeline</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># Only the top level pipeline can manage activations</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">parent_pipeline</span><span class="o">.</span><span class="n">delay_update_nodes_and_plugs_activation</span><span class="p">()</span>
@@ -1640,7 +1640,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_must_update_nodes_and_plugs_activation</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_disable_update_nodes_and_plugs_activation</span> <span class="o">+=</span> <span class="mi">1</span>
 
-    <span class="k">def</span> <span class="nf">restore_update_nodes_and_plugs_activation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">restore_update_nodes_and_plugs_activation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent_pipeline</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># Only the top level pipeline can manage activations</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">parent_pipeline</span><span class="o">.</span><span class="n">restore_update_nodes_and_plugs_activation</span><span class="p">()</span>
@@ -1652,7 +1652,7 @@
 
 <div class="viewcode-block" id="Pipeline.update_nodes_and_plugs_activation">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.update_nodes_and_plugs_activation">[docs]</a>
-    <span class="k">def</span> <span class="nf">update_nodes_and_plugs_activation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_nodes_and_plugs_activation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Reset all nodes and plugs activations according to the current</span>
 <span class="sd">        state of the pipeline (i.e. switch selection, nodes disabled, etc.).</span>
 <span class="sd">        Activations are set according to the following rules.</span>
@@ -1798,7 +1798,7 @@
 
 <div class="viewcode-block" id="Pipeline.workflow_graph">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.workflow_graph">[docs]</a>
-    <span class="k">def</span> <span class="nf">workflow_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">remove_disabled_steps</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">workflow_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">remove_disabled_steps</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                        <span class="n">remove_disabled_nodes</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Generate a workflow graph</span>
 
@@ -1817,7 +1817,7 @@
 <span class="sd">            Default: True</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">def</span> <span class="nf">insert</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">plug</span><span class="p">,</span> <span class="n">dependencies</span><span class="p">,</span> <span class="n">plug_name</span><span class="p">,</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">insert</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">plug</span><span class="p">,</span> <span class="n">dependencies</span><span class="p">,</span> <span class="n">plug_name</span><span class="p">,</span>
                    <span class="n">links</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot; Browse the plug links and add the correspondings edges</span>
 <span class="sd">            to the node.</span>
@@ -1929,7 +1929,7 @@
 
 <div class="viewcode-block" id="Pipeline.workflow_ordered_nodes">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.workflow_ordered_nodes">[docs]</a>
-    <span class="k">def</span> <span class="nf">workflow_ordered_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">remove_disabled_steps</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">workflow_ordered_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">remove_disabled_steps</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Generate a workflow: list of process node to execute</span>
 
 <span class="sd">        Returns</span>
@@ -1947,7 +1947,7 @@
         <span class="c1"># Start the topologival sort</span>
         <span class="n">ordered_list</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">topological_sort</span><span class="p">()</span>
 
-        <span class="k">def</span> <span class="nf">walk_workflow</span><span class="p">(</span><span class="n">wokflow</span><span class="p">,</span> <span class="n">workflow_list</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">walk_workflow</span><span class="p">(</span><span class="n">wokflow</span><span class="p">,</span> <span class="n">workflow_list</span><span class="p">):</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot; Recursive function to go through pipelines&#39; graphs</span>
 <span class="sd">            &quot;&quot;&quot;</span>
             <span class="c1"># Go through all the workflows</span>
@@ -1974,7 +1974,7 @@
         <span class="k">return</span> <span class="n">workflow_list</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_check_temporary_files_for_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">temp_files</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_temporary_files_for_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">temp_files</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Check temporary outputs and allocate files for them.</span>
 
 <span class="sd">        Temporary files or directories will be appended to the temp_files list,</span>
@@ -2072,7 +2072,7 @@
                     <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">tmpfile</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
                     <span class="n">temp_files</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">node</span><span class="p">,</span> <span class="n">plug_name</span><span class="p">,</span> <span class="n">tmpfile</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">value</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">_free_temporary_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temp_files</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_free_temporary_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temp_files</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Delete and reset temp files after the pipeline execution.</span>
 
 <span class="sd">        This internal function is called at the end of _run_process()</span>
@@ -2102,7 +2102,7 @@
                     <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
                         <span class="k">pass</span>
 
-    <span class="k">def</span> <span class="nf">_run_process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_run_process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Pipeline execution is managed by StudyConfig class.</span>
 <span class="sd">        This method must not be called.</span>
@@ -2112,7 +2112,7 @@
 
 <div class="viewcode-block" id="Pipeline.find_empty_parameters">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.find_empty_parameters">[docs]</a>
-    <span class="k">def</span> <span class="nf">find_empty_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">find_empty_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Find internal File/Directory parameters not exported to the main</span>
 <span class="sd">        input/output parameters of the pipeline with empty values. This is</span>
 <span class="sd">        meant to track parameters which should be associated with temporary</span>
@@ -2207,7 +2207,7 @@
 
 <div class="viewcode-block" id="Pipeline.count_items">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.count_items">[docs]</a>
-    <span class="k">def</span> <span class="nf">count_items</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">count_items</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Count pipeline items to get its size.</span>
 
 <span class="sd">        Returns</span>
@@ -2279,7 +2279,7 @@
 
 <div class="viewcode-block" id="Pipeline.pipeline_state">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.pipeline_state">[docs]</a>
-    <span class="k">def</span> <span class="nf">pipeline_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pipeline_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Return an object composed of basic Python objects that contains</span>
 <span class="sd">        the whole structure and state of the pipeline. This object can be</span>
 <span class="sd">        given to compare_to_state method in order to get the differences with</span>
@@ -2320,7 +2320,7 @@
 
 <div class="viewcode-block" id="Pipeline.compare_to_state">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.compare_to_state">[docs]</a>
-    <span class="k">def</span> <span class="nf">compare_to_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pipeline_state</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compare_to_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pipeline_state</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Returns the differences between this pipeline and a previously</span>
 <span class="sd">        recorded state.</span>
 
@@ -2332,7 +2332,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
         
-        <span class="k">def</span> <span class="nf">compare_dict</span><span class="p">(</span><span class="n">ref_dict</span><span class="p">,</span> <span class="n">other_dict</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">compare_dict</span><span class="p">(</span><span class="n">ref_dict</span><span class="p">,</span> <span class="n">other_dict</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">ref_key</span><span class="p">,</span> <span class="n">ref_value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">ref_dict</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">ref_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">other_dict</span><span class="p">:</span>
                     <span class="k">yield</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> = </span><span class="si">%s</span><span class="s1"> is missing&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ref_key</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">ref_value</span><span class="p">))</span>
@@ -2430,7 +2430,7 @@
 
 <div class="viewcode-block" id="Pipeline.install_links_debug_handler">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.install_links_debug_handler">[docs]</a>
-    <span class="k">def</span> <span class="nf">install_links_debug_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">handler</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">install_links_debug_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">handler</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                     <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Set callbacks when traits value change, and follow plugs links to</span>
 <span class="sd">        debug links propagation and problems in it.</span>
@@ -2459,10 +2459,10 @@
 
         <span class="k">if</span> <span class="n">log_file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">log_file_s</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkstemp</span><span class="p">()</span>
-            <span class="k">class</span> <span class="nc">AutodeDelete</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-                <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_object</span><span class="p">):</span>
+            <span class="k">class</span><span class="w"> </span><span class="nc">AutodeDelete</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+                <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_object</span><span class="p">):</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">file_object</span> <span class="o">=</span> <span class="n">file_object</span>
-                <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="k">def</span><span class="w"> </span><span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
                     <span class="k">try</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">file_object</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
                     <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
@@ -2516,7 +2516,7 @@
 
 <div class="viewcode-block" id="Pipeline.uninstall_links_debug_handler">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.uninstall_links_debug_handler">[docs]</a>
-    <span class="k">def</span> <span class="nf">uninstall_links_debug_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">uninstall_links_debug_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Remove links debugging callbacks set by install_links_debug_handler</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
@@ -2547,7 +2547,7 @@
 
 <div class="viewcode-block" id="Pipeline.define_pipeline_steps">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.define_pipeline_steps">[docs]</a>
-    <span class="k">def</span> <span class="nf">define_pipeline_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">steps</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">define_pipeline_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">steps</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;Define steps in the pipeline.</span>
 <span class="sd">        Steps are pipeline portions that form groups, and which can be enabled</span>
 <span class="sd">        or disabled on a runtime basis (when building workflows).</span>
@@ -2588,7 +2588,7 @@
 
 <div class="viewcode-block" id="Pipeline.add_pipeline_step">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.add_pipeline_step">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_pipeline_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step_name</span><span class="p">,</span> <span class="n">nodes</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_pipeline_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step_name</span><span class="p">,</span> <span class="n">nodes</span><span class="p">,</span> <span class="n">enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;Add a step definition to the pipeline (see also define_steps).</span>
 
 <span class="sd">        Steps are groups of pipeline nodes, which may be disabled at runtime.</span>
@@ -2632,7 +2632,7 @@
 
 <div class="viewcode-block" id="Pipeline.remove_pipeline_step">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.remove_pipeline_step">[docs]</a>
-    <span class="k">def</span> <span class="nf">remove_pipeline_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step_name</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">remove_pipeline_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step_name</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;Remove the given step</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">if</span> <span class="s1">&#39;pipeline_steps&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_traits</span><span class="p">():</span>
@@ -2641,7 +2641,7 @@
 
 <div class="viewcode-block" id="Pipeline.disabled_pipeline_steps_nodes">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.disabled_pipeline_steps_nodes">[docs]</a>
-    <span class="k">def</span> <span class="nf">disabled_pipeline_steps_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">disabled_pipeline_steps_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;List nodes disabled for runtime execution</span>
 
 <span class="sd">        Returns</span>
@@ -2662,7 +2662,7 @@
 
 <div class="viewcode-block" id="Pipeline.get_pipeline_step_nodes">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.get_pipeline_step_nodes">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_pipeline_step_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step_name</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_pipeline_step_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step_name</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;Get the nodes in the given pipeline step</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_steps</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">step_name</span><span class="p">)</span><span class="o">.</span><span class="n">nodes</span></div>
@@ -2670,7 +2670,7 @@
 
 <div class="viewcode-block" id="Pipeline.enable_all_pipeline_steps">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.enable_all_pipeline_steps">[docs]</a>
-    <span class="k">def</span> <span class="nf">enable_all_pipeline_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">enable_all_pipeline_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;Set all defined steps (using add_step() or define_steps()) to be</span>
 <span class="sd">        enabled. Useful to reset the pipeline state after it has been changed.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -2679,7 +2679,7 @@
             <span class="nb">setattr</span><span class="p">(</span><span class="n">steps</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_change_processes_selection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selection_name</span><span class="p">,</span> <span class="n">selection_group</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_change_processes_selection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selection_name</span><span class="p">,</span> <span class="n">selection_group</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">delay_update_nodes_and_plugs_activation</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">group</span><span class="p">,</span> <span class="n">processes</span> <span class="ow">in</span> \
                 <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">processes_selection</span><span class="p">[</span><span class="n">selection_name</span><span class="p">]):</span>
@@ -2690,7 +2690,7 @@
 
 <div class="viewcode-block" id="Pipeline.add_processes_selection">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.add_processes_selection">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_processes_selection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selection_parameter</span><span class="p">,</span> <span class="n">selection_groups</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_processes_selection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selection_parameter</span><span class="p">,</span> <span class="n">selection_groups</span><span class="p">,</span>
                                 <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;Add a processes selection switch definition to the pipeline.</span>
 
@@ -2729,7 +2729,7 @@
 
 <div class="viewcode-block" id="Pipeline.get_processes_selections">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.get_processes_selections">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_processes_selections</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_processes_selections</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;Get process_selection groups names (corresponding to selection</span>
 <span class="sd">        parameters on the pipeline)</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -2740,7 +2740,7 @@
 
 <div class="viewcode-block" id="Pipeline.get_processes_selection_groups">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.get_processes_selection_groups">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_processes_selection_groups</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selection_parameter</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_processes_selection_groups</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selection_parameter</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;Get groups names involved in a processes selection switch</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">processes_selection</span><span class="p">[</span><span class="n">selection_parameter</span><span class="p">]</span></div>
@@ -2748,7 +2748,7 @@
 
 <div class="viewcode-block" id="Pipeline.get_processes_selection_nodes">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.get_processes_selection_nodes">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_processes_selection_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selection_parameter</span><span class="p">,</span> <span class="n">group</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_processes_selection_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selection_parameter</span><span class="p">,</span> <span class="n">group</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;Get nodes names involved in a processes selection switch with</span>
 <span class="sd">        value group</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -2757,7 +2757,7 @@
 
 <div class="viewcode-block" id="Pipeline.set_study_config">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.set_study_config">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_study_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">study_config</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_study_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">study_config</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39; Set a StudyConfig for the process.</span>
 <span class="sd">        Note that it can only be done once: once a non-null StudyConfig has</span>
 <span class="sd">        been assigned to the process, it should not change.</span>
@@ -2770,7 +2770,7 @@
 
 <div class="viewcode-block" id="Pipeline.define_groups_as_steps">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.define_groups_as_steps">[docs]</a>
-    <span class="k">def</span> <span class="nf">define_groups_as_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exclusive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">define_groups_as_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exclusive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39; Define parameters groups according to which steps they are</span>
 <span class="sd">        connected to.</span>
 
@@ -2821,7 +2821,7 @@
 
 <div class="viewcode-block" id="Pipeline.check_requirements">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.check_requirements">[docs]</a>
-    <span class="k">def</span> <span class="nf">check_requirements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">environment</span><span class="o">=</span><span class="s1">&#39;global&#39;</span><span class="p">,</span> <span class="n">message_list</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_requirements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">environment</span><span class="o">=</span><span class="s1">&#39;global&#39;</span><span class="p">,</span> <span class="n">message_list</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Reimplementation for pipelines of</span>
 <span class="sd">        :meth:`capsul.process.process.Process.check_requirements &lt;Process.check_requirements&gt;`</span>
@@ -2836,7 +2836,7 @@
         <span class="n">confs</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">if</span> <span class="n">conf</span><span class="p">:</span>
             <span class="n">confs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">conf</span><span class="p">)</span>
-        <span class="kn">from</span> <span class="nn">capsul.pipeline</span> <span class="kn">import</span> <span class="n">pipeline_tools</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">pipeline_tools</span>
         <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">node</span> <span class="ow">is</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_node</span><span class="p">:</span>
@@ -2866,7 +2866,7 @@
 
 <div class="viewcode-block" id="Pipeline.rename_node">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.rename_node">[docs]</a>
-    <span class="k">def</span> <span class="nf">rename_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">old_node_name</span><span class="p">,</span> <span class="n">new_node_name</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rename_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">old_node_name</span><span class="p">,</span> <span class="n">new_node_name</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Change the name of the selected node and updates the pipeline.</span>
 
@@ -2957,7 +2957,7 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-    &#169; Copyright 2024, Populse team &lt;support@brainvisa.info&gt;.
+    &#169; Copyright 2025, Populse team &lt;support@brainvisa.info&gt;.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
     </div>
   </body>

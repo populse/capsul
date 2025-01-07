@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="../../../_static/css/bootstrap-responsive.css"/>
   <link rel="icon" href="../../../_static/capsul_logo.svg"/>
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
     
@@ -93,7 +93,8 @@
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../../index.html">CAPSUL</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../engine.html" accesskey="U">capsul.engine</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">CAPSUL</a></li> 
       </ul>
     </div>  
@@ -105,11 +106,12 @@
             
   <h1>Source code for capsul.engine.database</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
-<span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os.path</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">osp</span>
 
 <div class="viewcode-block" id="DatabaseEngine">
 <a class="viewcode-back" href="../../../api/engine.html#capsul.engine.database.DatabaseEngine">[docs]</a>
-<span class="k">class</span> <span class="nc">DatabaseEngine</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DatabaseEngine</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    A :py:class:`DatabaseEngine` is the base class for all engines </span>
 <span class="sd">    allowing to store, retrieve and search metadata associated with</span>
@@ -124,7 +126,7 @@
 <span class="sd">    </span>
 <span class="sd">    &#39;&#39;&#39;</span>
     
-    <span class="k">def</span> <span class="nf">check_path_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">named_directory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_path_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">named_directory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">named_directory</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;named_directory&#39;</span><span class="p">)</span>
         <span class="n">named_directory</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_path</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">named_directory</span><span class="p">)</span>
         
@@ -135,7 +137,7 @@
 
 <div class="viewcode-block" id="DatabaseEngine.check_path">
 <a class="viewcode-back" href="../../../api/engine.html#capsul.engine.database.DatabaseEngine.check_path">[docs]</a>
-    <span class="k">def</span> <span class="nf">check_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">named_directory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">named_directory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Find a pair (named_directory, path) given a path and eventually a</span>
 <span class="sd">        named_directory.</span>
@@ -178,7 +180,7 @@
     
 <div class="viewcode-block" id="DatabaseEngine.set_json_value">
 <a class="viewcode-back" href="../../../api/engine.html#capsul.engine.database.DatabaseEngine.set_json_value">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_json_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">json_value</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_json_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">json_value</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Store a json value and associate it with a key given in &quot;name&quot;.</span>
 <span class="sd">        The value can be retrieved with method json_value().</span>
@@ -193,7 +195,7 @@
 
 <div class="viewcode-block" id="DatabaseEngine.json_value">
 <a class="viewcode-back" href="../../../api/engine.html#capsul.engine.database.DatabaseEngine.json_value">[docs]</a>
-    <span class="k">def</span> <span class="nf">json_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">json_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Retrieve a value previously stored with set_json_value()</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -203,7 +205,7 @@
     
 <div class="viewcode-block" id="DatabaseEngine.set_named_directory">
 <a class="viewcode-back" href="../../../api/engine.html#capsul.engine.database.DatabaseEngine.set_named_directory">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_named_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_named_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Associate an absolute path to a generic name. This allow to always</span>
 <span class="sd">        use a location independent name for a directory such as &#39;spm_template&#39;</span>
@@ -216,7 +218,7 @@
     
 <div class="viewcode-block" id="DatabaseEngine.named_directory">
 <a class="viewcode-back" href="../../../api/engine.html#capsul.engine.database.DatabaseEngine.named_directory">[docs]</a>
-    <span class="k">def</span> <span class="nf">named_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">named_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Return the absolute path of a named directory.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -225,7 +227,7 @@
     
 <div class="viewcode-block" id="DatabaseEngine.named_directories">
 <a class="viewcode-back" href="../../../api/engine.html#capsul.engine.database.DatabaseEngine.named_directories">[docs]</a>
-    <span class="k">def</span> <span class="nf">named_directories</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">named_directories</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        List the names of all named directories. This method may return any</span>
 <span class="sd">        iterable value (list, generator, etc.)</span>
@@ -236,7 +238,7 @@
     
 <div class="viewcode-block" id="DatabaseEngine.set_path_metadata">
 <a class="viewcode-back" href="../../../api/engine.html#capsul.engine.database.DatabaseEngine.set_path_metadata">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_path_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">named_directory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_path_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">named_directory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Set metadata associated to a path. The metadata are associated to the</span>
 <span class="sd">        result of self.check_path(path, named_directory). metadata can be any</span>
@@ -247,7 +249,7 @@
     
 <div class="viewcode-block" id="DatabaseEngine.path_metadata">
 <a class="viewcode-back" href="../../../api/engine.html#capsul.engine.database.DatabaseEngine.path_metadata">[docs]</a>
-    <span class="k">def</span> <span class="nf">path_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">named_directory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">path_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">named_directory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Retrieve metadata associated with a path.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -277,11 +279,12 @@
              >modules</a> |</li>
         <li class="nav-item nav-item-0"><a href="../../../index.html">CAPSUL</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../engine.html" >capsul.engine</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">CAPSUL</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-    &#169; Copyright 2024, Populse team &lt;support@brainvisa.info&gt;.
+    &#169; Copyright 2025, Populse team &lt;support@brainvisa.info&gt;.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
     </div>
   </body>

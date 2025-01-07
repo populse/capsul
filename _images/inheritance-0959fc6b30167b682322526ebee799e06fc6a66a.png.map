@@ -1,0 +1,5 @@
+<map id="inheritance63f55d249b" name="inheritance63f55d249b">
+<area shape="rect" id="node1" href="#capsul.sphinxext.layoutdocgen.LayoutHelperWriter" target="_top" title="A basic class to create sphinx layout and associated index." alt="" coords="15,104,165,129"/>
+<area shape="rect" id="node2" href="#capsul.sphinxext.pipelinedocgen.PipelineHelpWriter" target="_top" title="Class for automatic generation of pipeline API documentations" alt="" coords="18,55,162,80"/>
+<area shape="rect" id="node3" href="#capsul.sphinxext.usecasesdocgen.UseCasesHelperWriter" target="_top" title="A basic class to convert the pilot codes to rst use cases" alt="" coords="5,5,175,31"/>
+</map>

@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="../../../_static/css/bootstrap-responsive.css"/>
   <link rel="icon" href="../../../_static/capsul_logo.svg"/>
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
     
@@ -114,21 +114,21 @@
 <span class="c1">##########################################################################</span>
 
 <span class="c1"># System import</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">six</span>
-<span class="kn">from</span> <span class="nn">docutils.core</span> <span class="kn">import</span> <span class="n">publish_parts</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">traceback</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">six</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">docutils.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">publish_parts</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">traceback</span>
 
 
 <div class="viewcode-block" id="LayoutHelperWriter">
 <a class="viewcode-back" href="../../../api/sphinxext.html#capsul.sphinxext.layoutdocgen.LayoutHelperWriter">[docs]</a>
-<span class="k">class</span> <span class="nc">LayoutHelperWriter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LayoutHelperWriter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; A basic class to create sphinx layout and associated index.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module_names</span><span class="p">,</span> <span class="n">root_module_name</span><span class="p">,</span> <span class="n">rst_extension</span><span class="o">=</span><span class="s2">&quot;.rst&quot;</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module_names</span><span class="p">,</span> <span class="n">root_module_name</span><span class="p">,</span> <span class="n">rst_extension</span><span class="o">=</span><span class="s2">&quot;.rst&quot;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Initialize the LayoutHelperWriter class</span>
 
 <span class="sd">        Parameters</span>
@@ -147,7 +147,7 @@
 
 <div class="viewcode-block" id="LayoutHelperWriter.generate_index_entry">
 <a class="viewcode-back" href="../../../api/sphinxext.html#capsul.sphinxext.layoutdocgen.LayoutHelperWriter.generate_index_entry">[docs]</a>
-    <span class="k">def</span> <span class="nf">generate_index_entry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module_name</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_index_entry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module_name</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Make autodoc documentation of pilots</span>
 
 <span class="sd">        Parameters</span>
@@ -192,7 +192,7 @@
 
 <div class="viewcode-block" id="LayoutHelperWriter.title_for">
 <a class="viewcode-back" href="../../../api/sphinxext.html#capsul.sphinxext.layoutdocgen.LayoutHelperWriter.title_for">[docs]</a>
-    <span class="k">def</span> <span class="nf">title_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">title_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Create a title from a underscore-separated string.</span>
 
 <span class="sd">        Parameters</span>
@@ -210,7 +210,7 @@
 
 <div class="viewcode-block" id="LayoutHelperWriter.rst2html">
 <a class="viewcode-back" href="../../../api/sphinxext.html#capsul.sphinxext.layoutdocgen.LayoutHelperWriter.rst2html">[docs]</a>
-    <span class="k">def</span> <span class="nf">rst2html</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rst</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rst2html</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rst</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Convert a rst formatted string to an html string.</span>
 
 <span class="sd">        Parameters</span>
@@ -229,7 +229,7 @@
 
 <div class="viewcode-block" id="LayoutHelperWriter.write_layout">
 <a class="viewcode-back" href="../../../api/sphinxext.html#capsul.sphinxext.layoutdocgen.LayoutHelperWriter.write_layout">[docs]</a>
-    <span class="k">def</span> <span class="nf">write_layout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outdir</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_layout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outdir</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate the sphinx layout.</span>
 
 <span class="sd">        Parameters</span>
@@ -320,7 +320,7 @@
 
 <div class="viewcode-block" id="LayoutHelperWriter.write_installation">
 <a class="viewcode-back" href="../../../api/sphinxext.html#capsul.sphinxext.layoutdocgen.LayoutHelperWriter.write_installation">[docs]</a>
-    <span class="k">def</span> <span class="nf">write_installation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outdir</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_installation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outdir</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate the installation recommendations.</span>
 
 <span class="sd">        Parameters</span>
@@ -368,7 +368,7 @@
 
 <div class="viewcode-block" id="LayoutHelperWriter.write_index">
 <a class="viewcode-back" href="../../../api/sphinxext.html#capsul.sphinxext.layoutdocgen.LayoutHelperWriter.write_index">[docs]</a>
-    <span class="k">def</span> <span class="nf">write_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outdir</span><span class="p">,</span> <span class="n">froot</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="n">rst_extension</span><span class="o">=</span><span class="s2">&quot;.rst&quot;</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outdir</span><span class="p">,</span> <span class="n">froot</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="n">rst_extension</span><span class="o">=</span><span class="s2">&quot;.rst&quot;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Make a reST API index file from python modules</span>
 
 <span class="sd">        Parameters</span>
@@ -442,7 +442,7 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-    &#169; Copyright 2024, Populse team &lt;support@brainvisa.info&gt;.
+    &#169; Copyright 2025, Populse team &lt;support@brainvisa.info&gt;.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
     </div>
   </body>

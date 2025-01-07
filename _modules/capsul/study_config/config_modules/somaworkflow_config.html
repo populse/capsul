@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="../../../../_static/css/bootstrap-responsive.css"/>
   <link rel="icon" href="../../../../_static/capsul_logo.svg"/>
 
-    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=fd3f3429" />
     
@@ -116,14 +116,14 @@
 <span class="sd">---------------------------</span>
 <span class="sd">&#39;&#39;&#39;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
-<span class="kn">from</span> <span class="nn">traits.api</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">Str</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">File</span>
-<span class="kn">from</span> <span class="nn">capsul.study_config.study_config</span> <span class="kn">import</span> <span class="n">StudyConfigModule</span>
-<span class="kn">from</span> <span class="nn">soma.controller</span> <span class="kn">import</span> <span class="n">Controller</span><span class="p">,</span> <span class="n">ControllerTrait</span><span class="p">,</span> <span class="n">OpenKeyController</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">traits.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">Str</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">File</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">capsul.study_config.study_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">StudyConfigModule</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">soma.controller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Controller</span><span class="p">,</span> <span class="n">ControllerTrait</span><span class="p">,</span> <span class="n">OpenKeyController</span>
 
 <div class="viewcode-block" id="ResourceController">
 <a class="viewcode-back" href="../../../../api/study_config.html#capsul.study_config.config_modules.somaworkflow_config.ResourceController">[docs]</a>
-<span class="k">class</span> <span class="nc">ResourceController</span><span class="p">(</span><span class="n">Controller</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ResourceController</span><span class="p">(</span><span class="n">Controller</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39; Configuration options for one Soma-Workflow computing resource</span>
 
 <span class="sd">    Attributes</span>
@@ -137,7 +137,7 @@
 <span class="sd">        Soma-workflow paths translations mapping:</span>
 <span class="sd">        ``{local_path: (identifier, uuid)}``</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">ResourceController</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span>
             <span class="s1">&#39;queue&#39;</span><span class="p">,</span>
@@ -163,7 +163,7 @@
 
 <div class="viewcode-block" id="SomaWorkflowConfig">
 <a class="viewcode-back" href="../../../../api/study_config.html#capsul.study_config.config_modules.somaworkflow_config.SomaWorkflowConfig">[docs]</a>
-<span class="k">class</span> <span class="nc">SomaWorkflowConfig</span><span class="p">(</span><span class="n">StudyConfigModule</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SomaWorkflowConfig</span><span class="p">(</span><span class="n">StudyConfigModule</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39; Configuration module for :somaworkflow:`Soma-Workflow &lt;index.html&gt;`</span>
 
 <span class="sd">    Stores configuration options which are not part of Soma-Workflow own</span>
@@ -198,7 +198,7 @@
 <span class="sd">    disconnect_resource</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">study_config</span><span class="p">,</span> <span class="n">configuration</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">study_config</span><span class="p">,</span> <span class="n">configuration</span><span class="p">):</span>
 
         <span class="nb">super</span><span class="p">(</span><span class="n">SomaWorkflowConfig</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="n">configuration</span><span class="p">)</span>
         <span class="n">study_config</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">&#39;use_soma_workflow&#39;</span><span class="p">,</span> <span class="n">Bool</span><span class="p">(</span>
@@ -248,14 +248,14 @@
 
 <div class="viewcode-block" id="SomaWorkflowConfig.initialize_callbacks">
 <a class="viewcode-back" href="../../../../api/study_config.html#capsul.study_config.config_modules.somaworkflow_config.SomaWorkflowConfig.initialize_callbacks">[docs]</a>
-    <span class="k">def</span> <span class="nf">initialize_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">initialize_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">on_trait_change</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">initialize_module</span><span class="p">,</span> <span class="s1">&#39;use_soma_workflow&#39;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="SomaWorkflowConfig.get_resource_id">
 <a class="viewcode-back" href="../../../../api/study_config.html#capsul.study_config.config_modules.somaworkflow_config.SomaWorkflowConfig.get_resource_id">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_resource_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">set_it</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_resource_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">set_it</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39; Get a computing resource name according to the (optional) input</span>
 <span class="sd">        resource_id and Soma-Workflow configuration.</span>
 
@@ -278,11 +278,11 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">somaworkflow_computing_resource</span> <span class="o">=</span> <span class="n">resource_id</span>
         <span class="k">if</span> <span class="n">resource_id</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">,</span> <span class="s1">&#39;localhost&#39;</span><span class="p">):</span>
-            <span class="kn">from</span> <span class="nn">soma_workflow</span> <span class="kn">import</span> <span class="n">configuration</span> <span class="k">as</span> <span class="n">swcf</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">soma_workflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">configuration</span> <span class="k">as</span> <span class="n">swcf</span>
             <span class="n">resource_id</span> <span class="o">=</span> <span class="n">swcf</span><span class="o">.</span><span class="n">Configuration</span><span class="o">.</span><span class="n">get_local_resource_id</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">set_it</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">resource_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="kn">import</span> <span class="nn">socket</span>
+                <span class="kn">import</span><span class="w"> </span><span class="nn">socket</span>
                 <span class="n">resource_id</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">gethostname</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">somaworkflow_computing_resource</span> <span class="o">=</span> <span class="n">resource_id</span>
         <span class="k">return</span> <span class="n">resource_id</span></div>
@@ -290,7 +290,7 @@
 
 <div class="viewcode-block" id="SomaWorkflowConfig.set_computing_resource_password">
 <a class="viewcode-back" href="../../../../api/study_config.html#capsul.study_config.config_modules.somaworkflow_config.SomaWorkflowConfig.set_computing_resource_password">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_computing_resource_password</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource_id</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_computing_resource_password</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource_id</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                         <span class="n">rsa_key_password</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39; Set credentials for a given computinf resource.</span>
 
@@ -315,7 +315,7 @@
 
 <div class="viewcode-block" id="SomaWorkflowConfig.get_workflow_controller">
 <a class="viewcode-back" href="../../../../api/study_config.html#capsul.study_config.config_modules.somaworkflow_config.SomaWorkflowConfig.get_workflow_controller">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_workflow_controller</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_workflow_controller</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39; Get a connected</span>
 <span class="sd">        :somaworkflow:`WorkflowController &lt;client_API.html&gt;` for the given</span>
 <span class="sd">        resource</span>
@@ -330,7 +330,7 @@
 
 <div class="viewcode-block" id="SomaWorkflowConfig.connect_resource">
 <a class="viewcode-back" href="../../../../api/study_config.html#capsul.study_config.config_modules.somaworkflow_config.SomaWorkflowConfig.connect_resource">[docs]</a>
-    <span class="k">def</span> <span class="nf">connect_resource</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force_reconnect</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">connect_resource</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force_reconnect</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39; Connect a soma-workflow computing resource.</span>
 
 <span class="sd">        Sets the current resource to the given resource_id (transformed by</span>
@@ -352,7 +352,7 @@
 <span class="sd">        -------</span>
 <span class="sd">        :somaworkflow:`WorkflowController &lt;client_API.html&gt;` object</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="kn">import</span> <span class="nn">soma_workflow.client</span> <span class="k">as</span> <span class="nn">swclient</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">soma_workflow.client</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">swclient</span>
 
         <span class="n">resource_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_resource_id</span><span class="p">(</span><span class="n">resource_id</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 
@@ -392,7 +392,7 @@
 
 <div class="viewcode-block" id="SomaWorkflowConfig.disconnect_resource">
 <a class="viewcode-back" href="../../../../api/study_config.html#capsul.study_config.config_modules.somaworkflow_config.SomaWorkflowConfig.disconnect_resource">[docs]</a>
-    <span class="k">def</span> <span class="nf">disconnect_resource</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">disconnect_resource</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39; Disconnect a connected</span>
 <span class="sd">        :somaworkflow:`WorkflowController &lt;client_API.html&gt;` and removes it</span>
 <span class="sd">        from the internal list</span>
@@ -433,7 +433,7 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-    &#169; Copyright 2024, Populse team &lt;support@brainvisa.info&gt;.
+    &#169; Copyright 2025, Populse team &lt;support@brainvisa.info&gt;.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
     </div>
   </body>

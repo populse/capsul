@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="../../../_static/css/bootstrap-responsive.css"/>
   <link rel="icon" href="../../../_static/capsul_logo.svg"/>
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
     
@@ -123,25 +123,25 @@
 <span class="sd">&#39;&#39;&#39;</span>
 
 <span class="c1"># System import</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
-<span class="kn">import</span> <span class="nn">importlib</span>
-<span class="kn">import</span> <span class="nn">types</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">six</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os.path</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">osp</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">types</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">six</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
 
 <span class="c1"># Caspul import</span>
-<span class="kn">from</span> <span class="nn">capsul.process.process</span> <span class="kn">import</span> <span class="n">Process</span>
-<span class="kn">from</span> <span class="nn">capsul.pipeline.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
-<span class="kn">from</span> <span class="nn">capsul.process.nipype_process</span> <span class="kn">import</span> <span class="n">nipype_factory</span>
-<span class="kn">from</span> <span class="nn">capsul.process.xml</span> <span class="kn">import</span> <span class="n">create_xml_process</span>
-<span class="kn">from</span> <span class="nn">capsul.pipeline.xml</span> <span class="kn">import</span> <span class="n">create_xml_pipeline</span>
-<span class="kn">from</span> <span class="nn">capsul.pipeline.json_io</span> <span class="kn">import</span> <span class="n">create_json_pipeline</span>
-<span class="kn">from</span> <span class="nn">capsul.pipeline.pipeline_nodes</span> <span class="kn">import</span> <span class="n">Node</span>
-<span class="kn">from</span> <span class="nn">soma.controller</span> <span class="kn">import</span> <span class="n">Controller</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">capsul.process.process</span><span class="w"> </span><span class="kn">import</span> <span class="n">Process</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">capsul.pipeline.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pipeline</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">capsul.process.nipype_process</span><span class="w"> </span><span class="kn">import</span> <span class="n">nipype_factory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">capsul.process.xml</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_xml_process</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">capsul.pipeline.xml</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_xml_pipeline</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">capsul.pipeline.json_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_json_pipeline</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">capsul.pipeline.pipeline_nodes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Node</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">soma.controller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Controller</span>
 
 <span class="n">process_xml_re</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;&lt;process.*&lt;/process&gt;&#39;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
 
@@ -149,7 +149,7 @@
 <span class="n">_interface</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="n">_nipype_loaded</span> <span class="o">=</span> <span class="kc">False</span>
 
-<span class="k">def</span> <span class="nf">_get_interface_class</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_interface_class</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    returns the nypype Interface type, or a custom type if it cannot be</span>
 <span class="sd">    imported.</span>
@@ -177,7 +177,7 @@
 
 <div class="viewcode-block" id="is_process">
 <a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.process_instance.is_process">[docs]</a>
-<span class="k">def</span> <span class="nf">is_process</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_process</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Check if the input item is a process class or function with decorator</span>
 <span class="sd">    or XML docstring which makes it seen as a process</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -199,7 +199,7 @@
 
 <div class="viewcode-block" id="is_pipeline_node">
 <a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.process_instance.is_pipeline_node">[docs]</a>
-<span class="k">def</span> <span class="nf">is_pipeline_node</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_pipeline_node</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Check if the input is an instance of pipeline Node</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">item</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">Node</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">Node</span><span class="p">)</span></div>
@@ -208,7 +208,7 @@
 
 <div class="viewcode-block" id="get_process_instance">
 <a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.process_instance.get_process_instance">[docs]</a>
-<span class="k">def</span> <span class="nf">get_process_instance</span><span class="p">(</span><span class="n">process_or_id</span><span class="p">,</span> <span class="n">study_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_process_instance</span><span class="p">(</span><span class="n">process_or_id</span><span class="p">,</span> <span class="n">study_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Return a Process instance given an identifier.</span>
 
 <span class="sd">    Note that it is convenient to create a process from a StudyConfig instance:</span>
@@ -267,7 +267,7 @@
     <span class="c1"># This is not elegant, not thread-safe, and forbids to have one pipeline</span>
     <span class="c1"># build a second one in a different study_config context.</span>
     <span class="c1"># I don&#39;t have a better solution, however.</span>
-    <span class="kn">import</span> <span class="nn">capsul.study_config.study_config</span> <span class="k">as</span> <span class="nn">study_cmod</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">capsul.study_config.study_config</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">study_cmod</span>
     <span class="n">set_study_config</span> <span class="o">=</span> <span class="p">(</span><span class="n">study_config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
                         <span class="ow">and</span> <span class="n">study_cmod</span><span class="o">.</span><span class="n">_default_study_config</span>
                             <span class="ow">is</span> <span class="ow">not</span> <span class="n">study_config</span><span class="p">)</span>
@@ -284,7 +284,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_execfile</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_execfile</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
     <span class="c1"># This chunk of code cannot be put inline in python 2.6</span>
     <span class="n">glob_dict</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">exec</span><span class="p">(</span><span class="nb">compile</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;exec&#39;</span><span class="p">),</span>
@@ -292,29 +292,29 @@
     <span class="k">return</span> <span class="n">glob_dict</span>
 
 
-<span class="k">def</span> <span class="nf">_load_module</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">modname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_load_module</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">modname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">modname</span><span class="p">:</span>
         <span class="n">modname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">):</span>
-        <span class="kn">import</span> <span class="nn">importlib.util</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">importlib.util</span>
         <span class="n">spec</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">spec_from_file_location</span><span class="p">(</span><span class="n">modname</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
         <span class="n">mod</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">module_from_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">modname</span><span class="p">]</span> <span class="o">=</span> <span class="n">mod</span>
         <span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">exec_module</span><span class="p">(</span><span class="n">mod</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">mod</span>
     <span class="k">elif</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
-        <span class="kn">from</span> <span class="nn">importlib.machinery</span> <span class="kn">import</span> <span class="n">SourceFileLoader</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">importlib.machinery</span><span class="w"> </span><span class="kn">import</span> <span class="n">SourceFileLoader</span>
         <span class="n">mod</span> <span class="o">=</span> <span class="n">SourceFileLoader</span><span class="p">(</span><span class="n">modname</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">load_module</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="kn">import</span> <span class="nn">imp</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">imp</span>
         <span class="n">mod</span> <span class="o">=</span> <span class="n">imp</span><span class="o">.</span><span class="n">load_source</span><span class="p">(</span><span class="n">modname</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">mod</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">modname</span><span class="p">]</span> <span class="o">=</span> <span class="n">mod</span>
     <span class="k">return</span> <span class="n">mod</span>
 
-<span class="k">def</span> <span class="nf">_get_process_instance</span><span class="p">(</span><span class="n">process_or_id</span><span class="p">,</span> <span class="n">study_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_process_instance</span><span class="p">(</span><span class="n">process_or_id</span><span class="p">,</span> <span class="n">study_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="nf">_find_single_process</span><span class="p">(</span><span class="n">module_dict</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_find_single_process</span><span class="p">(</span><span class="n">module_dict</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39; Scan objects in module_dict and find out if a single one of them is</span>
 <span class="sd">        a process</span>
 <span class="sd">        &#39;&#39;&#39;</span>
@@ -550,7 +550,7 @@
 
 <div class="viewcode-block" id="get_node_class">
 <a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.process_instance.get_node_class">[docs]</a>
-<span class="k">def</span> <span class="nf">get_node_class</span><span class="p">(</span><span class="n">node_type</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_node_class</span><span class="p">(</span><span class="n">node_type</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get a custom node class from module + class string.</span>
 <span class="sd">    The class name is optional if the module contains only one node class.</span>
@@ -585,7 +585,7 @@
 
 <div class="viewcode-block" id="get_node_instance">
 <a class="viewcode-back" href="../../../api/study_config.html#capsul.study_config.process_instance.get_node_instance">[docs]</a>
-<span class="k">def</span> <span class="nf">get_node_instance</span><span class="p">(</span><span class="n">node_type</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span> <span class="n">conf_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_node_instance</span><span class="p">(</span><span class="n">node_type</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span> <span class="n">conf_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                       <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get a custom node instance from a module + class name (see</span>
@@ -674,7 +674,7 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-    &#169; Copyright 2024, Populse team &lt;support@brainvisa.info&gt;.
+    &#169; Copyright 2025, Populse team &lt;support@brainvisa.info&gt;.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
     </div>
   </body>

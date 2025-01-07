@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="../../../../_static/css/bootstrap-responsive.css"/>
   <link rel="icon" href="../../../../_static/capsul_logo.svg"/>
 
-    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=fd3f3429" />
     
@@ -115,24 +115,24 @@
 <span class="sd">&#39;&#39;&#39;</span>
 
 <span class="c1"># System import</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">optparse</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">optparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 
 <span class="c1"># Soma import</span>
-<span class="kn">from</span> <span class="nn">soma.qt_gui.qt_backend</span> <span class="kn">import</span> <span class="n">Qt</span><span class="p">,</span> <span class="n">QtCore</span><span class="p">,</span> <span class="n">QtWidgets</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">soma.qt_gui.qt_backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">Qt</span><span class="p">,</span> <span class="n">QtCore</span><span class="p">,</span> <span class="n">QtWidgets</span>
 
 
 <div class="viewcode-block" id="Application">
 <a class="viewcode-back" href="../../../../api/qt_apps.html#capsul.qt_apps.utils.application.Application">[docs]</a>
-<span class="k">class</span> <span class="nc">Application</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QApplication</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Application</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QApplication</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Base Application class.</span>
 
 <span class="sd">    Used to set some user options</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extra_options</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extra_options</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to initialize the Application class.</span>
 
 <span class="sd">        The capsulview application can be executed with command</span>
@@ -255,7 +255,7 @@
             <span class="n">h</span> <span class="o">=</span> <span class="n">root_logger</span><span class="o">.</span><span class="n">handlers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">h</span><span class="o">.</span><span class="n">stream</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span>
 
-    <span class="k">def</span> <span class="nf">_on_text_print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_on_text_print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Append text to the QTextEdit.</span>
 
 <span class="sd">        Parameters</span>
@@ -270,10 +270,10 @@
 
 <div class="viewcode-block" id="EmittingStream">
 <a class="viewcode-back" href="../../../../api/qt_apps.html#capsul.qt_apps.utils.application.EmittingStream">[docs]</a>
-<span class="k">class</span> <span class="nc">EmittingStream</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">EmittingStream</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Logging emitting string basic handler.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">textWritten</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">text</span><span class="p">))</span></div>
 
 </pre></div>
@@ -303,7 +303,7 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-    &#169; Copyright 2024, Populse team &lt;support@brainvisa.info&gt;.
+    &#169; Copyright 2025, Populse team &lt;support@brainvisa.info&gt;.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
     </div>
   </body>

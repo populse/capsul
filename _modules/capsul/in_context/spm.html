@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="../../../_static/css/bootstrap-responsive.css"/>
   <link rel="icon" href="../../../_static/capsul_logo.svg"/>
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
     
@@ -122,16 +122,16 @@
 <span class="sd">command line must be the SPM batch file to execute with Matlab.</span>
 <span class="sd">&#39;&#39;&#39;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">print_function</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">print_function</span>
 
-<span class="kn">import</span> <span class="nn">glob</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">glob</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os.path</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">osp</span>
 
-<span class="kn">import</span> <span class="nn">soma.subprocess</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">soma.subprocess</span>
 
 
-<span class="k">def</span> <span class="nf">spm_command</span><span class="p">(</span><span class="n">spm_batch_filename</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">spm_command</span><span class="p">(</span><span class="n">spm_batch_filename</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;SPM_STANDALONE&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;yes&#39;</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">spm_batch_filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># Check that batch file exists and raise appropriate error if</span>
@@ -163,12 +163,12 @@
 
 <div class="viewcode-block" id="SPMPopen">
 <a class="viewcode-back" href="../../../api/in_context.html#capsul.in_context.spm.SPMPopen">[docs]</a>
-<span class="k">class</span> <span class="nc">SPMPopen</span><span class="p">(</span><span class="n">soma</span><span class="o">.</span><span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SPMPopen</span><span class="p">(</span><span class="n">soma</span><span class="o">.</span><span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Equivalent to Python subprocess.Popen for SPM batch</span>
 <span class="sd">    &#39;&#39;&#39;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spm_batch_filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spm_batch_filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">cmd</span> <span class="o">=</span> <span class="n">spm_command</span><span class="p">(</span><span class="n">spm_batch_filename</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">SPMPopen</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
@@ -176,7 +176,7 @@
 
 <div class="viewcode-block" id="spm_call">
 <a class="viewcode-back" href="../../../api/in_context.html#capsul.in_context.spm.spm_call">[docs]</a>
-<span class="k">def</span> <span class="nf">spm_call</span><span class="p">(</span><span class="n">spm_batch_filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">spm_call</span><span class="p">(</span><span class="n">spm_batch_filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Equivalent to Python subprocess.call for SPM batch</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -187,7 +187,7 @@
 
 <div class="viewcode-block" id="spm_check_call">
 <a class="viewcode-back" href="../../../api/in_context.html#capsul.in_context.spm.spm_check_call">[docs]</a>
-<span class="k">def</span> <span class="nf">spm_check_call</span><span class="p">(</span><span class="n">spm_batch_filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">spm_check_call</span><span class="p">(</span><span class="n">spm_batch_filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Equivalent to Python subprocess.check_call for SPM batch</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -198,7 +198,7 @@
 
 <div class="viewcode-block" id="spm_check_output">
 <a class="viewcode-back" href="../../../api/in_context.html#capsul.in_context.spm.spm_check_output">[docs]</a>
-<span class="k">def</span> <span class="nf">spm_check_output</span><span class="p">(</span><span class="n">spm_batch_filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">spm_check_output</span><span class="p">(</span><span class="n">spm_batch_filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Equivalent to Python subprocess.check_output for SPM batch</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -208,8 +208,8 @@
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">capsul.api</span> <span class="kn">import</span> <span class="n">capsul_engine</span>
-    <span class="kn">import</span> <span class="nn">tempfile</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">capsul_engine</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
 
     <span class="n">ce</span> <span class="o">=</span> <span class="n">capsul_engine</span><span class="p">()</span>
     <span class="n">ce</span><span class="o">.</span><span class="n">global_config</span><span class="o">.</span><span class="n">spm</span><span class="o">.</span><span class="n">directory</span> <span class="o">=</span> <span class="s1">&#39;/casa/spm12_standalone&#39;</span>
@@ -245,7 +245,7 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-    &#169; Copyright 2024, Populse team &lt;support@brainvisa.info&gt;.
+    &#169; Copyright 2025, Populse team &lt;support@brainvisa.info&gt;.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
     </div>
   </body>

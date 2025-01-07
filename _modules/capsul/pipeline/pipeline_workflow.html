@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="../../../_static/css/bootstrap-responsive.css"/>
   <link rel="icon" href="../../../_static/capsul_logo.svg"/>
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
     
@@ -120,37 +120,37 @@
 <span class="sd">--------------------</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">socket</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">six</span>
-<span class="kn">import</span> <span class="nn">weakref</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">print_function</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">socket</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">six</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">weakref</span>
 
-<span class="kn">import</span> <span class="nn">soma_workflow.client</span> <span class="k">as</span> <span class="nn">swclient</span>
-<span class="kn">import</span> <span class="nn">soma_workflow.info</span> <span class="k">as</span> <span class="nn">swinfo</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">soma_workflow.client</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">swclient</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">soma_workflow.info</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">swinfo</span>
 
-<span class="kn">from</span> <span class="nn">capsul.pipeline.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span><span class="p">,</span> <span class="n">Switch</span><span class="p">,</span> <span class="n">PipelineNode</span>
-<span class="kn">from</span> <span class="nn">capsul.pipeline</span> <span class="kn">import</span> <span class="n">pipeline_tools</span>
-<span class="kn">from</span> <span class="nn">capsul.process.process</span> <span class="kn">import</span> <span class="n">Process</span>
-<span class="kn">from</span> <span class="nn">capsul.pipeline.topological_sort</span> <span class="kn">import</span> <span class="n">Graph</span>
-<span class="kn">from</span> <span class="nn">traits.api</span> <span class="kn">import</span> <span class="n">Directory</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">,</span> <span class="n">File</span><span class="p">,</span> <span class="n">Str</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span>
-<span class="kn">from</span> <span class="nn">soma.sorted_dictionary</span> <span class="kn">import</span> <span class="n">OrderedDict</span><span class="p">,</span> <span class="n">SortedDictionary</span>
-<span class="kn">from</span> <span class="nn">.process_iteration</span> <span class="kn">import</span> <span class="n">ProcessIteration</span>
-<span class="kn">from</span> <span class="nn">capsul.attributes</span> <span class="kn">import</span> <span class="n">completion_engine_iteration</span>
-<span class="kn">from</span> <span class="nn">capsul.attributes.completion_engine</span> <span class="kn">import</span> <span class="n">ProcessCompletionEngine</span>
-<span class="kn">from</span> <span class="nn">capsul.pipeline.pipeline_nodes</span> <span class="kn">import</span> <span class="n">ProcessNode</span>
-<span class="kn">from</span> <span class="nn">soma_workflow.custom_jobs</span> <span class="kn">import</span> <span class="n">MapJob</span><span class="p">,</span> <span class="n">ReduceJob</span>
-<span class="kn">from</span> <span class="nn">six.moves</span> <span class="kn">import</span> <span class="nb">range</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">capsul.pipeline.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pipeline</span><span class="p">,</span> <span class="n">Switch</span><span class="p">,</span> <span class="n">PipelineNode</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">capsul.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">pipeline_tools</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">capsul.process.process</span><span class="w"> </span><span class="kn">import</span> <span class="n">Process</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">capsul.pipeline.topological_sort</span><span class="w"> </span><span class="kn">import</span> <span class="n">Graph</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">traits.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">Directory</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">,</span> <span class="n">File</span><span class="p">,</span> <span class="n">Str</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">soma.sorted_dictionary</span><span class="w"> </span><span class="kn">import</span> <span class="n">OrderedDict</span><span class="p">,</span> <span class="n">SortedDictionary</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.process_iteration</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessIteration</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">capsul.attributes</span><span class="w"> </span><span class="kn">import</span> <span class="n">completion_engine_iteration</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">capsul.attributes.completion_engine</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessCompletionEngine</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">capsul.pipeline.pipeline_nodes</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessNode</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">soma_workflow.custom_jobs</span><span class="w"> </span><span class="kn">import</span> <span class="n">MapJob</span><span class="p">,</span> <span class="n">ReduceJob</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">six.moves</span><span class="w"> </span><span class="kn">import</span> <span class="nb">range</span>
 
 
 <div class="viewcode-block" id="TempFile">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_workflow.TempFile">[docs]</a>
-<span class="k">class</span> <span class="nc">TempFile</span><span class="p">(</span><span class="nb">str</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TempFile</span><span class="p">(</span><span class="nb">str</span><span class="p">):</span>
     <span class="c1"># class needed temporary to identify temporary paths in the pipeline.</span>
     <span class="c1"># must inherit a string type since it is used as a trait value</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">string</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">string</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
         <span class="c1"># in python3 super(..).__init__() cannot take an argument</span>
         <span class="c1"># moreover the str value is assigned anyway.</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">TempFile</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -163,60 +163,60 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">string</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ref</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">referent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">referent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref</span> <span class="k">else</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">referent</span><span class="p">()</span><span class="o">.</span><span class="n">value</span>
 
-    <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="n">res</span> <span class="o">=</span> <span class="n">TempFile</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">other</span><span class="p">))</span>
         <span class="n">res</span><span class="o">.</span><span class="n">pattern</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pattern</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
         <span class="n">res</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
         <span class="n">res</span><span class="o">.</span><span class="n">ref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">referent</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">res</span>
 
-    <span class="k">def</span> <span class="fm">__radd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__radd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="n">res</span> <span class="o">=</span> <span class="n">TempFile</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">other</span><span class="p">)</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
         <span class="n">res</span><span class="o">.</span><span class="n">pattern</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">other</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">pattern</span>
         <span class="n">res</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
         <span class="n">res</span><span class="o">.</span><span class="n">ref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">referent</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">res</span>
 
-    <span class="k">def</span> <span class="fm">__iadd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__iadd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pattern</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
         <span class="nb">str</span><span class="p">(</span><span class="n">TempFile</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__iadd__</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">other</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pattern</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_value</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">referent</span><span class="p">()</span><span class="o">.</span><span class="fm">__hash__</span><span class="p">()</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">TempFile</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__hash__</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">TempFile</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">referent</span><span class="p">()</span> <span class="ow">is</span> <span class="n">other</span><span class="o">.</span><span class="n">referent</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">other</span>
 
-    <span class="k">def</span> <span class="fm">__gt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__gt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">other</span>
 
-    <span class="k">def</span> <span class="fm">__le__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__le__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">other</span>
 
-    <span class="k">def</span> <span class="fm">__ge__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__ge__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">other</span></div>
 
 
 
 <div class="viewcode-block" id="workflow_from_pipeline">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_workflow.workflow_from_pipeline">[docs]</a>
-<span class="k">def</span> <span class="nf">workflow_from_pipeline</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">study_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">disabled_nodes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">workflow_from_pipeline</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">study_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">disabled_nodes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                            <span class="n">jobs_priority</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">create_directories</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                            <span class="n">environment</span><span class="o">=</span><span class="s1">&#39;global&#39;</span><span class="p">,</span> <span class="n">check_requirements</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                            <span class="n">complete_parameters</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -264,7 +264,7 @@
 <span class="sd">        a soma-workflow workflow</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">_files_group</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">merged_formats</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_files_group</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">merged_formats</span><span class="p">):</span>
         <span class="n">bname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
         <span class="n">l0</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">bname</span><span class="p">)</span>
         <span class="n">p0</span> <span class="o">=</span> <span class="mi">0</span>
@@ -283,7 +283,7 @@
         <span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s1">&#39;.minf&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">paths</span>
 
-    <span class="k">def</span> <span class="nf">_translated_path</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">shared_map</span><span class="p">,</span> <span class="n">shared_paths</span><span class="p">,</span> <span class="n">trait</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_translated_path</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">shared_map</span><span class="p">,</span> <span class="n">shared_paths</span><span class="p">,</span> <span class="n">trait</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">path</span> <span class="ow">is</span> <span class="n">Undefined</span> \
                 <span class="ow">or</span> <span class="ow">not</span> <span class="n">shared_paths</span> \
                 <span class="ow">or</span> <span class="p">(</span><span class="n">trait</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
@@ -305,7 +305,7 @@
                 <span class="k">return</span> <span class="n">item</span>
         <span class="k">return</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">_replace_in_list</span><span class="p">(</span><span class="n">rlist</span><span class="p">,</span> <span class="n">temp_map</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_replace_in_list</span><span class="p">(</span><span class="n">rlist</span><span class="p">,</span> <span class="n">temp_map</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">rlist</span><span class="p">):</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="nb">set</span><span class="p">)):</span>
                 <span class="n">deeperlist</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
@@ -327,7 +327,7 @@
                     <span class="n">value</span><span class="o">.</span><span class="n">pattern</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">pattern</span>
                 <span class="n">rlist</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
 
-    <span class="k">def</span> <span class="nf">_replace_in_dict</span><span class="p">(</span><span class="n">rdict</span><span class="p">,</span> <span class="n">temp_map</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_replace_in_dict</span><span class="p">(</span><span class="n">rdict</span><span class="p">,</span> <span class="n">temp_map</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">rdict</span><span class="p">):</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="nb">set</span><span class="p">)):</span>
                 <span class="n">deeperlist</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
@@ -349,7 +349,7 @@
                     <span class="n">value</span><span class="o">.</span><span class="n">pattern</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">pattern</span>
                 <span class="n">rdict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
 
-    <span class="k">def</span> <span class="nf">_get_replaced</span><span class="p">(</span><span class="n">rlist</span><span class="p">,</span> <span class="n">temp_map</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_replaced</span><span class="p">(</span><span class="n">rlist</span><span class="p">,</span> <span class="n">temp_map</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rlist</span><span class="p">,</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="n">OrderedDict</span><span class="p">,</span> <span class="n">SortedDictionary</span><span class="p">)):</span>
             <span class="k">return</span> <span class="n">_get_replaced</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">rlist</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="n">temp_map</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rlist</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
@@ -373,7 +373,7 @@
             <span class="n">value</span><span class="o">.</span><span class="n">pattern</span> <span class="o">=</span> <span class="n">rlist</span><span class="o">.</span><span class="n">pattern</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">value</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">_replace_transfers</span><span class="p">(</span><span class="n">rlist</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">itransfers</span><span class="p">,</span> <span class="n">otransfers</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_replace_transfers</span><span class="p">(</span><span class="n">rlist</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">itransfers</span><span class="p">,</span> <span class="n">otransfers</span><span class="p">):</span>
         <span class="n">param_name</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">i</span> <span class="o">=</span> <span class="mi">3</span>
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">rlist</span><span class="p">[</span><span class="mi">3</span><span class="p">:]:</span>
@@ -396,7 +396,7 @@
                 <span class="n">param_name</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
 
-    <span class="k">def</span> <span class="nf">_replace_dict_transfers</span><span class="p">(</span><span class="n">rdict</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">itransfers</span><span class="p">,</span> <span class="n">otransfers</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_replace_dict_transfers</span><span class="p">(</span><span class="n">rdict</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">itransfers</span><span class="p">,</span> <span class="n">otransfers</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">param_name</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">rdict</span><span class="p">):</span>
             <span class="n">transfer</span> <span class="o">=</span> <span class="n">itransfers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">param_name</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">transfer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -412,7 +412,7 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">rdict</span><span class="p">[</span><span class="n">param_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
 
-    <span class="k">def</span> <span class="nf">build_job</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">temp_map</span><span class="o">=</span><span class="p">{},</span> <span class="n">shared_map</span><span class="o">=</span><span class="p">{},</span> <span class="n">transfers</span><span class="o">=</span><span class="p">[{},</span> <span class="p">{}],</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">build_job</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">temp_map</span><span class="o">=</span><span class="p">{},</span> <span class="n">shared_map</span><span class="o">=</span><span class="p">{},</span> <span class="n">transfers</span><span class="o">=</span><span class="p">[{},</span> <span class="p">{}],</span>
                   <span class="n">shared_paths</span><span class="o">=</span><span class="p">{},</span> <span class="n">forbidden_temp</span><span class="o">=</span><span class="nb">set</span><span class="p">(),</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                   <span class="n">step_name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">environment</span><span class="o">=</span><span class="s1">&#39;global&#39;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Create a soma-workflow Job from a Capsul Process</span>
@@ -614,7 +614,7 @@
         <span class="n">job</span><span class="o">.</span><span class="n">process_hash</span> <span class="o">=</span> <span class="nb">id</span><span class="p">(</span><span class="n">process</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">job</span>
 
-    <span class="k">def</span> <span class="nf">build_custom_job</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">process_cmdline</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">build_custom_job</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">process_cmdline</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span>
                          <span class="n">referenced_input_files</span><span class="p">,</span> <span class="n">referenced_output_files</span><span class="p">,</span>
                          <span class="n">param_dict</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39; Build a custom job (generally running on engine side) from a</span>
@@ -628,7 +628,7 @@
             <span class="k">return</span> <span class="n">job</span>
         <span class="k">return</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">build_group</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">jobs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">build_group</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">jobs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Create a group of jobs</span>
 
 <span class="sd">        Parameters</span>
@@ -645,7 +645,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">swclient</span><span class="o">.</span><span class="n">Group</span><span class="p">(</span><span class="n">jobs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">get_jobs</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">groups</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_jobs</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">groups</span><span class="p">):</span>
         <span class="n">gqueue</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">group</span><span class="o">.</span><span class="n">elements</span><span class="p">)</span>
         <span class="n">jobs</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">while</span> <span class="n">gqueue</span><span class="p">:</span>
@@ -656,7 +656,7 @@
                 <span class="n">jobs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">group_or_job</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">jobs</span>
 
-    <span class="k">def</span> <span class="nf">assign_temporary_filenames</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">count_start</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">assign_temporary_filenames</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">count_start</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39; Find and temporarily assign necessary temporary file names&#39;&#39;&#39;</span>
         <span class="n">temp_filenames</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">find_empty_parameters</span><span class="p">()</span>
         <span class="n">temp_map</span> <span class="o">=</span> <span class="p">{}</span>
@@ -703,7 +703,7 @@
                 <span class="nb">setattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">plug_name</span><span class="p">,</span> <span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">temp_map</span>
 
-    <span class="k">def</span> <span class="nf">restore_empty_filenames</span><span class="p">(</span><span class="n">temporary_map</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">restore_empty_filenames</span><span class="p">(</span><span class="n">temporary_map</span><span class="p">):</span>
 <span class="w">      </span><span class="sd">&#39;&#39;&#39; Set back Undefined values to temporarily assigned file names (using</span>
 <span class="sd">      assign_temporary_filenames()</span>
 <span class="sd">      &#39;&#39;&#39;</span>
@@ -727,7 +727,7 @@
           <span class="k">else</span><span class="p">:</span>
               <span class="nb">setattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">plug_name</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_get_swf_paths</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">environment</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_swf_paths</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">environment</span><span class="p">):</span>
         <span class="n">resource_conf</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">select_configurations</span><span class="p">(</span>
             <span class="n">environment</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;somaworkflow&#39;</span><span class="p">:</span> <span class="s1">&#39;config_id==&quot;somaworkflow&quot;&#39;</span><span class="p">})</span>
         <span class="k">if</span> <span class="s1">&#39;capsul.engine.module.somaworkflow&#39;</span> <span class="ow">in</span> <span class="n">resource_conf</span><span class="p">:</span>
@@ -751,7 +751,7 @@
         <span class="k">return</span> <span class="p">(</span><span class="n">resource_conf</span><span class="o">.</span><span class="n">transfer_paths</span><span class="p">,</span>
                 <span class="n">resource_conf</span><span class="o">.</span><span class="n">path_translations</span><span class="o">.</span><span class="n">export_to_dict</span><span class="p">())</span>
 
-    <span class="k">def</span> <span class="nf">_propagate_transfer</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">transfers</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_propagate_transfer</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">transfers</span><span class="p">,</span>
                             <span class="n">transfer_item</span><span class="p">):</span>
         <span class="n">todo_plugs</span> <span class="o">=</span> <span class="p">[(</span><span class="n">node</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">output</span><span class="p">)]</span>
         <span class="n">done_plugs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
@@ -819,7 +819,7 @@
                         <span class="k">continue</span>
                     <span class="n">todo_plugs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">node</span><span class="p">,</span> <span class="n">param_name</span><span class="p">,</span> <span class="n">output</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">_get_transfers</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">transfer_paths</span><span class="p">,</span> <span class="n">merged_formats</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_transfers</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">transfer_paths</span><span class="p">,</span> <span class="n">merged_formats</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Create and list FileTransfer objects needed in the pipeline.</span>
 
 <span class="sd">        Parameters</span>
@@ -880,7 +880,7 @@
                                   <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sub_node</span><span class="p">,</span> <span class="n">Switch</span><span class="p">)]</span>
         <span class="k">return</span> <span class="n">transfers</span>
 
-    <span class="k">def</span> <span class="nf">_expand_nodes</span><span class="p">(</span><span class="n">nodes</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_expand_nodes</span><span class="p">(</span><span class="n">nodes</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;Expands the nodes list or set to leaf nodes by replacing pipeline</span>
 <span class="sd">        nodes by their children list.</span>
 
@@ -902,7 +902,7 @@
                 <span class="n">expanded_nodes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">expanded_nodes</span>
 
-    <span class="k">def</span> <span class="nf">_handle_disable_nodes</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">temp_map</span><span class="p">,</span> <span class="n">transfers</span><span class="p">,</span> <span class="n">disabled_nodes</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_disable_nodes</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">temp_map</span><span class="p">,</span> <span class="n">transfers</span><span class="p">,</span> <span class="n">disabled_nodes</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&#39;&#39;&#39;Take into account disabled nodes by changing FileTransfer outputs</span>
 <span class="sd">        for such nodes to inputs, and recording output temporary files, so as</span>
 <span class="sd">        to ensure that missing temporary outputs will not be used later in</span>
@@ -941,7 +941,7 @@
                         <span class="n">remove_temp</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">move_to_input</span><span class="p">,</span> <span class="n">remove_temp</span>
 
-    <span class="k">def</span> <span class="nf">iter_to_workflow</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">step_name</span><span class="p">,</span> <span class="n">temp_map</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">iter_to_workflow</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">step_name</span><span class="p">,</span> <span class="n">temp_map</span><span class="p">,</span>
                          <span class="n">shared_map</span><span class="p">,</span> <span class="n">transfers</span><span class="p">,</span> <span class="n">shared_paths</span><span class="p">,</span>
                          <span class="n">disabled_nodes</span><span class="p">,</span> <span class="n">remove_temp</span><span class="p">,</span>
                          <span class="n">steps</span><span class="p">,</span> <span class="n">study_config</span><span class="p">,</span> <span class="n">iteration</span><span class="p">,</span> <span class="n">map_job</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -1025,7 +1025,7 @@
 
         <span class="k">return</span> <span class="p">(</span><span class="n">jobs</span><span class="p">,</span> <span class="n">dependencies</span><span class="p">,</span> <span class="n">groups</span><span class="p">,</span> <span class="n">root_jobs</span><span class="p">,</span> <span class="n">links</span><span class="p">,</span> <span class="p">[])</span> <span class="c1"># nodes)</span>
 
-    <span class="k">def</span> <span class="nf">build_iteration</span><span class="p">(</span><span class="n">it_node</span><span class="p">,</span> <span class="n">step_name</span><span class="p">,</span> <span class="n">temp_map</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">build_iteration</span><span class="p">(</span><span class="n">it_node</span><span class="p">,</span> <span class="n">step_name</span><span class="p">,</span> <span class="n">temp_map</span><span class="p">,</span>
                         <span class="n">shared_map</span><span class="p">,</span> <span class="n">transfers</span><span class="p">,</span> <span class="n">shared_paths</span><span class="p">,</span> <span class="n">disabled_nodes</span><span class="p">,</span>
                         <span class="n">remove_temp</span><span class="p">,</span> <span class="n">steps</span><span class="p">,</span> <span class="n">study_config</span><span class="o">=</span><span class="p">{},</span>
                         <span class="n">environment</span><span class="o">=</span><span class="s1">&#39;global&#39;</span><span class="p">):</span>
@@ -1367,7 +1367,7 @@
         <span class="k">return</span> <span class="p">(</span><span class="n">jobs</span><span class="p">,</span> <span class="n">dependencies</span><span class="p">,</span> <span class="n">groups</span><span class="p">,</span> <span class="n">root_jobs</span><span class="p">,</span> <span class="n">links</span><span class="p">,</span> <span class="n">nodes</span><span class="p">)</span>
 
 
-    <span class="k">def</span> <span class="nf">complete_iteration</span><span class="p">(</span><span class="n">it_process</span><span class="p">,</span> <span class="n">iteration</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">complete_iteration</span><span class="p">(</span><span class="n">it_process</span><span class="p">,</span> <span class="n">iteration</span><span class="p">):</span>
         <span class="n">completion_engine</span> <span class="o">=</span> <span class="n">ProcessCompletionEngine</span><span class="o">.</span><span class="n">get_completion_engine</span><span class="p">(</span>
             <span class="n">it_process</span><span class="p">)</span>
         <span class="c1"># check if it is an iterative completion engine</span>
@@ -1375,7 +1375,7 @@
             <span class="n">completion_engine</span><span class="o">.</span><span class="n">complete_iteration_step</span><span class="p">(</span><span class="n">iteration</span><span class="p">)</span>
 
 
-    <span class="k">def</span> <span class="nf">workflow_from_pipeline_structure</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">workflow_from_pipeline_structure</span><span class="p">(</span>
             <span class="n">pipeline</span><span class="p">,</span> <span class="n">temp_map</span><span class="o">=</span><span class="p">{},</span> <span class="n">shared_map</span><span class="o">=</span><span class="p">{},</span>
             <span class="n">transfers</span><span class="o">=</span><span class="p">[{},</span> <span class="p">{}],</span> <span class="n">shared_paths</span><span class="o">=</span><span class="p">{},</span>
             <span class="n">disabled_nodes</span><span class="o">=</span><span class="nb">set</span><span class="p">(),</span> <span class="n">forbidden_temp</span><span class="o">=</span><span class="nb">set</span><span class="p">(),</span>
@@ -1420,7 +1420,7 @@
 <span class="sd">            the corresponding soma-workflow workflow definition (to be passed</span>
 <span class="sd">            to Workflow constructor)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">def</span> <span class="nf">_update_links</span><span class="p">(</span><span class="n">links1</span><span class="p">,</span> <span class="n">links2</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">_update_links</span><span class="p">(</span><span class="n">links1</span><span class="p">,</span> <span class="n">links2</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">dest_node</span><span class="p">,</span> <span class="n">slink</span> <span class="ow">in</span> <span class="n">links2</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="n">nlink</span> <span class="o">=</span> <span class="n">links1</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">dest_node</span><span class="p">,</span> <span class="p">{})</span>
                 <span class="n">nlink</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">slink</span><span class="p">)</span>
@@ -1588,9 +1588,9 @@
 
         <span class="k">return</span> <span class="n">jobs</span><span class="p">,</span> <span class="n">dependencies</span><span class="p">,</span> <span class="n">groups</span><span class="p">,</span> <span class="n">root_jobs</span><span class="p">,</span> <span class="n">links</span><span class="p">,</span> <span class="n">all_nodes</span>
 
-    <span class="k">def</span> <span class="nf">_create_directories_job</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">shared_map</span><span class="o">=</span><span class="p">{},</span> <span class="n">shared_paths</span><span class="o">=</span><span class="p">{},</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_directories_job</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">shared_map</span><span class="o">=</span><span class="p">{},</span> <span class="n">shared_paths</span><span class="o">=</span><span class="p">{},</span>
                                 <span class="n">priority</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">transfer_paths</span><span class="o">=</span><span class="p">[]):</span>
-        <span class="k">def</span> <span class="nf">_is_transfer</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">transfer_paths</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">_is_transfer</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">transfer_paths</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">transfer_paths</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">d</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)):</span>
                     <span class="k">return</span> <span class="kc">True</span>
@@ -1790,7 +1790,7 @@
 
 <div class="viewcode-block" id="workflow_run">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_workflow.workflow_run">[docs]</a>
-<span class="k">def</span> <span class="nf">workflow_run</span><span class="p">(</span><span class="n">workflow_name</span><span class="p">,</span> <span class="n">workflow</span><span class="p">,</span> <span class="n">study_config</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">workflow_run</span><span class="p">(</span><span class="n">workflow_name</span><span class="p">,</span> <span class="n">workflow</span><span class="p">,</span> <span class="n">study_config</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Create a soma-workflow controller and submit a workflow</span>
 
 <span class="sd">    Parameters</span>
@@ -1880,7 +1880,7 @@
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-    &#169; Copyright 2024, Populse team &lt;support@brainvisa.info&gt;.
+    &#169; Copyright 2025, Populse team &lt;support@brainvisa.info&gt;.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
     </div>
   </body>
