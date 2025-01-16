@@ -247,8 +247,7 @@ def executable(definition, **kwargs):
     elif isinstance(definition, Process):
         if kwargs:
             raise ValueError(
-                "executable() do not allow to modify parameters "
-                "of an existing process"
+                "executable() do not allow to modify parameters of an existing process"
             )
         return definition
     elif isinstance(definition, type) and issubclass(definition, Process):

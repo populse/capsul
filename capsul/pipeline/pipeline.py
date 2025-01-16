@@ -1122,7 +1122,7 @@ class Pipeline(Process):
         # Check if the plug name is valid
         if source_field is None:
             raise ValueError(
-                f"Node {node_name} ({node.name}) has no parameter " f"{plug_name}"
+                f"Node {node_name} ({node.name}) has no parameter {plug_name}"
             )
 
         # Check the pipeline parameter name is not already used

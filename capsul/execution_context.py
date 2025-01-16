@@ -760,9 +760,9 @@ def find_temporary_to_generate(executable):
             else:
                 field.generate_temporary = True
             if isinstance(node, ProcessIteration):
-                node.process.field(field.name).generate_temporary = (
-                    field.generate_temporary
-                )
+                node.process.field(
+                    field.name
+                ).generate_temporary = field.generate_temporary
             # print('!temporaries!  ', field.name, '=', field.generate_temporary)
 
     stack = [(executable, field) for field in executable.user_fields()]

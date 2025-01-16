@@ -367,9 +367,9 @@ class TestTinyMorphologist(unittest.TestCase):
                 "directory": str(fakespm),
                 "version": version,
             }
-            config["builtin"].setdefault("fakespm", {})[
-                f"fakespm_{version}"
-            ] = fakespm_config
+            config["builtin"].setdefault("fakespm", {})[f"fakespm_{version}"] = (
+                fakespm_config
+            )
 
         # Create a configuration file
         self.config_file = tmp / "capsul_config.json"

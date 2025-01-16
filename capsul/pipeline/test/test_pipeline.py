@@ -99,7 +99,7 @@ class TestPipeline(unittest.TestCase):
         pyfname_we = osp.basename(pyfname[: pyfname.rfind(".")])
         pycfname = osp.join(cache_dir, "%s.%s" % (pyfname_we, cpver))
         self.temp_files.append(pycfname)
-            # print('added py tmpfile:', pyfname, pycfname)
+        # print('added py tmpfile:', pyfname, pycfname)
 
     def test_constant(self):
         self.assertTrue(

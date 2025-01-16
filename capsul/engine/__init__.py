@@ -62,24 +62,30 @@ def execution_context(engine_label, engine_config, executable):
                     req_to_check.update(added_req)
             else:
                 if module_name in needed_modules:
-                   # Keep the invalid config in order to be able to display explanation
-                   # later
-                   invalid_needed_configs.setdefault(module_name, {})[module_field] = module_config
+                    # Keep the invalid config in order to be able to display explanation
+                    # later
+                    invalid_needed_configs.setdefault(module_name, {})[module_field] = (
+                        module_config
+                    )
 
     # now check we have only one module for each
     for module_name in needed_modules:
         valid_module_configs = valid_configs.get(module_name)
         if valid_module_configs is None:
-            message = f'Execution environment "{engine_label}" has no ' \
-                      f"valid configuration for module {module_name}."
-            
-            for module_field, module_config in invalid_needed_configs.get(module_name, {}).items():
+            message = (
+                f'Execution environment "{engine_label}" has no '
+                f"valid configuration for module {module_name}."
+            )
+
+            for module_field, module_config in invalid_needed_configs.get(
+                module_name, {}
+            ).items():
                 # Get explanation about invalid config rejection
                 explaination = module_config.is_valid_config(requirements, explain=True)
                 message += f"\n  - {module_field.name} is not valid for requirements: {explaination}"
 
             raise RuntimeError(message)
-        
+
         if len(valid_module_configs) > 1:
             # print(f"several {module_name} valid condfigs:")
             # for field, v in valid_module_configs.items():
@@ -211,7 +217,7 @@ class Engine:
                         return f"'{x}'"
 
                     raise RuntimeError(
-                        f'Command failed: {" ".join(quote(i) for i in workers_command)}'
+                        f"Command failed: {' '.join(quote(i) for i in workers_command)}"
                     ) from e
 
     def kill_workers(self, worker_ids=None):
@@ -232,7 +238,7 @@ class Engine:
                     return f"'{x}'"
 
                 raise RuntimeError(
-                    f'Command failed: {" ".join(quote(i) for i in cmd)}'
+                    f"Command failed: {' '.join(quote(i) for i in cmd)}"
                 ) from e
             self.database.worker_ended(self.engine_id, worker_id)
 
@@ -261,7 +267,7 @@ class Engine:
                 missing.append(field.name)
         if missing:
             raise ValueError(
-                f'Value missing for the following parameters: {", ".join(missing)}'
+                f"Value missing for the following parameters: {', '.join(missing)}"
             )
 
     def start(self, executable, debug=False):

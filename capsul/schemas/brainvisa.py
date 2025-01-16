@@ -790,9 +790,7 @@ def declare_morpho_schemas(morpho_module):
 
     @process_schema("brainvisa_shared", Morphologist)
     def brainvisa_shared_Morphologist(metadata):
-        metadata.PrepareSubject_Normalization_Normalization_AimsMIRegister_anatomical_template.data_id = (
-            "normalization_template"
-        )
+        metadata.PrepareSubject_Normalization_Normalization_AimsMIRegister_anatomical_template.data_id = "normalization_template"
         metadata.PrepareSubject_Normalization_NormalizeFSL_template.data_id = (
             "normalization_template"
         )
@@ -802,22 +800,14 @@ def declare_morpho_schemas(morpho_module):
         metadata.PrepareSubject_Normalization_NormalizeBaladin_template.data_id = (
             "normalization_template"
         )
-        metadata.PrepareSubject_Normalization_Normalization_AimsMIRegister_mni_to_acpc.data_id = (
-            "trans_acpc_to_mni"
-        )
+        metadata.PrepareSubject_Normalization_Normalization_AimsMIRegister_mni_to_acpc.data_id = "trans_acpc_to_mni"
         metadata.PrepareSubject_TalairachFromNormalization_acpc_referential.data_id = (
             "acpc_ref"
         )
         metadata.Renorm_template.data_id = "normalization_template_brain"
-        metadata.Renorm_Normalization_Normalization_AimsMIRegister_mni_to_acpc.data_id = (
-            "trans_mni_to_acpc"
-        )
-        metadata.PrepareSubject_TalairachFromNormalization_normalized_referential.data_id = (
-            "icbm152_ref"
-        )
-        metadata.PrepareSubject_TalairachFromNormalization_transform_chain_ACPC_to_Normalized.data_id = (
-            "trans_acpc_to_mni"
-        )
+        metadata.Renorm_Normalization_Normalization_AimsMIRegister_mni_to_acpc.data_id = "trans_mni_to_acpc"
+        metadata.PrepareSubject_TalairachFromNormalization_normalized_referential.data_id = "icbm152_ref"
+        metadata.PrepareSubject_TalairachFromNormalization_transform_chain_ACPC_to_Normalized.data_id = "trans_acpc_to_mni"
         metadata.SplitBrain_split_template.data_id = "hemi_split_template"
         metadata.sulcal_morphometry_sulci_file.data_id = "sulcal_morphometry_sulci_file"
         metadata.SulciRecognition_recognition2000_model.data_id = (
@@ -834,164 +824,66 @@ def declare_morpho_schemas(morpho_module):
             "sulci_spam_recognition_labels_trans"
         )
         metadata.SPAM_recognition_labels_translation_map.model_version = "08"
-        metadata.SulciRecognition_SPAM_recognition09_global_recognition_model.data_id = (
-            "sulci_spam_recognition_global_model"
-        )
-        metadata.SulciRecognition_SPAM_recognition09_global_recognition_model.model_version = (
-            "08"
-        )
+        metadata.SulciRecognition_SPAM_recognition09_global_recognition_model.data_id = "sulci_spam_recognition_global_model"
+        metadata.SulciRecognition_SPAM_recognition09_global_recognition_model.model_version = "08"
         metadata.SulciRecognition_SPAM_recognition09_global_recognition_model.side = "L"
-        metadata.SulciRecognition_1_SPAM_recognition09_global_recognition_model.data_id = (
-            "sulci_spam_recognition_global_model"
-        )
-        metadata.SulciRecognition_1_SPAM_recognition09_global_recognition_model.model_version = (
-            "08"
-        )
+        metadata.SulciRecognition_1_SPAM_recognition09_global_recognition_model.data_id = "sulci_spam_recognition_global_model"
+        metadata.SulciRecognition_1_SPAM_recognition09_global_recognition_model.model_version = "08"
         metadata.SulciRecognition_1_SPAM_recognition09_global_recognition_model.side = (
             "R"
         )
         metadata.SulciRecognition_SPAM_recognition09_local_recognition_model.data_id = (
             "sulci_spam_recognition_local_model"
         )
-        metadata.SulciRecognition_SPAM_recognition09_local_recognition_model.model_version = (
-            "08"
-        )
+        metadata.SulciRecognition_SPAM_recognition09_local_recognition_model.model_version = "08"
         metadata.SulciRecognition_SPAM_recognition09_local_recognition_model.side = "L"
-        metadata.SulciRecognition_1_SPAM_recognition09_local_recognition_model.data_id = (
-            "sulci_spam_recognition_local_model"
-        )
-        metadata.SulciRecognition_1_SPAM_recognition09_local_recognition_model.model_version = (
-            "08"
-        )
+        metadata.SulciRecognition_1_SPAM_recognition09_local_recognition_model.data_id = "sulci_spam_recognition_local_model"
+        metadata.SulciRecognition_1_SPAM_recognition09_local_recognition_model.model_version = "08"
         metadata.SulciRecognition_1_SPAM_recognition09_local_recognition_model.side = (
             "R"
         )
-        metadata.SulciRecognition_SPAM_recognition09_markovian_recognition_model.data_id = (
-            "sulci_spam_recognition_global_model"
-        )
-        metadata.SulciRecognition_SPAM_recognition09_markovian_recognition_model.model_version = (
-            "08"
-        )
-        metadata.SulciRecognition_SPAM_recognition09_markovian_recognition_model.side = (
-            "L"
-        )
-        metadata.SulciRecognition_1_SPAM_recognition09_markovian_recognition_model.data_id = (
-            "sulci_spam_recognition_global_model"
-        )
-        metadata.SulciRecognition_1_SPAM_recognition09_markovian_recognition_model.model_version = (
-            "08"
-        )
-        metadata.SulciRecognition_1_SPAM_recognition09_markovian_recognition_model.side = (
-            "R"
-        )
-        metadata.SulciRecognition_SPAM_recognition09_global_recognition_labels_priors.data_id = (
-            "sulci_spam_recognition_global_labels_priors"
-        )
-        metadata.SulciRecognition_SPAM_recognition09_global_recognition_labels_priors.model_version = (
-            "08"
-        )
-        metadata.SulciRecognition_SPAM_recognition09_global_recognition_labels_priors.side = (
-            "L"
-        )
-        metadata.SulciRecognition_1_SPAM_recognition09_global_recognition_labels_priors.data_id = (
-            "sulci_spam_recognition_global_labels_priors"
-        )
-        metadata.SulciRecognition_1_SPAM_recognition09_global_recognition_labels_priors.model_version = (
-            "08"
-        )
-        metadata.SulciRecognition_1_SPAM_recognition09_global_recognition_labels_priors.side = (
-            "R"
-        )
-        metadata.SulciRecognition_SPAM_recognition09_local_recognition_local_referentials.data_id = (
-            "sulci_spam_recognition_local_refs"
-        )
-        metadata.SulciRecognition_SPAM_recognition09_local_recognition_local_referentials.model_version = (
-            "08"
-        )
-        metadata.SulciRecognition_SPAM_recognition09_local_recognition_local_referentials.side = (
-            "L"
-        )
-        metadata.SulciRecognition_1_SPAM_recognition09_local_recognition_local_referentials.data_id = (
-            "sulci_spam_recognition_local_refs"
-        )
-        metadata.SulciRecognition_1_SPAM_recognition09_local_recognition_local_referentials.model_version = (
-            "08"
-        )
-        metadata.SulciRecognition_1_SPAM_recognition09_local_recognition_local_referentials.side = (
-            "R"
-        )
-        metadata.SulciRecognition_SPAM_recognition09_local_recognition_direction_priors.data_id = (
-            "sulci_spam_recognition_local_dir_priors"
-        )
-        metadata.SulciRecognition_SPAM_recognition09_local_recognition_direction_priors.model_version = (
-            "08"
-        )
-        metadata.SulciRecognition_SPAM_recognition09_local_recognition_direction_priors.side = (
-            "L"
-        )
-        metadata.SulciRecognition_1_SPAM_recognition09_local_recognition_direction_priors.data_id = (
-            "sulci_spam_recognition_local_dir_priors"
-        )
-        metadata.SulciRecognition_1_SPAM_recognition09_local_recognition_direction_priors.model_version = (
-            "08"
-        )
-        metadata.SulciRecognition_1_SPAM_recognition09_local_recognition_direction_priors.side = (
-            "L"
-        )
-        metadata.SulciRecognition_SPAM_recognition09_local_recognition_angle_priors.data_id = (
-            "sulci_spam_recognition_local_angle_priors"
-        )
-        metadata.SulciRecognition_SPAM_recognition09_local_recognition_angle_priors.model_version = (
-            "08"
-        )
-        metadata.SulciRecognition_SPAM_recognition09_local_recognition_angle_priors.side = (
-            "L"
-        )
-        metadata.SulciRecognition_1_SPAM_recognition09_local_recognition_angle_priors.data_id = (
-            "sulci_spam_recognition_local_angle_priors"
-        )
-        metadata.SulciRecognition_1_SPAM_recognition09_local_recognition_angle_priors.model_version = (
-            "08"
-        )
-        metadata.SulciRecognition_1_SPAM_recognition09_local_recognition_angle_priors.side = (
-            "R"
-        )
-        metadata.SulciRecognition_SPAM_recognition09_local_recognition_translation_priors.data_id = (
-            "sulci_spam_recognition_local_trans_priors"
-        )
-        metadata.SulciRecognition_SPAM_recognition09_local_recognition_translation_priors.model_version = (
-            "08"
-        )
-        metadata.SulciRecognition_SPAM_recognition09_local_recognition_translation_priors.side = (
-            "L"
-        )
-        metadata.SulciRecognition_1_SPAM_recognition09_local_recognition_translation_priors.data_id = (
-            "sulci_spam_recognition_local_trans_priors"
-        )
-        metadata.SulciRecognition_1_SPAM_recognition09_local_recognition_translation_priors.model_version = (
-            "08"
-        )
-        metadata.SulciRecognition_1_SPAM_recognition09_local_recognition_translation_priors.side = (
-            "R"
-        )
-        metadata.SulciRecognition_SPAM_recognition09_markovian_recognition_segments_relations_model.data_id = (
-            "sulci_spam_recognition_markov_rels"
-        )
-        metadata.SulciRecognition_SPAM_recognition09_markovian_recognition_segments_relations_model.model_version = (
-            "08"
-        )
-        metadata.SulciRecognition_SPAM_recognition09_markovian_recognition_segments_relations_model.side = (
-            "L"
-        )
-        metadata.SulciRecognition_1_SPAM_recognition09_markovian_recognition_segments_relations_model.data_id = (
-            "sulci_spam_recognition_markov_rels"
-        )
-        metadata.SulciRecognition_1_SPAM_recognition09_markovian_recognition_segments_relations_model.model_version = (
-            "08"
-        )
-        metadata.SulciRecognition_1_SPAM_recognition09_markovian_recognition_segments_relations_model.side = (
-            "R"
-        )
+        metadata.SulciRecognition_SPAM_recognition09_markovian_recognition_model.data_id = "sulci_spam_recognition_global_model"
+        metadata.SulciRecognition_SPAM_recognition09_markovian_recognition_model.model_version = "08"
+        metadata.SulciRecognition_SPAM_recognition09_markovian_recognition_model.side = "L"
+        metadata.SulciRecognition_1_SPAM_recognition09_markovian_recognition_model.data_id = "sulci_spam_recognition_global_model"
+        metadata.SulciRecognition_1_SPAM_recognition09_markovian_recognition_model.model_version = "08"
+        metadata.SulciRecognition_1_SPAM_recognition09_markovian_recognition_model.side = "R"
+        metadata.SulciRecognition_SPAM_recognition09_global_recognition_labels_priors.data_id = "sulci_spam_recognition_global_labels_priors"
+        metadata.SulciRecognition_SPAM_recognition09_global_recognition_labels_priors.model_version = "08"
+        metadata.SulciRecognition_SPAM_recognition09_global_recognition_labels_priors.side = "L"
+        metadata.SulciRecognition_1_SPAM_recognition09_global_recognition_labels_priors.data_id = "sulci_spam_recognition_global_labels_priors"
+        metadata.SulciRecognition_1_SPAM_recognition09_global_recognition_labels_priors.model_version = "08"
+        metadata.SulciRecognition_1_SPAM_recognition09_global_recognition_labels_priors.side = "R"
+        metadata.SulciRecognition_SPAM_recognition09_local_recognition_local_referentials.data_id = "sulci_spam_recognition_local_refs"
+        metadata.SulciRecognition_SPAM_recognition09_local_recognition_local_referentials.model_version = "08"
+        metadata.SulciRecognition_SPAM_recognition09_local_recognition_local_referentials.side = "L"
+        metadata.SulciRecognition_1_SPAM_recognition09_local_recognition_local_referentials.data_id = "sulci_spam_recognition_local_refs"
+        metadata.SulciRecognition_1_SPAM_recognition09_local_recognition_local_referentials.model_version = "08"
+        metadata.SulciRecognition_1_SPAM_recognition09_local_recognition_local_referentials.side = "R"
+        metadata.SulciRecognition_SPAM_recognition09_local_recognition_direction_priors.data_id = "sulci_spam_recognition_local_dir_priors"
+        metadata.SulciRecognition_SPAM_recognition09_local_recognition_direction_priors.model_version = "08"
+        metadata.SulciRecognition_SPAM_recognition09_local_recognition_direction_priors.side = "L"
+        metadata.SulciRecognition_1_SPAM_recognition09_local_recognition_direction_priors.data_id = "sulci_spam_recognition_local_dir_priors"
+        metadata.SulciRecognition_1_SPAM_recognition09_local_recognition_direction_priors.model_version = "08"
+        metadata.SulciRecognition_1_SPAM_recognition09_local_recognition_direction_priors.side = "L"
+        metadata.SulciRecognition_SPAM_recognition09_local_recognition_angle_priors.data_id = "sulci_spam_recognition_local_angle_priors"
+        metadata.SulciRecognition_SPAM_recognition09_local_recognition_angle_priors.model_version = "08"
+        metadata.SulciRecognition_SPAM_recognition09_local_recognition_angle_priors.side = "L"
+        metadata.SulciRecognition_1_SPAM_recognition09_local_recognition_angle_priors.data_id = "sulci_spam_recognition_local_angle_priors"
+        metadata.SulciRecognition_1_SPAM_recognition09_local_recognition_angle_priors.model_version = "08"
+        metadata.SulciRecognition_1_SPAM_recognition09_local_recognition_angle_priors.side = "R"
+        metadata.SulciRecognition_SPAM_recognition09_local_recognition_translation_priors.data_id = "sulci_spam_recognition_local_trans_priors"
+        metadata.SulciRecognition_SPAM_recognition09_local_recognition_translation_priors.model_version = "08"
+        metadata.SulciRecognition_SPAM_recognition09_local_recognition_translation_priors.side = "L"
+        metadata.SulciRecognition_1_SPAM_recognition09_local_recognition_translation_priors.data_id = "sulci_spam_recognition_local_trans_priors"
+        metadata.SulciRecognition_1_SPAM_recognition09_local_recognition_translation_priors.model_version = "08"
+        metadata.SulciRecognition_1_SPAM_recognition09_local_recognition_translation_priors.side = "R"
+        metadata.SulciRecognition_SPAM_recognition09_markovian_recognition_segments_relations_model.data_id = "sulci_spam_recognition_markov_rels"
+        metadata.SulciRecognition_SPAM_recognition09_markovian_recognition_segments_relations_model.model_version = "08"
+        metadata.SulciRecognition_SPAM_recognition09_markovian_recognition_segments_relations_model.side = "L"
+        metadata.SulciRecognition_1_SPAM_recognition09_markovian_recognition_segments_relations_model.data_id = "sulci_spam_recognition_markov_rels"
+        metadata.SulciRecognition_1_SPAM_recognition09_markovian_recognition_segments_relations_model.model_version = "08"
+        metadata.SulciRecognition_1_SPAM_recognition09_markovian_recognition_segments_relations_model.side = "R"
         metadata.SulciRecognition_CNN_recognition19_model_file.data_id = (
             "sulci_cnn_recognition_model"
         )

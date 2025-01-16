@@ -56,7 +56,7 @@ class PipelineFileWarningWidget(Qt.QSplitter):
         text = "<h1>Pipeline file parameters problems</h1>\n"
 
         if len(missing_inputs) == 0:
-            text += "<h2>Inputs: OK</h2>\n" "<p>All input file are present.</p>\n"
+            text += "<h2>Inputs: OK</h2>\n<p>All input file are present.</p>\n"
             label.setText(text)
         else:
             text += "<h2>Inputs: missing files</h2>\n"
@@ -83,9 +83,7 @@ class PipelineFileWarningWidget(Qt.QSplitter):
         label_out = QtGui.QLabel()
         layout2.addWidget(label_out)
         if len(overwritten_outputs) == 0:
-            text = (
-                "<h2>Outputs: OK</h2>\n" "<p>No output file will be overwritten.</p>\n"
-            )
+            text = "<h2>Outputs: OK</h2>\n<p>No output file will be overwritten.</p>\n"
             label_out.setText(text)
         else:
             text = "<h2>Outputs: overwritten files</h2>\n"

@@ -113,7 +113,7 @@ class RedisExecutionDatabase(ExecutionDatabase):
             self.redis = self._connect(decode_responses=True)
         else:
             raise NotImplementedError(
-                f'Invalid Redis connection type: {self.config["type"]}'
+                f"Invalid Redis connection type: {self.config['type']}"
             )
         if self.redis.get("capsul:shutting_down"):
             raise RuntimeError(

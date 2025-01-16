@@ -166,9 +166,9 @@ class TestFakeMorphologist(unittest.TestCase):
                 "version": version,
                 "standalone": True,
             }
-            config["builtin"].setdefault("spm", {})[
-                f"spm_{version}_standalone"
-            ] = fakespm_config
+            config["builtin"].setdefault("spm", {})[f"spm_{version}_standalone"] = (
+                fakespm_config
+            )
 
         matlab_config = {
             "mcr_directory": str(tmp / "software" / "matlab"),

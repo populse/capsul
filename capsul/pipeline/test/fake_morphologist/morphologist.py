@@ -1875,30 +1875,18 @@ class Morphologist(Pipeline):
         self.PrepareSubject_Normalization_NormalizeFSL_alignment = (
             "Not Aligned but Same Orientation"
         )
-        self.PrepareSubject_Normalization_NormalizeFSL_set_transformation_in_source_volume = (
-            True
-        )
+        self.PrepareSubject_Normalization_NormalizeFSL_set_transformation_in_source_volume = True
         self.PrepareSubject_Normalization_NormalizeFSL_NormalizeFSL_cost_function = (
             "corratio"
         )
-        self.PrepareSubject_Normalization_NormalizeFSL_NormalizeFSL_search_cost_function = (
-            "corratio"
-        )
-        self.PrepareSubject_Normalization_NormalizeFSL_ConvertFSLnormalizationToAIMS_standard_template = (
-            0
-        )
+        self.PrepareSubject_Normalization_NormalizeFSL_NormalizeFSL_search_cost_function = "corratio"
+        self.PrepareSubject_Normalization_NormalizeFSL_ConvertFSLnormalizationToAIMS_standard_template = 0
         self.PrepareSubject_Normalization_NormalizeSPM_voxel_size = "[1 1 1]"
         self.PrepareSubject_Normalization_NormalizeSPM_cutoff_option = 25
         self.PrepareSubject_Normalization_NormalizeSPM_nbiteration = 16
-        self.PrepareSubject_Normalization_NormalizeSPM_ConvertSPMnormalizationToAIMS_target = (
-            "MNI template"
-        )
-        self.PrepareSubject_Normalization_NormalizeSPM_ConvertSPMnormalizationToAIMS_removeSource = (
-            False
-        )
-        self.PrepareSubject_Normalization_NormalizeBaladin_set_transformation_in_source_volume = (
-            True
-        )
+        self.PrepareSubject_Normalization_NormalizeSPM_ConvertSPMnormalizationToAIMS_target = "MNI template"
+        self.PrepareSubject_Normalization_NormalizeSPM_ConvertSPMnormalizationToAIMS_removeSource = False
+        self.PrepareSubject_Normalization_NormalizeBaladin_set_transformation_in_source_volume = True
         self.PrepareSubject_Normalization_Normalization_AimsMIRegister_anatomical_template = "/casa/host/build/share/brainvisa-share-5.2/anatomical_templates/MNI152_T1_2mm.nii.gz"
         self.PrepareSubject_Normalization_Normalization_AimsMIRegister_mni_to_acpc = "/casa/host/build/share/brainvisa-share-5.2/transformation/talairach_TO_spm_template_novoxels.trm"
         self.PrepareSubject_Normalization_Normalization_AimsMIRegister_smoothing = 1.0
@@ -1941,21 +1929,15 @@ class Morphologist(Pipeline):
         self.Renorm_Normalization_NormalizeFSL_NormalizeFSL_search_cost_function = (
             "corratio"
         )
-        self.Renorm_Normalization_NormalizeFSL_ConvertFSLnormalizationToAIMS_standard_template = (
-            0
-        )
+        self.Renorm_Normalization_NormalizeFSL_ConvertFSLnormalizationToAIMS_standard_template = 0
         self.Renorm_Normalization_NormalizeSPM_voxel_size = "[1 1 1]"
         self.Renorm_Normalization_NormalizeSPM_cutoff_option = 25
         self.Renorm_Normalization_NormalizeSPM_nbiteration = 16
         self.Renorm_Normalization_NormalizeSPM_ConvertSPMnormalizationToAIMS_target = (
             "MNI template"
         )
-        self.Renorm_Normalization_NormalizeSPM_ConvertSPMnormalizationToAIMS_removeSource = (
-            False
-        )
-        self.Renorm_Normalization_NormalizeBaladin_set_transformation_in_source_volume = (
-            True
-        )
+        self.Renorm_Normalization_NormalizeSPM_ConvertSPMnormalizationToAIMS_removeSource = False
+        self.Renorm_Normalization_NormalizeBaladin_set_transformation_in_source_volume = True
         self.Renorm_Normalization_Normalization_AimsMIRegister_mni_to_acpc = "/casa/host/build/share/brainvisa-share-5.2/transformation/talairach_TO_spm_template_novoxels.trm"
         self.Renorm_Normalization_Normalization_AimsMIRegister_smoothing = 1.0
         self.SplitBrain_use_ridges = True

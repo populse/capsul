@@ -55,7 +55,7 @@ def spm_command(spm_batch_filename, execution_context=None):
         if spm_batch_filename is not None:
             cmd += ["batch", spm_batch_filename]
     else:
-        raise NotImplementedError("Running SPM with matlab is not " "implemented yet")
+        raise NotImplementedError("Running SPM with matlab is not implemented yet")
     return cmd
 
 

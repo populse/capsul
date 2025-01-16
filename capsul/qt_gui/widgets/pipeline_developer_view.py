@@ -3642,7 +3642,7 @@ class PipelineDeveloperView(QGraphicsView):
         if not has_dot:
             auto_node_pos.setEnabled(False)
             auto_node_pos.setText(
-                "Auto arrange nodes positions (needs graphviz/dot tool " "installed)"
+                "Auto arrange nodes positions (needs graphviz/dot tool installed)"
             )
         init_node_pos = menu.addAction("Reset to initial nodes positions")
         init_node_pos.triggered.connect(self.reset_initial_nodes_positions)
@@ -3657,7 +3657,7 @@ class PipelineDeveloperView(QGraphicsView):
         if not has_dot:
             save_dot.setEnabled(False)
             save_dot.setText(
-                "Save image of pipeline graph (needs graphviz/dot tool " "installed)"
+                "Save image of pipeline graph (needs graphviz/dot tool installed)"
             )
         menu.addSeparator()
         print_pos = menu.addAction("Print nodes positions")
@@ -3789,7 +3789,7 @@ class PipelineDeveloperView(QGraphicsView):
             QtGui.QMessageBox.information(
                 self,
                 "Pipeline ready",
-                "All input files are available. " "No output file will be overwritten.",
+                "All input files are available. No output file will be overwritten.",
             )
         else:
             dialog = QtGui.QWidget()
@@ -5310,8 +5310,7 @@ class PipelineDeveloperView(QGraphicsView):
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Warning)
             msg.setText(
-                "This file already exists, you do not have the "
-                "rights to overwrite it."
+                "This file already exists, you do not have the rights to overwrite it."
             )
             msg.setWindowTitle("Warning")
             msg.setStandardButtons(QMessageBox.Ok)

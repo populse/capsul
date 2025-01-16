@@ -28,7 +28,7 @@ def qt_web_gui():
     from soma.web import SomaBrowserWidget
 
     s = os.path.split(os.path.dirname(__file__)) + ("static",)
-    starting_url = f'file://{"/".join(s)}/dashboard.html'
+    starting_url = f"file://{'/'.join(s)}/dashboard.html"
     app = Qt.QApplication(sys.argv)
     w = SomaBrowserWidget(
         starting_url=starting_url,
