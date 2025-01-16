@@ -347,8 +347,7 @@ class AttributedProcessWidget(QtGui.QWidget):
         ret = QtGui.QMessageBox.critical(
             self,
             "Critical",
-            "Going back to completion rules will reset all path files. "
-            "Are you sure?",
+            "Going back to completion rules will reset all path files. Are you sure?",
             QtGui.QMessageBox.Ok,
             QtGui.QMessageBox.Cancel,
         )

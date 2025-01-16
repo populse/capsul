@@ -3,7 +3,6 @@ import os.path as osp
 import shutil
 import tempfile
 import unittest
-from typing import List, Tuple
 
 from soma.controller import Directory, File, Literal, field
 
@@ -15,7 +14,7 @@ def a_function_to_wrap(
     directory: field(type_=Directory, doc="test"),
     value: field(type_=float, doc="test"),
     enum: field(type_=str, doc="test"),
-    list_of_str: field(type_=List[str], doc="test"),
+    list_of_str: field(type_=list[str], doc="test"),
 ) -> field(type_=str, doc="test"):
     """
     A dummy function that just print all its parameters.
@@ -30,7 +29,7 @@ def to_warp_func(
     parameter1: field(type_=float, desc="a parameter"),
     parameter2: field(type_=str, desc="a parameter"),
     parameter3: field(type_=int, desc="a parameter"),
-) -> Tuple[float, str]:
+) -> tuple[float, str]:
     """Test function."""
     output1 = 1
     output2 = "done"
@@ -84,9 +83,9 @@ def mask(
     pass
 
 
-def cat(
-    value1: str, value2: str, value3: str
-) -> field(type_=str, desc="Concatenation of non empty input values."):
+def cat(value1: str, value2: str, value3: str) -> field(
+    type_=str, desc="Concatenation of non empty input values."
+):
     return "_".join(i for i in (value1, value2, value3) if i)
 
 

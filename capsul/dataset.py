@@ -236,7 +236,7 @@ class BIDSSchema(MetadataSchema):
             path_list.append(self.data_type)
         elif not self.process:
             raise ValueError(
-                "BIDS schema requires a value for either " "data_type or process"
+                "BIDS schema requires a value for either data_type or process"
             )
 
         filename = [f"sub-{self.sub}", f"ses-{self.ses}"]
@@ -1247,7 +1247,8 @@ class ProcessMetadata(Controller):
 
         if parameters is None:
             parameters = [
-                field.name for field in executable.user_fields()  # if field.path_type
+                field.name
+                for field in executable.user_fields()  # if field.path_type
             ]
         if self.debug:
             if self._current_iteration is not None:

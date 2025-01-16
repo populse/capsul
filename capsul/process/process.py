@@ -556,7 +556,7 @@ class FileCopyProcess(Process):
             destdir = self.destination
         if not destdir:
             raise ValueError(
-                "FileCopyProcess cannot be used without a " "destination directory"
+                "FileCopyProcess cannot be used without a destination directory"
             )
         self._destination = destdir
         output_directory = self.destination
@@ -1171,7 +1171,7 @@ class NipypeProcess(FileCopyProcess):
             cwd = None
         if getattr(self, "output_directory", undefined) in (None, undefined):
             raise ValueError(
-                "output_directory is not set but is mandatory " "to run a NipypeProcess"
+                "output_directory is not set but is mandatory to run a NipypeProcess"
             )
         os.chdir(self.output_directory)
 

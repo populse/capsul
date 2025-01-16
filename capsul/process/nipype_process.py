@@ -498,9 +498,7 @@ def parse_trait(trait):
             vtype = type(handler._low)
             ftype1 = getattr(pydantic, "con" + vtype.__name__, None)
             if not ftype1:
-                print(
-                    "cannot find a constrained type for range of " f"{vtype.__name__}"
-                )
+                print(f"cannot find a constrained type for range of {vtype.__name__}")
                 ftype1 = vtype
             else:
                 l = "ge"

@@ -75,8 +75,7 @@ class ReduceNode(Node):
             bool,
             default=False,
             output=False,
-            doc="remove empty (Undefined, None, empty strings) "
-            "from the output lists",
+            doc="remove empty (Undefined, None, empty strings) from the output lists",
         )
         self.input_names = input_names
         self.output_names = output_names

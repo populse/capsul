@@ -121,12 +121,12 @@ class ModuleConfiguration(Controller):
             other requirements. The implementation is free to interpret it as
             it needs. Thus modules implementations should document how they
             define and check their requirements.
-        
+
         explain: bool
-            bool value to specify that an explanation is required when a module 
-            configuration is not valid. When :param:`explain` is true and the 
-            configuration module is invalid, the returned value is a 
-            :type:`str` containing the reason why the module is not valid. 
+            bool value to specify that an explanation is required when a module
+            configuration is not valid. When :param:`explain` is true and the
+            configuration module is invalid, the returned value is a
+            :type:`str` containing the reason why the module is not valid.
 
         Returns
         -------
@@ -140,7 +140,7 @@ class ModuleConfiguration(Controller):
             instance a SPM module may return ``{'matlab': {'mcr': True'}}``
         """
         raise NotImplementedError(
-            "A subclass of ModuleConfiguration must " "define is_valid_config()"
+            "A subclass of ModuleConfiguration must define is_valid_config()"
         )
 
 

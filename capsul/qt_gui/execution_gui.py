@@ -25,7 +25,7 @@ def execution_widget(database, engine_id, execution_id):
 
 def update_execution_widget(widget, database, engine_id, execution_id):
     report = database.execution_report(engine_id, execution_id)
-    widget.date.setText(f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
+    widget.date.setText(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     current_job = widget.current_job
     status = report["status"]
     if status == "running":
@@ -34,7 +34,7 @@ def update_execution_widget(widget, database, engine_id, execution_id):
         status = "❌"
     else:
         status = "✅"
-    title = f'{status} {report["label"]}'
+    title = f"{status} {report['label']}"
     widget.setWindowTitle(title)
     widget.title.setText(title)
     widget.waiting.setText(str(len(report["waiting"])))
@@ -44,16 +44,16 @@ def update_execution_widget(widget, database, engine_id, execution_id):
     widget.failed.setText(str(len(report["failed"])))
     text = (
         "<html><body>"
-        f'<b>status</b>: {report["status"]}<br>'
-        f'<b>start time</b>: {report["start_time"]}<br>'
-        f'<b>end time</b>: {report["end_time"]}<br>'
-        f'<b>engine_id</b>: {report["engine_id"]}<br>'
-        f'<b>execution_id</b>: {report["execution_id"]}<br>'
+        f"<b>status</b>: {report['status']}<br>"
+        f"<b>start time</b>: {report['start_time']}<br>"
+        f"<b>end time</b>: {report['end_time']}<br>"
+        f"<b>engine_id</b>: {report['engine_id']}<br>"
+        f"<b>execution_id</b>: {report['execution_id']}<br>"
         "execution context:<pre>\n"
-        f'{pformat(report["execution_context"].asdict(), indent=4)}\n<pre>'
+        f"{pformat(report['execution_context'].asdict(), indent=4)}\n<pre>"
     )
     if report["error"]:
-        text += '<p style="color: red">' f'ERROR: {report["error"]}'
+        text += f'<p style="color: red">ERROR: {report["error"]}'
         if report["error_detail"]:
             text += '<hr><pre>\n{report["error_detail"]}\n</pre>'
         text += "</p>"
@@ -167,14 +167,14 @@ def show_job(item, widget, database):
         job = widget._jobs[job_uuid]
         text = (
             "<html><body>"
-            f'<b>job_uuid</b>: {job["uuid"]}<br>'
-            f'<b>process</b>: {job.get("process", {}).get("definition")}<br>'
-            f'<b>pipeline node</b>: {".".join(i for i in job.get("parameters_location", "") if i != "nodes")}<br>'
-            f'<b>return code</b>: {job.get("return_code")}<br>'
-            f'<b>start time</b>: {job.get("start_time")}<br>'
-            f'<b>end time</b>: {job.get("end_time")}<br>'
-            f'<b>wait for</b>: {job.get("wait_for", [])}<br>'
-            f'<b>waited by</b>: {job.get("waited_by", [])}<br>'
+            f"<b>job_uuid</b>: {job['uuid']}<br>"
+            f"<b>process</b>: {job.get('process', {}).get('definition')}<br>"
+            f"<b>pipeline node</b>: {'.'.join(i for i in job.get('parameters_location', '') if i != 'nodes')}<br>"
+            f"<b>return code</b>: {job.get('return_code')}<br>"
+            f"<b>start time</b>: {job.get('start_time')}<br>"
+            f"<b>end time</b>: {job.get('end_time')}<br>"
+            f"<b>wait for</b>: {job.get('wait_for', [])}<br>"
+            f"<b>waited by</b>: {job.get('waited_by', [])}<br>"
         )
         parameters = database.workflow_parameters(engine_id, execution_id)
         if parameters:

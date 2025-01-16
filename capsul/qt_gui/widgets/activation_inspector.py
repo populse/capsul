@@ -356,7 +356,7 @@ if __name__ == "__main__":
         "-p",
         "--pipeline",
         dest="pipeline_path",
-        help=("the pipeline path we want to investigate: " "module1.module2.Pipeline."),
+        help=("the pipeline path we want to investigate: module1.module2.Pipeline."),
     )
     parser.add_option(
         "-r",

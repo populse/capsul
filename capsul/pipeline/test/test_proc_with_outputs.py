@@ -327,7 +327,7 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
 
     def test_direct_run_subpipeline(self):
         pipeline = Capsul.executable(
-            "capsul.pipeline.test.test_proc_with_outputs." "PipelineWithSubpipeline"
+            "capsul.pipeline.test.test_proc_with_outputs.PipelineWithSubpipeline"
         )
         pipeline.input = os.path.join(self.tmpdir, "file_in.nii")
         with self.capsul.engine() as ce:
@@ -350,7 +350,7 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
 
     def test_full_wf_subpipeline(self):
         pipeline = Capsul.executable(
-            "capsul.pipeline.test.test_proc_with_outputs." "PipelineWithSubpipeline"
+            "capsul.pipeline.test.test_proc_with_outputs.PipelineWithSubpipeline"
         )
         pipeline.input = os.path.join(self.tmpdir, "file_in.nii")
 
@@ -375,7 +375,7 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
     @unittest.skip("Dynamic iteration not supported yet")
     def test_direct_run_sub_iter(self):
         pipeline = Capsul.executable(
-            "capsul.pipeline.test.test_proc_with_outputs." "PipelineWithIteration"
+            "capsul.pipeline.test.test_proc_with_outputs.PipelineWithIteration"
         )
         pipeline.input = os.path.join(self.tmpdir, "file_in.nii")
         pipeline.output = os.path.join(self.tmpdir, "file_out.nii")
@@ -403,7 +403,7 @@ class TestPipelineContainingProcessWithOutputs(unittest.TestCase):
 
     def xtest_full_wf_sub_iter(self):
         pipeline = Capsul.executable(
-            "capsul.pipeline.test.test_proc_with_outputs." "PipelineWithIteration"
+            "capsul.pipeline.test.test_proc_with_outputs.PipelineWithIteration"
         )
         pipeline.input = os.path.join(self.tmpdir, "file_in.nii")
         pipeline.output = os.path.join(self.tmpdir, "file_out.nii")

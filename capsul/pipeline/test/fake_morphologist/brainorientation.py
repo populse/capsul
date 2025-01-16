@@ -399,9 +399,7 @@ class BrainOrientation(Pipeline):
         self.Normalization_NormalizeFSL_allow_retry_initialization = True
         self.Normalization_NormalizeFSL_NormalizeFSL_cost_function = "corratio"
         self.Normalization_NormalizeFSL_NormalizeFSL_search_cost_function = "corratio"
-        self.Normalization_NormalizeFSL_ConvertFSLnormalizationToAIMS_standard_template = (
-            0
-        )
+        self.Normalization_NormalizeFSL_ConvertFSLnormalizationToAIMS_standard_template = 0
         self.Normalization_NormalizeSPM_allow_retry_initialization = True
         self.Normalization_NormalizeSPM_voxel_size = "[1 1 1]"
         self.Normalization_NormalizeSPM_cutoff_option = 25

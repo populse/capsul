@@ -84,7 +84,7 @@ class ConnectionError(Exception):
 def engine_database(config):
     class_string = database_classes.get(config["type"])
     if class_string is None:
-        raise ValueError(f'Invalid database type: {config["type"]}')
+        raise ValueError(f"Invalid database type: {config['type']}")
     module_name, class_name = class_string.rsplit(":", 1)
     module = importlib.import_module(module_name)
     database_class = getattr(module, class_name)
@@ -274,7 +274,7 @@ class ExecutionDatabase:
 
     def print_execution_report(self, report, file=sys.stdout):
         print(
-            "====================\n" "| Execution report |\n" "====================\n",
+            "====================\n| Execution report |\n====================\n",
             file=file,
         )
         print("label:", report["label"], file=file)
@@ -290,7 +290,7 @@ class ExecutionDatabase:
             print("-" * 50, file=file)
             print(report["error_detail"], file=file)
             print("-" * 50, file=file)
-        print("\n---------------\n" "| Jobs status |\n" "---------------\n", file=file)
+        print("\n---------------\n| Jobs status |\n---------------\n", file=file)
         print("waiting:", report["waiting"])
         print("ready:", report["ready"])
         print("ongoing:", report["ongoing"])
@@ -348,7 +348,7 @@ class ExecutionDatabase:
 
         if report["engine_debug"]:
             print(
-                "\n----------------\n" "| Engine debug |\n" "----------------\n",
+                "\n----------------\n| Engine debug |\n----------------\n",
                 file=file,
             )
             for k, v in report["engine_debug"].items():

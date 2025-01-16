@@ -76,9 +76,7 @@ try:
     import nbsphinx
 
     if not distutils.spawn.find_executable("pandoc"):
-        print(
-            "Warning: pandoc is missing. Notebooks will not be included " "in the docs"
-        )
+        print("Warning: pandoc is missing. Notebooks will not be included in the docs")
     else:
         nbsphinx_allow_errors = True
         extensions += ["nbsphinx", "sphinx.ext.mathjax"]

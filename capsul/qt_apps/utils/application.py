@@ -72,7 +72,7 @@ class Application(Qt.QApplication):
             "-d",
             "--debug",
             dest="debug",
-            help="Set the logging level " "(debug, info, warning, error, or critical",
+            help="Set the logging level (debug, info, warning, error, or critical",
             metavar="LEVEL",
         )
         parser.add_option(
@@ -97,7 +97,7 @@ class Application(Qt.QApplication):
 
         # Logging format
         logging_format = (
-            "[%(asctime)s] " "{%(pathname)s:%(lineno)d} " "%(levelname)s - %(message)s"
+            "[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s"
         )
         date_format = "%Y-%m-%d %H:%M:%S"
 

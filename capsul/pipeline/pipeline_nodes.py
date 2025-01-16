@@ -125,7 +125,7 @@ class Switch(Node):
                 raise ValueError("output_types parameter should be a list or tuple")
             if len(output_types) != len(outputs):
                 raise ValueError(
-                    "output_types should have the same number of " "elements as outputs"
+                    "output_types should have the same number of elements as outputs"
                 )
         else:
             output_types = [typing.Any] * len(outputs)
@@ -385,7 +385,9 @@ class Switch(Node):
     def configured_controller(self):
         c = self.configure_controller()
         c.outputs = [
-            field.name for field in self.fields() if field.is_output()  # noqa: F811
+            field.name
+            for field in self.fields()
+            if field.is_output()  # noqa: F811
         ]
         c.inputs = self.get_switch_inputs()
         c.output_types = [self.field(p).type_str() for p in self.outputs]
