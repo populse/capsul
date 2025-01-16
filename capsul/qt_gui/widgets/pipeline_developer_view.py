@@ -3881,10 +3881,7 @@ class PipelineDeveloperView(QGraphicsView):
         """
         fileobj = open(filename)
         nodes_pos = []
-        if sys.version_info[0] >= 3:
-            file_iter = fileobj.readlines()
-        else:
-            file_iter = fileobj
+        file_iter = fileobj.readlines()
         for line in file_iter:
             if line.startswith("node"):
                 line_els0 = line.split()
@@ -5346,9 +5343,5 @@ class PipelineDeveloperView(QGraphicsView):
             jsonstring = MultiDimensionalArrayEncoder().encode(dic)
 
             # Saving the dictionary in the Json file
-            if sys.version_info[0] >= 3:
-                with open(filename, "w", encoding="utf8") as file:
-                    json.dump(jsonstring, file)
-            else:
-                with open(filename, "w") as file:
-                    json.dump(jsonstring, file)
+            with open(filename, "w", encoding="utf8") as file:
+                json.dump(jsonstring, file)
