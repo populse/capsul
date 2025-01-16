@@ -15,7 +15,7 @@ def a_function_to_wrap(
     directory: field(type_=Directory, doc="test"),
     value: field(type_=float, doc="test"),
     enum: field(type_=str, doc="test"),
-    list_of_str: field(type_=List[str], doc="test"),
+    list_of_str: field(type_=list[str], doc="test"),
 ) -> field(type_=str, doc="test"):
     """
     A dummy function that just print all its parameters.
@@ -30,7 +30,7 @@ def to_warp_func(
     parameter1: field(type_=float, desc="a parameter"),
     parameter2: field(type_=str, desc="a parameter"),
     parameter3: field(type_=int, desc="a parameter"),
-) -> Tuple[float, str]:
+) -> tuple[float, str]:
     """Test function."""
     output1 = 1
     output2 = "done"
