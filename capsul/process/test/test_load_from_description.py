@@ -3,7 +3,6 @@ import os.path as osp
 import shutil
 import tempfile
 import unittest
-from typing import List, Tuple
 
 from soma.controller import Directory, File, Literal, field
 

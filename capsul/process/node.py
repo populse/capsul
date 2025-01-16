@@ -11,7 +11,7 @@ Classes
 
 import dataclasses
 import typing
-from typing import List, Literal
+from typing import Literal
 
 from soma.controller import Controller, field
 from soma.controller.field import WritableField
