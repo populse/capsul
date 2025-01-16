@@ -1,9 +1,8 @@
-import tempfile
-import unittest
-import shutil
 import json
 import os.path as osp
-
+import shutil
+import tempfile
+import unittest
 from pathlib import Path
 
 from soma.controller import File, field
