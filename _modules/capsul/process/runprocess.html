@@ -168,6 +168,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">capsul_engine</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pipeline</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.attributes.completion_engine</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessCompletionEngine</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">soma.qt_gui</span><span class="w"> </span><span class="kn">import</span> <span class="n">qt_backend</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os.path</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">osp</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
@@ -402,6 +403,9 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39; Run the :mod:`capsul.process.runprocess` module as a commandline</span>
 <span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="c1"># disable any GUI</span>
+    <span class="n">qt_backend</span><span class="o">.</span><span class="n">set_headless</span><span class="p">()</span>
 
     <span class="n">usage</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;Usage: python -m capsul [options] processname [arg1] [arg2] ...</span>
 <span class="s1">    [argx=valuex] [argy=valuey] ...</span>
