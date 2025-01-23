@@ -62,6 +62,7 @@ from capsul.api import StudyConfig
 from capsul.api import capsul_engine
 from capsul.api import Pipeline
 from capsul.attributes.completion_engine import ProcessCompletionEngine
+from soma.qt_gui import qt_backend
 import os
 import os.path as osp
 import logging
@@ -282,6 +283,9 @@ def convert_commandline_parameter(i):
 def main():
     ''' Run the :mod:`capsul.process.runprocess` module as a commandline
     '''
+
+    # disable any GUI
+    qt_backend.set_headless()
 
     usage = '''Usage: python -m capsul [options] processname [arg1] [arg2] ...
     [argx=valuex] [argy=valuey] ...
