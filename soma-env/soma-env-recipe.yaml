@@ -3,6 +3,8 @@ package:
 
 soma-env:
   publication: neuro-forge
+  components:
+    - capsul
   internal-dependencies:
     - soma-python
 
