@@ -1113,50 +1113,61 @@ output_100: a string or os.PathLike object ([&#39;File (filename:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-create_output_directories :   True
-generate_logging :   False
-input_directory :   &lt;undefined&gt;
-output_directory :   &lt;undefined&gt;
-process_output_directory :   False
-study_name :   &lt;undefined&gt;
-user_level :   0
-afni_path :   &lt;undefined&gt;
-use_afni :   &lt;undefined&gt;
-ants_path :   &lt;undefined&gt;
-use_ants :   &lt;undefined&gt;
-fsl_config :   &lt;undefined&gt;
-fsl_prefix :   &lt;undefined&gt;
-use_fsl :   &lt;undefined&gt;
-matlab_exec :   &lt;undefined&gt;
-use_matlab :   False
-mrtrix_path :   &lt;undefined&gt;
-use_mrtrix :   &lt;undefined&gt;
-use_smart_caching :   False
-use_soma_workflow :   False
-somaworkflow_computing_resource :   &lt;undefined&gt;
-somaworkflow_config_file :   &lt;undefined&gt;
-somaworkflow_keep_failed_workflows :   True
-somaworkflow_keep_succeeded_workflows :   False
-somaworkflow_computing_resources_config :   &lt;soma.controller.controller.OpenKeyController object at 0x7fda9403e220&gt;
-spm_directory :   &lt;undefined&gt;
-spm_standalone :   &lt;undefined&gt;
-spm_version :   &lt;undefined&gt;
-spm_exec :   &lt;undefined&gt;
-spm_mcr_directory :   &lt;undefined&gt;
-use_spm :   &lt;undefined&gt;
-shared_directory :   /opt/hostedtoolcache/Python/3.9.21/x64/lib/python3.9/site-packages/share/brainvisa-share-5.2
-input_fom :
-output_fom :
-shared_fom :
-volumes_format :   &lt;undefined&gt;
-meshes_format :   &lt;undefined&gt;
-auto_fom :   True
-fom_path :   []
-use_fom :   True
-attributes_schema_paths :   [&#39;capsul.attributes.completion_engine_factory&#39;]
-attributes_schemas :   {}
-process_completion :   builtin
-path_completion :   &lt;undefined&gt;
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">ModuleNotFoundError</span>                       Traceback (most recent call last)
+File <span class="ansi-green-fg">/opt/hostedtoolcache/Python/3.9.21/x64/lib/python3.9/site-packages/soma_base-5.2.1-py3.9.egg/soma/application.py:13</span>
+<span class="ansi-green-intense-fg ansi-bold">     12</span> <span class="ansi-bold" style="color: rgb(0,135,0)">try</span>:
+<span class="ansi-green-fg">---&gt; 13</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">enthought</span><span class="ansi-bold" style="color: rgb(0,0,255)">.</span><span class="ansi-bold" style="color: rgb(0,0,255)">traits</span><span class="ansi-bold" style="color: rgb(0,0,255)">.</span><span class="ansi-bold" style="color: rgb(0,0,255)">api</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> ReadOnly, Directory, ListStr, Instance
+<span class="ansi-green-intense-fg ansi-bold">     14</span> <span class="ansi-bold" style="color: rgb(0,135,0)">except</span> <span class="ansi-bold" style="color: rgb(215,95,95)">ImportError</span>:
+
+<span class="ansi-red-fg">ModuleNotFoundError</span>: No module named &#39;enthought&#39;
+
+During handling of the above exception, another exception occurred:
+
+<span class="ansi-red-fg">ImportError</span>                               Traceback (most recent call last)
+Cell <span class="ansi-green-fg">In[40], line 7</span>
+<span class="ansi-green-intense-fg ansi-bold">      2</span> <span style="color: rgb(95,135,135)"># optional config modules, need not to be explicitly loaded</span>
+<span class="ansi-green-intense-fg ansi-bold">      3</span> <span style="color: rgb(95,135,135)"># from capsul.study_config.config_modules.freesurfer_config import FreeSurferConfig</span>
+<span class="ansi-green-intense-fg ansi-bold">      4</span> <span style="color: rgb(95,135,135)"># from capsul.study_config.config_modules.brainvisa_config import BrainVISAConfig</span>
+<span class="ansi-green-intense-fg ansi-bold">      6</span> default_config <span style="color: rgb(98,98,98)">=</span> {<span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">use_soma_workflow</span><span style="color: rgb(175,0,0)">&#34;</span>: <span class="ansi-bold" style="color: rgb(0,135,0)">True</span>}
+<span class="ansi-green-fg">----&gt; 7</span> study_config <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg">StudyConfig</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">initial_config</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg">default_config</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span>
+<span class="ansi-green-intense-fg ansi-bold">      8</span> <span class="ansi-yellow-bg">                           </span><span class="ansi-yellow-bg">modules</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg">StudyConfig</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">default_modules</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">+</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">\</span>
+<span class="ansi-green-intense-fg ansi-bold">      9</span> <span class="ansi-yellow-bg">                           </span><span class="ansi-yellow-bg">[</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">&#39;</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">BrainVISAConfig</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">&#39;</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">&#39;</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">FSLConfig</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">&#39;</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">&#39;</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">FomConfig</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">&#39;</span><span class="ansi-yellow-bg">]</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">     11</span> <span style="color: rgb(95,135,135)"># inspect config options</span>
+<span class="ansi-green-intense-fg ansi-bold">     12</span> <span class="ansi-bold" style="color: rgb(0,135,0)">for</span> k <span class="ansi-bold" style="color: rgb(175,0,255)">in</span> study_config<span style="color: rgb(98,98,98)">.</span>user_traits()<span style="color: rgb(98,98,98)">.</span>keys(): <span style="color: rgb(0,135,0)">print</span>(k, <span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">:  </span><span style="color: rgb(175,0,0)">&#39;</span>, <span style="color: rgb(0,135,0)">getattr</span>(study_config, k))
+
+File <span class="ansi-green-fg">~/work/capsul/capsul/capsul/study_config/study_config.py:221</span>, in <span class="ansi-cyan-fg">StudyConfig.__init__</span><span class="ansi-blue-fg">(self, study_name, init_config, modules, engine, **override_config)</span>
+<span class="ansi-green-intense-fg ansi-bold">    219</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>modules <span style="color: rgb(98,98,98)">=</span> {}
+<span class="ansi-green-intense-fg ansi-bold">    220</span> <span class="ansi-bold" style="color: rgb(0,135,0)">for</span> module <span class="ansi-bold" style="color: rgb(175,0,255)">in</span> modules:
+<span class="ansi-green-fg">--&gt; 221</span>     <span class="ansi-yellow-bg" style="color: rgb(0,135,0)">self</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">load_module</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">module</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">config</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    223</span> <span style="color: rgb(95,135,135)"># Set self attributes according to configuration values</span>
+<span class="ansi-green-intense-fg ansi-bold">    224</span> <span class="ansi-bold" style="color: rgb(0,135,0)">for</span> k, v <span class="ansi-bold" style="color: rgb(175,0,255)">in</span> six<span style="color: rgb(98,98,98)">.</span>iteritems(config):
+
+File <span class="ansi-green-fg">~/work/capsul/capsul/capsul/study_config/study_config.py:284</span>, in <span class="ansi-cyan-fg">StudyConfig.load_module</span><span class="ansi-blue-fg">(self, config_module_name, config)</span>
+<span class="ansi-green-intense-fg ansi-bold">    280</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> config_module_name <span class="ansi-bold" style="color: rgb(175,0,255)">not</span> <span class="ansi-bold" style="color: rgb(175,0,255)">in</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>modules:
+<span class="ansi-green-intense-fg ansi-bold">    281</span>     python_module <span style="color: rgb(98,98,98)">=</span> (
+<span class="ansi-green-intense-fg ansi-bold">    282</span>         <span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">capsul.study_config.config_modules.</span><span class="ansi-bold" style="color: rgb(175,95,135)">{0}</span><span style="color: rgb(175,0,0)">_config</span><span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(98,98,98)">.</span>format(
+<span class="ansi-green-intense-fg ansi-bold">    283</span>             config_module_name[:<span style="color: rgb(98,98,98)">-</span><span style="color: rgb(98,98,98)">6</span>]<span style="color: rgb(98,98,98)">.</span>lower()))
+<span class="ansi-green-fg">--&gt; 284</span>     python_module <span style="color: rgb(98,98,98)">=</span> <span class="ansi-yellow-bg" style="color: rgb(0,135,0)">__import__</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">python_module</span><span class="ansi-yellow-bg">,</span>
+<span class="ansi-green-intense-fg ansi-bold">    285</span> <span class="ansi-yellow-bg">                               </span><span class="ansi-yellow-bg">fromlist</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">=</span><span class="ansi-yellow-bg">[</span><span class="ansi-yellow-bg">config_module_name</span><span class="ansi-yellow-bg">]</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    286</span>     config_module_class <span style="color: rgb(98,98,98)">=</span> <span style="color: rgb(0,135,0)">getattr</span>(python_module, config_module_name)
+<span class="ansi-green-intense-fg ansi-bold">    287</span>     module <span style="color: rgb(98,98,98)">=</span> config_module_class(<span style="color: rgb(0,135,0)">self</span>, config)
+
+File <span class="ansi-green-fg">~/work/capsul/capsul/capsul/study_config/config_modules/fom_config.py:16</span>
+<span class="ansi-green-intense-fg ansi-bold">     14</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">traits</span><span class="ansi-bold" style="color: rgb(0,0,255)">.</span><span class="ansi-bold" style="color: rgb(0,0,255)">api</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> Bool, Str, Undefined, List, Directory
+<span class="ansi-green-intense-fg ansi-bold">     15</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">soma</span><span class="ansi-bold" style="color: rgb(0,0,255)">.</span><span class="ansi-bold" style="color: rgb(0,0,255)">fom</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> AttributesToPaths, PathToAttributes
+<span class="ansi-green-fg">---&gt; 16</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">soma</span><span class="ansi-bold" style="color: rgb(0,0,255)">.</span><span class="ansi-bold" style="color: rgb(0,0,255)">application</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> Application
+<span class="ansi-green-intense-fg ansi-bold">     17</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">capsul</span><span class="ansi-bold" style="color: rgb(0,0,255)">.</span><span class="ansi-bold" style="color: rgb(0,0,255)">study_config</span><span class="ansi-bold" style="color: rgb(0,0,255)">.</span><span class="ansi-bold" style="color: rgb(0,0,255)">study_config</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> StudyConfigModule
+<span class="ansi-green-intense-fg ansi-bold">     18</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">capsul</span><span class="ansi-bold" style="color: rgb(0,0,255)">.</span><span class="ansi-bold" style="color: rgb(0,0,255)">engine</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> CapsulEngine
+
+File <span class="ansi-green-fg">/opt/hostedtoolcache/Python/3.9.21/x64/lib/python3.9/site-packages/soma_base-5.2.1-py3.9.egg/soma/application.py:15</span>
+<span class="ansi-green-intense-fg ansi-bold">     13</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">enthought</span><span class="ansi-bold" style="color: rgb(0,0,255)">.</span><span class="ansi-bold" style="color: rgb(0,0,255)">traits</span><span class="ansi-bold" style="color: rgb(0,0,255)">.</span><span class="ansi-bold" style="color: rgb(0,0,255)">api</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> ReadOnly, Directory, ListStr, Instance
+<span class="ansi-green-intense-fg ansi-bold">     14</span> <span class="ansi-bold" style="color: rgb(0,135,0)">except</span> <span class="ansi-bold" style="color: rgb(215,95,95)">ImportError</span>:
+<span class="ansi-green-fg">---&gt; 15</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">traits</span><span class="ansi-bold" style="color: rgb(0,0,255)">.</span><span class="ansi-bold" style="color: rgb(0,0,255)">api</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> ReadOnly, Directory, ListStr, Instance
+<span class="ansi-green-intense-fg ansi-bold">     17</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">soma</span><span class="ansi-bold" style="color: rgb(0,0,255)">.</span><span class="ansi-bold" style="color: rgb(0,0,255)">singleton</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> Singleton
+<span class="ansi-green-intense-fg ansi-bold">     18</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">soma</span><span class="ansi-bold" style="color: rgb(0,0,255)">.</span><span class="ansi-bold" style="color: rgb(0,0,255)">controller</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> Controller
+
+<span class="ansi-red-fg">ImportError</span>: cannot import name &#39;ListStr&#39; from &#39;traits.api&#39; (/opt/hostedtoolcache/Python/3.9.21/x64/lib/python3.9/site-packages/traits/api.py)
 </pre></div></div>
 </div>
 <p>Let show how to configure FSL:</p>
@@ -1296,8 +1307,8 @@ Process1 execution, f: 13.2 , ff: 0.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-jobs: [&lt;soma_workflow.client_types.Job object at 0x7fda8dbd6310&gt;, &lt;soma_workflow.client_types.Job object at 0x7fda8dbd6700&gt;]
-dependencies: {(&lt;soma_workflow.client_types.Job object at 0x7fda8dbd6700&gt;, &lt;soma_workflow.client_types.Job object at 0x7fda8dbd6310&gt;)}
+jobs: [&lt;soma_workflow.client_types.Job object at 0x7f38fc83f0a0&gt;, &lt;soma_workflow.client_types.Job object at 0x7f38fc83f400&gt;]
+dependencies: {(&lt;soma_workflow.client_types.Job object at 0x7f38fc83f400&gt;, &lt;soma_workflow.client_types.Job object at 0x7f38fc83f0a0&gt;)}
 </pre></div></div>
 </div>
 <p>The workwlow can be saved and reloaded in soma_workflow_gui, or used in a soma-workflow controller:</p>
@@ -1764,7 +1775,34 @@ NiPype is not present.
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-completion engine type: FomProcessCompletionEngine
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">ModuleNotFoundError</span>                       Traceback (most recent call last)
+File <span class="ansi-green-fg">/opt/hostedtoolcache/Python/3.9.21/x64/lib/python3.9/site-packages/soma_base-5.2.1-py3.9.egg/soma/application.py:13</span>
+<span class="ansi-green-intense-fg ansi-bold">     12</span> <span class="ansi-bold" style="color: rgb(0,135,0)">try</span>:
+<span class="ansi-green-fg">---&gt; 13</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">enthought</span><span class="ansi-bold" style="color: rgb(0,0,255)">.</span><span class="ansi-bold" style="color: rgb(0,0,255)">traits</span><span class="ansi-bold" style="color: rgb(0,0,255)">.</span><span class="ansi-bold" style="color: rgb(0,0,255)">api</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> ReadOnly, Directory, ListStr, Instance
+<span class="ansi-green-intense-fg ansi-bold">     14</span> <span class="ansi-bold" style="color: rgb(0,135,0)">except</span> <span class="ansi-bold" style="color: rgb(215,95,95)">ImportError</span>:
+
+<span class="ansi-red-fg">ModuleNotFoundError</span>: No module named &#39;enthought&#39;
+
+During handling of the above exception, another exception occurred:
+
+<span class="ansi-red-fg">ImportError</span>                               Traceback (most recent call last)
+Cell <span class="ansi-green-fg">In[57], line 11</span>
+<span class="ansi-green-intense-fg ansi-bold">      7</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">capsul</span><span class="ansi-bold" style="color: rgb(0,0,255)">.</span><span class="ansi-bold" style="color: rgb(0,0,255)">qt_gui</span><span class="ansi-bold" style="color: rgb(0,0,255)">.</span><span class="ansi-bold" style="color: rgb(0,0,255)">widgets</span><span class="ansi-bold" style="color: rgb(0,0,255)">.</span><span class="ansi-bold" style="color: rgb(0,0,255)">attributed_process_widget</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> AttributedProcessWidget
+<span class="ansi-green-intense-fg ansi-bold">      9</span> <span style="color: rgb(95,135,135)"># the following 4 lines are a hack to add /tmp/capsul_demo to the FOM search path</span>
+<span class="ansi-green-intense-fg ansi-bold">     10</span> <span style="color: rgb(95,135,135)"># before it is used by StudyConfig</span>
+<span class="ansi-green-fg">---&gt; 11</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">soma</span><span class="ansi-bold" style="color: rgb(0,0,255)">.</span><span class="ansi-bold" style="color: rgb(0,0,255)">application</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> Application
+<span class="ansi-green-intense-fg ansi-bold">     12</span> soma_app <span style="color: rgb(98,98,98)">=</span> Application(<span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">capsul</span><span style="color: rgb(175,0,0)">&#39;</span>, plugin_modules<span style="color: rgb(98,98,98)">=</span>[<span style="color: rgb(175,0,0)">&#39;</span><span style="color: rgb(175,0,0)">soma.fom</span><span style="color: rgb(175,0,0)">&#39;</span>])
+<span class="ansi-green-intense-fg ansi-bold">     13</span> soma_app<span style="color: rgb(98,98,98)">.</span>initialize()
+
+File <span class="ansi-green-fg">/opt/hostedtoolcache/Python/3.9.21/x64/lib/python3.9/site-packages/soma_base-5.2.1-py3.9.egg/soma/application.py:15</span>
+<span class="ansi-green-intense-fg ansi-bold">     13</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">enthought</span><span class="ansi-bold" style="color: rgb(0,0,255)">.</span><span class="ansi-bold" style="color: rgb(0,0,255)">traits</span><span class="ansi-bold" style="color: rgb(0,0,255)">.</span><span class="ansi-bold" style="color: rgb(0,0,255)">api</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> ReadOnly, Directory, ListStr, Instance
+<span class="ansi-green-intense-fg ansi-bold">     14</span> <span class="ansi-bold" style="color: rgb(0,135,0)">except</span> <span class="ansi-bold" style="color: rgb(215,95,95)">ImportError</span>:
+<span class="ansi-green-fg">---&gt; 15</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">traits</span><span class="ansi-bold" style="color: rgb(0,0,255)">.</span><span class="ansi-bold" style="color: rgb(0,0,255)">api</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> ReadOnly, Directory, ListStr, Instance
+<span class="ansi-green-intense-fg ansi-bold">     17</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">soma</span><span class="ansi-bold" style="color: rgb(0,0,255)">.</span><span class="ansi-bold" style="color: rgb(0,0,255)">singleton</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> Singleton
+<span class="ansi-green-intense-fg ansi-bold">     18</span> <span class="ansi-bold" style="color: rgb(0,135,0)">from</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,0,255)">soma</span><span class="ansi-bold" style="color: rgb(0,0,255)">.</span><span class="ansi-bold" style="color: rgb(0,0,255)">controller</span><span style="color: rgb(188,188,188)"> </span><span class="ansi-bold" style="color: rgb(0,135,0)">import</span> Controller
+
+<span class="ansi-red-fg">ImportError</span>: cannot import name &#39;ListStr&#39; from &#39;traits.api&#39; (/opt/hostedtoolcache/Python/3.9.21/x64/lib/python3.9/site-packages/traits/api.py)
 </pre></div></div>
 </div>
 <p><img alt="pipeline with FOM" src="../_images/capsul_fom1.jpg" /> <img alt="completion controller" src="../_images/capsul_fom1_compl.jpg" /> <img alt="controller" src="../_images/capsul_fom1_controller.jpg" /></p>
@@ -1788,10 +1826,14 @@ completion engine type: FomProcessCompletionEngine
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-switch proc_select2 value: proc3
-output image_out5: /data/capsul_demo/subjects_irm2/out_image_irm2_3.nii.gz
-switch proc_select2 value: proc4
-output image_out5: /data/capsul_demo/subjects_irm2/out_image_irm2_4.nii.gz
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">NameError</span>                                 Traceback (most recent call last)
+Cell <span class="ansi-green-fg">In[58], line 1</span>
+<span class="ansi-green-fg">----&gt; 1</span> <span class="ansi-yellow-bg">mp</span><span style="color: rgb(98,98,98)">.</span>proc_select2 <span style="color: rgb(98,98,98)">=</span> <span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">proc3</span><span style="color: rgb(175,0,0)">&#34;</span>
+<span class="ansi-green-intense-fg ansi-bold">      2</span> <span style="color: rgb(0,135,0)">print</span>(<span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">switch proc_select2 value:</span><span style="color: rgb(175,0,0)">&#34;</span>, mp<span style="color: rgb(98,98,98)">.</span>proc_select2)
+<span class="ansi-green-intense-fg ansi-bold">      3</span> <span style="color: rgb(0,135,0)">print</span>(<span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">output image_out5:</span><span style="color: rgb(175,0,0)">&#34;</span>, mp<span style="color: rgb(98,98,98)">.</span>image_out5)
+
+<span class="ansi-red-fg">NameError</span>: name &#39;mp&#39; is not defined
 </pre></div></div>
 </div>
 <p><img alt="changed pipeline" src="../_images/capsul_fom2.jpg" /> <img alt="changed completion controller" src="../_images/capsul_fom2_compl.jpg" /></p>

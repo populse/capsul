@@ -240,7 +240,7 @@ to manage runtime configuration of programs, if needed, through its
 set of predefined modules:
 <a class="reference internal" href="#module-capsul.engine.module.attributes" title="capsul.engine.module.attributes"><code class="xref py py-class docutils literal notranslate"><span class="pre">attributes</span></code></a>,
 <a class="reference internal" href="#module-capsul.engine.module.axon" title="capsul.engine.module.axon"><code class="xref py py-class docutils literal notranslate"><span class="pre">axon</span></code></a>,
-<a class="reference internal" href="#module-capsul.engine.module.fom" title="capsul.engine.module.fom"><code class="xref py py-class docutils literal notranslate"><span class="pre">fom</span></code></a>,
+<code class="xref py py-class docutils literal notranslate"><span class="pre">fom</span></code>,
 <a class="reference internal" href="#module-capsul.engine.module.fsl" title="capsul.engine.module.fsl"><code class="xref py py-class docutils literal notranslate"><span class="pre">fsl</span></code></a>,
 <a class="reference internal" href="#module-capsul.engine.module.matlab" title="capsul.engine.module.matlab"><code class="xref py py-class docutils literal notranslate"><span class="pre">matlab</span></code></a>,
 <a class="reference internal" href="#module-capsul.engine.module.spm" title="capsul.engine.module.spm"><code class="xref py py-class docutils literal notranslate"><span class="pre">spm</span></code></a></p>
@@ -738,28 +738,8 @@ Axon.</p>
 </dd></dl>
 
 </section>
-<section id="module-capsul.engine.module.fom">
-<span id="fom"></span><h3>fom<a class="headerlink" href="#module-capsul.engine.module.fom" title="Link to this heading">¶</a></h3>
-<p>Config module for <a class="reference internal" href="attributes.html#module-capsul.attributes.fom_completion_engine" title="capsul.attributes.fom_completion_engine"><code class="xref py py-mod docutils literal notranslate"><span class="pre">File</span> <span class="pre">Organization</span> <span class="pre">models</span> <span class="pre">(FOMs)</span></code></a></p>
-<section id="id2">
-<h4>Classes<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h4>
-<section id="fomconfig">
-<h5><code class="xref py py-class docutils literal notranslate"><span class="pre">FomConfig</span></code><a class="headerlink" href="#fomconfig" title="Link to this heading">¶</a></h5>
-</section>
-</section>
-<dl class="py function">
-<dt class="sig sig-object py" id="capsul.engine.module.fom.edition_widget">
-<span class="sig-prename descclassname"><span class="pre">capsul.engine.module.fom.</span></span><span class="sig-name descname"><span class="pre">edition_widget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">engine</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">environment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fom'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/module/fom.html#edition_widget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.module.fom.edition_widget" title="Link to this definition">¶</a></dt>
-<dd><p>Edition GUI for FOM config - see
-<code class="xref py py-class docutils literal notranslate"><span class="pre">SettingsEditor</span></code></p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="capsul.engine.module.fom.update_fom">
-<span class="sig-prename descclassname"><span class="pre">capsul.engine.module.fom.</span></span><span class="sig-name descname"><span class="pre">update_fom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">capsul_engine</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">environment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'global'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine/module/fom.html#update_fom"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.module.fom.update_fom" title="Link to this definition">¶</a></dt>
-<dd><p>Load configured FOMs and create FOM completion data</p>
-</dd></dl>
-
+<section id="fom">
+<h3>fom<a class="headerlink" href="#fom" title="Link to this heading">¶</a></h3>
 </section>
 <section id="module-capsul.engine.module.fsl">
 <span id="fsl"></span><h3>fsl<a class="headerlink" href="#module-capsul.engine.module.fsl" title="Link to this heading">¶</a></h3>
@@ -1276,15 +1256,7 @@ environment, identified by its <cite>Settings.config_id_field</cite> value.</p>
 <li><a class="reference internal" href="#capsul.engine.module.axon.edition_widget"><code class="docutils literal notranslate"><span class="pre">edition_widget()</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#module-capsul.engine.module.fom">fom</a><ul>
-<li><a class="reference internal" href="#id2">Classes</a><ul>
-<li><a class="reference internal" href="#fomconfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">FomConfig</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#capsul.engine.module.fom.edition_widget"><code class="docutils literal notranslate"><span class="pre">edition_widget()</span></code></a></li>
-<li><a class="reference internal" href="#capsul.engine.module.fom.update_fom"><code class="docutils literal notranslate"><span class="pre">update_fom()</span></code></a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#fom">fom</a></li>
 <li><a class="reference internal" href="#module-capsul.engine.module.fsl">fsl</a><ul>
 <li><a class="reference internal" href="#capsul.engine.module.fsl.activate_configurations"><code class="docutils literal notranslate"><span class="pre">activate_configurations()</span></code></a></li>
 <li><a class="reference internal" href="#capsul.engine.module.fsl.check_configurations"><code class="docutils literal notranslate"><span class="pre">check_configurations()</span></code></a></li>

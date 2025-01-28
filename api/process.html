@@ -451,7 +451,7 @@ are in the process instance variables:</p>
 </pre></div>
 </div>
 <p><strong>Note about the File and Directory traits</strong></p>
-<p>The <a class="reference external" href="https://docs.enthought.com/traits/traits_api_reference/trait_types.html#traits.trait_types.File" title="(in traits v6.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">File</span></code></a> trait type represents a file
+<p>The <a class="reference external" href="https://docs.enthought.com/traits/traits_api_reference/trait_types.html#traits.trait_types.File" title="(in traits v7.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">File</span></code></a> trait type represents a file
 parameter. A file is actually two things: a filename (string), and the file itself (on the filesystem). For an input it is OK not to distinguish them, but for an output, there are two different cases:</p>
 <ul class="simple">
 <li><p>the file (on the filesystem) is an output, but the filename (string) is
@@ -462,7 +462,7 @@ tell the program where it should write its output file.</p></li>
 it should write the file, and tells as an output where it did.</p></li>
 </ul>
 <p>To distinguish these two cases, in Capsul we normally add in the
-<a class="reference external" href="https://docs.enthought.com/traits/traits_api_reference/trait_types.html#traits.trait_types.File" title="(in traits v6.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">File</span></code></a> or <a class="reference external" href="https://docs.enthought.com/traits/traits_api_reference/trait_types.html#traits.trait_types.Directory" title="(in traits v6.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Directory</span></code></a>
+<a class="reference external" href="https://docs.enthought.com/traits/traits_api_reference/trait_types.html#traits.trait_types.File" title="(in traits v7.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">File</span></code></a> or <a class="reference external" href="https://docs.enthought.com/traits/traits_api_reference/trait_types.html#traits.trait_types.Directory" title="(in traits v7.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Directory</span></code></a>
 trait a property <code class="docutils literal notranslate"><span class="pre">input_filename</span></code> which is True when the filename is an
 input, and False when the filename is an output:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">&#39;out_file&#39;</span><span class="p">,</span>
