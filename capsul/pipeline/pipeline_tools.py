@@ -42,9 +42,6 @@ Functions
 -----------------------
 '''
 
-from __future__ import print_function
-from __future__ import absolute_import
-
 # System import
 import os
 import logging
@@ -1272,7 +1269,20 @@ def load_pipeline_parameters(filename, pipeline):
             except traits.TraitError:
                 # This case happen when the trait type is date, time or datetime
                 # Couldn't find an other solution for now
-                setattr(pipeline, trait_name, None)
+                if trait_value not in (None, traits.Undefined, ''):
+                    t = pipeline.trait(trait_name)
+                    if isinstance(t.trait_type, traits.Date):
+                        trait_value = date.fromisoformat(trait_value)
+                    elif isinstance(t.trait_type, traits.Time):
+                        trait_value = time.fromisoformat(trait_value)
+                    elif isinstance(t.trait_type, traits.Datetime):
+                        trait_value = datetime.fromisoformat(trait_value)
+                    else:
+                        trait_value = None
+                try:
+                    setattr(pipeline, trait_name, trait_value)
+                except traits.TraitError:
+                    setattr(pipeline, trait_name, traits.Undefined)
 
         pipeline.update_nodes_and_plugs_activation()
 

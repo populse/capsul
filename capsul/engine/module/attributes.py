@@ -4,18 +4,11 @@ Attributes completion config module
 
 '''
 
-from __future__ import absolute_import
-
-import os
-import six
 from capsul.attributes.attributes_factory import AttributesFactory
 from capsul.attributes.attributes_schema import AttributesSchema, \
     ProcessAttributes
 from capsul.attributes.completion_engine \
     import ProcessCompletionEngineFactory, PathCompletionEngineFactory
-from capsul.engine import settings
-import capsul.engine
-import os.path as osp
 from functools import partial
 import weakref
 
@@ -143,7 +136,7 @@ def edition_widget(engine, environment, config_id='attributes'):
         traits.List(traits.Str(), desc='attributes shchemas modules names'))
     controller.add_trait(
         'attributes_schemas',
-        traits.DictStrStr(desc='attributes shchemas names'))
+        traits.Dict(str, str, desc='attributes shchemas names'))
     controller.add_trait(
         'process_completion',
         traits.Str(desc='process completion model name'))

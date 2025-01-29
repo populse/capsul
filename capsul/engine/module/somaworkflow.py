@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import
 
 from capsul import engine
 import traits.api as traits
 from traits.api import Undefined
-import os
-import six
 
 
 def init_settings(capsul_engine):
@@ -135,8 +132,8 @@ def edition_widget(engine, environment, config_id='any'):
     controller.add_trait('path_translations',
                          traits.Dict(
                             key_trait=traits.Directory,
-                            value_trait=traits.ListStr(['', ''], minlen=2,
-                                                       maxlen=2),
+                            value_trait=traits.List(str)(['', ''], minlen=2,
+                                                         maxlen=2),
                             value={}, output=False,
                             desc=''))
 
