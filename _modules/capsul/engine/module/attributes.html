@@ -111,18 +111,11 @@
 
 <span class="sd">&#39;&#39;&#39;</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">absolute_import</span>
-
-<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">six</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.attributes.attributes_factory</span><span class="w"> </span><span class="kn">import</span> <span class="n">AttributesFactory</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.attributes.attributes_schema</span><span class="w"> </span><span class="kn">import</span> <span class="n">AttributesSchema</span><span class="p">,</span> \
     <span class="n">ProcessAttributes</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.attributes.completion_engine</span> \
     <span class="kn">import</span><span class="w"> </span><span class="nn">ProcessCompletionEngineFactory</span><span class="o">,</span><span class="w"> </span><span class="nn">PathCompletionEngineFactory</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">capsul.engine</span><span class="w"> </span><span class="kn">import</span> <span class="n">settings</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">capsul.engine</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">os.path</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">osp</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">weakref</span>
 
@@ -252,7 +245,7 @@
         <span class="n">traits</span><span class="o">.</span><span class="n">List</span><span class="p">(</span><span class="n">traits</span><span class="o">.</span><span class="n">Str</span><span class="p">(),</span> <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;attributes shchemas modules names&#39;</span><span class="p">))</span>
     <span class="n">controller</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span>
         <span class="s1">&#39;attributes_schemas&#39;</span><span class="p">,</span>
-        <span class="n">traits</span><span class="o">.</span><span class="n">DictStrStr</span><span class="p">(</span><span class="n">desc</span><span class="o">=</span><span class="s1">&#39;attributes shchemas names&#39;</span><span class="p">))</span>
+        <span class="n">traits</span><span class="o">.</span><span class="n">Dict</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;attributes shchemas names&#39;</span><span class="p">))</span>
     <span class="n">controller</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span>
         <span class="s1">&#39;process_completion&#39;</span><span class="p">,</span>
         <span class="n">traits</span><span class="o">.</span><span class="n">Str</span><span class="p">(</span><span class="n">desc</span><span class="o">=</span><span class="s1">&#39;process completion model name&#39;</span><span class="p">))</span>
