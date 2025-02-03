@@ -105,23 +105,7 @@
             
   <section id="capsul-process">
 <h1>capsul.process<a class="headerlink" href="#capsul-process" title="Link to this heading">¶</a></h1>
-<div class="graphviz"><img src="../_images/inheritance-66047d19fa4223bea6ca58b453fd030115dd7f5e.png" alt="Inheritance diagram of capsul.process, capsul.process.process, capsul.process.nipype_process, capsul.process.runprocess, capsul.process.xml, capsul.pipeline.pipeline, capsul.pipeline.process_iteration" usemap="#inheritanced017b83529" class="inheritance graphviz" /></div>
-<map id="inheritanced017b83529" name="inheritanced017b83529">
-<area shape="rect" id="node1" href="https://docs.enthought.com/traits/traits_api_reference/ctraits.html#traits.ctraits.CHasTraits" target="_top" title="Base class for HasTraits." alt="" coords="32,153,123,179"/>
-<area shape="rect" id="node3" href="https://docs.enthought.com/traits/traits_api_reference/has_traits.html#traits.has_traits.HasTraits" target="_top" title="Enables any Python class derived from it to have trait attributes." alt="" coords="209,153,291,179"/>
-<area shape="rect" id="node2" href="https://populse.github.io/soma-base/api.html#soma.controller.controller.Controller" target="_top" title="A Controller contains some traits: attributes typing and observer" alt="" coords="351,153,437,179"/>
-<area shape="rect" id="node5" href="#capsul.process.process.Process" target="_top" title="A process is an atomic component that contains a processing." alt="" coords="485,153,557,179"/>
-<area shape="rect" id="node4" href="#capsul.process.process.FileCopyProcess" target="_top" title="A specific process that copies all the input files." alt="" coords="613,55,741,80"/>
-<area shape="rect" id="node8" href="#capsul.process.process.NipypeProcess" target="_top" title="Base class used to wrap nipype interfaces." alt="" coords="796,55,915,80"/>
-<area shape="rect" id="node6" href="#capsul.process.process.InteractiveProcess" target="_top" title="Base class for interactive processes. The value of the is_interactive " alt="" coords="605,104,748,129"/>
-<area shape="rect" id="node9" href="pipeline.html#capsul.pipeline.pipeline.Pipeline" target="_top" title="Pipeline containing Process nodes, and links between node parameters." alt="" coords="639,153,714,179"/>
-<area shape="rect" id="node10" href="pipeline.html#capsul.pipeline.process_iteration.ProcessIteration" target="_top" title=".. note::" alt="" coords="613,203,740,228"/>
-<area shape="rect" id="node14" href="#capsul.process.xml.XMLProcess" target="_top" title="Base class of all generated classes for processes defined as a Python" alt="" coords="627,252,727,277"/>
-<area shape="rect" id="node7" href="https://docs.enthought.com/traits/traits_api_reference/has_traits.html#traits.has_traits.MetaHasTraits" target="_top" title="Controls the creation of HasTraits classes." alt="" coords="20,104,135,129"/>
-<area shape="rect" id="node11" href="#capsul.process.process.ProcessMeta" target="_top" title="Class used to complete a process docstring" alt="" coords="197,104,303,129"/>
-<area shape="rect" id="node12" href="#capsul.process.runprocess.ProcessParamError" target="_top" title="Exception used in the ``runprocess`` module" alt="" coords="5,55,149,80"/>
-<area shape="rect" id="node13" href="#capsul.process.process.ProcessResult" target="_top" title="Object that contains running information a particular Process." alt="" coords="21,5,134,31"/>
-</map><p id="module-capsul.process">capsul.process module</p>
+<p id="module-capsul.process">capsul.process module</p>
 <section id="module-capsul.process.process">
 <span id="capsul-process-process-submodule"></span><h2>capsul.process.process submodule<a class="headerlink" href="#module-capsul.process.process" title="Link to this heading">¶</a></h2>
 <p>Process main class and infrastructure</p>
@@ -779,7 +763,7 @@ depending on how the execution is implemented.</p>
 the process, after loading input parameters from a JSON dictionary
 file. The only second element in the commandline list is the
 process identifier (module/class as in
-<a class="reference internal" href="engine.html#capsul.engine.CapsulEngine.get_process_instance" title="capsul.engine.CapsulEngine.get_process_instance"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_process_instance()</span></code></a>). The
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">get_process_instance()</span></code>). The
 location of the JSON file will be passed to the job execution
 through an environment variable <cite>SOMAWF_INPUT_PARAMS</cite>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">return</span> <span class="p">[</span><span class="s1">&#39;capsul_job&#39;</span><span class="p">,</span> <span class="s1">&#39;morphologist.capsul.morphologist&#39;</span><span class="p">]</span>
@@ -963,133 +947,20 @@ the monkey patching has been written for Nipype version ‘0.10.0’.</p>
 </dd></dl>
 
 </section>
-<section id="module-capsul.process.runprocess">
-<span id="capsul-process-runprocess-submodule"></span><h2>capsul.process.runprocess submodule<a class="headerlink" href="#module-capsul.process.runprocess" title="Link to this heading">¶</a></h2>
-<p>capsul.process.runprocess is not a real python module, but rather an executable script with commandline arguments and options parsing. It is provided as a module just to be easily called via the python command in a portable way:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">capsul</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">runprocess</span> <span class="o">&lt;</span><span class="n">process</span> <span class="n">name</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">process</span> <span class="n">arguments</span><span class="o">&gt;</span>
-</pre></div>
-</div>
-<section id="id1">
-<h3>Classes<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
-<section id="processparamerror">
-<h4><a class="reference internal" href="#capsul.process.runprocess.ProcessParamError" title="capsul.process.runprocess.ProcessParamError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessParamError</span></code></a><a class="headerlink" href="#processparamerror" title="Link to this heading">¶</a></h4>
-</section>
-</section>
-<section id="id2">
-<h3>Functions<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
-<section id="set-process-param-from-str">
-<h4><a class="reference internal" href="#capsul.process.runprocess.set_process_param_from_str" title="capsul.process.runprocess.set_process_param_from_str"><code class="xref py py-func docutils literal notranslate"><span class="pre">set_process_param_from_str()</span></code></a><a class="headerlink" href="#set-process-param-from-str" title="Link to this heading">¶</a></h4>
-</section>
-<section id="get-process-with-params">
-<h4><a class="reference internal" href="#capsul.process.runprocess.get_process_with_params" title="capsul.process.runprocess.get_process_with_params"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_process_with_params()</span></code></a><a class="headerlink" href="#get-process-with-params" title="Link to this heading">¶</a></h4>
-</section>
-<section id="run-process-with-distribution">
-<h4><a class="reference internal" href="#capsul.process.runprocess.run_process_with_distribution" title="capsul.process.runprocess.run_process_with_distribution"><code class="xref py py-func docutils literal notranslate"><span class="pre">run_process_with_distribution()</span></code></a><a class="headerlink" href="#run-process-with-distribution" title="Link to this heading">¶</a></h4>
-</section>
-<section id="convert-commandline-parameter">
-<h4><code class="xref py py-func docutils literal notranslate"><span class="pre">convert_commandline_parameter()</span></code><a class="headerlink" href="#convert-commandline-parameter" title="Link to this heading">¶</a></h4>
-</section>
-<section id="main">
-<h4><a class="reference internal" href="#capsul.process.runprocess.main" title="capsul.process.runprocess.main"><code class="xref py py-func docutils literal notranslate"><span class="pre">main()</span></code></a><a class="headerlink" href="#main" title="Link to this heading">¶</a></h4>
-</section>
-</section>
-<dl class="py exception">
-<dt class="sig sig-object py" id="capsul.process.runprocess.ProcessParamError">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.process.runprocess.</span></span><span class="sig-name descname"><span class="pre">ProcessParamError</span></span><a class="reference internal" href="../_modules/capsul/process/runprocess.html#ProcessParamError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.process.runprocess.ProcessParamError" title="Link to this definition">¶</a></dt>
-<dd><p>Exception used in the <code class="docutils literal notranslate"><span class="pre">runprocess</span></code> module</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="capsul.process.runprocess.get_process_with_params">
-<span class="sig-prename descclassname"><span class="pre">capsul.process.runprocess.</span></span><span class="sig-name descname"><span class="pre">get_process_with_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">study_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iterated_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attributes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/process/runprocess.html#get_process_with_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.process.runprocess.get_process_with_params" title="Link to this definition">¶</a></dt>
-<dd><p>Instantiate a process, or an iteration over processes, and fill in its
-parameters.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>process_name</strong> (<em>string</em>) – name (mosule and class) of the process to instantiate</p></li>
-<li><p><strong>study_config</strong> (<em>StudyConfig instance</em>)</p></li>
-<li><p><strong>iterated_params</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a><em> (</em><em>optional</em><em>)</em>) – parameters names which should be iterated on. If this list is not
-empty, an iteration process is built. All parameters values
-corresponding to the selected names should be lists with the same size.</p></li>
-<li><p><strong>attributes</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a><em> (</em><em>optional</em><em>)</em>) – dictionary of attributes for completion system.</p></li>
-<li><p><strong>*args</strong> – sequential parameters for the process. In iteration, “normal”
-parameters are set with the same value for all iterations, and iterated
-parameters dispatch their values to each iteration.</p></li>
-<li><p><strong>**kwargs</strong> – named parameters for the process. Same as above for iterations.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>process</strong></p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Process instance</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="capsul.process.runprocess.main">
-<span class="sig-prename descclassname"><span class="pre">capsul.process.runprocess.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/process/runprocess.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.process.runprocess.main" title="Link to this definition">¶</a></dt>
-<dd><p>Run the <a class="reference internal" href="#module-capsul.process.runprocess" title="capsul.process.runprocess"><code class="xref py py-mod docutils literal notranslate"><span class="pre">capsul.process.runprocess</span></code></a> module as a commandline</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="capsul.process.runprocess.run_process_with_distribution">
-<span class="sig-prename descclassname"><span class="pre">capsul.process.runprocess.</span></span><span class="sig-name descname"><span class="pre">run_process_with_distribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">study_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_soma_workflow</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resource_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rsa_key_pass</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">queue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_file_processing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file_processing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_workflow</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_failed_workflow</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">write_workflow_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/process/runprocess.html#run_process_with_distribution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.process.runprocess.run_process_with_distribution" title="Link to this definition">¶</a></dt>
-<dd><p>Run the given process, either sequentially or distributed through
-Soma-Workflow.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>study_config</strong> (<em>StudyConfig instance</em>)</p></li>
-<li><p><strong>process</strong> (<em>Process instance</em>) – the process to execute (or pipeline, or iteration…)</p></li>
-<li><p><strong>use_soma_workflow</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em> or </em><em>None</em><em> (</em><em>default=None</em><em>)</em>) – if False, run sequentially, otherwise use Soma-Workflow. Its
-configuration has to be setup and valid for non-local execution, and
-additional file transfer options may be used.</p></li>
-<li><p><strong>resource_id</strong> (<em>string</em><em> (</em><em>default=None</em><em>)</em>) – soma-workflow resource ID, defaults to localhost</p></li>
-<li><p><strong>password</strong> (<em>string</em>) – password to access the remote computing resource. Do not specify it if
-using a ssh key.</p></li>
-<li><p><strong>config</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a><em> (</em><em>optional</em><em>)</em>) – Soma-Workflow config: Not used for now…</p></li>
-<li><p><strong>rsa_key_pass</strong> (<em>string</em>) – RSA key password, for ssh key access</p></li>
-<li><p><strong>queue</strong> (<em>string</em>) – Queue to use on the computing resource. If not specified, use the
-default queue.</p></li>
-<li><p><strong>input_file_processing</strong> (<em>brainvisa.workflow.ProcessToSomaWorkflow processing code</em>) – Input files processing: local_path (NO_FILE_PROCESSING),
-transfer (FILE_TRANSFER), translate (SHARED_RESOURCE_PATH),
-or translate_shared (BV_DB_SHARED_PATH).</p></li>
-<li><p><strong>output_file_processing</strong> (<em>same as for input_file_processing</em>) – Output files processing: local_path (NO_FILE_PROCESSING),
-transfer (FILE_TRANSFER), or translate (SHARED_RESOURCE_PATH).
-The default is local_path.</p></li>
-<li><p><strong>keep_workflow</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – keep the workflow in the computing resource database after execution.
-By default it is removed.</p></li>
-<li><p><strong>keep_failed_workflow</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – keep the workflow in the computing resource database after execution,
-if it has failed. By default it is removed.</p></li>
-<li><p><strong>write_workflow_only</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – if specified, this is an output filename where the workflow file will
-be written. The workflow will not be actually run, because int his
-situation the user probably wants to use the workflow on his own.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="capsul.process.runprocess.set_process_param_from_str">
-<span class="sig-prename descclassname"><span class="pre">capsul.process.runprocess.</span></span><span class="sig-name descname"><span class="pre">set_process_param_from_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arg</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/process/runprocess.html#set_process_param_from_str"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.process.runprocess.set_process_param_from_str" title="Link to this definition">¶</a></dt>
-<dd><p>Set a process parameter from a string representation.</p>
-</dd></dl>
-
+<section id="capsul-process-runprocess-submodule">
+<h2>capsul.process.runprocess submodule<a class="headerlink" href="#capsul-process-runprocess-submodule" title="Link to this heading">¶</a></h2>
 </section>
 <section id="module-capsul.process.xml">
 <span id="capsul-process-xml-submodule"></span><h2>capsul.process.xml submodule<a class="headerlink" href="#module-capsul.process.xml" title="Link to this heading">¶</a></h2>
 <p>Read and write a Process as an XML file.</p>
-<section id="id3">
-<h3>Classes<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
+<section id="id1">
+<h3>Classes<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
 <section id="xmlprocess">
 <h4><a class="reference internal" href="#capsul.process.xml.XMLProcess" title="capsul.process.xml.XMLProcess"><code class="xref py py-class docutils literal notranslate"><span class="pre">XMLProcess</span></code></a><a class="headerlink" href="#xmlprocess" title="Link to this heading">¶</a></h4>
 </section>
 </section>
-<section id="id4">
-<h3>Functions<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
+<section id="id2">
+<h3>Functions<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
 <section id="string-to-value">
 <h4><a class="reference internal" href="#capsul.process.xml.string_to_value" title="capsul.process.xml.string_to_value"><code class="xref py py-func docutils literal notranslate"><span class="pre">string_to_value()</span></code></a><a class="headerlink" href="#string-to-value" title="Link to this heading">¶</a></h4>
 </section>
@@ -1255,32 +1126,13 @@ representation.</p>
 <li><a class="reference internal" href="#capsul.process.nipype_process.nipype_factory"><code class="docutils literal notranslate"><span class="pre">nipype_factory()</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#module-capsul.process.runprocess">capsul.process.runprocess submodule</a><ul>
-<li><a class="reference internal" href="#id1">Classes</a><ul>
-<li><a class="reference internal" href="#processparamerror"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessParamError</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#id2">Functions</a><ul>
-<li><a class="reference internal" href="#set-process-param-from-str"><code class="xref py py-func docutils literal notranslate"><span class="pre">set_process_param_from_str()</span></code></a></li>
-<li><a class="reference internal" href="#get-process-with-params"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_process_with_params()</span></code></a></li>
-<li><a class="reference internal" href="#run-process-with-distribution"><code class="xref py py-func docutils literal notranslate"><span class="pre">run_process_with_distribution()</span></code></a></li>
-<li><a class="reference internal" href="#convert-commandline-parameter"><code class="xref py py-func docutils literal notranslate"><span class="pre">convert_commandline_parameter()</span></code></a></li>
-<li><a class="reference internal" href="#main"><code class="xref py py-func docutils literal notranslate"><span class="pre">main()</span></code></a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#capsul.process.runprocess.ProcessParamError"><code class="docutils literal notranslate"><span class="pre">ProcessParamError</span></code></a></li>
-<li><a class="reference internal" href="#capsul.process.runprocess.get_process_with_params"><code class="docutils literal notranslate"><span class="pre">get_process_with_params()</span></code></a></li>
-<li><a class="reference internal" href="#capsul.process.runprocess.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
-<li><a class="reference internal" href="#capsul.process.runprocess.run_process_with_distribution"><code class="docutils literal notranslate"><span class="pre">run_process_with_distribution()</span></code></a></li>
-<li><a class="reference internal" href="#capsul.process.runprocess.set_process_param_from_str"><code class="docutils literal notranslate"><span class="pre">set_process_param_from_str()</span></code></a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#capsul-process-runprocess-submodule">capsul.process.runprocess submodule</a></li>
 <li><a class="reference internal" href="#module-capsul.process.xml">capsul.process.xml submodule</a><ul>
-<li><a class="reference internal" href="#id3">Classes</a><ul>
+<li><a class="reference internal" href="#id1">Classes</a><ul>
 <li><a class="reference internal" href="#xmlprocess"><code class="xref py py-class docutils literal notranslate"><span class="pre">XMLProcess</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#id4">Functions</a><ul>
+<li><a class="reference internal" href="#id2">Functions</a><ul>
 <li><a class="reference internal" href="#string-to-value"><code class="xref py py-func docutils literal notranslate"><span class="pre">string_to_value()</span></code></a></li>
 <li><a class="reference internal" href="#trait-from-xml"><code class="xref py py-func docutils literal notranslate"><span class="pre">trait_from_xml()</span></code></a></li>
 <li><a class="reference internal" href="#create-xml-process"><code class="xref py py-func docutils literal notranslate"><span class="pre">create_xml_process()</span></code></a></li>
