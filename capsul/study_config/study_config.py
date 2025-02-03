@@ -246,7 +246,7 @@ class StudyConfig(Controller):
             if not module:
                 raise EnvironmentError('Required StudyConfig module %s is '
                                        'missing' % module_name)
-            # Check if there are dependent modules that must be initilaized
+            # Check if there are dependent modules that must be initialized
             # before the current one
             initialize_first = [m for m in module.dependencies
                                 if m not in already_initialized]
