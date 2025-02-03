@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function
-
-from __future__ import absolute_import
 import os
 import json
 import shutil
@@ -745,8 +742,8 @@ class TestPipelineMethods(unittest.TestCase):
         # Reinitializing pipeline and loading parameters
         pipeline1 = Pipeline1()
         load_pipeline_parameters(self.path, pipeline1)
-        self.assertEqual(pipeline1.in_1, None)
-        self.assertEqual(pipeline1.in_2, None)
+        self.assertEqual(pipeline1.in_1, in_1)
+        self.assertEqual(pipeline1.in_2, in_2)
         self.assertEqual(pipeline1.out, out)
 
         self.assertEqual(type(pipeline1.out), TraitListObject)

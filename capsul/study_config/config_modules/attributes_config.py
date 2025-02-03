@@ -8,10 +8,7 @@ Classes
 -------------------------
 '''
 
-from __future__ import absolute_import
-import os
-import six
-from traits.api import Bool, Str, Undefined, List, DictStrStr
+from traits.api import Str, Undefined, List, Dict
 from capsul.study_config.study_config import StudyConfigModule
 from capsul.attributes.attributes_factory import AttributesFactory
 from capsul.attributes.attributes_schema import AttributesSchema, \
@@ -45,7 +42,7 @@ class AttributesConfig(StudyConfigModule):
             desc='attributes shchema module name', groups=['attributes']))
         self.study_config.add_trait(
             'attributes_schemas',
-            DictStrStr(output=False,
+            Dict(str, str, output=False,
                 desc='attributes shchemas names', groups=['attributes']))
         self.study_config.add_trait(
             'process_completion',

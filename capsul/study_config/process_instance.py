@@ -180,19 +180,11 @@ def _execfile(filename):
 def _load_module(filename, modname=None):
     if not modname:
         modname = os.path.basename(filename).rsplit('.', 2)[0]
-    if sys.version_info >= (3, 5):
-        import importlib.util
-        spec = importlib.util.spec_from_file_location(modname, filename)
-        mod = importlib.util.module_from_spec(spec)
-        sys.modules[modname] = mod
-        spec.loader.exec_module(mod)
-        return mod
-    elif sys.version_info[0] >= 3:
-        from importlib.machinery import SourceFileLoader
-        mod = SourceFileLoader(modname, filename).load_module()
-    else:
-        import imp
-        mod = imp.load_source(modname, filename)
+    spec = importlib.util.spec_from_file_location(modname, filename)
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules[modname] = mod
+    spec.loader.exec_module(mod)
+    return mod
     if mod is not None:
         sys.modules[modname] = mod
     return mod

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import
 
 from capsul import engine
 import traits.api as traits
@@ -151,22 +150,21 @@ def edition_widget(engine, environment, config_id="any"):
     controller.add_trait(
         "keep_succeeded_workflows", traits.Bool(False, output=False, desc="")
     )
-
-    controller.add_trait("queue", traits.Str(traits.Undefined, output=False, desc=""))
-    controller.add_trait(
-        "transfer_paths", traits.List(traits.Directory, [], output=False, desc="")
-    )
-    controller.add_trait(
-        "path_translations",
-        traits.Dict(
-            key_trait=traits.Directory,
-            value_trait=traits.ListStr(["", ""], minlen=2, maxlen=2),
-            value={},
-            output=False,
-            desc="",
-        ),
-    )
-
+    controller.add_trait('queue',
+                         traits.Str(
+                            traits.Undefined, output=False,
+                            desc=''))
+    controller.add_trait('transfer_paths',
+                         traits.List(traits.Directory,
+                            [], output=False,
+                            desc=''))
+    controller.add_trait('path_translations',
+                         traits.Dict(
+                            key_trait=traits.Directory,
+                            value_trait=traits.List(str)(['', ''], minlen=2,
+                                                         maxlen=2),
+                            value={}, output=False,
+                            desc=''))
     conf = None
     if config_id == "any":
         conf = engine.settings.select_configurations(

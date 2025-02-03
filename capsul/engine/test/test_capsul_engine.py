@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-from __future__ import absolute_import
 
 import gc
 import unittest
@@ -19,11 +17,7 @@ from soma_workflow import configuration as swconfig
 from traits.api import File
 
 
-which = getattr(shutil, 'which', None)
-if which is None:
-    # python2 doesn't have shutil.which
-    import distutils.spawn
-    which = distutils.spawn.find_executable
+which = shutil.which
 
 
 def setUpModule():
