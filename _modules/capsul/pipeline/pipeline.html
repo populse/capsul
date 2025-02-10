@@ -1967,7 +1967,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">workflow_repr</span> <span class="o">=</span> <span class="s2">&quot;-&gt;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ordered_list</span><span class="p">])</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Workflow: </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span> <span class="nb">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workflow_repr</span><span class="p">))</span>
 
-        <span class="c1"># Generate the final workflow by flattening graphs structures</span>
+        <span class="c1"># Generate the final workflow by flattenin graphs structures</span>
         <span class="n">workflow_list</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">walk_workflow</span><span class="p">(</span><span class="n">ordered_list</span><span class="p">,</span> <span class="n">workflow_list</span><span class="p">)</span>
 
@@ -2618,7 +2618,7 @@
                     <span class="s1">&#39;logical order regarding the workflow streams. They are &#39;</span>
                     <span class="s1">&#39;different from sub-pipelines in that steps are purely &#39;</span>
                     <span class="s1">&#39;virtual groups, they do not have parameters. To activate &#39;</span>
-                    <span class="s1">&#39;or disable a step, just do:</span><span class="se">\n</span><span class="s1">&#39;</span>
+                    <span class="s1">&#39;or diasable a step, just do:</span><span class="se">\n</span><span class="s1">&#39;</span>
                     <span class="s1">&#39;pipeline.steps.my_step = False</span><span class="se">\n</span><span class="s1">&#39;</span>
                     <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
                     <span class="s1">&#39;To get the nodes list in a step:</span><span class="se">\n</span><span class="s1">&#39;</span>

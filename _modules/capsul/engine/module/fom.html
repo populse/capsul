@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+    <title>CAPSUL &#8212; CAPSUL - Chain algorithm in pipelines and execute in many contexts</title>
+  <!-- htmltitle is before nature.css - we use this hack to load bootstrap first -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="../../../../_static/css/bootstrap.min.css" media="screen" />
+  <link rel="stylesheet" href="../../../../_static/css/bootstrap-responsive.css"/>
+  <link rel="icon" href="../../../../_static/capsul_logo.svg"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=f0b81668" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=fd3f3429" />
+    
+    <script src="../../../../_static/documentation_options.js?v=983e91d6"></script>
+    <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+
+  <!-- sidebar -->
+  
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="../../../../_static/js/bootstrap.min.js" type="application/javascript"></script>
+
+  <script type="application/javascript">
+    $("div.buttonNext, div.buttonPrevious").hover(
+       function () {
+           $(this).css('background-color', '#FF9C34');
+       },
+       function () {
+           $(this).css('background-color', '#A7D6E2');
+       }
+    );
+    var bodywrapper = $('.bodywrapper');
+    var sidebarbutton = $('#sidebarbutton');
+    sidebarbutton.css({'height': '900px'});
+  </script>
+
+  <div class="header" style="display: inline; width: 80%; margin-left:10%;">
+    <a href="../../../../index.html">
+    <img src="../../../../_static/capsul_logo.svg" alt="Capsul logo" style="display: inline; height:4em;"/>
+    </a >
+    <div class="navbar" style="display: inline;">
+      <ul>
+        <li><a href="../../../../index.html">Home</a></li>
+        <li><a href="../../../../installation.html">Installation</a></li>
+        <li class="btn-li">
+          <div class="btn-group">
+            <a href="../../../../documentation.html">Documentation</a>
+            <a class="btn dropdown-toggle" data-toggle="dropdown">
+              <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+              <li class="link-title">CAPSUL</li>
+              <li><a href="../../../../user_guide_tree/index.html">User guide</a></li>
+              <li><a href="../../../../api/index.html">API</a></li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <!-- form action="search.html" method="get" style="display: inline-block;"></form>
+            <input type="text" class="search-header" name="q" placeholder="search documentation..." value=""></input>
+            <button type="submit" >search</button>
+          </form -->
+          <form class="search_box" method="get" action="http://www.google.com/search" style="display: inline-block;">
+            <input class="search-header" type="text" name="q" placeholder="search documentation..." />
+            <input class="submit" type="image" src="../../../../_static/find_read.png" value="Search" />
+            <input type="hidden" name="sitesearch" value="brainvisa.info/capsul" />
+          </form>
+        </li>
+      </ul>
+    </div> <!-- end navbar -->
+  </div>
+
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">CAPSUL</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../engine.html" accesskey="U">capsul.engine</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">CAPSUL</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for capsul.engine.module.fom</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Config module for :mod:`File Organization models (FOMs) &lt;capsul.attributes.fom_completion_engine&gt;`</span>
+
+<span class="sd">Classes</span>
+<span class="sd">=======</span>
+<span class="sd">:class:`FomConfig`</span>
+<span class="sd">------------------</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">six</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">traits.api</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">traits</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">soma.fom</span><span class="w"> </span><span class="kn">import</span> <span class="n">AttributesToPaths</span><span class="p">,</span> <span class="n">PathToAttributes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">soma.application</span><span class="w"> </span><span class="kn">import</span> <span class="n">Application</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">soma.sorted_dictionary</span><span class="w"> </span><span class="kn">import</span> <span class="n">SortedDictionary</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">weakref</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">capsul.engine</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">init_settings</span><span class="p">(</span><span class="n">capsul_engine</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">capsul_engine</span><span class="o">.</span><span class="n">settings</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+        <span class="n">session</span><span class="o">.</span><span class="n">ensure_module_fields</span><span class="p">(</span><span class="s1">&#39;fom&#39;</span><span class="p">,</span>
+            <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;input_fom&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;input FOM&#39;</span><span class="p">),</span>
+             <span class="nb">dict</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;output_fom&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;output FOM&#39;</span><span class="p">),</span>
+             <span class="nb">dict</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;shared_fom&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;string&#39;</span><span class="p">,</span>
+                  <span class="n">description</span><span class="o">=</span><span class="s1">&#39;shared data FOM&#39;</span><span class="p">),</span>
+             <span class="nb">dict</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;volumes_format&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;string&#39;</span><span class="p">,</span>
+                  <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Format used for volumes&#39;</span><span class="p">),</span>
+             <span class="nb">dict</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;meshes_format&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;string&#39;</span><span class="p">,</span>
+                  <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Format used for meshes&#39;</span><span class="p">),</span>
+             <span class="nb">dict</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;auto_fom&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;boolean&#39;</span><span class="p">,</span>
+                  <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Look in all FOMs when a process is not found &#39;</span>
+                  <span class="s1">&#39;(in addition to the standard share/foms). Note that &#39;</span>
+                  <span class="s1">&#39;auto_fom looks for the first FOM matching the process to &#39;</span>
+                  <span class="s1">&#39;get completion for, and does not handle ambiguities. &#39;</span>
+                  <span class="s1">&#39;Moreover it brings an overhead (typically 6-7 seconds) the &#39;</span>
+                  <span class="s1">&#39;first time it is used since it has to parse all available &#39;</span>
+                  <span class="s1">&#39;FOMs.&#39;</span><span class="p">),</span>
+             <span class="nb">dict</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;fom_path&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;list_string&#39;</span><span class="p">,</span>
+                  <span class="n">description</span><span class="o">=</span><span class="s1">&#39;list of additional directories where to look &#39;</span>
+                  <span class="s1">&#39;for FOMs&#39;</span><span class="p">),</span>
+             <span class="c1"># FIXME: until directories are included in another config module</span>
+             <span class="nb">dict</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;input_directory&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;string&#39;</span><span class="p">,</span>
+                  <span class="n">description</span><span class="o">=</span><span class="s1">&#39;input study data directory&#39;</span><span class="p">),</span>
+             <span class="nb">dict</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;output_directory&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;string&#39;</span><span class="p">,</span>
+                  <span class="n">description</span><span class="o">=</span><span class="s1">&#39;output study data directory&#39;</span><span class="p">),</span>
+            <span class="p">])</span>
+
+    <span class="n">capsul_engine</span><span class="o">.</span><span class="n">load_module</span><span class="p">(</span><span class="s1">&#39;capsul.engine.module.axon&#39;</span><span class="p">)</span>
+    <span class="n">capsul_engine</span><span class="o">.</span><span class="n">load_module</span><span class="p">(</span><span class="s1">&#39;capsul.engine.module.spm&#39;</span><span class="p">)</span>
+    <span class="n">capsul_engine</span><span class="o">.</span><span class="n">load_module</span><span class="p">(</span><span class="s1">&#39;capsul.engine.module.attributes&#39;</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">capsul_engine</span><span class="o">.</span><span class="n">settings</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s1">&#39;fom&#39;</span><span class="p">,</span> <span class="s1">&#39;global&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="p">:</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="p">{</span><span class="n">capsul_engine</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">config_id_field</span><span class="p">:</span> <span class="s1">&#39;fom&#39;</span><span class="p">,</span>
+                      <span class="s1">&#39;auto_fom&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;fom_path&#39;</span><span class="p">:</span> <span class="p">[]}</span>
+            <span class="n">session</span><span class="o">.</span><span class="n">new_config</span><span class="p">(</span><span class="s1">&#39;fom&#39;</span><span class="p">,</span> <span class="s1">&#39;global&#39;</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">capsul_engine</span><span class="p">,</span> <span class="s1">&#39;_modules_data&#39;</span><span class="p">):</span>
+        <span class="n">capsul_engine</span><span class="o">.</span><span class="n">_modules_data</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">store</span> <span class="o">=</span> <span class="n">capsul_engine</span><span class="o">.</span><span class="n">_modules_data</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;fom&#39;</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="n">store</span><span class="p">[</span><span class="s1">&#39;foms&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">store</span><span class="p">[</span><span class="s1">&#39;all_foms&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">SortedDictionary</span><span class="p">()</span>
+    <span class="n">store</span><span class="p">[</span><span class="s1">&#39;fom_atp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;all&#39;</span><span class="p">:</span> <span class="p">{}}</span>
+    <span class="n">store</span><span class="p">[</span><span class="s1">&#39;fom_pta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;all&#39;</span><span class="p">:</span> <span class="p">{}}</span>
+
+    <span class="n">capsul_engine</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">module_notifiers</span><span class="p">[</span><span class="s1">&#39;capsul.engine.module.fom&#39;</span><span class="p">]</span> \
+        <span class="o">=</span> <span class="p">[</span><span class="n">partial</span><span class="p">(</span><span class="n">fom_config_updated</span><span class="p">,</span> <span class="n">weakref</span><span class="o">.</span><span class="n">proxy</span><span class="p">(</span><span class="n">capsul_engine</span><span class="p">),</span> <span class="s1">&#39;global&#39;</span><span class="p">)]</span>
+    <span class="n">capsul_engine</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">module_notifiers</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span>
+        <span class="s1">&#39;capsul.engine.module.axon&#39;</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">partial</span><span class="p">(</span><span class="n">config_updated</span><span class="p">,</span> <span class="n">weakref</span><span class="o">.</span><span class="n">proxy</span><span class="p">(</span><span class="n">capsul_engine</span><span class="p">),</span> <span class="s1">&#39;global&#39;</span><span class="p">))</span>
+    <span class="n">capsul_engine</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">module_notifiers</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span>
+        <span class="s1">&#39;capsul.engine.module.spm&#39;</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">partial</span><span class="p">(</span><span class="n">config_updated</span><span class="p">,</span> <span class="n">weakref</span><span class="o">.</span><span class="n">proxy</span><span class="p">(</span><span class="n">capsul_engine</span><span class="p">),</span> <span class="s1">&#39;global&#39;</span><span class="p">))</span>
+
+    <span class="c1"># link with StudyConfig</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">capsul_engine</span><span class="p">,</span> <span class="s1">&#39;study_config&#39;</span><span class="p">)</span> \
+            <span class="ow">and</span> <span class="s1">&#39;FomConfig&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">capsul_engine</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">modules</span><span class="p">:</span>
+        <span class="n">scmod</span> <span class="o">=</span> <span class="n">capsul_engine</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">load_module</span><span class="p">(</span><span class="s1">&#39;FomConfig&#39;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">scmod</span><span class="o">.</span><span class="n">initialize_module</span><span class="p">()</span>
+        <span class="n">scmod</span><span class="o">.</span><span class="n">initialize_callbacks</span><span class="p">()</span>
+
+    <span class="n">update_fom</span><span class="p">(</span><span class="n">capsul_engine</span><span class="p">,</span> <span class="s1">&#39;global&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">config_dependencies</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;axon&#39;</span><span class="p">:</span> <span class="s1">&#39;any&#39;</span><span class="p">,</span>
+            <span class="c1">#&#39;spm&#39;: &#39;any&#39;,</span>
+            <span class="s1">&#39;attributes&#39;</span><span class="p">:</span> <span class="s1">&#39;any&#39;</span><span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">config_updated</span><span class="p">(</span><span class="n">capsul_engine</span><span class="p">,</span> <span class="n">environment</span><span class="p">,</span> <span class="n">param</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">param</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;directory&#39;</span><span class="p">,</span> <span class="s1">&#39;shared_directory&#39;</span><span class="p">):</span>
+        <span class="n">update_fom</span><span class="p">(</span><span class="n">capsul_engine</span><span class="p">,</span> <span class="n">environment</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">spm_config_updated</span><span class="p">(</span><span class="n">capsul_engine</span><span class="p">,</span> <span class="n">environment</span><span class="p">,</span> <span class="n">param</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">param</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;directory&#39;</span><span class="p">):</span>
+        <span class="n">update_fom</span><span class="p">(</span><span class="n">capsul_engine</span><span class="p">,</span> <span class="n">environment</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">fom_config_updated</span><span class="p">(</span><span class="n">capsul_engine</span><span class="p">,</span> <span class="n">environment</span><span class="o">=</span><span class="s1">&#39;global&#39;</span><span class="p">,</span>
+                       <span class="n">param</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">param</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;volumes_format&#39;</span><span class="p">,</span> <span class="s1">&#39;meshes_format&#39;</span><span class="p">):</span>
+        <span class="n">update_formats</span><span class="p">(</span><span class="n">capsul_engine</span><span class="p">,</span> <span class="n">environment</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="k">if</span> <span class="n">param</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;fom_path&#39;</span><span class="p">,</span> <span class="p">):</span>
+        <span class="n">reset_foms</span><span class="p">(</span><span class="n">capsul_engine</span><span class="p">,</span> <span class="n">environment</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="c1"># otherwise use update_fom()</span>
+    <span class="n">update_fom</span><span class="p">(</span><span class="n">capsul_engine</span><span class="p">,</span> <span class="n">environment</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="update_fom">
+<a class="viewcode-back" href="../../../../api/engine.html#capsul.engine.module.fom.update_fom">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">update_fom</span><span class="p">(</span><span class="n">capsul_engine</span><span class="p">,</span> <span class="n">environment</span><span class="o">=</span><span class="s1">&#39;global&#39;</span><span class="p">,</span> <span class="n">param</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;Load configured FOMs and create FOM completion data</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c1">#print(&#39;***update_fom ***&#39;)</span>
+    <span class="k">with</span> <span class="n">capsul_engine</span><span class="o">.</span><span class="n">settings</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s1">&#39;fom&#39;</span><span class="p">,</span> <span class="n">environment</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">soma_app</span> <span class="o">=</span> <span class="n">Application</span><span class="p">(</span><span class="s1">&#39;capsul&#39;</span><span class="p">,</span> <span class="n">plugin_modules</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;soma.fom&#39;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="s1">&#39;soma.fom&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">soma_app</span><span class="o">.</span><span class="n">loaded_plugin_modules</span><span class="p">:</span>
+            <span class="c1"># WARNING: this is unsafe, may erase configured things, and</span>
+            <span class="c1"># probably not thread-safe.</span>
+            <span class="n">soma_app</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">fom_path</span><span class="p">:</span>
+            <span class="n">fom_path</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">fom_path</span>
+                        <span class="k">if</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">soma_app</span><span class="o">.</span><span class="n">fom_path</span><span class="p">]</span> \
+                <span class="o">+</span> <span class="n">soma_app</span><span class="o">.</span><span class="n">fom_path</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fom_path</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">soma_app</span><span class="o">.</span><span class="n">fom_path</span><span class="p">)</span>
+
+        <span class="n">soma_app</span><span class="o">.</span><span class="n">fom_manager</span><span class="o">.</span><span class="n">paths</span> <span class="o">=</span> <span class="n">fom_path</span>
+        <span class="n">soma_app</span><span class="o">.</span><span class="n">fom_manager</span><span class="o">.</span><span class="n">fom_files</span><span class="p">()</span>
+
+        <span class="n">store</span> <span class="o">=</span> <span class="n">capsul_engine</span><span class="o">.</span><span class="n">_modules_data</span><span class="p">[</span><span class="s1">&#39;fom&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">auto_fom</span> \
+                <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">store</span><span class="p">[</span><span class="s1">&#39;all_foms&#39;</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">schema</span> <span class="ow">in</span> <span class="n">soma_app</span><span class="o">.</span><span class="n">fom_manager</span><span class="o">.</span><span class="n">fom_files</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">schema</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">store</span><span class="p">[</span><span class="s1">&#39;all_foms&#39;</span><span class="p">]:</span>
+                    <span class="n">store</span><span class="p">[</span><span class="s1">&#39;all_foms&#39;</span><span class="p">][</span><span class="n">schema</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># not loaded yet.</span>
+
+        <span class="n">foms</span> <span class="o">=</span> <span class="p">((</span><span class="s1">&#39;input&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">input_fom</span><span class="p">),</span>
+                <span class="p">(</span><span class="s1">&#39;output&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">output_fom</span><span class="p">),</span>
+                <span class="p">(</span><span class="s1">&#39;shared&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">shared_fom</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">fom_type</span><span class="p">,</span> <span class="n">fom_filename</span> <span class="ow">in</span> <span class="n">foms</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">fom_filename</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">Undefined</span><span class="p">):</span>
+                <span class="n">fom</span> <span class="o">=</span> <span class="n">store</span><span class="p">[</span><span class="s1">&#39;all_foms&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">fom_filename</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">fom</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">fom</span><span class="p">,</span> <span class="n">atp</span><span class="p">,</span> <span class="n">pta</span> <span class="o">=</span> <span class="n">load_fom</span><span class="p">(</span><span class="n">capsul_engine</span><span class="p">,</span> <span class="n">fom_filename</span><span class="p">,</span>
+                                             <span class="n">config</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">environment</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">atp</span> <span class="o">=</span> <span class="n">store</span><span class="p">[</span><span class="s1">&#39;fom_atp&#39;</span><span class="p">][</span><span class="s1">&#39;all&#39;</span><span class="p">][</span><span class="n">fom_filename</span><span class="p">]</span>
+                    <span class="n">pta</span> <span class="o">=</span> <span class="n">store</span><span class="p">[</span><span class="s1">&#39;fom_pta&#39;</span><span class="p">][</span><span class="s1">&#39;all&#39;</span><span class="p">][</span><span class="n">fom_filename</span><span class="p">]</span>
+                <span class="n">store</span><span class="p">[</span><span class="s1">&#39;foms&#39;</span><span class="p">][</span><span class="n">fom_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">fom</span>
+                <span class="n">store</span><span class="p">[</span><span class="s1">&#39;fom_atp&#39;</span><span class="p">][</span><span class="n">fom_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">atp</span>
+                <span class="n">store</span><span class="p">[</span><span class="s1">&#39;fom_pta&#39;</span><span class="p">][</span><span class="n">fom_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">pta</span>
+
+        <span class="c1"># update directories</span>
+        <span class="n">directories</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">spm</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s1">&#39;spm&#39;</span><span class="p">,</span> <span class="n">environment</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">spm</span><span class="p">:</span>
+            <span class="n">directories</span><span class="p">[</span><span class="s1">&#39;spm&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spm</span><span class="o">.</span><span class="n">directory</span>
+        <span class="n">axon</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s1">&#39;axon&#39;</span><span class="p">,</span> <span class="n">environment</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">axon</span><span class="p">:</span>
+            <span class="n">directories</span><span class="p">[</span><span class="s1">&#39;shared&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">axon</span><span class="o">.</span><span class="n">shared_directory</span>
+        <span class="n">directories</span><span class="p">[</span><span class="s1">&#39;input&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">input_directory</span>
+        <span class="n">directories</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">output_directory</span>
+
+        <span class="k">for</span> <span class="n">atp</span> <span class="ow">in</span> <span class="n">store</span><span class="p">[</span><span class="s1">&#39;fom_atp&#39;</span><span class="p">][</span><span class="s1">&#39;all&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">atp</span><span class="o">.</span><span class="n">directories</span> <span class="o">=</span> <span class="n">directories</span>
+
+        <span class="c1"># backward compatibility for StudyConfig</span>
+        <span class="n">capsul_engine</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">modules_data</span><span class="o">.</span><span class="n">foms</span> <span class="o">=</span> <span class="n">store</span><span class="p">[</span><span class="s1">&#39;foms&#39;</span><span class="p">]</span>
+        <span class="n">capsul_engine</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">modules_data</span><span class="o">.</span><span class="n">all_foms</span> <span class="o">=</span> <span class="n">store</span><span class="p">[</span><span class="s1">&#39;all_foms&#39;</span><span class="p">]</span>
+        <span class="n">capsul_engine</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">modules_data</span><span class="o">.</span><span class="n">fom_atp</span> <span class="o">=</span> <span class="n">store</span><span class="p">[</span><span class="s1">&#39;fom_atp&#39;</span><span class="p">]</span>
+        <span class="n">capsul_engine</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">modules_data</span><span class="o">.</span><span class="n">fom_pta</span> <span class="o">=</span> <span class="n">store</span><span class="p">[</span><span class="s1">&#39;fom_pta&#39;</span><span class="p">]</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">update_formats</span><span class="p">(</span><span class="n">capsul_engine</span><span class="p">,</span> <span class="n">environment</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">capsul_engine</span><span class="o">.</span><span class="n">settings</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s1">&#39;fom&#39;</span><span class="p">,</span> <span class="n">environment</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">directories</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">spm</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s1">&#39;spm&#39;</span><span class="p">,</span> <span class="n">environment</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">spm</span><span class="p">:</span>
+            <span class="n">directories</span><span class="p">[</span><span class="s1">&#39;spm&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spm</span><span class="o">.</span><span class="n">directory</span>
+        <span class="n">axon</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s1">&#39;axon&#39;</span><span class="p">,</span> <span class="n">environment</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">axon</span><span class="p">:</span>
+            <span class="n">directories</span><span class="p">[</span><span class="s1">&#39;shared&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">axon</span><span class="o">.</span><span class="n">shared_directory</span>
+        <span class="n">directories</span><span class="p">[</span><span class="s1">&#39;input&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">input_directory</span>
+        <span class="n">directories</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">output_directory</span>
+
+        <span class="n">fields</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">_dbs</span><span class="o">.</span><span class="n">get_fields_names</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">_collection</span><span class="p">)</span>
+        <span class="n">formats</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> \
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">fields</span> \
+            <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;_format&#39;</span><span class="p">)</span> \
+                <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="n">store</span> <span class="o">=</span> <span class="n">capsul_engine</span><span class="o">.</span><span class="n">_modules_data</span><span class="p">[</span><span class="s1">&#39;fom&#39;</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">schema</span><span class="p">,</span> <span class="n">fom</span> <span class="ow">in</span> <span class="n">store</span><span class="p">[</span><span class="s1">&#39;all_foms&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">fom</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="n">atp</span> <span class="o">=</span> <span class="n">AttributesToPaths</span><span class="p">(</span>
+                <span class="n">fom</span><span class="p">,</span>
+                <span class="n">selection</span><span class="o">=</span><span class="p">{},</span>
+                <span class="n">directories</span><span class="o">=</span><span class="n">directories</span><span class="p">,</span>
+                <span class="n">preferred_formats</span><span class="o">=</span><span class="nb">set</span><span class="p">((</span><span class="n">formats</span><span class="p">)))</span>
+            <span class="n">old_atp</span> <span class="o">=</span> <span class="n">store</span><span class="p">[</span><span class="s1">&#39;fom_atp&#39;</span><span class="p">][</span><span class="s1">&#39;all&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span>
+            <span class="n">store</span><span class="p">[</span><span class="s1">&#39;fom_atp&#39;</span><span class="p">][</span><span class="s1">&#39;all&#39;</span><span class="p">][</span><span class="n">schema</span><span class="p">]</span> <span class="o">=</span> <span class="n">atp</span>
+            <span class="k">if</span> <span class="n">old_atp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;input&#39;</span><span class="p">,</span> <span class="s1">&#39;output&#39;</span><span class="p">,</span> <span class="s1">&#39;shared&#39;</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">store</span><span class="p">[</span><span class="s1">&#39;fom_atp&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="ow">is</span> <span class="n">old_atp</span><span class="p">:</span>
+                        <span class="n">store</span><span class="p">[</span><span class="s1">&#39;fom_atp&#39;</span><span class="p">][</span><span class="n">t</span><span class="p">]</span> <span class="o">=</span> <span class="n">atp</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">load_fom</span><span class="p">(</span><span class="n">capsul_engine</span><span class="p">,</span> <span class="n">schema</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">environment</span><span class="o">=</span><span class="s1">&#39;global&#39;</span><span class="p">):</span>
+    <span class="c1">#print(&#39;=== load fom&#39;, schema, &#39;===&#39;)</span>
+    <span class="c1">#import time</span>
+    <span class="c1">#t0 = time.time()</span>
+    <span class="n">soma_app</span> <span class="o">=</span> <span class="n">Application</span><span class="p">(</span><span class="s1">&#39;capsul&#39;</span><span class="p">,</span> <span class="n">plugin_modules</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;soma.fom&#39;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="s1">&#39;soma.fom&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">soma_app</span><span class="o">.</span><span class="n">loaded_plugin_modules</span><span class="p">:</span>
+        <span class="c1"># WARNING: this is unsafe, may erase configured things, and</span>
+        <span class="c1"># probably not thread-safe.</span>
+        <span class="n">soma_app</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
+    <span class="n">old_fom_path</span> <span class="o">=</span> <span class="n">soma_app</span><span class="o">.</span><span class="n">fom_path</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">fom_path</span><span class="p">:</span>
+        <span class="n">soma_app</span><span class="o">.</span><span class="n">fom_path</span> <span class="o">=</span> <span class="p">[</span><span class="n">six</span><span class="o">.</span><span class="n">ensure_str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">fom_path</span>
+                             <span class="k">if</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">soma_app</span><span class="o">.</span><span class="n">fom_path</span><span class="p">]</span> \
+            <span class="o">+</span> <span class="n">soma_app</span><span class="o">.</span><span class="n">fom_path</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">soma_app</span><span class="o">.</span><span class="n">fom_path</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">soma_app</span><span class="o">.</span><span class="n">fom_path</span><span class="p">)</span>
+    <span class="n">fom</span> <span class="o">=</span> <span class="n">soma_app</span><span class="o">.</span><span class="n">fom_manager</span><span class="o">.</span><span class="n">load_foms</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span>
+    <span class="n">soma_app</span><span class="o">.</span><span class="n">fom_path</span> <span class="o">=</span> <span class="n">old_fom_path</span>
+    <span class="n">store</span> <span class="o">=</span> <span class="n">capsul_engine</span><span class="o">.</span><span class="n">_modules_data</span><span class="p">[</span><span class="s1">&#39;fom&#39;</span><span class="p">]</span>
+    <span class="n">store</span><span class="p">[</span><span class="s1">&#39;all_foms&#39;</span><span class="p">][</span><span class="n">schema</span><span class="p">]</span> <span class="o">=</span> <span class="n">fom</span>
+
+    <span class="c1"># Create FOM completion data</span>
+    <span class="n">fields</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">_dbs</span><span class="o">.</span><span class="n">get_fields_names</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">_collection</span><span class="p">)</span>
+    <span class="n">formats</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> \
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">fields</span> \
+        <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;_format&#39;</span><span class="p">)</span> \
+            <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="n">directories</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">spm</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s1">&#39;spm&#39;</span><span class="p">,</span> <span class="n">environment</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">spm</span><span class="p">:</span>
+        <span class="n">directories</span><span class="p">[</span><span class="s1">&#39;spm&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spm</span><span class="o">.</span><span class="n">directory</span>
+    <span class="n">axon</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s1">&#39;axon&#39;</span><span class="p">,</span> <span class="n">environment</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">axon</span><span class="p">:</span>
+        <span class="n">directories</span><span class="p">[</span><span class="s1">&#39;shared&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">axon</span><span class="o">.</span><span class="n">shared_directory</span>
+    <span class="n">directories</span><span class="p">[</span><span class="s1">&#39;input&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">input_directory</span>
+    <span class="n">directories</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">output_directory</span>
+
+    <span class="n">atp</span> <span class="o">=</span> <span class="n">AttributesToPaths</span><span class="p">(</span>
+        <span class="n">fom</span><span class="p">,</span>
+        <span class="n">selection</span><span class="o">=</span><span class="p">{},</span>
+        <span class="n">directories</span><span class="o">=</span><span class="n">directories</span><span class="p">,</span>
+        <span class="n">preferred_formats</span><span class="o">=</span><span class="nb">set</span><span class="p">((</span><span class="n">formats</span><span class="p">)))</span>
+    <span class="n">store</span><span class="p">[</span><span class="s1">&#39;fom_atp&#39;</span><span class="p">][</span><span class="s1">&#39;all&#39;</span><span class="p">][</span><span class="n">schema</span><span class="p">]</span> <span class="o">=</span> <span class="n">atp</span>
+    <span class="n">pta</span> <span class="o">=</span> <span class="n">PathToAttributes</span><span class="p">(</span><span class="n">fom</span><span class="p">,</span> <span class="n">selection</span><span class="o">=</span><span class="p">{})</span>
+    <span class="n">store</span><span class="p">[</span><span class="s1">&#39;fom_pta&#39;</span><span class="p">][</span><span class="s1">&#39;all&#39;</span><span class="p">][</span><span class="n">schema</span><span class="p">]</span> <span class="o">=</span> <span class="n">pta</span>
+    <span class="c1">#print(&#39;   load fom done:&#39;, time.time() - t0, &#39;s&#39;)</span>
+    <span class="k">return</span> <span class="n">fom</span><span class="p">,</span> <span class="n">atp</span><span class="p">,</span> <span class="n">pta</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">reset_foms</span><span class="p">(</span><span class="n">capsul_engine</span><span class="p">,</span> <span class="n">environment</span><span class="p">):</span>
+    <span class="n">soma_app</span> <span class="o">=</span> <span class="n">Application</span><span class="p">(</span><span class="s1">&#39;capsul&#39;</span><span class="p">,</span> <span class="n">plugin_modules</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;soma.fom&#39;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="s1">&#39;soma.fom&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">soma_app</span><span class="o">.</span><span class="n">loaded_plugin_modules</span><span class="p">:</span>
+        <span class="c1"># WARNING: this is unsafe, may erase configured things, and</span>
+        <span class="c1"># probably not thread-safe.</span>
+        <span class="n">soma_app</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
+    <span class="n">soma_app</span><span class="o">.</span><span class="n">fom_manager</span><span class="o">.</span><span class="n">clear_cache</span><span class="p">()</span>
+    <span class="n">update_fom</span><span class="p">(</span><span class="n">capsul_engine</span><span class="p">,</span> <span class="n">environment</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="edition_widget">
+<a class="viewcode-back" href="../../../../api/engine.html#capsul.engine.module.fom.edition_widget">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">edition_widget</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">environment</span><span class="p">,</span> <span class="n">config_id</span><span class="o">=</span><span class="s1">&#39;fom&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39; Edition GUI for FOM config - see</span>
+<span class="sd">    :class:`~capsul.qt_gui.widgets.settings_editor.SettingsEditor`</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">soma.qt_gui.controller_widget</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScrollControllerWidget</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">soma.controller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Controller</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">types</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_config</span><span class="p">(</span><span class="n">widget</span><span class="p">):</span>
+        <span class="n">widget</span><span class="o">.</span><span class="n">update_controller</span><span class="p">()</span>
+        <span class="n">controller</span> <span class="o">=</span> <span class="n">widget</span><span class="o">.</span><span class="n">controller_widget</span><span class="o">.</span><span class="n">controller</span>
+        <span class="k">with</span> <span class="n">widget</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">settings</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+            <span class="n">conf</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">config_id</span><span class="p">,</span> <span class="n">widget</span><span class="o">.</span><span class="n">environment</span><span class="p">)</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;config_id&#39;</span><span class="p">:</span> <span class="n">config_id</span><span class="p">}</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;input_fom&#39;</span><span class="p">,</span> <span class="s1">&#39;output_fom&#39;</span><span class="p">,</span> <span class="s1">&#39;shared_fom&#39;</span><span class="p">,</span>
+                      <span class="s1">&#39;volumes_format&#39;</span><span class="p">,</span> <span class="s1">&#39;meshes_format&#39;</span><span class="p">,</span> <span class="s1">&#39;auto_fom&#39;</span><span class="p">,</span>
+                      <span class="s1">&#39;fom_path&#39;</span><span class="p">,</span> <span class="s1">&#39;input_directory&#39;</span><span class="p">,</span> <span class="s1">&#39;output_directory&#39;</span><span class="p">):</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">controller</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="n">traits</span><span class="o">.</span><span class="n">Undefined</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;fom_path&#39;</span><span class="p">,</span> <span class="p">):</span>
+                        <span class="n">value</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">values</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">if</span> <span class="n">conf</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">session</span><span class="o">.</span><span class="n">new_config</span><span class="p">(</span><span class="n">config_id</span><span class="p">,</span> <span class="n">widget</span><span class="o">.</span><span class="n">environment</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s1">&#39;config_id&#39;</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="nb">setattr</span><span class="p">(</span><span class="n">conf</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">values</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+
+    <span class="n">controller</span> <span class="o">=</span> <span class="n">Controller</span><span class="p">()</span>
+
+    <span class="n">controller</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span>
+        <span class="s1">&#39;input_fom&#39;</span><span class="p">,</span>
+        <span class="n">traits</span><span class="o">.</span><span class="n">Str</span><span class="p">(</span><span class="n">traits</span><span class="o">.</span><span class="n">Undefined</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;input FOM&#39;</span><span class="p">))</span>
+    <span class="n">controller</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span>
+        <span class="s1">&#39;output_fom&#39;</span><span class="p">,</span>
+        <span class="n">traits</span><span class="o">.</span><span class="n">Str</span><span class="p">(</span><span class="n">traits</span><span class="o">.</span><span class="n">Undefined</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;output FOM&#39;</span><span class="p">))</span>
+    <span class="n">controller</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span>
+        <span class="s1">&#39;shared_fom&#39;</span><span class="p">,</span>
+        <span class="n">traits</span><span class="o">.</span><span class="n">Str</span><span class="p">(</span><span class="n">traits</span><span class="o">.</span><span class="n">Undefined</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;shared data FOM&#39;</span><span class="p">))</span>
+    <span class="n">controller</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span>
+        <span class="s1">&#39;volumes_format&#39;</span><span class="p">,</span>
+        <span class="n">traits</span><span class="o">.</span><span class="n">Str</span><span class="p">(</span><span class="n">traits</span><span class="o">.</span><span class="n">Undefined</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;Format used for volumes&#39;</span><span class="p">))</span>
+    <span class="n">controller</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span>
+        <span class="s1">&#39;meshes_format&#39;</span><span class="p">,</span>
+        <span class="n">traits</span><span class="o">.</span><span class="n">Str</span><span class="p">(</span><span class="n">traits</span><span class="o">.</span><span class="n">Undefined</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                   <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;Format used for meshes&#39;</span><span class="p">))</span>
+    <span class="n">controller</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span>
+        <span class="s1">&#39;auto_fom&#39;</span><span class="p">,</span>
+        <span class="n">traits</span><span class="o">.</span><span class="n">Bool</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+              <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;Look in all FOMs when a process is not found (in &#39;</span>
+              <span class="s1">&#39;addition to the standard share/foms). Note that auto_fom &#39;</span>
+              <span class="s1">&#39;looks for the first FOM matching the process to get &#39;</span>
+              <span class="s1">&#39;completion for, and does not handle ambiguities. Moreover &#39;</span>
+              <span class="s1">&#39;it brings an overhead (typically 6-7 seconds) the first &#39;</span>
+              <span class="s1">&#39;time it is used since it has to parse all available FOMs.&#39;</span><span class="p">))</span>
+    <span class="n">controller</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span>
+        <span class="s1">&#39;fom_path&#39;</span><span class="p">,</span>
+        <span class="n">traits</span><span class="o">.</span><span class="n">List</span><span class="p">(</span><span class="n">traits</span><span class="o">.</span><span class="n">Directory</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+          <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;list of additional directories where to look for FOMs&#39;</span><span class="p">))</span>
+    <span class="c1"># FIXME: until directories are included in another config module</span>
+    <span class="n">controller</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span>
+        <span class="s1">&#39;input_directory&#39;</span><span class="p">,</span>
+        <span class="n">traits</span><span class="o">.</span><span class="n">Directory</span><span class="p">(</span><span class="n">traits</span><span class="o">.</span><span class="n">Undefined</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                         <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;input study data directory&#39;</span><span class="p">))</span>
+    <span class="n">controller</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span>
+        <span class="s1">&#39;output_directory&#39;</span><span class="p">,</span>
+        <span class="n">traits</span><span class="o">.</span><span class="n">Directory</span><span class="p">(</span><span class="n">traits</span><span class="o">.</span><span class="n">Undefined</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                         <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;output study data directory&#39;</span><span class="p">))</span>
+
+    <span class="n">conf</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">select_configurations</span><span class="p">(</span>
+        <span class="n">environment</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;fom&#39;</span><span class="p">:</span> <span class="s1">&#39;any&#39;</span><span class="p">})</span>
+    <span class="k">if</span> <span class="n">conf</span><span class="p">:</span>
+        <span class="n">fconf</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s1">&#39;capsul.engine.module.fom&#39;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">controller</span><span class="o">.</span><span class="n">input_fom</span> <span class="o">=</span> <span class="n">fconf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s1">&#39;input_fom&#39;</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">Undefined</span><span class="p">)</span>
+        <span class="n">controller</span><span class="o">.</span><span class="n">output_fom</span> <span class="o">=</span> <span class="n">fconf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s1">&#39;output_fom&#39;</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">Undefined</span><span class="p">)</span>
+        <span class="n">controller</span><span class="o">.</span><span class="n">shared_fom</span> <span class="o">=</span> <span class="n">fconf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s1">&#39;shared_fom&#39;</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">Undefined</span><span class="p">)</span>
+        <span class="n">controller</span><span class="o">.</span><span class="n">volumes_format</span><span class="o">=</span> <span class="n">fconf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s1">&#39;volumes_format&#39;</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">Undefined</span><span class="p">)</span>
+        <span class="n">controller</span><span class="o">.</span><span class="n">meshes_format</span> <span class="o">=</span> <span class="n">fconf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s1">&#39;meshes_format&#39;</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">Undefined</span><span class="p">)</span>
+        <span class="n">controller</span><span class="o">.</span><span class="n">auto_fom</span> <span class="o">=</span> <span class="n">fconf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s1">&#39;auto_fom&#39;</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">Undefined</span><span class="p">)</span>
+        <span class="n">controller</span><span class="o">.</span><span class="n">fom_path</span> <span class="o">=</span> <span class="n">fconf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s1">&#39;fom_path&#39;</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">Undefined</span><span class="p">)</span>
+        <span class="n">controller</span><span class="o">.</span><span class="n">input_directory</span><span class="o">=</span> <span class="n">fconf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s1">&#39;input_directory&#39;</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">Undefined</span><span class="p">)</span>
+        <span class="n">controller</span><span class="o">.</span><span class="n">output_directory</span> <span class="o">=</span> <span class="n">fconf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s1">&#39;output_directory&#39;</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">Undefined</span><span class="p">)</span>
+
+    <span class="n">widget</span> <span class="o">=</span> <span class="n">ScrollControllerWidget</span><span class="p">(</span><span class="n">controller</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">widget</span><span class="o">.</span><span class="n">engine</span> <span class="o">=</span> <span class="n">engine</span>
+    <span class="n">widget</span><span class="o">.</span><span class="n">environment</span> <span class="o">=</span> <span class="n">environment</span>
+    <span class="n">widget</span><span class="o">.</span><span class="n">accept</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">MethodType</span><span class="p">(</span><span class="n">validate_config</span><span class="p">,</span> <span class="n">widget</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">widget</span></div>
+
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">CAPSUL</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../../engine.html" >capsul.engine</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">CAPSUL</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2025, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
+    </div>
+  </body>
+</html>

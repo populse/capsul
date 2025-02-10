@@ -273,11 +273,11 @@
 <span class="sd">        -------</span>
 <span class="sd">        computed resource id.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">if</span> <span class="n">resource_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">resource_id</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">):</span>
             <span class="n">resource_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">somaworkflow_computing_resource</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">somaworkflow_computing_resource</span> <span class="o">=</span> <span class="n">resource_id</span>
-        <span class="k">if</span> <span class="n">resource_id</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">,</span> <span class="s1">&#39;localhost&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">resource_id</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">,</span> <span class="s1">&#39;localhost&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">):</span>
             <span class="kn">from</span><span class="w"> </span><span class="nn">soma_workflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">configuration</span> <span class="k">as</span> <span class="n">swcf</span>
             <span class="n">resource_id</span> <span class="o">=</span> <span class="n">swcf</span><span class="o">.</span><span class="n">Configuration</span><span class="o">.</span><span class="n">get_local_resource_id</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">set_it</span><span class="p">:</span>
@@ -354,6 +354,11 @@
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="kn">import</span><span class="w"> </span><span class="nn">soma_workflow.client</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">swclient</span>
 
+        <span class="n">conf_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">somaworkflow_config_file</span>
+        <span class="k">if</span> <span class="n">conf_file</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">):</span>
+            <span class="n">conf_file</span> \
+                <span class="o">=</span> <span class="n">swclient</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">Configuration</span><span class="o">.</span><span class="n">search_config_path</span><span class="p">()</span>
+
         <span class="n">resource_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_resource_id</span><span class="p">(</span><span class="n">resource_id</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">force_reconnect</span><span class="p">:</span>
@@ -367,10 +372,6 @@
             <span class="k">if</span> <span class="n">wc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">wc</span>
 
-        <span class="n">conf_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">somaworkflow_config_file</span>
-        <span class="k">if</span> <span class="n">conf_file</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">):</span>
-            <span class="n">conf_file</span> \
-                <span class="o">=</span> <span class="n">swclient</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">Configuration</span><span class="o">.</span><span class="n">search_config_path</span><span class="p">()</span>
         <span class="n">login</span> <span class="o">=</span> <span class="n">swclient</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">Configuration</span><span class="o">.</span><span class="n">get_logins</span><span class="p">(</span>
             <span class="n">conf_file</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">resource_id</span><span class="p">)</span>
         <span class="n">config</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="s1">&#39;config&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
