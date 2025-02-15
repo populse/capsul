@@ -617,7 +617,7 @@ class NodeGWidget(QtGui.QGraphicsItem):
         label2 = QtGui.QLabel(text)
         label2.setObjectName("label")
         label2.setStyleSheet(
-            "background: rgba({0}, {1}, {2}, 255); "
+            "background: rgba({}, {}, {}, 255); "
             "border-radius: 7px; border: 0px solid; "
             "padding: 1px;".format(*color)
         )
