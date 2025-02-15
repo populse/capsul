@@ -1794,7 +1794,7 @@ class Pipeline(Process):
         self.workflow_repr = "->".join([x[0] for x in ordered_list])
         logger.debug("Workflow: {0}". format(self.workflow_repr))
 
-        # Generate the final workflow by flattenin graphs structures
+        # Generate the final workflow by flattening graphs structures
         workflow_list = []
         walk_workflow(ordered_list, workflow_list)
 
@@ -2421,7 +2421,7 @@ class Pipeline(Process):
                     'logical order regarding the workflow streams. They are '
                     'different from sub-pipelines in that steps are purely '
                     'virtual groups, they do not have parameters. To activate '
-                    'or diasable a step, just do:\n'
+                    'or disable a step, just do:\n'
                     'pipeline.steps.my_step = False\n'
                     '\n'
                     'To get the nodes list in a step:\n'

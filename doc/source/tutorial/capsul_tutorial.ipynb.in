@@ -1459,10 +1459,10 @@
     "editable": true
    },
    "source": [
-    "<h1>Use thirdparty software in Capsul</h1>\n",
+    "<h1>Use third party software in Capsul</h1>\n",
     "\n",
-    "Some thirdparty software need to be configured before they are called. StudyConfig is used to hold this\n",
-    "configuration. There are a set of modules that can be modified to enable/disable configuration of thirdparty \n",
+    "Some third party software need to be configured before they are called. StudyConfig is used to hold this\n",
+    "configuration. There are a set of modules that can be modified to enable/disable configuration of third party \n",
     "software.\n"
    ]
   },

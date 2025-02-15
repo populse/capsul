@@ -29,7 +29,7 @@ class BoardWidget(QtGui.QWidget):
     """
 
     def __init__(self, controller, parent=None, name=None):
-        """ Method to initilaize the ControllerWidget class.
+        """ Method to initialize the ControllerWidget class.
 
         Parameters
         ----------

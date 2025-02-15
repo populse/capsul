@@ -314,7 +314,7 @@ class CapsulMainWindow(MyQUiLoader):
 
         # Create the controller widget associated to the sub pipeline
         # controller: if the sub pipeline is a ProcessIteration, disable
-        # the correspondind controller widget since this pipeline is generated
+        # the corresponding controller widget since this pipeline is generated
         # on the fly an is not directly synchronized with the rest of the
         # pipeline.
         is_iterative_pipeline = False
