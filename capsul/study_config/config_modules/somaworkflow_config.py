@@ -157,11 +157,11 @@ class SomaWorkflowConfig(StudyConfigModule):
         -------
         computed resource id.
         '''
-        if resource_id is None:
+        if resource_id in (None, '', Undefined):
             resource_id = self.study_config.somaworkflow_computing_resource
         else:
             self.study_config.somaworkflow_computing_resource = resource_id
-        if resource_id in (None, Undefined, 'localhost'):
+        if resource_id in (None, Undefined, 'localhost', ''):
             from soma_workflow import configuration as swcf
             resource_id = swcf.Configuration.get_local_resource_id()
         if set_it:
@@ -229,6 +229,11 @@ class SomaWorkflowConfig(StudyConfigModule):
         '''
         import soma_workflow.client as swclient
 
+        conf_file = self.study_config.somaworkflow_config_file
+        if conf_file in (None, Undefined):
+            conf_file \
+                = swclient.configuration.Configuration.search_config_path()
+
         resource_id = self.get_resource_id(resource_id, True)
 
         if force_reconnect:
@@ -242,10 +247,6 @@ class SomaWorkflowConfig(StudyConfigModule):
             if wc is not None:
                 return wc
 
-        conf_file = self.study_config.somaworkflow_config_file
-        if conf_file in (None, Undefined):
-            conf_file \
-                = swclient.configuration.Configuration.search_config_path()
         login = swclient.configuration.Configuration.get_logins(
             conf_file).get(resource_id)
         config = getattr(r, 'config', None)

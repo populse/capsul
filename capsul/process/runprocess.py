@@ -285,7 +285,7 @@ def main():
     '''
 
     # disable any GUI
-    qt_backend.set_headless()
+    qt_backend.set_headless(needs_opengl=False)
 
     usage = '''Usage: python -m capsul [options] processname [arg1] [arg2] ...
     [argx=valuex] [argy=valuey] ...
