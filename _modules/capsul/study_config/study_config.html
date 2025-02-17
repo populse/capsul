@@ -356,7 +356,7 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="n">module</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">EnvironmentError</span><span class="p">(</span><span class="s1">&#39;Required StudyConfig module </span><span class="si">%s</span><span class="s1"> is &#39;</span>
                                        <span class="s1">&#39;missing&#39;</span> <span class="o">%</span> <span class="n">module_name</span><span class="p">)</span>
-            <span class="c1"># Check if there are dependent modules that must be initilaized</span>
+            <span class="c1"># Check if there are dependent modules that must be initialized</span>
             <span class="c1"># before the current one</span>
             <span class="n">initialize_first</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">module</span><span class="o">.</span><span class="n">dependencies</span>
                                 <span class="k">if</span> <span class="n">m</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">already_initialized</span><span class="p">]</span>
