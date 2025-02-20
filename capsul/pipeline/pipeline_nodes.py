@@ -9,7 +9,7 @@ Classes
 
 import typing
 
-from soma.controller import Controller, List, Literal, type_from_str, undefined
+from soma.controller import Controller, Literal, type_from_str, undefined
 
 from ..process.node import Node, Plug
 
@@ -373,10 +373,10 @@ class Switch(Node):
     @classmethod
     def configure_controller(cls):
         c = Controller()
-        c.add_field("inputs", List[str])
-        c.add_field("outputs", List[str])
-        c.add_field("optional_params", List[str], default_factory=lambda: [])
-        c.add_field("output_types", List[str])
+        c.add_field("inputs", list[str])
+        c.add_field("outputs", list[str])
+        c.add_field("optional_params", list[str], default_factory=lambda: [])
+        c.add_field("output_types", list[str])
         c.inputs = ["input_1", "input_2"]
         c.outputs = ["output"]
         c.output_types = ["Any"]
