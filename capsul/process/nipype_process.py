@@ -11,6 +11,7 @@ import inspect
 import logging
 import os
 import sys
+import textwrap
 import types
 
 import soma.controller as sc
@@ -207,11 +208,12 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
                 traceback.print_exc()
                 ex_type, ex, tb = sys.exc_info()
                 logging.debug(
-                    "Something wrong in the nipype output trait "
-                    "synchronization:\n\n\tError: {0} - {1}\n"
-                    "\tTraceback:\n{2}".format(
-                        ex_type, ex, "".join(traceback.format_tb(tb))
-                    )
+                    textwrap.dedent(f"""\
+                        Something wrong in the nipype output trait synchronization:
+
+                        \tError: {ex_type} - {ex}
+                        \tTraceback:
+                        {''.join(traceback.format_tb(tb))}""")
                 )
                 nipype_outputs = {}
 
@@ -247,10 +249,13 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
                     traceback.print_exc()
                     ex_type, ex, tb = sys.exc_info()
                     logging.debug(
-                        "Something wrong in the nipype output trait "
-                        "synchronization:\n\n\tError: {0} - {1}\n"
-                        "\tTraceback:\n{2}".format(
-                            ex_type, ex, "".join(traceback.format_tb(tb))
+                        textwrap.dedent(
+                            f"""\
+                            Something wrong in the nipype output trait synchronization:
+
+                            \tError: {ex_type} - {ex}
+                            \tTraceback:
+                            {''.join(traceback.format_tb(tb))}"""
                         )
                     )
 
@@ -278,10 +283,13 @@ def nipype_factory(nipype_instance, base_class=NipypeProcess):
                             traceback.print_exc()
                             ex_type, ex, tb = sys.exc_info()
                             logging.debug(
-                                "Something wrong in the nipype output trait "
-                                "synchronization:\n\n\tError: {0} - {1}\n"
-                                "\tTraceback:\n{2}".format(
-                                    ex_type, ex, "".join(traceback.format_tb(tb))
+                                textwrap.dedent(
+                                    f"""\
+                                    Something wrong in the nipype output trait synchronization:
+
+                                    \tError: {ex_type} - {ex}
+                                    \tTraceback:
+                                    {"".join(traceback.format_tb(tb))}"""
                                 )
                             )
 
