@@ -1,0 +1,5 @@
+<map id="inheritance379204bf4f" name="inheritance379204bf4f">
+<area shape="rect" id="node1" href="#capsul.subprocess.fsl.Popen" target="_top" title="Equivalent to Python subprocess.Popen for FSL commands" alt="" coords="198,5,281,31"/>
+<area shape="rect" id="node2" href="https://docs.python.org/3.9/library/subprocess.html#subprocess.Popen" target="_top" title="Execute a child program in a new process." alt="" coords="5,31,144,56"/>
+<area shape="rect" id="node3" href="#capsul.subprocess.spm.Popen" target="_top" title="Equivalent to Python soma.subprocess.Popen for SPM batch" alt="" coords="192,55,287,80"/>
+</map>

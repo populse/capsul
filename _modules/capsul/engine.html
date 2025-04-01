@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+    <title>CAPSUL &#8212; CAPSUL - Chain algorithm in pipelines and execute in many contexts</title>
+  <!-- htmltitle is before nature.css - we use this hack to load bootstrap first -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="../../_static/css/bootstrap.min.css" media="screen" />
+  <link rel="stylesheet" href="../../_static/css/bootstrap-responsive.css"/>
+  <link rel="icon" href="../../_static/capsul_logo.svg"/>
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=f0b81668" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+    
+    <script src="../../_static/documentation_options.js?v=983e91d6"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+
+  <!-- sidebar -->
+  
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="../../_static/js/bootstrap.min.js" type="application/javascript"></script>
+
+  <script type="application/javascript">
+    $("div.buttonNext, div.buttonPrevious").hover(
+       function () {
+           $(this).css('background-color', '#FF9C34');
+       },
+       function () {
+           $(this).css('background-color', '#A7D6E2');
+       }
+    );
+    var bodywrapper = $('.bodywrapper');
+    var sidebarbutton = $('#sidebarbutton');
+    sidebarbutton.css({'height': '900px'});
+  </script>
+
+  <div class="header" style="display: inline; width: 80%; margin-left:10%;">
+    <a href="../../index.html">
+    <img src="../../_static/capsul_logo.svg" alt="Capsul logo" style="display: inline; height:4em;"/>
+    </a >
+    <div class="navbar" style="display: inline;">
+      <ul>
+        <li><a href="../../index.html">Home</a></li>
+        <li><a href="../../installation.html">Installation</a></li>
+        <li class="btn-li">
+          <div class="btn-group">
+            <a href="../../documentation.html">Documentation</a>
+            <a class="btn dropdown-toggle" data-toggle="dropdown">
+              <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+              <li class="link-title">CAPSUL</li>
+              <li><a href="../../user_guide_tree/index.html">User guide</a></li>
+              <li><a href="../../api/index.html">API</a></li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <!-- form action="search.html" method="get" style="display: inline-block;"></form>
+            <input type="text" class="search-header" name="q" placeholder="search documentation..." value=""></input>
+            <button type="submit" >search</button>
+          </form -->
+          <form class="search_box" method="get" action="http://www.google.com/search" style="display: inline-block;">
+            <input class="search-header" type="text" name="q" placeholder="search documentation..." />
+            <input class="submit" type="image" src="../../_static/find_read.png" value="Search" />
+            <input type="hidden" name="sitesearch" value="brainvisa.info/capsul" />
+          </form>
+        </li>
+      </ul>
+    </div> <!-- end navbar -->
+  </div>
+
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">CAPSUL</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">CAPSUL</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for capsul.engine</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">This module defines the main API to interact with Capsul processes.</span>
+<span class="sd">In order to execute a process, it is mandatory to have an instance of</span>
+<span class="sd">:py:class:`CapsulEngine`. Such an instance can be created with factory</span>
+<span class="sd">:py:func:`capsul_engine`</span>
+
+<span class="sd">Classes</span>
+<span class="sd">=======</span>
+<span class="sd">:class:`CapsulEngine`</span>
+<span class="sd">---------------------</span>
+
+<span class="sd">Functions</span>
+<span class="sd">=========</span>
+<span class="sd">:func:`database_factory`</span>
+<span class="sd">------------------------</span>
+<span class="sd">:func:`capsul_engine`</span>
+<span class="sd">---------------------</span>
+<span class="sd">:func:`activate_configuration`</span>
+<span class="sd">------------------------------</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">print_function</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os.path</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">osp</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">traits.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">String</span><span class="p">,</span> <span class="n">Undefined</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">soma.controller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Controller</span><span class="p">,</span> <span class="n">controller_to_dict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">soma.serialization</span><span class="w"> </span><span class="kn">import</span> <span class="n">to_json</span><span class="p">,</span> <span class="n">from_json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">soma.sorted_dictionary</span><span class="w"> </span><span class="kn">import</span> <span class="n">SortedDictionary</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">soma.utils.weak_proxy</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_ref</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.database_json</span><span class="w"> </span><span class="kn">import</span> <span class="n">JSONDBEngine</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.database_populse</span><span class="w"> </span><span class="kn">import</span> <span class="n">PopulseDBEngine</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">Settings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.module</span><span class="w"> </span><span class="kn">import</span> <span class="n">default_modules</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">run</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.run</span><span class="w"> </span><span class="kn">import</span> <span class="n">WorkflowExecutionError</span>
+
+<span class="c1"># FIXME TODO: OBSOLETE</span>
+
+<span class="c1">#Questions about API/implementation:</span>
+
+<span class="c1">#* execution:</span>
+  <span class="c1">#* workflows are not exposed, they are running a possibly different pipeline (single process case), thus we need to keep track on it</span>
+  <span class="c1">#* logging / history / provenance, databasing</span>
+  <span class="c1">#* retrieving output files with transfers: when ? currently in wait(), should it be a separate method ? should it be asynchronous ?</span>
+  <span class="c1">#* setting output parameters: currently in wait(), should it be a separate method ?</span>
+  <span class="c1">#* disconnections / reconnections client / server</span>
+  <span class="c1">#* actually connect computing resource[s]</span>
+<span class="c1">#* settings / config:</span>
+  <span class="c1">#* see comments in settings.py</span>
+  <span class="c1">#* GUI and constraints on parameters ?</span>
+  <span class="c1">#* how to handle optional dependencies: ie nipype depends on spm if spm is installed / configured, otherwise we can run other nipype interfaces, but no spm ones</span>
+  <span class="c1">#* integrate soma-workflow config + CE.computing_resource</span>
+
+
+<div class="viewcode-block" id="CapsulEngine">
+<a class="viewcode-back" href="../../api/engine.html#capsul.engine.CapsulEngine">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CapsulEngine</span><span class="p">(</span><span class="n">Controller</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    A CapsulEngine is the mandatory entry point of all software using Capsul.</span>
+<span class="sd">    It contains objects to store configuration and metadata, defines execution</span>
+<span class="sd">    environment(s) (possibly remote) and performs pipelines execution.</span>
+
+<span class="sd">    A CapsulEngine must be created using capsul.engine.capsul_engine function.</span>
+<span class="sd">    For instance::</span>
+
+<span class="sd">        from capsul.engine import capsul_engine</span>
+<span class="sd">        ce = capsul_engine()</span>
+
+<span class="sd">    Or::</span>
+
+<span class="sd">        from capsul.api import capsul_engine</span>
+<span class="sd">        ce = capsul_engine()</span>
+
+<span class="sd">    By default, CapsulEngine only stores necessary configuration. But it may be</span>
+<span class="sd">    necessary to modify the Python environment globally to apply this</span>
+<span class="sd">    configuration. For instance, Nipype must be configured globally. If SPM is</span>
+<span class="sd">    configured in CapsulEngine, it is necessary to explicitly activate the</span>
+<span class="sd">    configuration in order to modify the global configuration of Nipype for</span>
+<span class="sd">    SPM. This activation is done by explicitly activating the execution</span>
+<span class="sd">    context of the capsul engine with the following code, inside a running</span>
+<span class="sd">    process::</span>
+
+<span class="sd">        from capsul.engine import capsul_engine, activate_configuration</span>
+<span class="sd">        ce = capsul_engine()</span>
+<span class="sd">        # Nipype is not configured here</span>
+<span class="sd">        config = capsul_engine.settings.select_configurations(</span>
+<span class="sd">            &#39;global&#39;, {&#39;nipype&#39;: &#39;any&#39;})</span>
+<span class="sd">        activate_configuration(config)</span>
+<span class="sd">        # Nipype is configured here</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        CapsulEngine is the replacement of the older</span>
+<span class="sd">        :class:`~capsul.study_config.study_config.StudyConfig`, which is still</span>
+<span class="sd">        present in Capsul 2.2 for backward compatibility, but will disappear in</span>
+<span class="sd">        later versions. In Capsul 2.2 both objects exist, and are synchronized</span>
+<span class="sd">        internally, which means that a StudyConfig object will also create a</span>
+<span class="sd">        CapsulEngine, and the other way, and modifications in the StudyConfig</span>
+<span class="sd">        object will change the corresponding item in CapsulEngine and vice</span>
+<span class="sd">        versa. Functionalities of StudyConfig are moving internally to</span>
+<span class="sd">        CapsulEngine, StudyConfig being merely a wrapper.</span>
+
+<span class="sd">    **Using CapsulEngine**</span>
+
+<span class="sd">    It is used to store configuration variables, and to handle execution within</span>
+<span class="sd">    the configured context. The configuration has 2 independent axes:</span>
+<span class="sd">    configuration modules, which provide additional configuration variables,</span>
+<span class="sd">    and &quot;environments&quot; which typically represent computing resources.</span>
+
+<span class="sd">    *Computing resources*</span>
+
+<span class="sd">    Capsul is using :somaworkflow:`Soma-Workflow &lt;index.html&gt;` to run</span>
+<span class="sd">    processes, and is thus able to connect and execute on a remote computing</span>
+<span class="sd">    server. The remote computing resource may have a different configuration</span>
+<span class="sd">    from the client one (paths for software or data, available external</span>
+<span class="sd">    software etc). So configurations specific to different computing resources</span>
+<span class="sd">    should be handled in CapsulEngine. For this, the configuration section is</span>
+<span class="sd">    split into several configuration entries, one for each computing resource.</span>
+
+<span class="sd">    As this is a little bit complex to handle at first, a &quot;global&quot;</span>
+<span class="sd">    configuration (what we call &quot;environment&quot;) is used to maintain all common</span>
+<span class="sd">    configuration options. It is typically used to work on the local machine,</span>
+<span class="sd">    especially for users who only work locally.</span>
+
+<span class="sd">    Configuration is stored in a database (either internal or persistent),</span>
+<span class="sd">    through the :class:`~capsul.engine.settings.Settings` object found in</span>
+<span class="sd">    ``CapsulEngine.settings``.</span>
+<span class="sd">    Access and modification of settings should occur within a session block</span>
+<span class="sd">    using ``with capsul_engine.settings as session``. See the</span>
+<span class="sd">    :class:`~capsul.engine.settings.Settings` class for details.</span>
+
+<span class="sd">    ::</span>
+
+<span class="sd">        &gt;&gt;&gt; from capsul.api import capsul_engine</span>
+<span class="sd">        &gt;&gt;&gt; ce = capsul_engine()</span>
+<span class="sd">        &gt;&gt;&gt; config = ce.settings.select_configurations(&#39;global&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; config = ce.global_config</span>
+<span class="sd">        &gt;&gt;&gt; print(config)</span>
+<span class="sd">        {&#39;capsul_engine&#39;: {&#39;uses&#39;: {&#39;capsul.engine.module.fsl&#39;: &#39;ALL&#39;,</span>
+<span class="sd">          &#39;capsul.engine.module.matlab&#39;: &#39;ALL&#39;,</span>
+<span class="sd">          &#39;capsul.engine.module.spm&#39;: &#39;ALL&#39;}}}</span>
+
+<span class="sd">    Whenever a new computing resource is used, it can be added as a new</span>
+<span class="sd">    environment key to all configuration operations.</span>
+
+<span class="sd">    Note that the settings store all possible configurations for all</span>
+<span class="sd">    environments (or computing resources), but are not &quot;activated&quot;: this is</span>
+<span class="sd">    only done at runtime in specific process execution functions: each process</span>
+<span class="sd">    may need to select and use a different configuration from other ones, and</span>
+<span class="sd">    activate it individually.</span>
+
+<span class="sd">    :class:`~capsul.process.process.Process` subclasses or instances may</span>
+<span class="sd">    provide their configuration requirements via their</span>
+<span class="sd">    :meth:`~capsul.process.process.Process.requirements` method. This method</span>
+<span class="sd">    returns a dictionary of request strings (one element per needed module)</span>
+<span class="sd">    that will be used to select one configuration amongst the available</span>
+<span class="sd">    settings entries of each required module.</span>
+
+<span class="sd">    *configuration modules*</span>
+
+<span class="sd">    The configuration is handled through a set of configuration modules. Each</span>
+<span class="sd">    is dedicated for a topic (for instance handling a specific external</span>
+<span class="sd">    software paths, or managing process parameters completion, etc). A module</span>
+<span class="sd">    adds a settings table in the database, with its own variables, and is able</span>
+<span class="sd">    to manage runtime configuration of programs, if needed, through its</span>
+<span class="sd">    ``activate_configurations`` function. Capsul comes with a</span>
+<span class="sd">    set of predefined modules:</span>
+<span class="sd">    :class:`~capsul.engine.module.attributes`,</span>
+<span class="sd">    :class:`~capsul.engine.module.axon`,</span>
+<span class="sd">    :class:`~capsul.engine.module.fom`,</span>
+<span class="sd">    :class:`~capsul.engine.module.fsl`,</span>
+<span class="sd">    :class:`~capsul.engine.module.matlab`,</span>
+<span class="sd">    :class:`~capsul.engine.module.spm`</span>
+
+<span class="sd">    **Methods**</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
+                 <span class="n">database_location</span><span class="p">,</span>
+                 <span class="n">database</span><span class="p">,</span>
+                 <span class="n">require</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        CapsulEngine.__init__(self, database_location, database, config=None)</span>
+
+<span class="sd">        The CapsulEngine constructor should not be called directly.</span>
+<span class="sd">        Use :func:`capsul_engine` factory function instead.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">CapsulEngine</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span> <span class="o">=</span> <span class="kc">None</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_database_location</span> <span class="o">=</span> <span class="n">database_location</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_database</span> <span class="o">=</span> <span class="n">database</span>        
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_loaded_modules</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">load_modules</span><span class="p">(</span><span class="n">require</span><span class="p">)</span>
+        
+        <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.study_config.study_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">StudyConfig</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span> <span class="o">=</span> <span class="n">StudyConfig</span><span class="p">(</span><span class="n">engine</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metadata_engine</span> <span class="o">=</span> <span class="n">from_json</span><span class="p">(</span><span class="n">database</span><span class="o">.</span><span class="n">json_value</span><span class="p">(</span><span class="s1">&#39;metadata_engine&#39;</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_connected_resource</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">settings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span> <span class="o">=</span> <span class="n">Settings</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">db</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_settings</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">database</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_database</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">database_location</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_database_location</span>
+        
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">metadata_engine</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata_engine</span>
+    
+    <span class="nd">@metadata_engine</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">metadata_engine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metadata_engine</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_metadata_engine</span> <span class="o">=</span> <span class="n">metadata_engine</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">set_json_value</span><span class="p">(</span><span class="s1">&#39;metadata_engine&#39;</span><span class="p">,</span> 
+                                     <span class="n">to_json</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_metadata_engine</span><span class="p">))</span>
+    
+<div class="viewcode-block" id="CapsulEngine.load_modules">
+<a class="viewcode-back" href="../../api/engine.html#capsul.engine.CapsulEngine.load_modules">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">require</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Call self.load_module for each required module. The list of modules</span>
+<span class="sd">        to load is located in self.modules (if it is None,</span>
+<span class="sd">        capsul.module.default_modules is used).</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">require</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">require</span> <span class="o">=</span> <span class="n">default_modules</span>
+        
+        <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">require</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load_module</span><span class="p">(</span><span class="n">module</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CapsulEngine.load_module">
+<a class="viewcode-back" href="../../api/engine.html#capsul.engine.CapsulEngine.load_module">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_module</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Load a module if it has not already been loaded (is this case,</span>
+<span class="sd">        nothing is done)</span>
+<span class="sd">        </span>
+<span class="sd">        A module is a fully qualified name of a Python module (as accepted</span>
+<span class="sd">        by Python import statement). Such a module must define the two</span>
+<span class="sd">        following functions (and may define two others, see below):</span>
+<span class="sd">        </span>
+<span class="sd">        def load_module(capsul_engine, module_name):        </span>
+<span class="sd">        def set_environ(config, environ):</span>
+<span class="sd">        </span>
+<span class="sd">        load_module of each module is called once before reading and applying</span>
+<span class="sd">        the configuration. It can be used to add traits to the CapsulEngine</span>
+<span class="sd">        in order to define the configuration options that are used by the</span>
+<span class="sd">        module. Values of these traits are automatically stored in</span>
+<span class="sd">        configuration in database when self.save() is used, and they are</span>
+<span class="sd">        retrieved from database before initializing modules.</span>
+<span class="sd">        </span>
+<span class="sd">        set_environ is called in the context of the processing (i.e. on</span>
+<span class="sd">        the, possibly remote, machine that runs the pipelines). It receives</span>
+<span class="sd">        the configuration as a JSON compatible dictionary (for instance a</span>
+<span class="sd">        CapsulEngine attribute `capsul_engine.spm.directory` would be</span>
+<span class="sd">        config[&#39;spm&#39;][&#39;directory&#39;]). The function must modify the environ</span>
+<span class="sd">        dictionary to set the environment variables that must be defined</span>
+<span class="sd">        for pipeline configuration. These variables are typically used by</span>
+<span class="sd">        modules in capsul.in_context module to manage running external</span>
+<span class="sd">        software with appropriate configuration. </span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">module_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">module_name</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">module_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_loaded_modules</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_loaded_modules</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span>
+            <span class="n">python_module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span>
+            <span class="n">init_settings</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">python_module</span><span class="p">,</span> <span class="s1">&#39;init_settings&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">init_settings</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">init_settings</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+    <span class="c1">#</span>
+    <span class="c1"># Method imported from self.database</span>
+    <span class="c1">#</span>
+
+    <span class="c1"># TODO: take computing resource in account in the following methods</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_named_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">set_named_directory</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">named_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">named_directory</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">named_directories</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">set_named_directories</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_json_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">json_value</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">set_json_value</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">json_value</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">json_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">json_value</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_path_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">named_directory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">set_path_metadata</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">named_directory</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">path_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">named_directory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">set_path_metadata</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">named_directory</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CapsulEngine.import_configs">
+<a class="viewcode-back" href="../../api/engine.html#capsul.engine.CapsulEngine.import_configs">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">import_configs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">environment</span><span class="p">,</span> <span class="n">config_dict</span><span class="p">,</span> <span class="n">cont_on_error</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Import config values from a dictionary as given by</span>
+<span class="sd">        :meth:`Settings.select_configurations`.</span>
+
+<span class="sd">        Compared to :meth:`Settings.import_configs` this method (at</span>
+<span class="sd">        :class:`CapsulEngine` level) also loads the required modules.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">modules</span> <span class="o">=</span> <span class="n">config_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;capsul_engine&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;uses&#39;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load_module</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">import_configs</span><span class="p">(</span><span class="n">environment</span><span class="p">,</span> <span class="n">config_dict</span><span class="p">,</span> <span class="n">cont_on_error</span><span class="p">)</span></div>
+
+
+    <span class="c1">#</span>
+    <span class="c1"># Processes and pipelines related methods</span>
+    <span class="c1">#</span>
+<div class="viewcode-block" id="CapsulEngine.get_process_instance">
+<a class="viewcode-back" href="../../api/engine.html#capsul.engine.CapsulEngine.get_process_instance">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_process_instance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process_or_id</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        The only official way to get a process instance is to use this method.</span>
+<span class="sd">        For now, it simply calls self.study_config.get_process_instance</span>
+<span class="sd">        but it will change in the future.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">instance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">get_process_instance</span><span class="p">(</span><span class="n">process_or_id</span><span class="p">,</span>
+                                                          <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">instance</span></div>
+
+
+<div class="viewcode-block" id="CapsulEngine.get_iteration_pipeline">
+<a class="viewcode-back" href="../../api/engine.html#capsul.engine.CapsulEngine.get_iteration_pipeline">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_iteration_pipeline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pipeline_name</span><span class="p">,</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">process_or_id</span><span class="p">,</span>
+                               <span class="n">iterative_plugs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">do_not_export</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                               <span class="n">make_optional</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Create a pipeline with an iteration node iterating the given</span>
+<span class="sd">        process.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        pipeline_name: str</span>
+<span class="sd">            pipeline name</span>
+<span class="sd">        node_name: str</span>
+<span class="sd">            iteration node name in the pipeline</span>
+<span class="sd">        process_or_id: process description</span>
+<span class="sd">            as in :meth:`get_process_instance`</span>
+<span class="sd">        iterative_plugs: list (optional)</span>
+<span class="sd">            passed to :meth:`Pipeline.add_iterative_process`</span>
+<span class="sd">        do_not_export: list</span>
+<span class="sd">            passed to :meth:`Pipeline.add_iterative_process`</span>
+<span class="sd">        make_optional: list</span>
+<span class="sd">            passed to :meth:`Pipeline.add_iterative_process`</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pipeline: :class:`Pipeline` instance</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.pipeline.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pipeline</span>
+
+        <span class="n">pipeline</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">()</span>
+        <span class="n">pipeline</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">pipeline_name</span>
+        <span class="n">pipeline</span><span class="o">.</span><span class="n">set_study_config</span><span class="p">(</span><span class="n">get_ref</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="p">))</span>
+        <span class="n">pipeline</span><span class="o">.</span><span class="n">add_iterative_process</span><span class="p">(</span><span class="n">node_name</span><span class="p">,</span> <span class="n">process_or_id</span><span class="p">,</span>
+                                       <span class="n">iterative_plugs</span><span class="p">,</span> <span class="n">do_not_export</span><span class="p">,</span>
+                                       <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">pipeline</span><span class="o">.</span><span class="n">autoexport_nodes_parameters</span><span class="p">(</span><span class="n">include_optional</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">pipeline</span></div>
+
+
+<div class="viewcode-block" id="CapsulEngine.start">
+<a class="viewcode-back" href="../../api/engine.html#capsul.engine.CapsulEngine.start">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">workflow</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">history</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">get_pipeline</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Asynchronously start the execution of a process or pipeline in the</span>
+<span class="sd">        connected computing environment. Returns an identifier of</span>
+<span class="sd">        the process execution and can be used to get the status of the</span>
+<span class="sd">        execution or wait for its termination.</span>
+
+<span class="sd">        TODO:</span>
+<span class="sd">        if history is True, an entry of the process execution is stored in</span>
+<span class="sd">        the database. The content of this entry is to be defined but it will</span>
+<span class="sd">        contain the process parameters (to restart the process) and will be</span>
+<span class="sd">        updated on process termination (for instance to store execution time</span>
+<span class="sd">        if possible).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        process: Process or Pipeline instance</span>
+<span class="sd">        workflow: Workflow instance (optional - if already defined before call)</span>
+<span class="sd">        history: bool (optional)</span>
+<span class="sd">            TODO: not implemented yet.</span>
+<span class="sd">        get_pipeline: bool (optional)</span>
+<span class="sd">            if True, start() will return a tuple (execution_id, pipeline). The</span>
+<span class="sd">            pipeline is normally the input pipeline (process) if it is actually</span>
+<span class="sd">            a pipeline. But if the input process is a &quot;single process&quot;, it will</span>
+<span class="sd">            be inserted into a small pipeline for execution. This pipeline will</span>
+<span class="sd">            be the one actually run, and may be passed to :meth:`wait` to set</span>
+<span class="sd">            output parameters.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        execution_id: int</span>
+<span class="sd">            execution identifier (actually a soma-workflow id)</span>
+<span class="sd">        pipeline: Pipeline instance (optional)</span>
+<span class="sd">            only returned if get_pipeline is True.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">run</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">workflow</span><span class="p">,</span> <span class="n">history</span><span class="p">,</span> <span class="n">get_pipeline</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CapsulEngine.connect">
+<a class="viewcode-back" href="../../api/engine.html#capsul.engine.CapsulEngine.connect">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">computing_resource</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Connect the capsul engine to a computing resource</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_connected_resource</span> <span class="o">=</span> <span class="n">computing_resource</span></div>
+
+
+
+<div class="viewcode-block" id="CapsulEngine.connected_to">
+<a class="viewcode-back" href="../../api/engine.html#capsul.engine.CapsulEngine.connected_to">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">connected_to</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Return the name of the computing resource this capsul engine is</span>
+<span class="sd">        connected to or None if it is not connected.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_connected_resource</span></div>
+
+
+<div class="viewcode-block" id="CapsulEngine.disconnect">
+<a class="viewcode-back" href="../../api/engine.html#capsul.engine.CapsulEngine.disconnect">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Disconnect from a computing resource.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_connected_resource</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="CapsulEngine.executions">
+<a class="viewcode-back" href="../../api/engine.html#capsul.engine.CapsulEngine.executions">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">executions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        List the execution identifiers of all processes that have been started</span>
+<span class="sd">        but not disposed in the connected computing resource. Raises an</span>
+<span class="sd">        exception if the computing resource is not connected.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="CapsulEngine.dispose">
+<a class="viewcode-back" href="../../api/engine.html#capsul.engine.CapsulEngine.dispose">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dispose</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">execution_id</span><span class="p">,</span> <span class="n">conditional</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Update the database with the current state of a process execution and</span>
+<span class="sd">        free the resources used in the computing resource (i.e. remove the </span>
+<span class="sd">        workflow from SomaWorkflow).</span>
+
+<span class="sd">        If ``conditional`` is set to True, then dispose is only done if the</span>
+<span class="sd">        configuration does not specify to keep succeeded / failed workflows.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">run</span><span class="o">.</span><span class="n">dispose</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">execution_id</span><span class="p">,</span> <span class="n">conditional</span><span class="o">=</span><span class="n">conditional</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CapsulEngine.interrupt">
+<a class="viewcode-back" href="../../api/engine.html#capsul.engine.CapsulEngine.interrupt">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">interrupt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">execution_id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Try to stop the execution of a process. Does not wait for the process</span>
+<span class="sd">        to be terminated.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">run</span><span class="o">.</span><span class="n">interrupt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">execution_id</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CapsulEngine.wait">
+<a class="viewcode-back" href="../../api/engine.html#capsul.engine.CapsulEngine.wait">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">wait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">execution_id</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">pipeline</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Wait for the end of a process execution (either normal termination,</span>
+<span class="sd">        interruption or error).</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">run</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">execution_id</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span> <span class="n">pipeline</span><span class="o">=</span><span class="n">pipeline</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CapsulEngine.status">
+<a class="viewcode-back" href="../../api/engine.html#capsul.engine.CapsulEngine.status">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">execution_id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Return a simple value with the status of an execution (queued, </span>
+<span class="sd">        running, terminated, error, etc.)</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">run</span><span class="o">.</span><span class="n">status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">execution_id</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CapsulEngine.detailed_information">
+<a class="viewcode-back" href="../../api/engine.html#capsul.engine.CapsulEngine.detailed_information">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">detailed_information</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">execution_id</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Return complete (and possibly big) information about a process</span>
+<span class="sd">        execution.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">run</span><span class="o">.</span><span class="n">detailed_information</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">execution_id</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">history</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">*</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">run</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">history</span><span class="o">=</span><span class="n">history</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">history</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">run</span><span class="o">.</span><span class="n">check_call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">history</span><span class="o">=</span><span class="n">history</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CapsulEngine.raise_for_status">
+<a class="viewcode-back" href="../../api/engine.html#capsul.engine.CapsulEngine.raise_for_status">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">raise_for_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">execution_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Raise an exception if a process execution failed</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">run</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">execution_id</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="n">_populsedb_url_re</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^\w+(\+\w+)?://(.*)&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="database_factory">
+<a class="viewcode-back" href="../../api/engine.html#capsul.engine.database_factory">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">database_factory</span><span class="p">(</span><span class="n">database_location</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Create a DatabaseEngine from its location string. This location can be</span>
+<span class="sd">    either a sqlite file path (ending with &#39;.sqlite&#39; or &#39;:memory:&#39; for an </span>
+<span class="sd">    in memory database for testing) or a populse_db URL, or None.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">global</span> <span class="n">_populsedb_url_re</span> 
+
+    <span class="n">engine_directory</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">database_location</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">database_location</span> <span class="o">=</span> <span class="s1">&#39;:memory:&#39;</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">_populsedb_url_re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">database_location</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">splitdrive</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">apth</span><span class="o">.</span><span class="n">sep</span><span class="p">):</span>
+            <span class="n">engine_directory</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+        <span class="n">populse_db</span> <span class="o">=</span> <span class="n">database_location</span>
+    <span class="k">elif</span> <span class="n">database_location</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.sqlite&#39;</span><span class="p">):</span>
+        <span class="n">populse_db</span> <span class="o">=</span> <span class="s1">&#39;sqlite:///</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">database_location</span>
+        <span class="n">engine_directory</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">database_location</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="n">database_location</span> <span class="o">==</span> <span class="s1">&#39;:memory:&#39;</span><span class="p">:</span>
+        <span class="n">populse_db</span> <span class="o">=</span> <span class="s1">&#39;sqlite:///:memory:&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid database location: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">database_location</span><span class="p">)</span>
+
+    <span class="n">engine</span> <span class="o">=</span> <span class="n">PopulseDBEngine</span><span class="p">(</span><span class="n">populse_db</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">engine_directory</span><span class="p">:</span>
+        <span class="n">engine</span><span class="o">.</span><span class="n">set_named_directory</span><span class="p">(</span><span class="s1">&#39;capsul_engine&#39;</span><span class="p">,</span> <span class="n">engine_directory</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">engine</span></div>
+
+
+<div class="viewcode-block" id="capsul_engine">
+<a class="viewcode-back" href="../../api/engine.html#capsul.engine.capsul_engine">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">capsul_engine</span><span class="p">(</span><span class="n">database_location</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">require</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    User facrory for creating capsul engines.</span>
+
+<span class="sd">    If no database_location is given, it will default to an internal (in-</span>
+<span class="sd">    memory) database with no persistent settings or history values.</span>
+
+<span class="sd">    Configuration is read from a dictionary stored in two database entries.</span>
+<span class="sd">    The first entry has the key &#39;global_config&#39; (i.e.</span>
+<span class="sd">    database.json_value(&#39;global_config&#39;)), it contains the configuration</span>
+<span class="sd">    values that are shared by all processing engines. The second entry is</span>
+<span class="sd">    computing_config`. It contains a dictionary with one item per computing</span>
+<span class="sd">    resource where the key is the resource name and the value is configuration </span>
+<span class="sd">    values that are specific to this computing resource.</span>
+
+<span class="sd">    Before initialization of the CapsulEngine, modules are loaded. The</span>
+<span class="sd">    list of loaded modules is searched in the &#39;modules&#39; value in the</span>
+<span class="sd">    database (i.e. in database.json_value(&#39;modules&#39;)) ; if no list is</span>
+<span class="sd">    defined in the database, capsul.module.default_modules is used.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c1">#if database_location is None:</span>
+        <span class="c1">#database_location = osp.expanduser(&#39;~/.config/capsul/capsul_engine.sqlite&#39;)</span>
+    <span class="n">database</span> <span class="o">=</span> <span class="n">database_factory</span><span class="p">(</span><span class="n">database_location</span><span class="p">)</span>
+    <span class="n">capsul_engine</span> <span class="o">=</span> <span class="n">CapsulEngine</span><span class="p">(</span><span class="n">database_location</span><span class="p">,</span> <span class="n">database</span><span class="p">,</span> <span class="n">require</span><span class="o">=</span><span class="n">require</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">capsul_engine</span></div>
+
+
+
+<span class="n">configurations</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">activated_modules</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+<div class="viewcode-block" id="activate_configuration">
+<a class="viewcode-back" href="../../api/engine.html#capsul.engine.activate_configuration">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">activate_configuration</span><span class="p">(</span><span class="n">selected_configurations</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Activate a selected configuration (set of modules) for runtime.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">global</span> <span class="n">configurations</span>
+
+    <span class="n">configurations</span> <span class="o">=</span> <span class="n">selected_configurations</span>
+    <span class="n">modules</span> <span class="o">=</span> <span class="n">configurations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;capsul_engine&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;uses&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
+        <span class="n">activate_module</span><span class="p">(</span><span class="n">m</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="activate_module">
+<a class="viewcode-back" href="../../api/engine.html#capsul.engine.activate_module">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">activate_module</span><span class="p">(</span><span class="n">module_name</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Activate a module configuration for runtime. This function is called by</span>
+<span class="sd">    activate_configuration() and assumes the global variable</span>
+<span class="sd">    ``capsul.engine.configurations`` is properly setup.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">global</span> <span class="n">activated_modules</span>
+
+    <span class="k">if</span> <span class="n">module_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">activated_modules</span><span class="p">:</span>
+        <span class="n">activated_modules</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span>
+        <span class="n">module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span>
+        <span class="n">check_configurations</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="s1">&#39;check_configurations&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">complete_configurations</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="s1">&#39;complete_configurations&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">check_configurations</span><span class="p">:</span>
+            <span class="n">error</span> <span class="o">=</span> <span class="n">check_configurations</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">error</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">complete_configurations</span><span class="p">:</span>
+                    <span class="n">complete_configurations</span><span class="p">()</span>
+                    <span class="n">error</span> <span class="o">=</span> <span class="n">check_configurations</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">error</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">EnvironmentError</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+        <span class="n">activate_configurations</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="s1">&#39;activate_configurations&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">activate_configurations</span><span class="p">:</span>
+            <span class="n">activate_configurations</span><span class="p">()</span></div>
+
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">CAPSUL</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">CAPSUL</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2025, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
+    </div>
+  </body>
+</html>

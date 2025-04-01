@@ -356,7 +356,7 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="n">module</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">EnvironmentError</span><span class="p">(</span><span class="s1">&#39;Required StudyConfig module </span><span class="si">%s</span><span class="s1"> is &#39;</span>
                                        <span class="s1">&#39;missing&#39;</span> <span class="o">%</span> <span class="n">module_name</span><span class="p">)</span>
-            <span class="c1"># Check if there are dependent modules that must be initialized</span>
+            <span class="c1"># Check if there are dependent modules that must be initilaized</span>
             <span class="c1"># before the current one</span>
             <span class="n">initialize_first</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">module</span><span class="o">.</span><span class="n">dependencies</span>
                                 <span class="k">if</span> <span class="n">m</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">already_initialized</span><span class="p">]</span>
@@ -446,6 +446,14 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">check_call</span><span class="p">(</span><span class="n">process_or_pipeline</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="c1"># here we only deal with the (obsolete) local execution mode.</span>
+
+        <span class="n">needs_opengl</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">process_or_pipeline</span><span class="p">,</span> <span class="s1">&#39;needs_opengl&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">needs_opengl</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">soma.qt_gui</span><span class="w"> </span><span class="kn">import</span> <span class="n">qt_backend</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">soma.qt_gui</span><span class="w"> </span><span class="kn">import</span> <span class="n">headless</span>
+
+            <span class="k">if</span> <span class="n">qt_backend</span><span class="o">.</span><span class="n">headless</span><span class="p">:</span>
+                <span class="n">qt_backend</span><span class="o">.</span><span class="n">set_headless</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_lock</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">run_interruption_request</span> <span class="o">=</span> <span class="kc">False</span>
