@@ -374,6 +374,18 @@ def main():
                       'replaced: first set arguments have priority. If the '
                       'params file itself contains a --params parameter, '
                       'then another file will be read afterwards, and so on.')
+    group1.add_option('--opengl', action='store_true', default=False,
+                      help='Tell the process loading system that we will '
+                      'require headless OpenGL, which needs proper setup and '
+                      'libraries loading tweaks. Without this option, Qt and '
+                      'potentially graphical modules will be initialized in '
+                      'headless mode, but there will be no check for a '
+                      'working OpenGL/GLX implementation. In some cases it '
+                      'will work anyway, but in others (no X server) OpenGL '
+                      'will require using a virtual X server (Xvfb) and '
+                      'possibly loading appropriate OpenGL libraries. This is '
+                      'not done systematically because of the '
+                      'overhead it brings.')
     parser.add_option_group(group1)
 
     group2 = OptionGroup(parser, 'Processing',
@@ -457,6 +469,9 @@ def main():
 
     parser.disable_interspersed_args()
     (options, args) = parser.parse_args()
+
+    if options.opengl:
+        qt_backend.set_headless(needs_opengl=True)
 
     while options.paramsfile:
         pfile = options.paramsfile
