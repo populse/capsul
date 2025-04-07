@@ -1,0 +1,22 @@
+package:
+  name: capsul
+
+soma-env:
+  publication: neuro-forge
+  components:
+    - capsul
+  internal-dependencies:
+    - soma-python
+
+  type: interpreted
+
+requirements:
+  run:
+    - pyyaml
+
+tests:
+  - script: "python -m capsul.test"
+    requirements:
+      run:
+        - pytest
+        - notebook
