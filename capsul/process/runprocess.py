@@ -349,7 +349,7 @@ def main():
     group1.add_option('--if', '--input-fom', dest='input_fom',
                       default='morphologist-bids-1.0',
                       help='input FOM (File Organization Model). Decides '
-                      'which files and direrctories layout for the input '
+                      'which files and directories layout for the input '
                       'data. Generally "morphologist-bids-1.0" or '
                       '"morphologist-auto-nonoverlap-1.0". Default: '
                       '"morphologist-bids-1.0"')
