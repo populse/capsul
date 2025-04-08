@@ -613,10 +613,9 @@ def main():
 
         print()
         import sys
-        with open('/tmp/modules.txt', 'w') as f:
-            for name in sorted(sys.modules):
-                mod = sys.modules[name]
-                print(name, ':', mod, file=f)
+        for name in sorted(sys.modules):
+            mod = sys.modules[name]
+            print(name, ':', mod)
 
         del aval, attribs, completion_engine, process
         sys.exit(0)
