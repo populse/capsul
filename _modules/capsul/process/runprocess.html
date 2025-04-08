@@ -467,14 +467,12 @@
                       <span class="s1">&#39;commandline nor study configfile, taken as the same as &#39;</span>
                       <span class="s1">&#39;input.&#39;</span><span class="p">)</span>
     <span class="n">group1</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;--if&#39;</span><span class="p">,</span> <span class="s1">&#39;--input-fom&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;input_fom&#39;</span><span class="p">,</span>
-                      <span class="n">default</span><span class="o">=</span><span class="s1">&#39;morphologist-bids-1.0&#39;</span><span class="p">,</span>
                       <span class="n">help</span><span class="o">=</span><span class="s1">&#39;input FOM (File Organization Model). Decides &#39;</span>
                       <span class="s1">&#39;which files and directories layout for the input &#39;</span>
                       <span class="s1">&#39;data. Generally &quot;morphologist-bids-1.0&quot; or &#39;</span>
                       <span class="s1">&#39;&quot;morphologist-auto-nonoverlap-1.0&quot;. Default: &#39;</span>
                       <span class="s1">&#39;&quot;morphologist-bids-1.0&quot;&#39;</span><span class="p">)</span>
     <span class="n">group1</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;--of&#39;</span><span class="p">,</span> <span class="s1">&#39;--output-fom&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;output_fom&#39;</span><span class="p">,</span>
-                      <span class="n">default</span><span class="o">=</span><span class="s1">&#39;morphologist-bids-1.0&#39;</span><span class="p">,</span>
                       <span class="n">help</span><span class="o">=</span><span class="s1">&#39;input FOM (File Organization Model). Decides &#39;</span>
                       <span class="s1">&#39;which files and directories layout for the output &#39;</span>
                       <span class="s1">&#39;data. Generally &quot;morphologist-bids-1.0&quot; or &#39;</span>
@@ -590,6 +588,8 @@
     <span class="n">parser</span><span class="o">.</span><span class="n">disable_interspersed_args</span><span class="p">()</span>
     <span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
 
+    <span class="n">default_fom</span> <span class="o">=</span> <span class="s1">&#39;morphologist-bids-1.0&#39;</span>
+
     <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">opengl</span><span class="p">:</span>
         <span class="n">qt_backend</span><span class="o">.</span><span class="n">set_headless</span><span class="p">(</span><span class="n">needs_opengl</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
@@ -662,8 +662,19 @@
         <span class="n">config</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s1">&#39;fom&#39;</span><span class="p">,</span> <span class="s1">&#39;global&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">input_fom</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">config</span><span class="o">.</span><span class="n">input_fom</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">input_fom</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">config</span><span class="o">.</span><span class="n">input_fom</span> <span class="o">=</span> <span class="n">default_fom</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Warning: FOM&#39;</span><span class="p">,</span> <span class="n">default_fom</span><span class="p">,</span> <span class="s1">&#39;could not be loaded.&#39;</span><span class="p">,</span>
+                      <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">output_fom</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">config</span><span class="o">.</span><span class="n">output_fom</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">output_fom</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">config</span><span class="o">.</span><span class="n">output_fom</span> <span class="o">=</span> <span class="n">default_fom</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">pass</span>
 
     <span class="n">kwre</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;([a-zA-Z_](\.?[a-zA-Z0-9_])*)\s*=\s*(.*)$&#39;</span><span class="p">)</span>
 
