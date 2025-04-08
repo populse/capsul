@@ -347,14 +347,12 @@ def main():
                       'commandline nor study configfile, taken as the same as '
                       'input.')
     group1.add_option('--if', '--input-fom', dest='input_fom',
-                      default='morphologist-bids-1.0',
                       help='input FOM (File Organization Model). Decides '
                       'which files and directories layout for the input '
                       'data. Generally "morphologist-bids-1.0" or '
                       '"morphologist-auto-nonoverlap-1.0". Default: '
                       '"morphologist-bids-1.0"')
     group1.add_option('--of', '--output-fom', dest='output_fom',
-                      default='morphologist-bids-1.0',
                       help='input FOM (File Organization Model). Decides '
                       'which files and directories layout for the output '
                       'data. Generally "morphologist-bids-1.0" or '
@@ -470,6 +468,8 @@ def main():
     parser.disable_interspersed_args()
     (options, args) = parser.parse_args()
 
+    default_fom = 'morphologist-bids-1.0'
+
     if options.opengl:
         qt_backend.set_headless(needs_opengl=True)
 
@@ -542,8 +542,19 @@ def main():
         config = session.config('fom', 'global')
         if options.input_fom is not None:
             config.input_fom = options.input_fom
+        else:
+            try:
+                config.input_fom = default_fom
+            except KeyError:
+                print('Warning: FOM', default_fom, 'could not be loaded.',
+                      file=sys.stderr)
         if options.output_fom is not None:
             config.output_fom = options.output_fom
+        else:
+            try:
+                config.output_fom = default_fom
+            except KeyError:
+                pass
 
     kwre = re.compile(r'([a-zA-Z_](\.?[a-zA-Z0-9_])*)\s*=\s*(.*)$')
 
