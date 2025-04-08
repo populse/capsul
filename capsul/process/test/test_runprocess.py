@@ -43,6 +43,9 @@ class TestRunProcess(unittest.TestCase):
                     "--process-help",
                     "capsul.process.test.test_runprocess.DummyProcess"
                 ], stdout=f, stderr=f)
+            with open('/tmp/modules.txt') as f:
+                for l in f.readlines():
+                    print(l, end='')
         self.assertEqual(ret, 0)
 
     def test_run_dummy_process(self):
