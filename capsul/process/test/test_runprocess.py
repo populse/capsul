@@ -37,17 +37,12 @@ class TestRunProcess(unittest.TestCase):
         self.assertEqual(ret, 0)
 
     def test_run_process_help(self):
-        #with open(os.devnull, 'wb') as f:
-            #ret = subprocess.call([
-                    #sys.executable, "-m", "capsul.run",
-                    #"--process-help",
-                    #"capsul.process.test.test_runprocess.DummyProcess"
-                #], stdout=f, stderr=f)
-        ret = subprocess.call([
-                sys.executable, "-m", "capsul.run",
-                "--process-help",
-                "capsul.process.test.test_runprocess.DummyProcess"
-            ])
+        with open(os.devnull, 'wb') as f:
+            ret = subprocess.call([
+                    sys.executable, "-m", "capsul.run",
+                    "--process-help",
+                    "capsul.process.test.test_runprocess.DummyProcess"
+                ], stdout=f, stderr=f)
         self.assertEqual(ret, 0)
 
     def test_run_dummy_process(self):
