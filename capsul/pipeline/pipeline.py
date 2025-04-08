@@ -1794,7 +1794,7 @@ class Pipeline(Process):
         self.workflow_repr = "->".join([x[0] for x in ordered_list])
         logger.debug("Workflow: {0}". format(self.workflow_repr))
 
-        # Generate the final workflow by flattenin graphs structures
+        # Generate the final workflow by flattening graphs structures
         workflow_list = []
         walk_workflow(ordered_list, workflow_list)
 
