@@ -612,6 +612,11 @@ def main():
                 print('   ', value)
 
         print()
+        import sys
+        for name in sorted(sys.modules):
+            mod = sys.modules[name]
+            print(name, ':', mod)
+
         del aval, attribs, completion_engine, process
         sys.exit(0)
 
