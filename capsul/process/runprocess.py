@@ -546,6 +546,7 @@ def main():
             try:
                 config.input_fom = default_fom
             except KeyError:
+                global sys  # WHY does the global import not work here ??
                 print('Warning: FOM', default_fom, 'could not be loaded.',
                       file=sys.stderr)
         if options.output_fom is not None:
