@@ -331,6 +331,14 @@ class StudyConfig(Controller):
 
         # here we only deal with the (obsolete) local execution mode.
 
+        needs_opengl = getattr(process_or_pipeline, 'needs_opengl', False)
+        if needs_opengl:
+            from soma.qt_gui import qt_backend
+            from soma.qt_gui import headless
+
+            if qt_backend.headless:
+                qt_backend.set_headless(True, True)
+
         with self.run_lock:
             self.run_interruption_request = False
 

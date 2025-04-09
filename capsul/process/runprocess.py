@@ -347,14 +347,12 @@ def main():
                       'commandline nor study configfile, taken as the same as '
                       'input.')
     group1.add_option('--if', '--input-fom', dest='input_fom',
-                      default='morphologist-bids-1.0',
                       help='input FOM (File Organization Model). Decides '
                       'which files and directories layout for the input '
                       'data. Generally "morphologist-bids-1.0" or '
                       '"morphologist-auto-nonoverlap-1.0". Default: '
                       '"morphologist-bids-1.0"')
     group1.add_option('--of', '--output-fom', dest='output_fom',
-                      default='morphologist-bids-1.0',
                       help='input FOM (File Organization Model). Decides '
                       'which files and directories layout for the output '
                       'data. Generally "morphologist-bids-1.0" or '
@@ -374,6 +372,18 @@ def main():
                       'replaced: first set arguments have priority. If the '
                       'params file itself contains a --params parameter, '
                       'then another file will be read afterwards, and so on.')
+    group1.add_option('--opengl', action='store_true', default=False,
+                      help='Tell the process loading system that we will '
+                      'require headless OpenGL, which needs proper setup and '
+                      'libraries loading tweaks. Without this option, Qt and '
+                      'potentially graphical modules will be initialized in '
+                      'headless mode, but there will be no check for a '
+                      'working OpenGL/GLX implementation. In some cases it '
+                      'will work anyway, but in others (no X server) OpenGL '
+                      'will require using a virtual X server (Xvfb) and '
+                      'possibly loading appropriate OpenGL libraries. This is '
+                      'not done systematically because of the '
+                      'overhead it brings.')
     parser.add_option_group(group1)
 
     group2 = OptionGroup(parser, 'Processing',
@@ -458,6 +468,11 @@ def main():
     parser.disable_interspersed_args()
     (options, args) = parser.parse_args()
 
+    default_fom = 'morphologist-bids-1.0'
+
+    if options.opengl:
+        qt_backend.set_headless(needs_opengl=True)
+
     while options.paramsfile:
         pfile = options.paramsfile
         options.paramsfile = None
@@ -527,8 +542,20 @@ def main():
         config = session.config('fom', 'global')
         if options.input_fom is not None:
             config.input_fom = options.input_fom
+        else:
+            try:
+                config.input_fom = default_fom
+            except KeyError:
+                global sys  # WHY does the global import not work here ??
+                print('Warning: FOM', default_fom, 'could not be loaded.',
+                      file=sys.stderr)
         if options.output_fom is not None:
             config.output_fom = options.output_fom
+        else:
+            try:
+                config.output_fom = default_fom
+            except KeyError:
+                pass
 
     kwre = re.compile(r'([a-zA-Z_](\.?[a-zA-Z0-9_])*)\s*=\s*(.*)$')
 
@@ -597,6 +624,7 @@ def main():
                 print('   ', value)
 
         print()
+
         del aval, attribs, completion_engine, process
         sys.exit(0)
 
