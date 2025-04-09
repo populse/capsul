@@ -2873,6 +2873,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_restricted_edition</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">disable_overwrite</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_userlevel</span> <span class="o">=</span> <span class="n">userlevel</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pipeline_released</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">doc_browser</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">set_pipeline</span><span class="p">(</span><span class="n">pipeline</span><span class="p">)</span>
@@ -2886,10 +2887,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">node_keydelete_clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_node_delete_clicked</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># print(&#39;PipelineDeveloperView.__del__&#39;)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">release_pipeline</span><span class="p">(</span><span class="n">delete</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="c1"># super(PipelineDeveloperView, self).__del__()</span>
+    <span class="c1"># def __del__(self):</span>
+    <span class="c1">#     # print(&#39;PipelineDeveloperView.__del__&#39;)</span>
+    <span class="c1">#     self.release_pipeline(delete=True)</span>
+    <span class="c1">#     # super(PipelineDeveloperView, self).__del__()</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">userlevel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -2995,6 +2996,14 @@
                 <span class="n">pipeline</span><span class="o">.</span><span class="n">pipeline_steps</span><span class="o">.</span><span class="n">on_trait_change</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_reset_pipeline</span><span class="p">,</span> <span class="n">dispatch</span><span class="o">=</span><span class="s1">&#39;ui&#39;</span><span class="p">)</span></div>
 
+                
+<div class="viewcode-block" id="PipelineDeveloperView.closeEvent">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.closeEvent">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">closeEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure pipeline is released before the widget is closed.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">release_pipeline</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">closeEvent</span><span class="p">(</span><span class="n">event</span><span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="PipelineDeveloperView.release_pipeline">
 <a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.release_pipeline">[docs]</a>
@@ -3007,59 +3016,104 @@
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="c1"># Setup callback to update view when pipeline state is modified</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">soma.qt_gui.qt_backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">sip</span>
-        <span class="n">pipeline</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">,</span> <span class="s1">&#39;pipeline&#39;</span><span class="p">):</span>
-            <span class="n">pipeline</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">pipeline</span>
-        <span class="k">if</span> <span class="n">pipeline</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="s1">&#39;pipeline_steps&#39;</span><span class="p">):</span>
-                <span class="n">pipeline</span><span class="o">.</span><span class="n">pipeline_steps</span><span class="o">.</span><span class="n">on_trait_change</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_reset_pipeline</span><span class="p">,</span> <span class="n">remove</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="n">pipeline</span><span class="o">.</span><span class="n">on_trait_change</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_reset_pipeline</span><span class="p">,</span> <span class="s1">&#39;selection_changed&#39;</span><span class="p">,</span>
-                                    <span class="n">remove</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="n">pipeline</span><span class="o">.</span><span class="n">on_trait_change</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_reset_pipeline</span><span class="p">,</span>
-                                     <span class="s1">&#39;user_traits_changed&#39;</span><span class="p">,</span> <span class="n">remove</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">sip</span><span class="o">.</span><span class="n">isdeleted</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-            <span class="c1"># prevent &#39;C++ object has been deleted&#39; error</span>
-            <span class="k">return</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">setScene</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">:</span>
-            <span class="c1"># force destruction of scene internals now that the Qt object</span>
-            <span class="c1"># still exists</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">_release</span><span class="p">()</span>
-            <span class="c1"># the scene is not deleted after all refs are released, even</span>
-            <span class="c1"># after self.setScene(None). This is probably a bug in PyQt:</span>
-            <span class="c1"># the C++ layer keeps ownership of the scene, whereas it should</span>
-            <span class="c1"># not: the Qt doc specifies for QGraphicsView.setScene():</span>
-            <span class="c1"># &quot;The view does not take ownership of scene.&quot;, however in PyQt it</span>
-            <span class="c1"># does, and only releases it when the QGraphicsView is deleted.</span>
-            <span class="c1"># Thus we have to force it by hand:</span>
-            <span class="kn">from</span><span class="w"> </span><span class="nn">soma.qt_gui.qt_backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">sip</span>
-            <span class="n">sip</span><span class="o">.</span><span class="n">transferback</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">scene</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="kn">import</span><span class="w"> </span><span class="nn">gc</span>
-            <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">delete</span> <span class="ow">and</span> <span class="p">(</span><span class="n">pipeline</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">scene</span> <span class="o">=</span> <span class="n">PipelineScene</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">userlevel</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">userlevel</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">set_enable_edition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_enable_edition</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">logical_view</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logical_view</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">colored_parameters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">colored_parameters</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">subpipeline_clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subpipeline_clicked</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">subpipeline_clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">onLoadSubPipelineClicked</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">process_clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_node_clicked</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">node_clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_node_clicked</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">node_clicked_ctrl</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_node_clicked_ctrl</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">switch_clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">switch_clicked</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">node_right_clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node_right_clicked</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">node_right_clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">onOpenProcessController</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">plug_clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plug_clicked</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">plug_right_clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plug_right_clicked</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">link_right_clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">link_right_clicked</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">link_keydelete_clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">link_keydelete_clicked</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">node_keydelete_clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node_keydelete_clicked</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">dim</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s1">&#39;&lt;no pipeline&gt;&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">setScene</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">)</span></div>
+
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_pipeline_released&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+            <span class="k">return</span>  <span class="c1"># already released</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pipeline_released</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">pipeline</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;scene&#39;</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">,</span> <span class="s1">&#39;pipeline&#39;</span><span class="p">)</span>
+            <span class="p">):</span>
+                <span class="n">pipeline</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">pipeline</span>
+
+            <span class="k">if</span> <span class="n">pipeline</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="s1">&#39;pipeline_steps&#39;</span><span class="p">):</span>
+                    <span class="n">pipeline</span><span class="o">.</span><span class="n">pipeline_steps</span><span class="o">.</span><span class="n">on_trait_change</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_reset_pipeline</span><span class="p">,</span> <span class="n">remove</span><span class="o">=</span><span class="kc">True</span>
+                    <span class="p">)</span>
+
+                <span class="n">pipeline</span><span class="o">.</span><span class="n">on_trait_change</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_reset_pipeline</span><span class="p">,</span> <span class="s1">&#39;selection_changed&#39;</span><span class="p">,</span> <span class="n">remove</span><span class="o">=</span><span class="kc">True</span>
+                <span class="p">)</span>
+                <span class="n">pipeline</span><span class="o">.</span><span class="n">on_trait_change</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_reset_pipeline</span><span class="p">,</span> <span class="s1">&#39;user_traits_changed&#39;</span><span class="p">,</span> <span class="n">remove</span><span class="o">=</span><span class="kc">True</span>
+                <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">sip</span><span class="o">.</span><span class="n">isdeleted</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="c1"># prevent &#39;C++ object has been deleted&#39; error</span>
+                <span class="k">return</span>
+        
+            <span class="bp">self</span><span class="o">.</span><span class="n">setScene</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;scene&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">:</span>
+
+                <span class="c1"># force destruction of scene internals now that the Qt object</span>
+                <span class="c1"># still exists</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">_release</span><span class="p">()</span>
+    
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="k">pass</span>
+            
+                <span class="c1"># the scene is not deleted after all refs are released, even</span>
+                <span class="c1"># after self.setScene(None). This is probably a bug in PyQt:</span>
+                <span class="c1"># the C++ layer keeps ownership of the scene, whereas it should</span>
+                <span class="c1"># not: the Qt doc specifies for QGraphicsView.setScene():</span>
+                <span class="c1"># &quot;The view does not take ownership of scene.&quot;, however in PyQt it</span>
+                <span class="c1"># does, and only releases it when the QGraphicsView is deleted.</span>
+                <span class="c1"># Thus we have to force it by hand:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">sip</span><span class="o">.</span><span class="n">transferback</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">)</span>
+
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="k">pass</span>
+
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">scene</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="kn">import</span><span class="w"> </span><span class="nn">gc</span>
+                <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">delete</span> <span class="ow">and</span> <span class="p">(</span><span class="n">pipeline</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">scene</span> <span class="o">=</span> <span class="n">PipelineScene</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">userlevel</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">userlevel</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">set_enable_edition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_enable_edition</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">logical_view</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_logical_view</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">colored_parameters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">colored_parameters</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">subpipeline_clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subpipeline_clicked</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">subpipeline_clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">onLoadSubPipelineClicked</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">process_clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_node_clicked</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">node_clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_node_clicked</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">node_clicked_ctrl</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_node_clicked_ctrl</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">switch_clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">switch_clicked</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">node_right_clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node_right_clicked</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">node_right_clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">onOpenProcessController</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">plug_clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plug_clicked</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">plug_right_clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plug_right_clicked</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">link_right_clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">link_right_clicked</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">link_keydelete_clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">link_keydelete_clicked</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">node_keydelete_clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node_keydelete_clicked</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="p">{}</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">dim</span> <span class="o">=</span> <span class="p">{}</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">setWindowTitle</span><span class="p">(</span><span class="s1">&#39;&lt;no pipeline&gt;&#39;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">setScene</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">)</span>
+
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;[release_pipeline] Exception &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;during scene rebuild: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[release_pipeline] Exception: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="PipelineDeveloperView.is_logical_view">
