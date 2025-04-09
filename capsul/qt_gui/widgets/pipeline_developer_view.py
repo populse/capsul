@@ -2699,10 +2699,13 @@ class PipelineDeveloperView(QGraphicsView):
 
     @userlevel.setter
     def userlevel(self, value):
+        from soma.qt_gui.qt_backend import sip
         self._userlevel = value
-        if self.scene:
+        if self.scene is not None and not sip.isdeleted(self.scene):
             self.scene.userlevel = value
         for widget in self.findChildren(QtGui.QWidget):
+            if sip.isdeleted(widget):
+                continue
             if hasattr(widget, 'userlevel'):
                 widget.userlevel = value
 
