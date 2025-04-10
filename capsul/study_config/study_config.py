@@ -332,12 +332,6 @@ class StudyConfig(Controller):
         # here we only deal with the (obsolete) local execution mode.
 
         needs_opengl = getattr(process_or_pipeline, 'needs_opengl', False)
-        if needs_opengl:
-            from soma.qt_gui import qt_backend
-            from soma.qt_gui import headless
-
-            if qt_backend.headless:
-                qt_backend.set_headless(True, True)
 
         with self.run_lock:
             self.run_interruption_request = False
@@ -414,6 +408,19 @@ class StudyConfig(Controller):
                 if self.run_interruption_request:
                     self.run_interruption_request = False
                     raise RuntimeError('Execution interruption requested')
+
+            if not needs_opengl:
+                # if any node needs opengl, we must initialize it first
+                # before any node execution loads Qt Gui
+                for process_node in execution_list:
+                    if getattr(process_node, 'needs_opengl', False):
+                        needs_opengl = True
+                        break
+            if needs_opengl:
+                from soma.qt_gui import qt_backend
+
+                if qt_backend.headless:
+                    qt_backend.set_headless(True, True)
 
             # Execute each process node element
             for process_node in execution_list:
