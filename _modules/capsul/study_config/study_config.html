@@ -448,12 +448,6 @@
         <span class="c1"># here we only deal with the (obsolete) local execution mode.</span>
 
         <span class="n">needs_opengl</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">process_or_pipeline</span><span class="p">,</span> <span class="s1">&#39;needs_opengl&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">needs_opengl</span><span class="p">:</span>
-            <span class="kn">from</span><span class="w"> </span><span class="nn">soma.qt_gui</span><span class="w"> </span><span class="kn">import</span> <span class="n">qt_backend</span>
-            <span class="kn">from</span><span class="w"> </span><span class="nn">soma.qt_gui</span><span class="w"> </span><span class="kn">import</span> <span class="n">headless</span>
-
-            <span class="k">if</span> <span class="n">qt_backend</span><span class="o">.</span><span class="n">headless</span><span class="p">:</span>
-                <span class="n">qt_backend</span><span class="o">.</span><span class="n">set_headless</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_lock</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">run_interruption_request</span> <span class="o">=</span> <span class="kc">False</span>
@@ -530,6 +524,19 @@
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_interruption_request</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">run_interruption_request</span> <span class="o">=</span> <span class="kc">False</span>
                     <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;Execution interruption requested&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">needs_opengl</span><span class="p">:</span>
+                <span class="c1"># if any node needs opengl, we must initialize it first</span>
+                <span class="c1"># before any node execution loads Qt Gui</span>
+                <span class="k">for</span> <span class="n">process_node</span> <span class="ow">in</span> <span class="n">execution_list</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">process_node</span><span class="p">,</span> <span class="s1">&#39;needs_opengl&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+                        <span class="n">needs_opengl</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="k">break</span>
+            <span class="k">if</span> <span class="n">needs_opengl</span><span class="p">:</span>
+                <span class="kn">from</span><span class="w"> </span><span class="nn">soma.qt_gui</span><span class="w"> </span><span class="kn">import</span> <span class="n">qt_backend</span>
+
+                <span class="k">if</span> <span class="n">qt_backend</span><span class="o">.</span><span class="n">headless</span><span class="p">:</span>
+                    <span class="n">qt_backend</span><span class="o">.</span><span class="n">set_headless</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 
             <span class="c1"># Execute each process node element</span>
             <span class="k">for</span> <span class="n">process_node</span> <span class="ow">in</span> <span class="n">execution_list</span><span class="p">:</span>

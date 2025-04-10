@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+    <title>CAPSUL &#8212; CAPSUL - Chain algorithm in pipelines and execute in many contexts</title>
+  <!-- htmltitle is before nature.css - we use this hack to load bootstrap first -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="../../../../_static/css/bootstrap.min.css" media="screen" />
+  <link rel="stylesheet" href="../../../../_static/css/bootstrap-responsive.css"/>
+  <link rel="icon" href="../../../../_static/capsul_logo.svg"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=f0b81668" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=fd3f3429" />
+    
+    <script src="../../../../_static/documentation_options.js?v=0a414f3d"></script>
+    <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+
+  <!-- sidebar -->
+  
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="../../../../_static/js/bootstrap.min.js" type="application/javascript"></script>
+
+  <script type="application/javascript">
+    $("div.buttonNext, div.buttonPrevious").hover(
+       function () {
+           $(this).css('background-color', '#FF9C34');
+       },
+       function () {
+           $(this).css('background-color', '#A7D6E2');
+       }
+    );
+    var bodywrapper = $('.bodywrapper');
+    var sidebarbutton = $('#sidebarbutton');
+    sidebarbutton.css({'height': '900px'});
+  </script>
+
+  <div class="header" style="display: inline; width: 80%; margin-left:10%;">
+    <a href="../../../../index.html">
+    <img src="../../../../_static/capsul_logo.svg" alt="Capsul logo" style="display: inline; height:4em;"/>
+    </a >
+    <div class="navbar" style="display: inline;">
+      <ul>
+        <li><a href="../../../../index.html">Home</a></li>
+        <li><a href="../../../../installation.html">Installation</a></li>
+        <li class="btn-li">
+          <div class="btn-group">
+            <a href="../../../../documentation.html">Documentation</a>
+            <a class="btn dropdown-toggle" data-toggle="dropdown">
+              <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+              <li class="link-title">CAPSUL</li>
+              <li><a href="../../../../user_guide_tree/index.html">User guide</a></li>
+              <li><a href="../../../../api/index.html">API</a></li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <!-- form action="search.html" method="get" style="display: inline-block;"></form>
+            <input type="text" class="search-header" name="q" placeholder="search documentation..." value=""></input>
+            <button type="submit" >search</button>
+          </form -->
+          <form class="search_box" method="get" action="http://www.google.com/search" style="display: inline-block;">
+            <input class="search-header" type="text" name="q" placeholder="search documentation..." />
+            <input class="submit" type="image" src="../../../../_static/find_read.png" value="Search" />
+            <input type="hidden" name="sitesearch" value="brainvisa.info/capsul" />
+          </form>
+        </li>
+      </ul>
+    </div> <!-- end navbar -->
+  </div>
+
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">CAPSUL</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">CAPSUL</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for capsul.qt_gui.widgets.links_debugger</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Tool to debug and understand process / pipeline parameters links</span>
+
+<span class="sd">Classes</span>
+<span class="sd">=======</span>
+<span class="sd">:class:`CapsulLinkDebuggerView`</span>
+<span class="sd">-------------------------------</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">print_function</span>
+
+<span class="c1"># System import</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+
+<span class="c1"># Soma import</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">soma.qt_gui</span><span class="w"> </span><span class="kn">import</span> <span class="n">qt_backend</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">soma.qt_gui.qt_backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">QtGui</span><span class="p">,</span> <span class="n">QtCore</span>
+
+
+<div class="viewcode-block" id="CapsulLinkDebuggerView">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.links_debugger.CapsulLinkDebuggerView">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CapsulLinkDebuggerView</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QWidget</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; A Widget to display the links propagation when values are set in a</span>
+<span class="sd">    pipeline</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">CAUSE</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">PLUG</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">PROPAGATE</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">VALUE</span> <span class="o">=</span> <span class="mi">4</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span> <span class="n">ui_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">record_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">CapsulLinkDebuggerView</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+
+        <span class="c1"># load the user interface window</span>
+        <span class="k">if</span> <span class="n">ui_file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ui_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;links_debugger.ui&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span> <span class="o">=</span> <span class="n">qt_backend</span><span class="o">.</span><span class="n">loadUi</span><span class="p">(</span><span class="n">ui_file</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">help</span><span class="o">.</span><span class="n">hide</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">help</span><span class="o">.</span><span class="n">setParent</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">help_geom</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">table_header</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">links_table</span><span class="o">.</span><span class="n">horizontalHeader</span><span class="p">()</span>
+        <span class="n">table_header</span><span class="o">.</span><span class="n">setResizeMode</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QHeaderView</span><span class="o">.</span><span class="n">ResizeToContents</span><span class="p">)</span>
+        <span class="n">table_header_v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">links_table</span><span class="o">.</span><span class="n">verticalHeader</span><span class="p">()</span>
+        <span class="n">table_header_v</span><span class="o">.</span><span class="n">setResizeMode</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QHeaderView</span><span class="o">.</span><span class="n">ResizeToContents</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">record_file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">record_file_s</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkstemp</span><span class="p">()</span>
+            <span class="n">record_file</span> <span class="o">=</span> <span class="n">record_file_s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">record_file_s</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;temporary record file:&#39;</span><span class="p">,</span> <span class="n">record_file</span><span class="p">)</span>
+            <span class="k">class</span><span class="w"> </span><span class="nc">AutoDeleteFile</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+                <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record_file</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">record_file</span> <span class="o">=</span> <span class="n">record_file</span>
+                <span class="k">def</span><span class="w"> </span><span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">record_file</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+                        <span class="k">pass</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_autodelete_record_file</span> <span class="o">=</span> <span class="n">AutoDeleteFile</span><span class="p">(</span><span class="n">record_file</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">record_file</span> <span class="o">=</span> <span class="n">record_file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_pipeline</span><span class="p">(</span><span class="n">pipeline</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_links_view</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">links_table</span><span class="o">.</span><span class="n">cellClicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">activateCell</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">actionPrevious</span><span class="o">.</span><span class="n">activated</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">go_previous_line</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">actionNext</span><span class="o">.</span><span class="n">activated</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">go_next_line</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">actionFollow</span><span class="o">.</span><span class="n">activated</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">go_follow_link</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">actionRefresh</span><span class="o">.</span><span class="n">activated</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_links_view</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">actionClear</span><span class="o">.</span><span class="n">activated</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">clear_view</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">actionHelp</span><span class="o">.</span><span class="n">activated</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">help</span><span class="p">)</span>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">release_pipeline</span><span class="p">()</span>
+
+<div class="viewcode-block" id="CapsulLinkDebuggerView.show">
+<a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.links_debugger.CapsulLinkDebuggerView.show">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Shows the widget and its child widgets.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_pipeline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">release_pipeline</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span> <span class="o">=</span> <span class="n">pipeline</span>
+        <span class="n">pipeline</span><span class="o">.</span><span class="n">uninstall_links_debug_handler</span><span class="p">()</span>
+        <span class="n">record_stream</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">install_links_debug_handler</span><span class="p">(</span>
+            <span class="n">log_file</span><span class="o">=</span><span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">record_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">),</span> <span class="n">handler</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">record_stream</span> <span class="o">=</span> <span class="n">record_stream</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">release_pipeline</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">uninstall_links_debug_handler</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_links_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">links_table</span><span class="o">.</span><span class="n">clearContents</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">links_table</span><span class="o">.</span><span class="n">setRowCount</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># IMPORTANT otherwise perf drops</span>
+        <span class="n">table_header</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">links_table</span><span class="o">.</span><span class="n">horizontalHeader</span><span class="p">()</span>
+        <span class="n">table_header</span><span class="o">.</span><span class="n">setResizeMode</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QHeaderView</span><span class="o">.</span><span class="n">Interactive</span><span class="p">)</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">record_stream</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">record_file</span><span class="p">)</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">links_table</span><span class="o">.</span><span class="n">setRowCount</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">))</span>
+        <span class="n">linkre</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;^value link: from: ([^ ,]+) *to: ([^ ]+) *, value: ([^ ]+).*$&#39;</span><span class="p">)</span>
+        <span class="n">links_orgs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+            <span class="n">match</span> <span class="o">=</span> <span class="n">linkre</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+                <span class="n">link_source</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">link_dest</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">plug_value</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">links_table</span><span class="o">.</span><span class="n">setItem</span><span class="p">(</span>
+                    <span class="n">l</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QTableWidgetItem</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%04d</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">l</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">links_table</span><span class="o">.</span><span class="n">setItem</span><span class="p">(</span>
+                    <span class="n">l</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">PLUG</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QTableWidgetItem</span><span class="p">(</span><span class="n">link_source</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">links_table</span><span class="o">.</span><span class="n">setItem</span><span class="p">(</span>
+                    <span class="n">l</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">PROPAGATE</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QTableWidgetItem</span><span class="p">(</span><span class="n">link_dest</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">links_table</span><span class="o">.</span><span class="n">setItem</span><span class="p">(</span>
+                    <span class="n">l</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">VALUE</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QTableWidgetItem</span><span class="p">(</span><span class="n">plug_value</span><span class="p">))</span>
+                <span class="n">links_orgs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">link_dest</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">link_source</span> <span class="ow">in</span> <span class="n">links_orgs</span><span class="p">:</span>
+                    <span class="n">org</span> <span class="o">=</span> <span class="n">links_orgs</span><span class="p">[</span><span class="n">link_source</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">links_table</span><span class="o">.</span><span class="n">setItem</span><span class="p">(</span>
+                        <span class="n">l</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">CAUSE</span><span class="p">,</span>
+                        <span class="n">QtGui</span><span class="o">.</span><span class="n">QTableWidgetItem</span><span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">links_table</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">org</span><span class="p">,</span> <span class="mi">2</span><span class="p">)))</span>
+                <span class="n">l</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">links_orgs</span> <span class="o">=</span> <span class="n">links_orgs</span>
+        <span class="n">table_header</span><span class="o">.</span><span class="n">setResizeMode</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QHeaderView</span><span class="o">.</span><span class="n">ResizeToContents</span><span class="p">)</span>
+        <span class="c1">#table_header.setResizeMode(1, QtGui.QHeaderView.ResizeToContents)</span>
+        <span class="c1">#table_header.setResizeMode(2, QtGui.QHeaderView.ResizeToContents)</span>
+        <span class="c1">#table_header.setResizeMode(3, QtGui.QHeaderView.ResizeToContents)</span>
+        <span class="c1">#table_header.setResizeMode(4, QtGui.QHeaderView.ResizeToContents)</span>
+        <span class="c1">#table_header.setResizeMode(QtGui.QHeaderView.Interactive)</span>
+        <span class="n">QtGui</span><span class="o">.</span><span class="n">qApp</span><span class="o">.</span><span class="n">processEvents</span><span class="p">()</span>
+        <span class="c1">#table_header.resizeSection(0, table_header.sectionSizeHint(0))</span>
+        <span class="c1">#table_header.resizeSection(1, table_header.sectionSizeHint(1))</span>
+        <span class="c1">#table_header.resizeSection(2, table_header.sectionSizeHint(2))</span>
+        <span class="c1">#table_header.resizeSection(3, table_header.sectionSizeHint(3))</span>
+        <span class="c1">#table_header.resizeSection(4, table_header.sectionSizeHint(4))</span>
+        <span class="n">table_header</span><span class="o">.</span><span class="n">setResizeMode</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QHeaderView</span><span class="o">.</span><span class="n">Interactive</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">clear_view</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">links_table</span><span class="o">.</span><span class="n">clearContents</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">links_table</span><span class="o">.</span><span class="n">setRowCount</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">record_stream</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">record_stream</span><span class="o">.</span><span class="n">truncate</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">record_stream</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">activateCell</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">column</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">links_table</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">column</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">column</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">CAUSE</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">go_previous</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">column</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">PLUG</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">highlight_plug</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">column</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">PROPAGATE</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">go_next</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">column</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">VALUE</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">highlight_value</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">go_previous</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">links_table</span><span class="o">.</span><span class="n">clearSelection</span><span class="p">()</span>
+        <span class="n">plug</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">links_table</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">PLUG</span><span class="p">)</span>
+        <span class="n">plug</span><span class="o">.</span><span class="n">setSelected</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">links_table</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">CAUSE</span><span class="p">)</span><span class="o">.</span><span class="n">setSelected</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">links_table</span><span class="o">.</span><span class="n">findItems</span><span class="p">(</span>
+            <span class="n">plug</span><span class="o">.</span><span class="n">text</span><span class="p">(),</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">MatchExactly</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">column</span><span class="p">()</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">PROPAGATE</span><span class="p">:</span>
+                <span class="n">item</span><span class="o">.</span><span class="n">setSelected</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">go_next</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">links_table</span><span class="o">.</span><span class="n">clearSelection</span><span class="p">()</span>
+        <span class="n">next_item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">links_table</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">PROPAGATE</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">next_item</span><span class="p">:</span>
+            <span class="n">next_item</span><span class="o">.</span><span class="n">setSelected</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">links_table</span><span class="o">.</span><span class="n">findItems</span><span class="p">(</span>
+                <span class="n">next_item</span><span class="o">.</span><span class="n">text</span><span class="p">(),</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">MatchExactly</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">column</span><span class="p">()</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">PLUG</span> <span class="ow">and</span> <span class="n">item</span><span class="o">.</span><span class="n">row</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="n">row</span><span class="p">:</span>
+                    <span class="n">item</span><span class="o">.</span><span class="n">setSelected</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">highlight_plug</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">links_table</span><span class="o">.</span><span class="n">clearSelection</span><span class="p">()</span>
+        <span class="n">plug</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">links_table</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">PLUG</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">plug</span><span class="p">:</span>
+            <span class="n">plug</span><span class="o">.</span><span class="n">setSelected</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">links_table</span><span class="o">.</span><span class="n">findItems</span><span class="p">(</span>
+                <span class="n">plug</span><span class="o">.</span><span class="n">text</span><span class="p">(),</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">MatchExactly</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">column</span><span class="p">()</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">CAUSE</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">PROPAGATE</span><span class="p">):</span>
+                    <span class="n">item</span><span class="o">.</span><span class="n">setSelected</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">highlight_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">links_table</span><span class="o">.</span><span class="n">clearSelection</span><span class="p">()</span>
+        <span class="n">value_item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">links_table</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">VALUE</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value_item</span><span class="p">:</span>
+            <span class="n">value_item</span><span class="o">.</span><span class="n">setSelected</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">links_table</span><span class="o">.</span><span class="n">findItems</span><span class="p">(</span>
+                <span class="n">value_item</span><span class="o">.</span><span class="n">text</span><span class="p">(),</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">MatchExactly</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">column</span><span class="p">()</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">VALUE</span><span class="p">:</span>
+                    <span class="n">item</span><span class="o">.</span><span class="n">setSelected</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">go_next_line</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">links_table</span><span class="o">.</span><span class="n">currentRow</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">links_table</span><span class="o">.</span><span class="n">setCurrentCell</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">PLUG</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">highlight_plug</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">go_previous_line</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">links_table</span><span class="o">.</span><span class="n">currentRow</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">row</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">links_table</span><span class="o">.</span><span class="n">setCurrentCell</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">PLUG</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">highlight_plug</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">go_follow_link</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">links_table</span><span class="o">.</span><span class="n">currentRow</span><span class="p">()</span>
+        <span class="n">plug</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">links_table</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">PROPAGATE</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">plug</span><span class="p">:</span>
+            <span class="n">items</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">links_table</span><span class="o">.</span><span class="n">findItems</span><span class="p">(</span>
+                <span class="n">plug</span><span class="o">.</span><span class="n">text</span><span class="p">(),</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">MatchExactly</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">column</span><span class="p">()</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">PLUG</span> <span class="ow">and</span> <span class="n">item</span><span class="o">.</span><span class="n">row</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">row</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">links_table</span><span class="o">.</span><span class="n">setCurrentCell</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">row</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">PLUG</span><span class="p">)</span>
+                    <span class="k">break</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">go_next</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">help</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">help_geom</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">help</span><span class="o">.</span><span class="n">isVisible</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">help_geom</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">help</span><span class="o">.</span><span class="n">geometry</span><span class="p">()</span>
+            <span class="n">set_geom</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">set_geom</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">help</span><span class="o">.</span><span class="n">setVisible</span><span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">help</span><span class="o">.</span><span class="n">isVisible</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">set_geom</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ui</span><span class="o">.</span><span class="n">help</span><span class="o">.</span><span class="n">setGeometry</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">help_geom</span><span class="p">)</span></div>
+
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">CAPSUL</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">CAPSUL</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2025, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
+    </div>
+  </body>
+</html>

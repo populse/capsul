@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+    <title>CAPSUL &#8212; CAPSUL - Chain algorithm in pipelines and execute in many contexts</title>
+  <!-- htmltitle is before nature.css - we use this hack to load bootstrap first -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="../../../_static/css/bootstrap.min.css" media="screen" />
+  <link rel="stylesheet" href="../../../_static/css/bootstrap-responsive.css"/>
+  <link rel="icon" href="../../../_static/capsul_logo.svg"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=f0b81668" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+    
+    <script src="../../../_static/documentation_options.js?v=0a414f3d"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+
+  <!-- sidebar -->
+  
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="../../../_static/js/bootstrap.min.js" type="application/javascript"></script>
+
+  <script type="application/javascript">
+    $("div.buttonNext, div.buttonPrevious").hover(
+       function () {
+           $(this).css('background-color', '#FF9C34');
+       },
+       function () {
+           $(this).css('background-color', '#A7D6E2');
+       }
+    );
+    var bodywrapper = $('.bodywrapper');
+    var sidebarbutton = $('#sidebarbutton');
+    sidebarbutton.css({'height': '900px'});
+  </script>
+
+  <div class="header" style="display: inline; width: 80%; margin-left:10%;">
+    <a href="../../../index.html">
+    <img src="../../../_static/capsul_logo.svg" alt="Capsul logo" style="display: inline; height:4em;"/>
+    </a >
+    <div class="navbar" style="display: inline;">
+      <ul>
+        <li><a href="../../../index.html">Home</a></li>
+        <li><a href="../../../installation.html">Installation</a></li>
+        <li class="btn-li">
+          <div class="btn-group">
+            <a href="../../../documentation.html">Documentation</a>
+            <a class="btn dropdown-toggle" data-toggle="dropdown">
+              <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+              <li class="link-title">CAPSUL</li>
+              <li><a href="../../../user_guide_tree/index.html">User guide</a></li>
+              <li><a href="../../../api/index.html">API</a></li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <!-- form action="search.html" method="get" style="display: inline-block;"></form>
+            <input type="text" class="search-header" name="q" placeholder="search documentation..." value=""></input>
+            <button type="submit" >search</button>
+          </form -->
+          <form class="search_box" method="get" action="http://www.google.com/search" style="display: inline-block;">
+            <input class="search-header" type="text" name="q" placeholder="search documentation..." />
+            <input class="submit" type="image" src="../../../_static/find_read.png" value="Search" />
+            <input type="hidden" name="sitesearch" value="brainvisa.info/capsul" />
+          </form>
+        </li>
+      </ul>
+    </div> <!-- end navbar -->
+  </div>
+
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CAPSUL</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../engine.html" accesskey="U">capsul.engine</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">CAPSUL</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for capsul.engine.database_json</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os.path</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">osp</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">six</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">uuid</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">capsul.engine.database</span><span class="w"> </span><span class="kn">import</span> <span class="n">DatabaseEngine</span>
+
+<div class="viewcode-block" id="JSONDBEngine">
+<a class="viewcode-back" href="../../../api/engine.html#capsul.engine.database_json.JSONDBEngine">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">JSONDBEngine</span><span class="p">(</span><span class="n">DatabaseEngine</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    A JSON dictionary implementation of :py:class:`capsul.engine.database.DatabaseEngine`</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json_filename</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">json_filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">json_filename</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">json_filename</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">json_filename</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">read_json</span><span class="p">()</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">json_filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">json_filename</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">json_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">json_filename</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">modified</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">json_dict</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">modified</span> <span class="o">=</span> <span class="kc">True</span>
+            
+    <span class="k">def</span><span class="w"> </span><span class="nf">commit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">modified</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">json_filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">parent</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">json_filename</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">parent</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">json_dict</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">json_filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">),</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">modified</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">rollback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">read_json</span><span class="p">()</span>
+    
+    
+<div class="viewcode-block" id="JSONDBEngine.set_named_directory">
+<a class="viewcode-back" href="../../../api/engine.html#capsul.engine.database_json.JSONDBEngine.set_named_directory">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_named_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">path</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">json_dict</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;named_directory&#39;</span><span class="p">,</span> <span class="p">{})[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+                                                                      <span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">path</span><span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">modified</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">named_directory</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">json_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;named_directory&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">named_directory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">named_directory</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">modified</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="JSONDBEngine.named_directory">
+<a class="viewcode-back" href="../../../api/engine.html#capsul.engine.database_json.JSONDBEngine.named_directory">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">named_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">json_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;named_directory&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="JSONDBEngine.named_directories">
+<a class="viewcode-back" href="../../../api/engine.html#capsul.engine.database_json.JSONDBEngine.named_directories">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">named_directories</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">json_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;named_directory&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">values</span><span class="p">()</span></div>
+
+    
+        
+<div class="viewcode-block" id="JSONDBEngine.set_json_value">
+<a class="viewcode-back" href="../../../api/engine.html#capsul.engine.database_json.JSONDBEngine.set_json_value">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_json_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">json_value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">json_dict</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;json_value&#39;</span><span class="p">,</span> <span class="p">{})[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">json_value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modified</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="JSONDBEngine.json_value">
+<a class="viewcode-back" href="../../../api/engine.html#capsul.engine.database_json.JSONDBEngine.json_value">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">json_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">json_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;json_value&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
+
+    
+    
+<div class="viewcode-block" id="JSONDBEngine.set_path_metadata">
+<a class="viewcode-back" href="../../../api/engine.html#capsul.engine.database_json.JSONDBEngine.set_path_metadata">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_path_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">named_directory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_path_metadata</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">named_directory</span><span class="p">)</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;path&#39;</span><span class="p">]</span>
+        <span class="n">named_directory</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;named_directory&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">json_dict</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;path_metadata&#39;</span><span class="p">,</span> <span class="p">{})[</span>
+            <span class="p">(</span><span class="n">named_directory</span><span class="p">,</span> <span class="n">path</span><span class="p">)]</span> <span class="o">=</span> <span class="n">metadata</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modified</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+            
+
+<div class="viewcode-block" id="JSONDBEngine.path_metadata">
+<a class="viewcode-back" href="../../../api/engine.html#capsul.engine.database_json.JSONDBEngine.path_metadata">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">path_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">named_directory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">named_directory</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_path</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">named_directory</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">json_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;path_metadata&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">((</span><span class="n">named_directory</span><span class="p">,</span> <span class="n">path</span><span class="p">))</span></div>
+</div>
+
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CAPSUL</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../engine.html" >capsul.engine</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">CAPSUL</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2025, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
+    </div>
+  </body>
+</html>
