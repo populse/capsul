@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-'''
+"""
 This module defines the main API to interact with Capsul processes.
 In order to execute a process, it is mandatory to have an instance of
 :py:class:`CapsulEngine`. Such an instance can be created with factory
@@ -18,18 +18,13 @@ Functions
 ---------------------
 :func:`activate_configuration`
 ------------------------------
-'''
+"""
 
-from __future__ import absolute_import
-from __future__ import print_function
 import importlib
-import json
 import os
 import os.path as osp
 import re
 import tempfile
-import subprocess
-import sys
 
 from traits.api import Dict, String, Undefined
 
@@ -38,7 +33,6 @@ from soma.serialization import to_json, from_json
 from soma.sorted_dictionary import SortedDictionary
 from soma.utils.weak_proxy import get_ref
 
-from .database_json import JSONDBEngine
 from .database_populse import PopulseDBEngine
 
 from .settings import Settings
@@ -48,24 +42,24 @@ from .run import WorkflowExecutionError
 
 # FIXME TODO: OBSOLETE
 
-#Questions about API/implementation:
+# Questions about API/implementation:
 
-#* execution:
-  #* workflows are not exposed, they are running a possibly different pipeline (single process case), thus we need to keep track on it
-  #* logging / history / provenance, databasing
-  #* retrieving output files with transfers: when ? currently in wait(), should it be a separate method ? should it be asynchronous ?
-  #* setting output parameters: currently in wait(), should it be a separate method ?
-  #* disconnections / reconnections client / server
-  #* actually connect computing resource[s]
-#* settings / config:
-  #* see comments in settings.py
-  #* GUI and constraints on parameters ?
-  #* how to handle optional dependencies: ie nipype depends on spm if spm is installed / configured, otherwise we can run other nipype interfaces, but no spm ones
-  #* integrate soma-workflow config + CE.computing_resource
+# * execution:
+# * workflows are not exposed, they are running a possibly different pipeline (single process case), thus we need to keep track on it
+# * logging / history / provenance, databasing
+# * retrieving output files with transfers: when ? currently in wait(), should it be a separate method ? should it be asynchronous ?
+# * setting output parameters: currently in wait(), should it be a separate method ?
+# * disconnections / reconnections client / server
+# * actually connect computing resource[s]
+# * settings / config:
+# * see comments in settings.py
+# * GUI and constraints on parameters ?
+# * how to handle optional dependencies: ie nipype depends on spm if spm is installed / configured, otherwise we can run other nipype interfaces, but no spm ones
+# * integrate soma-workflow config + CE.computing_resource
 
 
 class CapsulEngine(Controller):
-    '''
+    """
     A CapsulEngine is the mandatory entry point of all software using Capsul.
     It contains objects to store configuration and metadata, defines execution
     environment(s) (possibly remote) and performs pipelines execution.
@@ -183,40 +177,37 @@ class CapsulEngine(Controller):
     :class:`~capsul.engine.module.spm`
 
     **Methods**
-    '''
+    """
 
-    def __init__(self, 
-                 database_location,
-                 database,
-                 require):
-        '''
+    def __init__(self, database_location, database, require):
+        """
         CapsulEngine.__init__(self, database_location, database, config=None)
 
         The CapsulEngine constructor should not be called directly.
         Use :func:`capsul_engine` factory function instead.
-        '''
+        """
         super(CapsulEngine, self).__init__()
-        
+
         self._settings = None
-        
+
         self._database_location = database_location
-        self._database = database        
+        self._database = database
 
         self._loaded_modules = set()
         self.load_modules(require)
-        
+
         from capsul.study_config.study_config import StudyConfig
+
         self.study_config = StudyConfig(engine=self)
 
-        self._metadata_engine = from_json(database.json_value('metadata_engine'))
+        self._metadata_engine = from_json(database.json_value("metadata_engine"))
 
-        self._connected_resource = ''
-        
+        self._connected_resource = ""
 
     @property
     def settings(self):
         if self._settings is None:
-            self._settings = Settings(self.database.db)
+            self._settings = Settings(self.database.storage)
         return self._settings
 
     @property
@@ -226,49 +217,47 @@ class CapsulEngine(Controller):
     @property
     def database_location(self):
         return self._database_location
-        
-    
+
     @property
     def metadata_engine(self):
         return self._metadata_engine
-    
+
     @metadata_engine.setter
     def metadata_engine(self, metadata_engine):
         self._metadata_engine = metadata_engine
-        self.database.set_json_value('metadata_engine', 
-                                     to_json(self._metadata_engine))
-    
+        self.database.set_json_value("metadata_engine", to_json(self._metadata_engine))
+
     def load_modules(self, require):
-        '''
+        """
         Call self.load_module for each required module. The list of modules
         to load is located in self.modules (if it is None,
         capsul.module.default_modules is used).
-        '''
+        """
         if require is None:
             require = default_modules
-        
+
         for module in require:
             self.load_module(module)
 
     def load_module(self, module_name):
-        '''
+        """
         Load a module if it has not already been loaded (is this case,
         nothing is done)
-        
+
         A module is a fully qualified name of a Python module (as accepted
         by Python import statement). Such a module must define the two
         following functions (and may define two others, see below):
-        
-        def load_module(capsul_engine, module_name):        
+
+        def load_module(capsul_engine, module_name):
         def set_environ(config, environ):
-        
+
         load_module of each module is called once before reading and applying
         the configuration. It can be used to add traits to the CapsulEngine
         in order to define the configuration options that are used by the
         module. Values of these traits are automatically stored in
         configuration in database when self.save() is used, and they are
         retrieved from database before initializing modules.
-        
+
         set_environ is called in the context of the processing (i.e. on
         the, possibly remote, machine that runs the pipelines). It receives
         the configuration as a JSON compatible dictionary (for instance a
@@ -277,13 +266,13 @@ class CapsulEngine(Controller):
         dictionary to set the environment variables that must be defined
         for pipeline configuration. These variables are typically used by
         modules in capsul.in_context module to manage running external
-        software with appropriate configuration. 
-        '''
+        software with appropriate configuration.
+        """
         module_name = self.settings.module_name(module_name)
         if module_name not in self._loaded_modules:
             self._loaded_modules.add(module_name)
             python_module = importlib.import_module(module_name)
-            init_settings = getattr(python_module, 'init_settings', None)
+            init_settings = getattr(python_module, "init_settings", None)
             if init_settings is not None:
                 init_settings(self)
             return True
@@ -317,14 +306,14 @@ class CapsulEngine(Controller):
         return self.database.set_path_metadata(path, named_directory)
 
     def import_configs(self, environment, config_dict, cont_on_error=False):
-        '''
+        """
         Import config values from a dictionary as given by
         :meth:`Settings.select_configurations`.
 
         Compared to :meth:`Settings.import_configs` this method (at
         :class:`CapsulEngine` level) also loads the required modules.
-        '''
-        modules = config_dict.get('capsul_engine', {}).get('uses', {})
+        """
+        modules = config_dict.get("capsul_engine", {}).get("uses", {})
         for module in modules:
             self.load_module(module)
         self.settings.import_configs(environment, config_dict, cont_on_error)
@@ -333,19 +322,25 @@ class CapsulEngine(Controller):
     # Processes and pipelines related methods
     #
     def get_process_instance(self, process_or_id, **kwargs):
-        '''
+        """
         The only official way to get a process instance is to use this method.
         For now, it simply calls self.study_config.get_process_instance
         but it will change in the future.
-        '''
-        instance = self.study_config.get_process_instance(process_or_id,
-                                                          **kwargs)
+        """
+        instance = self.study_config.get_process_instance(process_or_id, **kwargs)
         return instance
 
-    def get_iteration_pipeline(self, pipeline_name, node_name, process_or_id,
-                               iterative_plugs=None, do_not_export=None,
-                               make_optional=None, **kwargs):
-        """ Create a pipeline with an iteration node iterating the given
+    def get_iteration_pipeline(
+        self,
+        pipeline_name,
+        node_name,
+        process_or_id,
+        iterative_plugs=None,
+        do_not_export=None,
+        make_optional=None,
+        **kwargs
+    ):
+        """Create a pipeline with an iteration node iterating the given
         process.
 
         Parameters
@@ -372,14 +367,14 @@ class CapsulEngine(Controller):
         pipeline = Pipeline()
         pipeline.name = pipeline_name
         pipeline.set_study_config(get_ref(self.study_config))
-        pipeline.add_iterative_process(node_name, process_or_id,
-                                       iterative_plugs, do_not_export,
-                                       **kwargs)
+        pipeline.add_iterative_process(
+            node_name, process_or_id, iterative_plugs, do_not_export, **kwargs
+        )
         pipeline.autoexport_nodes_parameters(include_optional=True)
         return pipeline
 
     def start(self, process, workflow=None, history=True, get_pipeline=False, **kwargs):
-        '''
+        """
         Asynchronously start the execution of a process or pipeline in the
         connected computing environment. Returns an identifier of
         the process execution and can be used to get the status of the
@@ -412,74 +407,73 @@ class CapsulEngine(Controller):
             execution identifier (actually a soma-workflow id)
         pipeline: Pipeline instance (optional)
             only returned if get_pipeline is True.
-        '''
+        """
         return run.start(self, process, workflow, history, get_pipeline, **kwargs)
 
     def connect(self, computing_resource):
-        '''
+        """
         Connect the capsul engine to a computing resource
-        '''
+        """
         self._connected_resource = computing_resource
 
-
     def connected_to(self):
-        '''
+        """
         Return the name of the computing resource this capsul engine is
         connected to or None if it is not connected.
-        '''
+        """
         return self._connected_resource
 
     def disconnect(self):
-        '''
+        """
         Disconnect from a computing resource.
-        '''
+        """
         self._connected_resource = None
 
     def executions(self):
-        '''
+        """
         List the execution identifiers of all processes that have been started
         but not disposed in the connected computing resource. Raises an
         exception if the computing resource is not connected.
-        '''
+        """
         raise NotImplementedError()
 
     def dispose(self, execution_id, conditional=False):
-        '''
+        """
         Update the database with the current state of a process execution and
-        free the resources used in the computing resource (i.e. remove the 
+        free the resources used in the computing resource (i.e. remove the
         workflow from SomaWorkflow).
 
         If ``conditional`` is set to True, then dispose is only done if the
         configuration does not specify to keep succeeded / failed workflows.
-        '''
+        """
         run.dispose(self, execution_id, conditional=conditional)
 
     def interrupt(self, execution_id):
-        '''
+        """
         Try to stop the execution of a process. Does not wait for the process
         to be terminated.
-        '''
+        """
         return run.interrupt(self, execution_id)
 
     def wait(self, execution_id, timeout=-1, pipeline=None):
-        '''
+        """
         Wait for the end of a process execution (either normal termination,
         interruption or error).
-        '''
+        """
         return run.wait(self, execution_id, timeout=timeout, pipeline=pipeline)
 
     def status(self, execution_id):
-        '''
-        Return a simple value with the status of an execution (queued, 
+        """
+        Return a simple value with the status of an execution (queued,
         running, terminated, error, etc.)
-        '''
+        """
         return run.status(self, execution_id)
 
     def detailed_information(self, execution_id):
-        '''
+        """
         Return complete (and possibly big) information about a process
         execution.
-        '''
+        """
         return run.detailed_information(self, execution_id)
 
     def call(self, process, history=True, *kwargs):
@@ -489,27 +483,40 @@ class CapsulEngine(Controller):
         return run.check_call(self, process, history=history, **kwargs)
 
     def raise_for_status(self, status, execution_id=None):
-        '''
+        """
         Raise an exception if a process execution failed
-        '''
+        """
         run.raise_for_status(self, status, execution_id)
 
 
-_populsedb_url_re = re.compile(r'^\w+(\+\w+)?://(.*)')
+_populsedb_url_re = re.compile(r"^\w+(\+\w+)?://(.*)")
+
+
+class AutoDeleteFileName(str):
+    def __new__(cls, **kwargs):
+        fd, path = tempfile.mkstemp(**kwargs)
+        instance = super().__new__(cls, path)
+        instance.path = path
+        instance.fd = fd
+        return instance
+
+    def __del__(self):
+        os.close(self.fd)
+        os.remove(self.path)
 
 
 def database_factory(database_location):
-    '''
+    """
     Create a DatabaseEngine from its location string. This location can be
-    either a sqlite file path (ending with '.sqlite' or ':memory:' for an 
+    either a sqlite file path (ending with '.sqlite' or ':memory:' for an
     in memory database for testing) or a populse_db URL, or None.
-    '''
-    global _populsedb_url_re 
+    """
+    global _populsedb_url_re
 
     engine_directory = None
 
     if database_location is None:
-        database_location = ':memory:'
+        database_location = AutoDeleteFileName(prefix="populse_db_", suffix=".sqlite")
     match = _populsedb_url_re.match(database_location)
     if match:
         path = match.groups(2)
@@ -517,22 +524,23 @@ def database_factory(database_location):
         if path.startswith(os.apth.sep):
             engine_directory = osp.abspath(osp.dirname(path))
         populse_db = database_location
-    elif database_location.endswith('.sqlite'):
-        populse_db = 'sqlite:///%s' % database_location
+    elif database_location.endswith(".sqlite"):
+        populse_db = f"sqlite://{database_location}"
         engine_directory = osp.abspath(osp.dirname(database_location))
-    elif database_location == ':memory:':
-        populse_db = 'sqlite:///:memory:'
+    elif database_location == ":memory:":
+        populse_db = "sqlite://:memory:"
     else:
-        raise ValueError('Invalid database location: %s' % database_location)
+        raise ValueError("Invalid database location: %s" % database_location)
 
     engine = PopulseDBEngine(populse_db)
     if engine_directory:
-        engine.set_named_directory('capsul_engine', engine_directory)
+        engine.set_named_directory("capsul_engine", engine_directory)
     return engine
 
+
 def capsul_engine(database_location=None, require=None):
-    '''
-    User facrory for creating capsul engines.
+    """
+    User factory for creating capsul engines.
 
     If no database_location is given, it will default to an internal (in-
     memory) database with no persistent settings or history values.
@@ -542,16 +550,16 @@ def capsul_engine(database_location=None, require=None):
     database.json_value('global_config')), it contains the configuration
     values that are shared by all processing engines. The second entry is
     computing_config`. It contains a dictionary with one item per computing
-    resource where the key is the resource name and the value is configuration 
+    resource where the key is the resource name and the value is configuration
     values that are specific to this computing resource.
 
     Before initialization of the CapsulEngine, modules are loaded. The
     list of loaded modules is searched in the 'modules' value in the
     database (i.e. in database.json_value('modules')) ; if no list is
     defined in the database, capsul.module.default_modules is used.
-    '''
-    #if database_location is None:
-        #database_location = osp.expanduser('~/.config/capsul/capsul_engine.sqlite')
+    """
+    # if database_location is None:
+    # database_location = osp.expanduser('~/.config/capsul/capsul_engine.sqlite')
     database = database_factory(database_location)
     capsul_engine = CapsulEngine(database_location, database, require=require)
     return capsul_engine
@@ -560,30 +568,32 @@ def capsul_engine(database_location=None, require=None):
 configurations = None
 activated_modules = set()
 
+
 def activate_configuration(selected_configurations):
-    '''
+    """
     Activate a selected configuration (set of modules) for runtime.
-    '''
+    """
     global configurations
 
     configurations = selected_configurations
-    modules = configurations.get('capsul_engine', {}).get('uses', {}).keys()
+    modules = configurations.get("capsul_engine", {}).get("uses", {}).keys()
     for m in modules:
         activate_module(m)
 
+
 def activate_module(module_name):
-    '''
+    """
     Activate a module configuration for runtime. This function is called by
     activate_configuration() and assumes the global variable
     ``capsul.engine.configurations`` is properly setup.
-    '''
+    """
     global activated_modules
 
     if module_name not in activated_modules:
         activated_modules.add(module_name)
         module = importlib.import_module(module_name)
-        check_configurations = getattr(module, 'check_configurations', None)
-        complete_configurations = getattr(module, 'complete_configurations', None)
+        check_configurations = getattr(module, "check_configurations", None)
+        complete_configurations = getattr(module, "complete_configurations", None)
         if check_configurations:
             error = check_configurations()
             if error:
@@ -592,6 +602,6 @@ def activate_module(module_name):
                     error = check_configurations()
             if error:
                 raise EnvironmentError(error)
-        activate_configurations = getattr(module, 'activate_configurations', None)
+        activate_configurations = getattr(module, "activate_configurations", None)
         if activate_configurations:
             activate_configurations()
