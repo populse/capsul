@@ -14,7 +14,7 @@ class DummyProcess(Process):
     f: field(type_=float, doc="help for parameter f")
 
     def execute(self, context=None):
-        print("DummyProcess exec, f={0}".format(self.f))
+        print(f"DummyProcess exec, f={self.f}")
 
 
 class TestRunProcess(unittest.TestCase):

@@ -254,8 +254,7 @@ class Node(Controller):
                 # as specified in the docstring
                 if "name" not in parameter:
                     raise Exception(
-                        "Can't create parameter with unknown"
-                        "identifier and parameter {0}".format(parameter)
+                        f"Can't create parameter with unknown identifier and parameter {parameter}"
                     )
                 parameter = parameter.copy()
                 # force the parameter type
@@ -264,9 +263,7 @@ class Node(Controller):
                 self._add_plug(parameter)
             else:
                 raise Exception(
-                    "Can't create Node. Expect a dict structure "
-                    "to initialize the Node, "
-                    "got {0}: {1}".format(type(parameter), parameter)
+                    f"Can't create Node. Expect a dict structure to initialize the Node, got {type(parameter)}: {parameter}"
                 )
 
     def __del__(self):

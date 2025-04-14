@@ -51,18 +51,14 @@ def mrtrix_command_with_environment(
             cmd = [
                 shell,
                 "-c",
-                'setenv MRTRIXPATH "{0}"; setenv PATH "{0}:$PATH";exec {1} '.format(
-                    mrtrix_dir, command[0]
-                )
+                f'setenv MRTRIXPATH "{mrtrix_dir}"; setenv PATH "{mrtrix_dir}:$PATH";exec {command[0]} '
                 + " ".join("'%s'" % i.replace("'", "\\'") for i in command[1:]),
             ]
         else:
             cmd = [
                 shell,
                 "-c",
-                'export MRTRIXPATH="{0}"; export PATH="{0}:$PATH"; exec {1} '.format(
-                    mrtrix_dir, command[0]
-                )
+                f'export MRTRIXPATH="{mrtrix_dir}"; export PATH="{mrtrix_dir}:$PATH"; exec {command[0]} '
                 + " ".join("'%s'" % i.replace("'", "\\'") for i in command[1:]),
             ]
 

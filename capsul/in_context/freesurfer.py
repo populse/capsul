@@ -76,9 +76,7 @@ def freesurfer_command_with_environment(
             cmd = [
                 shell,
                 "-c",
-                'setenv FREESURFER_HOME "{0}"; source {1}; exec {2} '.format(
-                    freesurfer_dir, freesurfer_script, command[0]
-                )
+                f'setenv FREESURFER_HOME "{freesurfer_dir}"; source {freesurfer_script}; exec {command[0]} '
                 + " ".join("'%s'" % i.replace("'", "\\'") for i in command[1:]),
             ]
 
@@ -88,9 +86,7 @@ def freesurfer_command_with_environment(
             cmd = [
                 shell,
                 "-c",
-                'export FREESURFER_HOME="{0}"; source {1}; exec {2} '.format(
-                    freesurfer_dir, freesurfer_script, command[0]
-                )
+                f'export FREESURFER_HOME="{freesurfer_dir}"; source {freesurfer_script}; exec {command[0]} '
                 + " ".join("'%s'" % i.replace("'", "\\'") for i in command[1:]),
             ]
 

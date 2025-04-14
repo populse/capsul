@@ -63,13 +63,13 @@ if args.s:
 capsul_src = Path(__file__).parent.parent
 if args.html:
     Path(args.html).mkdir(exist_ok=True)
-    pytest_command += ["--cov=capsul", "--html={}/tests.html".format(args.html)]
+    pytest_command += ["--cov=capsul", f"--html={args.html}/tests.html"]
     coverage_command = [sys.executable, "-m", "coverage", "html", "-d", args.html]
     env = os.environ.copy()
-    print(" ".join("'{}'".format(i) for i in pytest_command))
+    print(" ".join(f"'{i}'" for i in pytest_command))
     subprocess.check_call(pytest_command, env=env, cwd=capsul_src)
-    print(" ".join("'{}'".format(i) for i in coverage_command))
+    print(" ".join(f"'{i}'" for i in coverage_command))
     subprocess.check_call(coverage_command)
 else:
-    print(" ".join("'{}'".format(i) for i in pytest_command))
+    print(" ".join(f"'{i}'" for i in pytest_command))
     subprocess.check_call(pytest_command, cwd=capsul_src)

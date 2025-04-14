@@ -64,18 +64,14 @@ def ants_command_with_environment(
             cmd = [
                 shell,
                 "-c",
-                'setenv ANTSPATH "{0}"; setenv PATH "{0}:$PATH";exec {1} '.format(
-                    ants_dir, command[0]
-                )
+                f'setenv ANTSPATH "{ants_dir}"; setenv PATH "{ants_dir}:$PATH";exec {command[0]} '
                 + " ".join("'%s'" % i.replace("'", "\\'") for i in command[1:]),
             ]
         else:
             cmd = [
                 shell,
                 "-c",
-                'export ANTSPATH="{0}"; export PATH="{0}:$PATH"; exec {1} '.format(
-                    ants_dir, command[0]
-                )
+                f'export ANTSPATH="{ants_dir}"; export PATH="{ants_dir}:$PATH"; exec {command[0]} '
                 + " ".join("'%s'" % i.replace("'", "\\'") for i in command[1:]),
             ]
 

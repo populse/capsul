@@ -64,18 +64,14 @@ def afni_command_with_environment(
             cmd = [
                 shell,
                 "-c",
-                'setenv AFNIPATH "{0}"; setenv PATH "{0}:$PATH";exec {1} '.format(
-                    afni_dir, command[0]
-                )
+                f'setenv AFNIPATH "{afni_dir}"; setenv PATH "{afni_dir}:$PATH";exec {command[0]} '
                 + " ".join("'%s'" % i.replace("'", "\\'") for i in command[1:]),
             ]
         else:
             cmd = [
                 shell,
                 "-c",
-                'export AFNIPATH="{0}"; export PATH="{0}:$PATH"; exec {1} '.format(
-                    afni_dir, command[0]
-                )
+                f'export AFNIPATH="{afni_dir}"; export PATH="{afni_dir}:$PATH"; exec {command[0]} '
                 + " ".join("'%s'" % i.replace("'", "\\'") for i in command[1:]),
             ]
 
