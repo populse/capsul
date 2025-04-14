@@ -1664,7 +1664,7 @@ class Pipeline(Process):
                     flat_structure = sub_workflow[1].topological_sort()
                     walk_workflow(flat_structure, workflow_list)
 
-        # Generate the final workflow by flattenin graphs structures
+        # Generate the final workflow by flattening graphs structures
         workflow_list = []
         walk_workflow(ordered_list, workflow_list)
 

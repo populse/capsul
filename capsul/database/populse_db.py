@@ -134,7 +134,7 @@ class PopulseDBExecutionDatabase(ExecutionDatabase):
                     # Update configuration stored in database
                     db.capsul_engine[engine_id].update(
                         {
-                            "congig": engine.config.json(),
+                            "config": engine.config.json(),
                             "persistent": persistent,
                         }
                     )
