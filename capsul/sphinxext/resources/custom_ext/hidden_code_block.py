@@ -29,7 +29,7 @@ in the first place.
 
 Written by Anthony 'el Scopz' Scopatz, January 2012.
 
-Released under the WTFPL (http://sam.zoy.org/wtfpl/).
+Released under the WTFPL (https://www.wtfpl.net/).
 """
 
 from docutils import nodes

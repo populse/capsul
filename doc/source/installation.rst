@@ -20,7 +20,7 @@
 Installing with BrainVISA
 ==========================
 
-CAPSUL is the new pipelining system of the `BrainVISA suite <http://brainvisa.info>`_. It can therefore be installed with `BrainVISA installer <http://brainvisa.info/web/download>`_.
+CAPSUL is the new pipelining system of the `BrainVISA suite <https://brainvisa.info>`_. It can therefore be installed with `BrainVISA installer <https://brainvisa.info/web/download.html>`_.
 
 
 Installing without BrainVISA
@@ -29,7 +29,7 @@ Installing without BrainVISA
 Prerequisite
 ------------
 
-Installing Capsul on a brain new system requires that Python is installed (either Python 2 or Python 3) but also that some Python packages are installed. These dependencies are managed by `pip <https://en.wikipedia.org/wiki/Pip_%28package_manager%29>`_ or by `setup.py <https://stackoverflow.com/questions/1471994/what-is-setup-py>`_. But one of the dependency (the `traits Python module <http://code.enthought.com/projects/traits/>`_) requires some compilation during installation. Therefore, before installing Capsul is it necessary to install compilation packages as well as Python development package. In this document, we give the procedure for installation on a bare Debian based Linux distribution (it has been tested on Ubuntu 16.04).
+Installing Capsul on a brain new system requires that Python is installed (either Python 2 or Python 3) but also that some Python packages are installed. These dependencies are managed by `pip <https://en.wikipedia.org/wiki/Pip_%28package_manager%29>`_ or by `setup.py <https://stackoverflow.com/questions/1471994/what-is-setup-py>`_. But one of the dependency (the `traits Python module <https://code.enthought.com/projects/traits/>`_) requires some compilation during installation. Therefore, before installing Capsul is it necessary to install compilation packages as well as Python development package. In this document, we give the procedure for installation on a bare Debian based Linux distribution (it has been tested on Ubuntu 16.04).
 
 
 **Python 3 :**

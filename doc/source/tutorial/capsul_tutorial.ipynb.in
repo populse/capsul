@@ -21,7 +21,7 @@
     "It is accessible to everybody, and is reusable in various contexts.\n",
     "The project is hosted on github: https://github.com/populse/capsul.</p>\n",
     "\n",
-    "<p>Documentation: <a href=\"http://populse.github.io/capsul\">http://populse.github.io/capsul</a>\n",
+    "<p>Documentation: <a href=\"https://populse.github.io/capsul/\">https://populse.github.io/capsul</a>\n",
     "</p>\n",
     "\n",
     "<p>The following examples are using CAPSUL, and PyQt (or PySide). To get the GUI running in a non-blocking way, the IPython notebook should be started with the option <tt>--gui=qt</tt>:\n",
@@ -201,7 +201,7 @@
     "editable": true
    },
    "source": [
-    "<p>This is a pure Python function with an XML Process description in the @xml_process decorator. Inside <code>&lt;process&gt;</code> and <code>&lt;/process&gt;</code> elements, each input parameters are described as well as the returned value. The parameters are typed and a description is asked in order to generate proper tooltips or documentations. See <a href=\"http://populse.github.io/capsul/user_guide_tree/xml_spec.html\">XML specifications</a> for more information.</p>\n",
+    "<p>This is a pure Python function with an XML Process description in the @xml_process decorator. Inside <code>&lt;process&gt;</code> and <code>&lt;/process&gt;</code> elements, each input parameters are described as well as the returned value. The parameters are typed and a description is asked in order to generate proper tooltips or documentations. See <a href=\"https://populse.github.io/capsul/user_guide_tree/xml_spec.html\">XML specifications</a> for more information.</p>\n",
     "\n",
     "<p>We can now create a Process from this Python function:</p>"
    ]
@@ -485,7 +485,7 @@
    "source": [
     "<h3>Defining a Pipeline from XML a file</h3>\n",
     "\n",
-    "A Pipeline can be described from an xml file. For the documentation of the description glossary, please refer to the capsul documentation. In the following example we will use the 'xml_pipeline.xml' test description. See <a href=\"http://populse.github.io/capsul/user_guide_tree/xml_spec.html\">XML specifications</a> for more information."
+    "A Pipeline can be described from an xml file. For the documentation of the description glossary, please refer to the capsul documentation. In the following example we will use the 'xml_pipeline.xml' test description. See <a href=\"https://populse.github.io/capsul/user_guide_tree/xml_spec.html\">XML specifications</a> for more information."
    ]
   },
   {
@@ -1262,7 +1262,7 @@
    "source": [
     "<h1>Distributed execution using Soma-Workflow</h1>\n",
     "\n",
-    "Capsul can execute a pipeline through <a href=\"http://brainvisa.info/soma-workflow/\">Soma-Workflow</a> in order to address large parallelized pipelines, or huge datasets in the case of population imaging studies.\n",
+    "Capsul can execute a pipeline through <a href=\"https://brainvisa.info/soma-workflow/sphinx/\">Soma-Workflow</a> in order to address large parallelized pipelines, or huge datasets in the case of population imaging studies.\n",
     "\n",
     "**Limitation:**\n",
     "\n",
@@ -1337,7 +1337,7 @@
     "editable": true
    },
    "source": [
-    "The workwlow can be saved and reloaded in soma_workflow_gui, or used in a <a href=\"http://www.brainvisa.info/doc/soma-workflow/sphinx/client_API.html\">soma-workflow controller</a>:"
+    "The workflow can be saved and reloaded in soma_workflow_gui, or used in a <a href=\"https://www.brainvisa.info/doc/soma-workflow/sphinx/client_API.html\">soma-workflow controller</a>:"
    ]
   },
   {
