@@ -81,8 +81,8 @@ def execution_context(engine_label, engine_config, executable):
                 module_name, {}
             ).items():
                 # Get explanation about invalid config rejection
-                explaination = module_config.is_valid_config(requirements, explain=True)
-                message += f"\n  - {module_field.name} is not valid for requirements: {explaination}"
+                explanation = module_config.is_valid_config(requirements, explain=True)
+                message += f"\n  - {module_field.name} is not valid for requirements: {explanation}"
 
             raise RuntimeError(message)
 
@@ -362,7 +362,7 @@ class Engine:
             modified (we let it finish and do not restart it)
         allow_restart_execution: bool
             if the execution workflow is stopped, by default only the jobs
-            state is modified, the workdlow is left waiting. If
+            state is modified, the workflow is left waiting. If
             allow_restart_execution is True, then restart() is called and the
             workflow starts execution again.
         """

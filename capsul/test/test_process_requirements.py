@@ -94,7 +94,7 @@ class ProcessRequirementsTests(unittest.TestCase):
         # Check error messages in following cases :
         # 1 - multiple spm config are valid
         # 2 - no spm config defined correctly
-        # 3 - multiple spm config defined incorrecly
+        # 3 - multiple spm config defined incorrectly
         # 4 - spm standalone config defined correctly
 
         config_file = self.tmp / "capsul_config.json"
@@ -126,7 +126,7 @@ class ProcessRequirementsTests(unittest.TestCase):
             == str(context.exception)
         )
 
-        # 3 - multiple spm config defined incorrecly
+        # 3 - multiple spm config defined incorrectly
         generate_spm_configuration(config_file, spm_versions=("8", "8"))
 
         with self.assertRaises(RuntimeError) as context:
