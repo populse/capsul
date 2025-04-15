@@ -555,7 +555,7 @@ def save_dot_image(
 
     Basically combines :py:func:`dot_graph_from_pipeline` or
     :py:func:`dot_graph_from_workflow`, and :py:func:`save_dot_graph`, then
-    runs the `dot <http://www.graphviz.org>`_ command, which has to be
+    runs the `dot <https://www.graphviz.org/>`_ command, which has to be
     installed and available on the system.
 
     Parameters
@@ -582,7 +582,7 @@ def save_dot_image(
         if True, the workflow corresponding to the current pipeline state will
         be used instead of the complete graph: disabled parts will be hidden.
     format: string (optional)
-        dot output format (see `dot <http://www.graphviz.org>`_ command doc).
+        dot output format (see `dot <https://www.graphviz.org/>`_ command doc).
         If not specified, guessed from the file name extension.
     **kwargs: additional attributes for the dot graph
       like nodesep=0.1 or rankdir="TB"

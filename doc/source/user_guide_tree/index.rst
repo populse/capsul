@@ -11,7 +11,7 @@ The main documentation of all the proposed scripts.
 Tutorial
 ########
 
-Tutorial is available as a `Jupyter notebook <https://jupyter.org/>`_ (Jupyter is the new name for `IPython notebook <http://ipython.org/notebook.html>`_).
+Tutorial is available as a `Jupyter notebook <https://jupyter.org/>`_.
 
   .. ifconfig:: 'nbsphinx' in extensions
 

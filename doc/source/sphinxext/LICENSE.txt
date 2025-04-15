@@ -74,7 +74,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     The files
     - only_directives.py
     - plot_directive.py
-    originate from Matplotlib (http://matplotlib.sf.net/) which has
+    originate from Matplotlib (https://matplotlib.sf.net/) which has
     the following license:
 
 Copyright (c) 2002-2008 John D. Hunter; All Rights Reserved.

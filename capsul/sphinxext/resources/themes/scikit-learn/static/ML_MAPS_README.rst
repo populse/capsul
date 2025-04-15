@@ -5,7 +5,7 @@ This document is intended to explain how to edit
 the machine learning cheat sheet, originally created
 by Andreas Mueller:
 
-(http://peekaboo-vision.blogspot.de/2013/01/machine-learning-cheat-sheet-for-scikit.html)
+(https://peekaboo-vision.blogspot.com/2013/01/machine-learning-cheat-sheet-for-scikit.html)
 
 The image is made interactive using an imagemap, and uses the jQuery Maphilight plugin module
 by David Lynch (https://projects.davidlynch.org/maphilight/docs/) to highlight

@@ -270,7 +270,7 @@ The ``<doc>`` element
 ~~~~~~~~~~~~~~~~~~~~~
 
 This element has no attributes and contains the documentation of the
-process in a `Sphinx <http://www.sphinx-doc.org>`__ compatible format.
+process in a `Sphinx <https://www.sphinx-doc.org/>`__ compatible format.
 
 The ``<process>`` element
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -332,7 +332,7 @@ uses ``traits`` types that have some parameters that need to be set in
 some contexts. The Nipype specific ``<nipype>`` element contains a
 ``name`` attribute to identify a process parameter. For more information
 about these parameters, see `Nipype interface
-specification <http://www.mit.edu/~satra/nipype-nightly/devel/interface_specs.html>`__
+specification <https://nipype.readthedocs.io/en/latest/devel/interface_specs.html>`__
 The following attributes can be used to customize Nipype ``traits`` :
 
 -  **usedefault**: can be set to ``"true"`` or ``"false"``. Omitting the
