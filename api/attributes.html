@@ -15,10 +15,10 @@
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=f0b81668" />
-    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
     
     <script src="../_static/documentation_options.js?v=0a414f3d"></script>
-    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
@@ -239,11 +239,11 @@ determine a single path.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>parameter</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – process parameter name</p></li>
-<li><p><strong>schema</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – schema used for it (input, output, shared)</p></li>
-<li><p><strong>editable_attributes</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em>, </em><em>EditableAttributes instance</em><em>, or </em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a><em> of </em><em>them</em>) – EditableAttributes or id containing attributes traits</p></li>
-<li><p><strong>fixed_attibute_values</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a><em> (</em><em>str/str</em><em>)</em>) – values of non-editable attributes</p></li>
-<li><p><strong>allow_list</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – if True (the default), it the process parameter is a list, then
+<li><p><strong>parameter</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – process parameter name</p></li>
+<li><p><strong>schema</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – schema used for it (input, output, shared)</p></li>
+<li><p><strong>editable_attributes</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>EditableAttributes instance</em><em>, or </em><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a><em> of </em><em>them</em>) – EditableAttributes or id containing attributes traits</p></li>
+<li><p><strong>fixed_attibute_values</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a><em> (</em><em>str/str</em><em>)</em>) – values of non-editable attributes</p></li>
+<li><p><strong>allow_list</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – if True (the default), it the process parameter is a list, then
 attributes are transformed into lists.</p></li>
 </ul>
 </dd>
@@ -318,10 +318,10 @@ include both “regular” process parameters (file names) and attributes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>process_inputs</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a><em> (</em><em>optional</em><em>)</em>) – parameters to be set on the process. It may include “regular”
+<li><p><strong>process_inputs</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a><em> (</em><em>optional</em><em>)</em>) – parameters to be set on the process. It may include “regular”
 process parameters, and attributes used for completion. Attributes
 should be in a sub-dictionary under the key “capsul_attributes”.</p></li>
-<li><p><strong>complete_iterations</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em> (</em><em>optional</em><em>)</em>) – if False, iteration nodes inside the pipeline will not run their
+<li><p><strong>complete_iterations</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em> (</em><em>optional</em><em>)</em>) – if False, iteration nodes inside the pipeline will not run their
 own completion. Thus parameters for the iterations will not be
 correctly completed. However this has 2 advantages: 1. it prevents
 modification of the input pipeline, 2. it will not do iterations
@@ -417,7 +417,7 @@ None.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>process</strong> (<a class="reference internal" href="pipeline.html#capsul.pipeline.pipeline_nodes.Node" title="capsul.pipeline.pipeline_nodes.Node"><em>Node</em></a><em> or </em><em>Process instance</em>)</p></li>
-<li><p><strong>parameter</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>)</p></li>
+<li><p><strong>parameter</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>)</p></li>
 <li><p><strong>attributes</strong> (<em>ProcessAttributes instance</em><em> (</em><em>Controller</em><em>)</em>)</p></li>
 </ul>
 </dd>
@@ -523,7 +523,7 @@ when install_auto_completion() has been called.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>parameter</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>)</p></li>
+<li><p><strong>parameter</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>)</p></li>
 <li><p><strong>attributes</strong> (<em>ProcessAttributes instance</em><em> (</em><em>Controller</em><em>)</em>)</p></li>
 </ul>
 </dd>
@@ -538,10 +538,10 @@ include both “regular” process parameters (file names) and attributes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>process_inputs</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a><em> (</em><em>optional</em><em>)</em>) – parameters to be set on the process. It may include “regular”
+<li><p><strong>process_inputs</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a><em> (</em><em>optional</em><em>)</em>) – parameters to be set on the process. It may include “regular”
 process parameters, and attributes used for completion. Attributes
 should be in a sub-dictionary under the key “capsul_attributes”.</p></li>
-<li><p><strong>complete_iterations</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em> (</em><em>optional</em><em>)</em>) – if False, iteration nodes inside the pipeline will not run their
+<li><p><strong>complete_iterations</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em> (</em><em>optional</em><em>)</em>) – if False, iteration nodes inside the pipeline will not run their
 own completion. Thus parameters for the iterations will not be
 correctly completed. However this has 2 advantages: 1. it prevents
 modification of the input pipeline, 2. it will not do iterations
@@ -740,7 +740,7 @@ Notification will call the observer remove_attributes() method.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>process</strong> (<em>Process instance</em>)</p></li>
-<li><p><strong>parameter</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>)</p></li>
+<li><p><strong>parameter</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>)</p></li>
 <li><p><strong>attributes</strong> (<em>ProcessAttributes instance</em><em> (</em><em>Controller</em><em>)</em>)</p></li>
 </ul>
 </dd>
@@ -1013,7 +1013,7 @@ process.name variable will be used.</p>
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2025, Populse team &lt;support@brainvisa.info&gt;.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     </div>
   </body>
 </html>

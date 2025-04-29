@@ -15,10 +15,10 @@
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=f0b81668" />
-    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
     
     <script src="../_static/documentation_options.js?v=0a414f3d"></script>
-    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     
@@ -140,7 +140,7 @@
 <dd><p>the list of copied file parameters {param: dst_value}</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -151,7 +151,7 @@
 <dd><p>copied files {param: [dst_value1, …]}</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -188,16 +188,16 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>activate_copy</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em> (</em><em>default True</em><em>)</em>) – if False this class is transparent and behaves as a Process class.</p></li>
-<li><p><strong>inputs_to_copy</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> (</em><em>optional</em><em>, </em><em>default None</em><em>)</em>) – the list of inputs to copy.
+<li><p><strong>activate_copy</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em> (</em><em>default True</em><em>)</em>) – if False this class is transparent and behaves as a Process class.</p></li>
+<li><p><strong>inputs_to_copy</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> (</em><em>optional</em><em>, </em><em>default None</em><em>)</em>) – the list of inputs to copy.
 If None, all the input files are copied.</p></li>
-<li><p><strong>inputs_to_clean</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> (</em><em>optional</em><em>, </em><em>default None</em><em>)</em>) – some copied inputs that can be deleted at the end of the
+<li><p><strong>inputs_to_clean</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> (</em><em>optional</em><em>, </em><em>default None</em><em>)</em>) – some copied inputs that can be deleted at the end of the
 processing. If None, all copied files will be cleaned.</p></li>
-<li><p><strong>destination</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> (</em><em>optional default None</em><em>)</em>) – where the files are copied.
+<li><p><strong>destination</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> (</em><em>optional default None</em><em>)</em>) – where the files are copied.
 If None, the output directory will be used, unless
 use_temp_output_dir is set.</p></li>
-<li><p><strong>inputs_to_symlink</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> (</em><em>optional</em><em>, </em><em>default None</em><em>)</em>) – as inputs_to_copy, but for files which should be symlinked</p></li>
-<li><p><strong>use_temp_output_dir</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – if True, the output_directory parameter is set to a temp one during
+<li><p><strong>inputs_to_symlink</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> (</em><em>optional</em><em>, </em><em>default None</em><em>)</em>) – as inputs_to_copy, but for files which should be symlinked</p></li>
+<li><p><strong>use_temp_output_dir</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – if True, the output_directory parameter is set to a temp one during
 execution, then outputs are copied / moved / hardlinked to the
 final location. This is useful when several parallel jobs are
 working in the same directory and may write the same intermediate
@@ -290,7 +290,7 @@ first time).</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>nipype_instance</strong> (<em>nipype interface</em><em> (</em><em>mandatory</em><em>, </em><em>except from internals</em><em>)</em>) – the nipype interface we want to wrap in capsul.</p></li>
-<li><p><strong>use_temp_output_dir</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em> or </em><em>None</em>) – use a temp working directory during processing</p></li>
+<li><p><strong>use_temp_output_dir</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em> or </em><em>None</em>) – use a temp working directory during processing</p></li>
 </ul>
 </dd>
 </dl>
@@ -311,7 +311,7 @@ first time).</p>
 <dd><p>private attribute to store the nipye module name</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)">str</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -322,7 +322,7 @@ first time).</p>
 <dd><p>private attribute to store the nipye class name</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)">str</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -333,7 +333,7 @@ first time).</p>
 <dd><p>private attribute to store the nipye interface name</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)">str</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -347,7 +347,7 @@ first time).</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>cls</strong> (<em>process class</em><em> (</em><em>mandatory</em><em>)</em>) – a nipype process class</p></li>
 <li><p><strong>nipype_instance</strong> (<em>nipype interface</em><em> (</em><em>mandatory</em><em>)</em>) – a nipype interface object that will be documented.</p></li>
-<li><p><strong>returnhelp</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em> (</em><em>optional</em><em>, </em><em>default False</em><em>)</em>) – if True return the help string message,
+<li><p><strong>returnhelp</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em> (</em><em>optional</em><em>, </em><em>default False</em><em>)</em>) – if True return the help string message,
 otherwise display it on the console.</p></li>
 </ul>
 </dd>
@@ -372,7 +372,7 @@ should be overloaded by processes which actually have requirements.</p>
 <dd><p>Set the process output directory.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>out_dir</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – the output directory</p>
+<dd class="field-odd"><p><strong>out_dir</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – the output directory</p>
 </dd>
 </dl>
 </dd></dl>
@@ -384,8 +384,8 @@ should be overloaded by processes which actually have requirements.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>parameter</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – name of the parameter to modify.</p></li>
-<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em> (</em><em>mandatory</em><em>)</em>) – value set to the usedefault attribute</p></li>
+<li><p><strong>parameter</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – name of the parameter to modify.</p></li>
+<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em> (</em><em>mandatory</em><em>)</em>) – value set to the usedefault attribute</p></li>
 </ul>
 </dd>
 </dl>
@@ -464,7 +464,7 @@ behavior, when not specified.</p>
 <dd><p>the class name.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)">str</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -475,7 +475,7 @@ behavior, when not specified.</p>
 <dd><p>the string description of the class location (ie., module.class).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)">str</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -487,7 +487,7 @@ behavior, when not specified.</p>
 otherwise it will be written in log_file path.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a> (default None)</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)">str</a> (default None)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -518,9 +518,9 @@ config value for each required module.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>environment</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – config environment id. Normally corresponds to the computing
+<li><p><strong>environment</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – config environment id. Normally corresponds to the computing
 resource name, and defaults to “global”.</p></li>
-<li><p><strong>message_list</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – if not None, this list will be updated with messages for
+<li><p><strong>message_list</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#list" title="(in Python v3.10)"><em>list</em></a>) – if not None, this list will be updated with messages for
 unsatisfied requirements, in order to present the user with an
 understandable error.</p></li>
 </ul>
@@ -534,7 +534,7 @@ configuration values, because different nodes may require different
 config values.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a>, <a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#list" title="(in Python v3.9)">list</a>, or None</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)">dict</a>, <a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#list" title="(in Python v3.10)">list</a>, or None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -551,7 +551,7 @@ instantiating the current process, and calling its
 <dd class="field-odd"><p><strong>commandline</strong> – Arguments are in separate elements of the list.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#list" title="(in Python v3.9)">list</a> of strings</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#list" title="(in Python v3.10)">list</a> of strings</p>
 </dd>
 </dl>
 </dd></dl>
@@ -563,9 +563,9 @@ instantiating the current process, and calling its
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>returnhelp</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em> (</em><em>optional</em><em>, </em><em>default False</em><em>)</em>) – if True return the help string message formatted in rst,
+<li><p><strong>returnhelp</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em> (</em><em>optional</em><em>, </em><em>default False</em><em>)</em>) – if True return the help string message formatted in rst,
 otherwise display the raw help string message on the console.</p></li>
-<li><p><strong>use_labels</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – if True, input and output sections will get a RestructuredText
+<li><p><strong>use_labels</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – if True, input and output sections will get a RestructuredText
 label to avoid ambiguities.</p></li>
 </ul>
 </dd>
@@ -578,13 +578,13 @@ label to avoid ambiguities.</p></li>
 <dd><p>Generate description for process input parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>rst_formating</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em> (</em><em>optional</em><em>, </em><em>default False</em><em>)</em>) – if True generate a rst table with the input descriptions.</p>
+<dd class="field-odd"><p><strong>rst_formating</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em> (</em><em>optional</em><em>, </em><em>default False</em><em>)</em>) – if True generate a rst table with the input descriptions.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>helpstr</strong> – the class input traits help</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)">str</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -598,7 +598,7 @@ label to avoid ambiguities.</p></li>
 <dd class="field-odd"><p><strong>outputs</strong> – a string representation of all the input trait specifications.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)">str</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -612,7 +612,7 @@ label to avoid ambiguities.</p></li>
 <dd class="field-odd"><p><strong>outputs</strong> – a dictionary with all the input trait names and values.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -626,7 +626,7 @@ label to avoid ambiguities.</p></li>
 <dd class="field-odd"><p><strong>log</strong> – the content of the log file.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -645,13 +645,13 @@ Directory parameter.</p>
 <dd><p>Generate description for process output parameters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>rst_formating</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em> (</em><em>optional</em><em>, </em><em>default False</em><em>)</em>) – if True generate a rst table with the input descriptions.</p>
+<dd class="field-odd"><p><strong>rst_formating</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em> (</em><em>optional</em><em>, </em><em>default False</em><em>)</em>) – if True generate a rst table with the input descriptions.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>helpstr</strong> – the trait output help descriptions</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)">str</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -665,7 +665,7 @@ Directory parameter.</p>
 <dd class="field-odd"><p><strong>outputs</strong> – a string representation of all the output trait specifications.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)">str</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -679,7 +679,7 @@ Directory parameter.</p>
 <dd class="field-odd"><p><strong>outputs</strong> – a dictionary with all the output trait names and values.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#dict" title="(in Python v3.9)">dict</a></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -690,13 +690,13 @@ Directory parameter.</p>
 <dd><p>Method to access the value of a process instance.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – the trait name we want to modify</p>
+<dd class="field-odd"><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – the trait name we want to modify</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>value</strong> – the trait value we want to access</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#object" title="(in Python v3.9)">object</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#object" title="(in Python v3.10)">object</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -715,7 +715,7 @@ Directory parameter.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>cls</strong> (<em>process class</em><em> (</em><em>mandatory</em><em>)</em>) – a process class</p></li>
-<li><p><strong>returnhelp</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em> (</em><em>optional</em><em>, </em><em>default False</em><em>)</em>) – if True return the help string message,
+<li><p><strong>returnhelp</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em> (</em><em>optional</em><em>, </em><em>default False</em><em>)</em>) – if True return the help string message,
 otherwise display it on the console.</p></li>
 </ul>
 </dd>
@@ -788,7 +788,7 @@ way we can map values correctly, and call a foreign command:</p>
 <dd class="field-odd"><p><strong>commandline</strong> – Arguments are in separate elements of the list.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#list" title="(in Python v3.9)">list</a> of strings</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#list" title="(in Python v3.10)">list</a> of strings</p>
 </dd>
 </dl>
 </dd></dl>
@@ -845,9 +845,9 @@ special Undefined trait value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – the trait name we want to modify</p></li>
-<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#object" title="(in Python v3.9)"><em>object</em></a><em> (</em><em>mandatory</em><em>)</em>) – the trait value we want to set</p></li>
-<li><p><strong>protected</strong> (<em>None</em><em> or </em><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em> (</em><em>tristate</em><em>)</em>) – if True or False, force the “protected” status of the plug. If None,
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – the trait name we want to modify</p></li>
+<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/functions.html#object" title="(in Python v3.10)"><em>object</em></a><em> (</em><em>mandatory</em><em>)</em>) – the trait value we want to set</p></li>
+<li><p><strong>protected</strong> (<em>None</em><em> or </em><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em> (</em><em>tristate</em><em>)</em>) – if True or False, force the “protected” status of the plug. If None,
 keep it as is.</p></li>
 </ul>
 </dd>
@@ -874,9 +874,9 @@ been assigned to the process, it should not change.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>mcls</strong> (<em>meta class</em><em> (</em><em>mandatory</em><em>)</em>) – a meta class.</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – the process class name.</p></li>
-<li><p><strong>bases</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#tuple" title="(in Python v3.9)"><em>tuple</em></a><em> (</em><em>mandatory</em><em>)</em>) – the direct base classes.</p></li>
-<li><p><strong>attrs</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a><em> (</em><em>mandatory</em><em>)</em>) – a dictionary with the class attributes.</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – the process class name.</p></li>
+<li><p><strong>bases</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#tuple" title="(in Python v3.10)"><em>tuple</em></a><em> (</em><em>mandatory</em><em>)</em>) – the direct base classes.</p></li>
+<li><p><strong>attrs</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a><em> (</em><em>mandatory</em><em>)</em>) – a dictionary with the class attributes.</p></li>
 </ul>
 </dd>
 </dl>
@@ -896,10 +896,10 @@ been assigned to the process, it should not change.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>process</strong> (<em>Process class</em><em> (</em><em>mandatory</em><em>)</em>) – A copy of the <cite>Process</cite> class that was called.</p></li>
-<li><p><strong>runtime</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a><em> (</em><em>mandatory</em><em>)</em>) – Execution attributes.</p></li>
-<li><p><strong>returncode</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a><em> (</em><em>mandatory</em><em>)</em>) – Execution raw attributes</p></li>
-<li><p><strong>inputs</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a><em> (</em><em>optional</em><em>)</em>) – Representation of the process inputs.</p></li>
-<li><p><strong>outputs</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a><em> (</em><em>optional</em><em>)</em>) – Representation of the process outputs.</p></li>
+<li><p><strong>runtime</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a><em> (</em><em>mandatory</em><em>)</em>) – Execution attributes.</p></li>
+<li><p><strong>returncode</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a><em> (</em><em>mandatory</em><em>)</em>) – Execution raw attributes</p></li>
+<li><p><strong>inputs</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a><em> (</em><em>optional</em><em>)</em>) – Representation of the process inputs.</p></li>
+<li><p><strong>outputs</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a><em> (</em><em>optional</em><em>)</em>) – Representation of the process outputs.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1001,11 +1001,11 @@ the corresponding Capsul XML 2.0 definition.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>module</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – name of the module for the created Process class (the Python module is
+<li><p><strong>module</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – name of the module for the created Process class (the Python module is
 not modified).</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – name of the new process class</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – name of the new process class</p></li>
 <li><p><strong>function</strong> (<em>callable</em><em> (</em><em>mandatory</em><em>)</em>) – function to call to execute the process.</p></li>
-<li><p><strong>xml</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – XML definition of the function.</p></li>
+<li><p><strong>xml</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em> (</em><em>mandatory</em><em>)</em>) – XML definition of the function.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1173,7 +1173,7 @@ representation.</p>
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2025, Populse team &lt;support@brainvisa.info&gt;.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     </div>
   </body>
 </html>
