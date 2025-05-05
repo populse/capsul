@@ -28,7 +28,7 @@ class FreeSurferConfig(StudyConfigModule):
     environment.
     """
     def __init__(self, study_config, configuration):
-        """ Initilaize the FreeSurferConfig class.
+        """ Initialize the FreeSurferConfig class.
 
         Parameters
         ----------

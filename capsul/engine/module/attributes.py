@@ -26,16 +26,16 @@ def init_settings(capsul_engine):
     with capsul_engine.settings as session:
         session.ensure_module_fields('attributes',
             [dict(name='attributes_schema_paths',
-                  type='list_string',
+                  type='list[str]',
                   description='attributes shchemas modules names'),
              dict(name='attributes_schemas',
-                  type='json',
+                  type='dict',
                   description='attributes shchemas names'),
              dict(name='process_completion',
-                  type='string',
+                  type='str',
                   description='process completion model name'),
              dict(name='path_completion',
-                  type='string',
+                  type='str',
                   description='path completion model name'),
             ])
         config = session.config('attributes', 'global')

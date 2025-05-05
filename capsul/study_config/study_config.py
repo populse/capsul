@@ -246,7 +246,7 @@ class StudyConfig(Controller):
             if not module:
                 raise EnvironmentError('Required StudyConfig module %s is '
                                        'missing' % module_name)
-            # Check if there are dependent modules that must be initilaized
+            # Check if there are dependent modules that must be initialized
             # before the current one
             initialize_first = [m for m in module.dependencies
                                 if m not in already_initialized]
@@ -331,6 +331,8 @@ class StudyConfig(Controller):
 
         # here we only deal with the (obsolete) local execution mode.
 
+        needs_opengl = getattr(process_or_pipeline, 'needs_opengl', False)
+
         with self.run_lock:
             self.run_interruption_request = False
 
@@ -406,6 +408,19 @@ class StudyConfig(Controller):
                 if self.run_interruption_request:
                     self.run_interruption_request = False
                     raise RuntimeError('Execution interruption requested')
+
+            if not needs_opengl:
+                # if any node needs opengl, we must initialize it first
+                # before any node execution loads Qt Gui
+                for process_node in execution_list:
+                    if getattr(process_node, 'needs_opengl', False):
+                        needs_opengl = True
+                        break
+            if needs_opengl:
+                from soma.qt_gui import qt_backend
+
+                if qt_backend.headless:
+                    qt_backend.set_headless(True, True)
 
             # Execute each process node element
             for process_node in execution_list:

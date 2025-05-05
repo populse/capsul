@@ -2676,6 +2676,7 @@ class PipelineDeveloperView(QGraphicsView):
         self._restricted_edition = False
         self.disable_overwrite = False
         self._userlevel = userlevel
+        self._pipeline_released = False
         self.doc_browser = None
 
         self.set_pipeline(pipeline)
@@ -2688,10 +2689,10 @@ class PipelineDeveloperView(QGraphicsView):
         self.link_keydelete_clicked.connect(self._link_delete_clicked)
         self.node_keydelete_clicked.connect(self._node_delete_clicked)
 
-    def __del__(self):
-        # print('PipelineDeveloperView.__del__')
-        self.release_pipeline(delete=True)
-        # super(PipelineDeveloperView, self).__del__()
+    # def __del__(self):
+    #     # print('PipelineDeveloperView.__del__')
+    #     self.release_pipeline(delete=True)
+    #     # super(PipelineDeveloperView, self).__del__()
 
     @property
     def userlevel(self):
@@ -2699,10 +2700,13 @@ class PipelineDeveloperView(QGraphicsView):
 
     @userlevel.setter
     def userlevel(self, value):
+        from soma.qt_gui.qt_backend import sip
         self._userlevel = value
-        if self.scene:
+        if self.scene is not None and not sip.isdeleted(self.scene):
             self.scene.userlevel = value
         for widget in self.findChildren(QtGui.QWidget):
+            if sip.isdeleted(widget):
+                continue
             if hasattr(widget, 'userlevel'):
                 widget.userlevel = value
 
@@ -2788,6 +2792,11 @@ class PipelineDeveloperView(QGraphicsView):
             if hasattr(pipeline, 'pipeline_steps'):
                 pipeline.pipeline_steps.on_trait_change(
                     self._reset_pipeline, dispatch='ui')
+                
+    def closeEvent(self, event):
+        """Ensure pipeline is released before the widget is closed."""
+        self.release_pipeline()
+        super().closeEvent(event)
 
     def release_pipeline(self, delete=False):
         '''
@@ -2798,59 +2807,104 @@ class PipelineDeveloperView(QGraphicsView):
         '''
         # Setup callback to update view when pipeline state is modified
         from soma.qt_gui.qt_backend import sip
-        pipeline = None
-        if self.scene is not None and hasattr(self.scene, 'pipeline'):
-            pipeline = self.scene.pipeline
-        if pipeline is not None:
-            if hasattr(pipeline, 'pipeline_steps'):
-                pipeline.pipeline_steps.on_trait_change(
-                    self._reset_pipeline, remove=True)
-            pipeline.on_trait_change(self._reset_pipeline, 'selection_changed',
-                                    remove=True)
-            pipeline.on_trait_change(self._reset_pipeline,
-                                     'user_traits_changed', remove=True)
-        if sip.isdeleted(self):
-            # prevent 'C++ object has been deleted' error
-            return
-        self.setScene(None)
-        if self.scene:
-            # force destruction of scene internals now that the Qt object
-            # still exists
-            self.scene._release()
-            # the scene is not deleted after all refs are released, even
-            # after self.setScene(None). This is probably a bug in PyQt:
-            # the C++ layer keeps ownership of the scene, whereas it should
-            # not: the Qt doc specifies for QGraphicsView.setScene():
-            # "The view does not take ownership of scene.", however in PyQt it
-            # does, and only releases it when the QGraphicsView is deleted.
-            # Thus we have to force it by hand:
-            from soma.qt_gui.qt_backend import sip
-            sip.transferback(self.scene)
-            self.scene = None
-            import gc
-            gc.collect()
-        if not delete and (pipeline is not None or self.scene is None):
-            self.scene = PipelineScene(self, userlevel=self.userlevel)
-            self.scene.set_enable_edition(self._enable_edition)
-            self.scene.logical_view = self._logical_view
-            self.scene.colored_parameters = self.colored_parameters
-            self.scene.subpipeline_clicked.connect(self.subpipeline_clicked)
-            self.scene.subpipeline_clicked.connect(self.onLoadSubPipelineClicked)
-            self.scene.process_clicked.connect(self._node_clicked)
-            self.scene.node_clicked.connect(self._node_clicked)
-            self.scene.node_clicked_ctrl.connect(self._node_clicked_ctrl)
-            self.scene.switch_clicked.connect(self.switch_clicked)
-            self.scene.node_right_clicked.connect(self.node_right_clicked)
-            self.scene.node_right_clicked.connect(self.onOpenProcessController)
-            self.scene.plug_clicked.connect(self.plug_clicked)
-            self.scene.plug_right_clicked.connect(self.plug_right_clicked)
-            self.scene.link_right_clicked.connect(self.link_right_clicked)
-            self.scene.link_keydelete_clicked.connect(self.link_keydelete_clicked)
-            self.scene.node_keydelete_clicked.connect(self.node_keydelete_clicked)
-            self.scene.pos = {}
-            self.scene.dim = {}
-            self.setWindowTitle('<no pipeline>')
-            self.setScene(self.scene)
+
+        if getattr(self, '_pipeline_released', False):
+            return  # already released
+        
+        self._pipeline_released = True
+
+        try:
+            pipeline = None
+
+
+            if (
+                hasattr(self, 'scene')
+                and self.scene is not None
+                and hasattr(self.scene, 'pipeline')
+            ):
+                pipeline = self.scene.pipeline
+
+            if pipeline is not None:
+
+                if hasattr(pipeline, 'pipeline_steps'):
+                    pipeline.pipeline_steps.on_trait_change(
+                        self._reset_pipeline, remove=True
+                    )
+
+                pipeline.on_trait_change(
+                    self._reset_pipeline, 'selection_changed', remove=True
+                )
+                pipeline.on_trait_change(
+                    self._reset_pipeline, 'user_traits_changed', remove=True
+                )
+
+            if sip.isdeleted(self):
+                # prevent 'C++ object has been deleted' error
+                return
+        
+            self.setScene(None)
+
+            if hasattr(self, 'scene') and self.scene:
+
+                # force destruction of scene internals now that the Qt object
+                # still exists
+                try:
+                    self.scene._release()
+    
+                except Exception:
+                    pass
+            
+                # the scene is not deleted after all refs are released, even
+                # after self.setScene(None). This is probably a bug in PyQt:
+                # the C++ layer keeps ownership of the scene, whereas it should
+                # not: the Qt doc specifies for QGraphicsView.setScene():
+                # "The view does not take ownership of scene.", however in PyQt it
+                # does, and only releases it when the QGraphicsView is deleted.
+                # Thus we have to force it by hand:
+                try:
+                    sip.transferback(self.scene)
+
+                except Exception:
+                    pass
+
+
+                self.scene = None
+                import gc
+                gc.collect()
+
+            if not delete and (pipeline is not None or self.scene is None):
+
+                try:
+                    self.scene = PipelineScene(self, userlevel=self.userlevel)
+                    self.scene.set_enable_edition(self._enable_edition)
+                    self.scene.logical_view = self._logical_view
+                    self.scene.colored_parameters = self.colored_parameters
+                    self.scene.subpipeline_clicked.connect(self.subpipeline_clicked)
+                    self.scene.subpipeline_clicked.connect(self.onLoadSubPipelineClicked)
+                    self.scene.process_clicked.connect(self._node_clicked)
+                    self.scene.node_clicked.connect(self._node_clicked)
+                    self.scene.node_clicked_ctrl.connect(self._node_clicked_ctrl)
+                    self.scene.switch_clicked.connect(self.switch_clicked)
+                    self.scene.node_right_clicked.connect(self.node_right_clicked)
+                    self.scene.node_right_clicked.connect(self.onOpenProcessController)
+                    self.scene.plug_clicked.connect(self.plug_clicked)
+                    self.scene.plug_right_clicked.connect(self.plug_right_clicked)
+                    self.scene.link_right_clicked.connect(self.link_right_clicked)
+                    self.scene.link_keydelete_clicked.connect(self.link_keydelete_clicked)
+                    self.scene.node_keydelete_clicked.connect(self.node_keydelete_clicked)
+                    self.scene.pos = {}
+                    self.scene.dim = {}
+                    self.setWindowTitle('<no pipeline>')
+                    self.setScene(self.scene)
+
+                except Exception as e:
+                    print(
+                        f"[release_pipeline] Exception "
+                        f"during scene rebuild: {e}"
+                    )
+
+        except Exception as e:
+            print(f"[release_pipeline] Exception: {e}")
 
     def is_logical_view(self):
         '''

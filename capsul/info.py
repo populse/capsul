@@ -8,8 +8,8 @@ import sys
 
 # Capsul current version
 version_major = 2
-version_minor = 5
-version_micro = 3
+version_minor = 6
+version_micro = 1
 version_extra = ""
 
 # The following variables are here for backward compatibility in order to
@@ -55,7 +55,8 @@ SOMA_MIN_VERSION = "5.0"
 
 # dependencies
 SOMA_WORKFLOW_MIN_VERSION = "3.2"
-POPULSE_DB_MIN_VERSION = "2.2"
+POPULSE_DB_MIN_VERSION = "3.0"
+POPULSE_DB_MAX_VERSION = "4.0"
 NIBABEL_MIN_VERSION = "1.0"
 NETWORKX_MIN_VERSION = "1.0"
 NUMPY_MIN_VERSION = "1.17"
@@ -85,7 +86,7 @@ REQUIRES = [
     #"soma-base[controller,subprocess]>={0}".format(SOMA_MIN_VERSION),
     "soma-base>={0}".format(SOMA_MIN_VERSION),
     "soma-workflow>={0}".format(SOMA_WORKFLOW_MIN_VERSION),
-    "populse-db>={0}".format(POPULSE_DB_MIN_VERSION),
+    "populse-db>={0},<{1}".format(POPULSE_DB_MIN_VERSION, POPULSE_DB_MAX_VERSION),
     "six>=1.13",
     "PyYAML",
 ]

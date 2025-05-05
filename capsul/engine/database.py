@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import
 import os.path as osp
 
-class DatabaseEngine(object):
+class DatabaseEngine:
     '''
     A :py:class:`DatabaseEngine` is the base class for all engines 
     allowing to store, retrieve and search metadata associated with
