@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+    <title>CAPSUL &#8212; CAPSUL - Chain algorithm in pipelines and execute in many contexts</title>
+  <!-- htmltitle is before nature.css - we use this hack to load bootstrap first -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="../../../_static/css/bootstrap.min.css" media="screen" />
+  <link rel="stylesheet" href="../../../_static/css/bootstrap-responsive.css"/>
+  <link rel="icon" href="../../../_static/capsul_logo.svg"/>
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=f0b81668" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    
+    <script src="../../../_static/documentation_options.js?v=0a414f3d"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+
+  <!-- sidebar -->
+  
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="../../../_static/js/bootstrap.min.js" type="application/javascript"></script>
+
+  <script type="application/javascript">
+    $("div.buttonNext, div.buttonPrevious").hover(
+       function () {
+           $(this).css('background-color', '#FF9C34');
+       },
+       function () {
+           $(this).css('background-color', '#A7D6E2');
+       }
+    );
+    var bodywrapper = $('.bodywrapper');
+    var sidebarbutton = $('#sidebarbutton');
+    sidebarbutton.css({'height': '900px'});
+  </script>
+
+  <div class="header" style="display: inline; width: 80%; margin-left:10%;">
+    <a href="../../../index.html">
+    <img src="../../../_static/capsul_logo.svg" alt="Capsul logo" style="display: inline; height:4em;"/>
+    </a >
+    <div class="navbar" style="display: inline;">
+      <ul>
+        <li><a href="../../../index.html">Home</a></li>
+        <li><a href="../../../installation.html">Installation</a></li>
+        <li class="btn-li">
+          <div class="btn-group">
+            <a href="../../../documentation.html">Documentation</a>
+            <a class="btn dropdown-toggle" data-toggle="dropdown">
+              <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+              <li class="link-title">CAPSUL</li>
+              <li><a href="../../../user_guide_tree/index.html">User guide</a></li>
+              <li><a href="../../../api/index.html">API</a></li>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <!-- form action="search.html" method="get" style="display: inline-block;"></form>
+            <input type="text" class="search-header" name="q" placeholder="search documentation..." value=""></input>
+            <button type="submit" >search</button>
+          </form -->
+          <form class="search_box" method="get" action="http://www.google.com/search" style="display: inline-block;">
+            <input class="search-header" type="text" name="q" placeholder="search documentation..." />
+            <input class="submit" type="image" src="../../../_static/find_read.png" value="Search" />
+            <input type="hidden" name="sitesearch" value="brainvisa.info/capsul" />
+          </form>
+        </li>
+      </ul>
+    </div> <!-- end navbar -->
+  </div>
+
+
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CAPSUL</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">CAPSUL</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for capsul.qt_gui.board_widget</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Classes</span>
+<span class="sd">=======</span>
+<span class="sd">:class:`BoardWidget`</span>
+<span class="sd">--------------------</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="c1"># System import</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">six</span>
+
+<span class="c1"># Define the logger</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1"># Soma import</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">soma.qt_gui.qt_backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">QtGui</span><span class="p">,</span> <span class="n">QtCore</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">soma.qt_gui.controller_widget</span><span class="w"> </span><span class="kn">import</span> <span class="n">ControllerWidget</span>
+
+<span class="c1"># Capsul import</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">capsul.qt_gui.widgets.viewer_widget</span><span class="w"> </span><span class="kn">import</span> <span class="n">ViewerWidget</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">capsul.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pipeline</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">capsul.pipeline.pipeline_nodes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Switch</span><span class="p">,</span> <span class="n">PipelineNode</span>
+
+
+<div class="viewcode-block" id="BoardWidget">
+<a class="viewcode-back" href="../../../api/qt_gui.html#capsul.qt_gui.board_widget.BoardWidget">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BoardWidget</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QWidget</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Class that create a widget to visualize the controller status.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">controller</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to initialize the ControllerWidget class.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        controller: derived Controller instance (mandatory)</span>
+<span class="sd">            a class derived from the Controller class we want to parametrize</span>
+<span class="sd">            with a widget.</span>
+<span class="sd">        parent: QtGui.QWidget (optional, default None)</span>
+<span class="sd">            the controller widget parent widget.</span>
+<span class="sd">        name: (optional, default None)</span>
+<span class="sd">            the name of this controller widget</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Inheritance</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">BoardWidget</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+
+        <span class="c1"># Class parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">controller</span> <span class="o">=</span> <span class="n">controller</span>
+
+        <span class="c1"># If possible, set the widget name</span>
+        <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setObjectName</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="c1"># Create the layout of the board widget</span>
+        <span class="c1"># Three item layout: output_controller_widget - board_tree - viewer_tree</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_grid_layout</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QGridLayout</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_grid_layout</span><span class="o">.</span><span class="n">setAlignment</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">AlignTop</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_grid_layout</span><span class="o">.</span><span class="n">setSpacing</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_grid_layout</span><span class="o">.</span><span class="n">setContentsMargins</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_grid_layout</span><span class="p">)</span>
+
+        <span class="c1"># Create all the controls</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_output_widget</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_viewer_tree</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_board_tree</span><span class="p">()</span>
+
+        <span class="c1"># Fill the grid layout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_grid_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">board_tree</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_grid_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_controller_widget</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_grid_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">viewer_tree</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Create the board</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fill_trees</span><span class="p">()</span>
+
+    <span class="c1">###########################################################################</span>
+    <span class="c1"># Methods   </span>
+    <span class="c1">###########################################################################</span>
+
+<div class="viewcode-block" id="BoardWidget.create_output_widget">
+<a class="viewcode-back" href="../../../api/qt_gui.html#capsul.qt_gui.board_widget.BoardWidget.create_output_widget">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_output_widget</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to create the output controller widget built </span>
+<span class="sd">        from the class controller output traits</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_controller_widget</span> <span class="o">=</span> <span class="n">ControllerWidget</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;outputs&quot;</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">hide_labels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">select_controls</span><span class="o">=</span><span class="s2">&quot;outputs&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_controller_widget</span><span class="o">.</span><span class="n">setEnabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BoardWidget.create_viewer_tree">
+<a class="viewcode-back" href="../../../api/qt_gui.html#capsul.qt_gui.board_widget.BoardWidget.create_viewer_tree">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_viewer_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to create a tree with two columns (pipeline name - viewers)</span>
+<span class="sd">        that will summarize all the available quality control nodes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Create the tree widget</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">viewer_tree</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QTreeWidget</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="c1"># Initialize the tree widget</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">viewer_tree</span><span class="o">.</span><span class="n">setColumnCount</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">viewer_tree</span><span class="o">.</span><span class="n">headerItem</span><span class="p">()</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Pipeline Name&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">viewer_tree</span><span class="o">.</span><span class="n">headerItem</span><span class="p">()</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Viewers&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BoardWidget.create_board_tree">
+<a class="viewcode-back" href="../../../api/qt_gui.html#capsul.qt_gui.board_widget.BoardWidget.create_board_tree">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_board_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to create a tree with five columns (processings - status -</span>
+<span class="sd">        execution time - memory - logs) that will summarize all the available</span>
+<span class="sd">        quality control nodes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Create the tree widget</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">board_tree</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QTreeWidget</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="c1"># Initialize the tree widget</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">board_tree</span><span class="o">.</span><span class="n">setColumnCount</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">board_tree</span><span class="o">.</span><span class="n">headerItem</span><span class="p">()</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Processings&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">board_tree</span><span class="o">.</span><span class="n">headerItem</span><span class="p">()</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;Status&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">board_tree</span><span class="o">.</span><span class="n">headerItem</span><span class="p">()</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;Execution Time&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">board_tree</span><span class="o">.</span><span class="n">headerItem</span><span class="p">()</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;Memory&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">board_tree</span><span class="o">.</span><span class="n">headerItem</span><span class="p">()</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;Logs&quot;</span><span class="p">)</span></div>
+
+
+    <span class="c1">###########################################################################</span>
+    <span class="c1"># Private methods   </span>
+    <span class="c1">###########################################################################</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_title_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to tune a title name.</span>
+
+<span class="sd">        Juste replace the &#39;_&#39; character by a blank &#39; &#39;.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        title: str (mandatory)</span>
+<span class="sd">            the title name we want to tune.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        output: str</span>
+<span class="sd">            the tuned name</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">title</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_fill_trees</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to insert processing parameters in the class trees.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Generate structures that contain all viewers and all processings</span>
+        <span class="c1"># status - metainforamtion</span>
+        <span class="n">viewers_struct</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">processings_struct</span> <span class="o">=</span> <span class="p">[]</span>
+    
+        <span class="c1"># Go through all the controller (pipeline) nodes.</span>
+        <span class="k">for</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">nodes</span><span class="p">):</span>
+
+            <span class="c1"># If the current node is a processing node</span>
+            <span class="k">if</span> <span class="n">node_name</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span> <span class="ow">and</span> <span class="n">node</span><span class="o">.</span><span class="n">node_type</span> <span class="o">!=</span> <span class="s2">&quot;view_node&quot;</span><span class="p">:</span>
+
+                <span class="c1"># First browse the current node to get processings and viewers</span>
+                <span class="n">process_nodes</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">view_nodes</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">browse_node</span><span class="p">(</span>
+                    <span class="n">node</span><span class="p">,</span> <span class="n">process_nodes</span><span class="p">,</span> <span class="n">view_nodes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="p">)</span>
+
+                <span class="c1"># Set process logs</span>
+                <span class="c1">#for process_node in process_nodes:</span>
+                <span class="c1">#    widget = LogWidget(process_node)</span>
+                <span class="c1">#    widget.setParent(root.treeWidget())</span>
+                <span class="c1">#    child.treeWidget().setItemWidget(child, 3, widget)</span>
+
+                <span class="c1"># Fill the processing structure</span>
+                <span class="k">for</span> <span class="n">processing_node</span> <span class="ow">in</span> <span class="n">process_nodes</span><span class="p">:</span>
+                    <span class="n">processings_struct</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">processing_node</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                        <span class="s2">&quot;log&quot;</span><span class="p">:</span> <span class="n">processing_node</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">log_file</span> <span class="ow">or</span> <span class="s2">&quot;No log&quot;</span><span class="p">})</span>
+
+                <span class="c1"># Fill the viewer structure</span>
+                <span class="k">for</span> <span class="n">viewer_node</span><span class="p">,</span> <span class="n">pipeline</span> <span class="ow">in</span> <span class="n">view_nodes</span><span class="p">:</span>
+
+                    <span class="c1"># Create a viewer widget (a simple press button)</span>
+                    <span class="n">widget</span> <span class="o">=</span> <span class="n">ViewerWidget</span><span class="p">(</span><span class="n">viewer_node</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                                          <span class="c1">#self._study_config)</span>
+
+                    <span class="c1"># Store the widget in the corresponding structure</span>
+                    <span class="n">title</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_title_for</span><span class="p">(</span><span class="n">pipeline</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">title</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">viewers_struct</span><span class="p">:</span>
+                        <span class="n">viewers_struct</span><span class="p">[</span><span class="n">title</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">viewers_struct</span><span class="p">[</span><span class="n">title</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+
+
+            <span class="c1"># If the current node is a viewer node</span>
+            <span class="k">elif</span> <span class="n">node</span><span class="o">.</span><span class="n">node_type</span> <span class="o">==</span> <span class="s2">&quot;view_node&quot;</span><span class="p">:</span>
+
+                <span class="c1"># Create a viewer widget (a simple press button)</span>
+                <span class="n">widget</span> <span class="o">=</span> <span class="n">ViewerWidget</span><span class="p">(</span><span class="n">node_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                                      <span class="c1">#self._study_config)</span>
+
+                <span class="c1"># Store the widget in the corresponding structure</span>
+                <span class="n">title</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_title_for</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">title</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">viewers_struct</span><span class="p">:</span>
+                    <span class="n">viewers_struct</span><span class="p">[</span><span class="n">title</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">viewers_struct</span><span class="p">[</span><span class="n">title</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+
+
+        <span class="c1"># Fill the viewer tree widget</span>
+        <span class="n">viewer_parent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">viewer_tree</span><span class="o">.</span><span class="n">invisibleRootItem</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">pipeline_title</span><span class="p">,</span> <span class="n">viewer_widgets</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">viewers_struct</span><span class="p">):</span>
+
+            <span class="c1"># Create a new tree item</span>
+            <span class="n">viewer_child</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QTreeWidgetItem</span><span class="p">(</span><span class="n">viewer_parent</span><span class="p">)</span>
+            <span class="n">viewer_child</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">pipeline_title</span><span class="p">)</span>
+
+            <span class="c1"># Set the viewer widgets in a layout</span>
+            <span class="n">widget_layout</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QHBoxLayout</span><span class="p">()</span>
+            <span class="n">widget_layout</span><span class="o">.</span><span class="n">setSpacing</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">widget_layout</span><span class="o">.</span><span class="n">setSizeConstraint</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QLayout</span><span class="o">.</span><span class="n">SetMinimumSize</span><span class="p">)</span>
+            <span class="n">widget_layout</span><span class="o">.</span><span class="n">setContentsMargins</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">widget_layout</span><span class="o">.</span><span class="n">addStretch</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">widget</span> <span class="ow">in</span> <span class="n">viewer_widgets</span><span class="p">:</span>
+                <span class="n">widget</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QToolButton</span><span class="p">()</span>
+                <span class="n">widget_layout</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">widget</span><span class="p">)</span>
+
+            <span class="c1"># Set the final widget tree item</span>
+            <span class="n">widget</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QWidget</span><span class="p">(</span><span class="n">viewer_child</span><span class="o">.</span><span class="n">treeWidget</span><span class="p">())</span>
+            <span class="n">widget</span><span class="o">.</span><span class="n">setLayout</span><span class="p">(</span><span class="n">widget_layout</span><span class="p">)</span>
+            <span class="n">viewer_child</span><span class="o">.</span><span class="n">treeWidget</span><span class="p">()</span><span class="o">.</span><span class="n">setItemWidget</span><span class="p">(</span><span class="n">viewer_child</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">widget</span><span class="p">)</span>
+
+        <span class="c1"># Fill the pboard tree widget</span>
+        <span class="n">board_parent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">board_tree</span><span class="o">.</span><span class="n">invisibleRootItem</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">process_info</span> <span class="ow">in</span> <span class="n">processings_struct</span><span class="p">:</span>
+
+            <span class="c1"># Create a new tree item</span>
+            <span class="n">board_child</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QTreeWidgetItem</span><span class="p">(</span><span class="n">board_parent</span><span class="p">)</span>
+            <span class="n">board_child</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">process_info</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
+            <span class="n">board_child</span><span class="o">.</span><span class="n">setText</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">process_info</span><span class="p">[</span><span class="s2">&quot;log&quot;</span><span class="p">])</span>
+
+<div class="viewcode-block" id="BoardWidget.browse_node">
+<a class="viewcode-back" href="../../../api/qt_gui.html#capsul.qt_gui.board_widget.BoardWidget.browse_node">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">browse_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">process_nodes</span><span class="p">,</span> <span class="n">view_nodes</span><span class="p">,</span> <span class="n">parent_pipeline</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Find view_node and leaf nodes, ie. Process nodes</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        node: Node</span>
+<span class="sd">            a capsul node</span>
+<span class="sd">        process_nodes: Node</span>
+<span class="sd">            node of type processing_node</span>
+<span class="sd">        view_nodes: 2-uplet</span>
+<span class="sd">            contains the node of type view_node and the pipeline where this node</span>
+<span class="sd">            is defined</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Skip Switch nodes</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">Switch</span><span class="p">):</span>
+
+            <span class="c1"># Browse recursively pipeline nodes</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="n">Pipeline</span><span class="p">)</span> <span class="ow">and</span> 
+                <span class="n">node</span><span class="o">.</span><span class="n">node_type</span> <span class="o">!=</span> <span class="s2">&quot;view_node&quot;</span><span class="p">):</span>
+
+                <span class="n">pipeline</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">process</span>
+                <span class="k">for</span> <span class="n">sub_node</span> <span class="ow">in</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sub_node</span><span class="p">,</span> <span class="n">PipelineNode</span><span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">browse_node</span><span class="p">(</span><span class="n">sub_node</span><span class="p">,</span> <span class="n">process_nodes</span><span class="p">,</span> <span class="n">view_nodes</span><span class="p">,</span>
+                                         <span class="n">pipeline</span><span class="p">)</span>
+            <span class="c1"># Update the results according to the node type</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">node_type</span> <span class="o">==</span> <span class="s2">&quot;view_node&quot;</span><span class="p">:</span>
+                    <span class="n">view_nodes</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">node</span><span class="p">,</span> <span class="n">parent_pipeline</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">process_nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span></div>
+</div>
+
+
+        
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">CAPSUL</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">CAPSUL</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2025, Populse team &lt;support@brainvisa.info&gt;.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    </div>
+  </body>
+</html>

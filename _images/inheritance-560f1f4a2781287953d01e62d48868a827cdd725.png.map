@@ -1,0 +1,10 @@
+<map id="inheritance8def285678" name="inheritance8def285678">
+<area shape="rect" id="node1" href="#capsul.engine.AutoDeleteFileName" target="_top" title="AutoDeleteFileName" alt="" coords="5,153,163,179"/>
+<area shape="rect" id="node2" href="https://docs.enthought.com/traits/traits_api_reference/ctraits.html#traits.ctraits.CHasTraits" target="_top" title="Base class for HasTraits." alt="" coords="39,104,129,129"/>
+<area shape="rect" id="node5" href="https://docs.enthought.com/traits/traits_api_reference/has_traits.html#traits.has_traits.HasTraits" target="_top" title="Enables any Python class derived from it to have trait attributes." alt="" coords="237,104,320,129"/>
+<area shape="rect" id="node3" href="#capsul.engine.CapsulEngine" target="_top" title="A CapsulEngine is the mandatory entry point of all software using Capsul." alt="" coords="529,104,640,129"/>
+<area shape="rect" id="node4" href="https://populse.github.io/soma-base/api.html#soma.controller.controller.Controller" target="_top" title="A Controller contains some traits: attributes typing and observer" alt="" coords="395,104,481,129"/>
+<area shape="rect" id="node6" href="#capsul.engine.database.DatabaseEngine" target="_top" title="A :py:class:`DatabaseEngine` is the base class for all engines " alt="" coords="20,31,148,56"/>
+<area shape="rect" id="node7" href="#capsul.engine.database_json.JSONDBEngine" target="_top" title="A JSON dictionary implementation of :py:class:`capsul.engine.database.DatabaseEngine`" alt="" coords="220,5,337,31"/>
+<area shape="rect" id="node8" href="#capsul.engine.database_populse.PopulseDBEngine" target="_top" title="PopulseDBEngine" alt="" coords="211,55,347,80"/>
+</map>
