@@ -226,6 +226,7 @@ class Pipeline(Process):
 
         # Class attributes
         # this one is only useful to maintain subprocesses/subpipelines life
+        self._pipeline_released = False
         self.list_process_in_pipeline = []
         self.nodes_activation = Controller()
         self.nodes = SortedDictionary()
