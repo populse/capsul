@@ -62,7 +62,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install git+https://github.com/populse/soma-base.git@6.0
         pip install git+https://github.com/populse/soma-workflow.git
-        pip install git+https://github.com/populse/populse_db.git@3.0
+        pip install git+https://github.com/populse/populse_db.git
         pip install .
         pip install pytest notebook
 
