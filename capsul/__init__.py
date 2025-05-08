@@ -1,7 +1,20 @@
-from .info import __version__
+import importlib.metadata
+import re
+
+try:
+    __release__ = importlib.metadata.version("capsul")
+except importlib.metadata.PackageNotFoundError:
+    __release__ = None
+
+if __release__:
+    __version__ = re.match(r"(\d+\.\d+\.\d+)[^.\d]*", __release__).group(1)
+else:
+    __version__ = None
 
 _doc_path = None
 
+application_name = "capsul"
+organization_name = "populse"
 
 def _init_doc_path():
     global _doc_path
@@ -9,7 +22,7 @@ def _init_doc_path():
 
     import capsul
 
-    from .info import version_major, version_minor
+    short_version = ".".join(__version__.split(".")[:2])
 
     p = os.path.dirname(os.path.dirname(capsul.__file__))
     doc_path = os.path.join(p, "doc/build/html")
@@ -22,7 +35,7 @@ def _init_doc_path():
 
     p2 = os.path.join(
         os.path.dirname(soma.config.BRAINVISA_SHARE),
-        "doc/capsul-%d.%d" % (version_major, version_minor),
+        f"doc/capsul-{short_version}",
     )
     if os.path.exists(p2):
         _doc_path = p2

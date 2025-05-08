@@ -37,9 +37,7 @@ class ActivationInspectorApp(Application):
     """
 
     # Load some meta information
-    from capsul.info import NAME as _application_name
-    from capsul.info import ORGANISATION as _organisation_name
-    from capsul.info import __version__ as _version
+    from capsul import application_name, organisation_name, version
 
     def __init__(self, pipeline_path, record_file=None, *args, **kwargs):
         """Method to initialize the ActivationInspectorApp class.
@@ -65,9 +63,9 @@ class ActivationInspectorApp(Application):
     def init_window(self):
         """Method to initialize the main window."""
         # First set some meta information
-        self.setApplicationName(self._application_name)
-        self.setOrganizationName(self._organisation_name)
-        self.setApplicationVersion(self._version)
+        self.setApplicationName(self.application_name)
+        self.setOrganizationName(self.organisation_name)
+        self.setApplicationVersion(self.version)
 
         # Get the user interface description from capsul resources
         ui_file = os.path.join(os.path.dirname(__file__), "activation_inspector.ui")
