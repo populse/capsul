@@ -14,7 +14,8 @@ else:
 _doc_path = None
 
 application_name = "capsul"
-organization_name = "populse"
+organization_name = "BrainVISA team"
+
 
 def _init_doc_path():
     global _doc_path
