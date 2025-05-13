@@ -1,5 +1,5 @@
 <map id="inheritance8def285678" name="inheritance8def285678">
-<area shape="rect" id="node1" href="#capsul.engine.AutoDeleteFileName" target="_top" title="AutoDeleteFileName" alt="" coords="5,153,163,179"/>
+<area shape="rect" id="node1" href="#capsul.engine.AutoDeleteFileName" target="_top" title="A temporary file name that automatically deletes the file when `cleanup()`" alt="" coords="5,153,163,179"/>
 <area shape="rect" id="node2" href="https://docs.enthought.com/traits/traits_api_reference/ctraits.html#traits.ctraits.CHasTraits" target="_top" title="Base class for HasTraits." alt="" coords="39,104,129,129"/>
 <area shape="rect" id="node5" href="https://docs.enthought.com/traits/traits_api_reference/has_traits.html#traits.has_traits.HasTraits" target="_top" title="Enables any Python class derived from it to have trait attributes." alt="" coords="237,104,320,129"/>
 <area shape="rect" id="node3" href="#capsul.engine.CapsulEngine" target="_top" title="A CapsulEngine is the mandatory entry point of all software using Capsul." alt="" coords="529,104,640,129"/>

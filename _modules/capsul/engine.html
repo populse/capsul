@@ -131,6 +131,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">os.path</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">osp</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">weakref</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">traits.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">String</span><span class="p">,</span> <span class="n">Undefined</span>
 
@@ -652,17 +653,63 @@
 <div class="viewcode-block" id="AutoDeleteFileName">
 <a class="viewcode-back" href="../../api/engine.html#capsul.engine.AutoDeleteFileName">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AutoDeleteFileName</span><span class="p">(</span><span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A temporary file name that automatically deletes the file when `cleanup()`</span>
+<span class="sd">    is called.</span>
+
+<span class="sd">    This class creates a temporary file using `tempfile.mkstemp()`, stores its</span>
+<span class="sd">    file descriptor and path, and behaves like a string (inherits from `str`).</span>
+<span class="sd">    It is useful when you need to pass a file path around but also want to</span>
+<span class="sd">    ensure the file is properly deleted later.</span>
+
+<span class="sd">    :param **kwargs: Keyword arguments passed to `tempfile.mkstemp()` such as</span>
+<span class="sd">                     `prefix`,`suffix`, or `dir`.</span>
+
+<span class="sd">    :returns (AutoDeleteFileName): An instance that acts like a string path</span>
+<span class="sd">                                   but can clean up its underlying file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span><span class="w"> </span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a temporary file and return an AutoDeleteFileName instance with</span>
+<span class="sd">        the file path.</span>
+
+<span class="sd">        :param **kwargs: Keyword arguments passed to `tempfile.mkstemp()`.</span>
+
+<span class="sd">        :returns (AutoDeleteFileName): The string path of the created</span>
+<span class="sd">                                       temporary file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">fd</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkstemp</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">instance</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
         <span class="n">instance</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
         <span class="n">instance</span><span class="o">.</span><span class="n">fd</span> <span class="o">=</span> <span class="n">fd</span>
         <span class="k">return</span> <span class="n">instance</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fd</span><span class="p">)</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span></div>
+<div class="viewcode-block" id="AutoDeleteFileName.cleanup">
+<a class="viewcode-back" href="../../api/engine.html#capsul.engine.AutoDeleteFileName.cleanup">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Close and delete the temporary file if it exists.</span>
 
+<span class="sd">        This method ensures the file descriptor is closed and the file is</span>
+<span class="sd">        removed from the filesystem. Errors during cleanup are silently</span>
+<span class="sd">        ignored.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fd</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="k">try</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+            <span class="k">pass</span></div>
+</div>
 
 
 <div class="viewcode-block" id="database_factory">
@@ -678,7 +725,9 @@
     <span class="n">engine_directory</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">if</span> <span class="n">database_location</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">database_location</span> <span class="o">=</span> <span class="n">AutoDeleteFileName</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;populse_db_&quot;</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;.sqlite&quot;</span><span class="p">)</span>
+        <span class="n">database_location</span> <span class="o">=</span> <span class="n">AutoDeleteFileName</span><span class="p">(</span>
+            <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;populse_db_&quot;</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;.sqlite&quot;</span>
+        <span class="p">)</span>
     <span class="n">match</span> <span class="o">=</span> <span class="n">_populsedb_url_re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">database_location</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
         <span class="n">path</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groups</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
@@ -695,6 +744,11 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid database location: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">database_location</span><span class="p">)</span>
 
     <span class="n">engine</span> <span class="o">=</span> <span class="n">PopulseDBEngine</span><span class="p">(</span><span class="n">populse_db</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">database_location</span><span class="p">,</span> <span class="n">AutoDeleteFileName</span><span class="p">):</span>
+        <span class="c1"># attach cleanup so it deletes when engine is done</span>
+        <span class="n">weakref</span><span class="o">.</span><span class="n">finalize</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">database_location</span><span class="o">.</span><span class="n">cleanup</span><span class="p">)</span>
+
     <span class="k">if</span> <span class="n">engine_directory</span><span class="p">:</span>
         <span class="n">engine</span><span class="o">.</span><span class="n">set_named_directory</span><span class="p">(</span><span class="s2">&quot;capsul_engine&quot;</span><span class="p">,</span> <span class="n">engine_directory</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">engine</span></div>

@@ -105,9 +105,9 @@
             
   <section id="capsul-engine-module">
 <h1>capsul.engine module<a class="headerlink" href="#capsul-engine-module" title="Link to this heading">¶</a></h1>
-<div class="graphviz"><img src="../_images/inheritance-560f1f4a2781287953d01e62d48868a827cdd725.png" alt="Inheritance diagram of capsul.engine, capsul.engine.database_json, capsul.engine.database_populse, capsul.engine.database, capsul.engine.module" usemap="#inheritance8def285678" class="inheritance graphviz" /></div>
+<div class="graphviz"><img src="../_images/inheritance-a891b32693bbb4e8ab8bb6b68771a2b8a5ea0527.png" alt="Inheritance diagram of capsul.engine, capsul.engine.database_json, capsul.engine.database_populse, capsul.engine.database, capsul.engine.module" usemap="#inheritance8def285678" class="inheritance graphviz" /></div>
 <map id="inheritance8def285678" name="inheritance8def285678">
-<area shape="rect" id="node1" href="#capsul.engine.AutoDeleteFileName" target="_top" title="AutoDeleteFileName" alt="" coords="5,153,163,179"/>
+<area shape="rect" id="node1" href="#capsul.engine.AutoDeleteFileName" target="_top" title="A temporary file name that automatically deletes the file when `cleanup()`" alt="" coords="5,153,163,179"/>
 <area shape="rect" id="node2" href="https://docs.enthought.com/traits/traits_api_reference/ctraits.html#traits.ctraits.CHasTraits" target="_top" title="Base class for HasTraits." alt="" coords="39,104,129,129"/>
 <area shape="rect" id="node5" href="https://docs.enthought.com/traits/traits_api_reference/has_traits.html#traits.has_traits.HasTraits" target="_top" title="Enables any Python class derived from it to have trait attributes." alt="" coords="237,104,320,129"/>
 <area shape="rect" id="node3" href="#capsul.engine.CapsulEngine" target="_top" title="A CapsulEngine is the mandatory entry point of all software using Capsul." alt="" coords="529,104,640,129"/>
@@ -142,7 +142,45 @@ In order to execute a process, it is mandatory to have an instance of
 <dl class="py class">
 <dt class="sig sig-object py" id="capsul.engine.AutoDeleteFileName">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.engine.</span></span><span class="sig-name descname"><span class="pre">AutoDeleteFileName</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine.html#AutoDeleteFileName"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.AutoDeleteFileName" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>A temporary file name that automatically deletes the file when <cite>cleanup()</cite>
+is called.</p>
+<p>This class creates a temporary file using <cite>tempfile.mkstemp()</cite>, stores its
+file descriptor and path, and behaves like a string (inherits from <cite>str</cite>).
+It is useful when you need to pass a file path around but also want to
+ensure the file is properly deleted later.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>**kwargs</strong> – <p>Keyword arguments passed to <cite>tempfile.mkstemp()</cite> such as
+<cite>prefix</cite>,`suffix`, or <cite>dir</cite>.</p>
+</p>
+</dd>
+<dt class="field-even">Returns (AutoDeleteFileName)<span class="colon">:</span></dt>
+<dd class="field-even"><p>An instance that acts like a string path
+but can clean up its underlying file.</p>
+</dd>
+</dl>
+<p>Create a temporary file and return an AutoDeleteFileName instance with
+the file path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>**kwargs</strong> – <p>Keyword arguments passed to <cite>tempfile.mkstemp()</cite>.</p>
+</p>
+</dd>
+<dt class="field-even">Returns (AutoDeleteFileName)<span class="colon">:</span></dt>
+<dd class="field-even"><p>The string path of the created
+temporary file.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="capsul.engine.AutoDeleteFileName.cleanup">
+<span class="sig-name descname"><span class="pre">cleanup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/engine.html#AutoDeleteFileName.cleanup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.engine.AutoDeleteFileName.cleanup" title="Link to this definition">¶</a></dt>
+<dd><p>Close and delete the temporary file if it exists.</p>
+<p>This method ensures the file descriptor is closed and the file is
+removed from the filesystem. Errors during cleanup are silently
+ignored.</p>
+</dd></dl>
+
+</dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="capsul.engine.CapsulEngine">
@@ -747,8 +785,8 @@ Axon.</p>
 <section id="module-capsul.engine.module.fom">
 <span id="fom"></span><h3>fom<a class="headerlink" href="#module-capsul.engine.module.fom" title="Link to this heading">¶</a></h3>
 <p>Config module for <a class="reference internal" href="attributes.html#module-capsul.attributes.fom_completion_engine" title="capsul.attributes.fom_completion_engine"><code class="xref py py-mod docutils literal notranslate"><span class="pre">File</span> <span class="pre">Organization</span> <span class="pre">models</span> <span class="pre">(FOMs)</span></code></a></p>
-<section id="id2">
-<h4>Classes<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h4>
+<section id="id6">
+<h4>Classes<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h4>
 <section id="fomconfig">
 <h5><code class="xref py py-class docutils literal notranslate"><span class="pre">FomConfig</span></code><a class="headerlink" href="#fomconfig" title="Link to this heading">¶</a></h5>
 </section>
@@ -1205,7 +1243,10 @@ environment, identified by its <cite>Settings.config_id_field</cite> value.</p>
 <li><a class="reference internal" href="#activate-configuration"><code class="xref py py-func docutils literal notranslate"><span class="pre">activate_configuration()</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#capsul.engine.AutoDeleteFileName"><code class="docutils literal notranslate"><span class="pre">AutoDeleteFileName</span></code></a></li>
+<li><a class="reference internal" href="#capsul.engine.AutoDeleteFileName"><code class="docutils literal notranslate"><span class="pre">AutoDeleteFileName</span></code></a><ul>
+<li><a class="reference internal" href="#capsul.engine.AutoDeleteFileName.cleanup"><code class="docutils literal notranslate"><span class="pre">AutoDeleteFileName.cleanup()</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#capsul.engine.CapsulEngine"><code class="docutils literal notranslate"><span class="pre">CapsulEngine</span></code></a><ul>
 <li><a class="reference internal" href="#capsul.engine.CapsulEngine.connect"><code class="docutils literal notranslate"><span class="pre">CapsulEngine.connect()</span></code></a></li>
 <li><a class="reference internal" href="#capsul.engine.CapsulEngine.connected_to"><code class="docutils literal notranslate"><span class="pre">CapsulEngine.connected_to()</span></code></a></li>
@@ -1284,7 +1325,7 @@ environment, identified by its <cite>Settings.config_id_field</cite> value.</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-capsul.engine.module.fom">fom</a><ul>
-<li><a class="reference internal" href="#id2">Classes</a><ul>
+<li><a class="reference internal" href="#id6">Classes</a><ul>
 <li><a class="reference internal" href="#fomconfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">FomConfig</span></code></a></li>
 </ul>
 </li>
