@@ -25,6 +25,7 @@ import os
 import os.path as osp
 import re
 import tempfile
+import weakref
 
 from traits.api import Dict, String, Undefined
 
@@ -493,17 +494,60 @@ _populsedb_url_re = re.compile(r"^\w+(\+\w+)?://(.*)")
 
 
 class AutoDeleteFileName(str):
+    """
+    A temporary file name that automatically deletes the file when `cleanup()`
+    is called.
+
+    This class creates a temporary file using `tempfile.mkstemp()`, stores its
+    file descriptor and path, and behaves like a string (inherits from `str`).
+    It is useful when you need to pass a file path around but also want to
+    ensure the file is properly deleted later.
+
+    :param **kwargs: Keyword arguments passed to `tempfile.mkstemp()` such as
+                     `prefix`,`suffix`, or `dir`.
+
+    :returns (AutoDeleteFileName): An instance that acts like a string path
+                                   but can clean up its underlying file.
+    """
+
     def __new__(cls, **kwargs):
+        """
+        Create a temporary file and return an AutoDeleteFileName instance with
+        the file path.
+
+        :param **kwargs: Keyword arguments passed to `tempfile.mkstemp()`.
+
+        :returns (AutoDeleteFileName): The string path of the created
+                                       temporary file.
+        """
         fd, path = tempfile.mkstemp(**kwargs)
         instance = super().__new__(cls, path)
         instance.path = path
         instance.fd = fd
         return instance
 
-    def __del__(self):
-        os.close(self.fd)
-        os.remove(self.path)
+    def cleanup(self):
+        """
+        Close and delete the temporary file if it exists.
 
+        This method ensures the file descriptor is closed and the file is
+        removed from the filesystem. Errors during cleanup are silently
+        ignored.
+        """
+
+        try:
+            os.close(self.fd)
+
+        except OSError:
+            pass
+
+        try:
+
+            if os.path.exists(self.path):
+                os.remove(self.path)
+
+        except OSError:
+            pass
 
 def database_factory(database_location):
     """
@@ -516,7 +560,9 @@ def database_factory(database_location):
     engine_directory = None
 
     if database_location is None:
-        database_location = AutoDeleteFileName(prefix="populse_db_", suffix=".sqlite")
+        database_location = AutoDeleteFileName(
+            prefix="populse_db_", suffix=".sqlite"
+        )
     match = _populsedb_url_re.match(database_location)
     if match:
         path = match.groups(2)
@@ -533,6 +579,11 @@ def database_factory(database_location):
         raise ValueError("Invalid database location: %s" % database_location)
 
     engine = PopulseDBEngine(populse_db)
+
+    if isinstance(database_location, AutoDeleteFileName):
+        # attach cleanup so it deletes when engine is done
+        weakref.finalize(engine, database_location.cleanup)
+
     if engine_directory:
         engine.set_named_directory("capsul_engine", engine_directory)
     return engine
