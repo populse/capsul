@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Toolboxes</h1>
+{% for toolbox in toolboxes %}
+<div class="toolbox">{{toolbox.launcher_html | safe}}</div>
+{% endfor %}
+{% endblock %}
