@@ -13,6 +13,8 @@ soma-env:
 requirements:
   run:
     - pyyaml
+    - django
+    - uvicorn
 
 tests:
   - script: "python -m capsul.test"
