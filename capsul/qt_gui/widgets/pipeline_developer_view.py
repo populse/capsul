@@ -2676,7 +2676,6 @@ class PipelineDeveloperView(QGraphicsView):
         self._restricted_edition = False
         self.disable_overwrite = False
         self._userlevel = userlevel
-        self._pipeline_released = False
         self.doc_browser = None
 
         self.set_pipeline(pipeline)
@@ -2808,11 +2807,6 @@ class PipelineDeveloperView(QGraphicsView):
         # Setup callback to update view when pipeline state is modified
         from soma.qt_gui.qt_backend import sip
 
-        if getattr(self, '_pipeline_released', False):
-            return  # already released
-        
-        self._pipeline_released = True
-
         try:
             pipeline = None
 
@@ -2825,6 +2819,11 @@ class PipelineDeveloperView(QGraphicsView):
                 pipeline = self.scene.pipeline
 
             if pipeline is not None:
+
+                if getattr(pipeline, '_pipeline_released', False):
+                    return  # pipeline already released
+        
+                pipeline._pipeline_released = True
 
                 if hasattr(pipeline, 'pipeline_steps'):
                     pipeline.pipeline_steps.on_trait_change(
