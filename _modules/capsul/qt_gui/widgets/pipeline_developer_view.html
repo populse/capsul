@@ -3029,11 +3029,6 @@
 
             <span class="k">if</span> <span class="n">pipeline</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
 
-                <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="s1">&#39;_pipeline_released&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
-                    <span class="k">return</span>  <span class="c1"># pipeline already released</span>
-        
-                <span class="n">pipeline</span><span class="o">.</span><span class="n">_pipeline_released</span> <span class="o">=</span> <span class="kc">True</span>
-
                 <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="s1">&#39;pipeline_steps&#39;</span><span class="p">):</span>
                     <span class="n">pipeline</span><span class="o">.</span><span class="n">pipeline_steps</span><span class="o">.</span><span class="n">on_trait_change</span><span class="p">(</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">_reset_pipeline</span><span class="p">,</span> <span class="n">remove</span><span class="o">=</span><span class="kc">True</span>
