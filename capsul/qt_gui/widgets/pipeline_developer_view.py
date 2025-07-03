@@ -2820,11 +2820,6 @@ class PipelineDeveloperView(QGraphicsView):
 
             if pipeline is not None:
 
-                if getattr(pipeline, '_pipeline_released', False):
-                    return  # pipeline already released
-        
-                pipeline._pipeline_released = True
-
                 if hasattr(pipeline, 'pipeline_steps'):
                     pipeline.pipeline_steps.on_trait_change(
                         self._reset_pipeline, remove=True
