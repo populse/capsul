@@ -176,7 +176,14 @@ def get_process_with_params(process_name, study_config, iterated_params=[],
         set_process_param_from_str(process, k, arg)
 
     completion_engine = ProcessCompletionEngine.get_completion_engine(process)
-    completion_engine.get_attribute_values().import_from_dict(attributes)
+    try:
+        completion_engine.get_attribute_values().import_from_dict(attributes)
+    except KeyError as e:
+        print('error in completion attributes settings. Controller attributes '
+              'are:', file=sys.stderr)
+        print(completion_engine.get_attribute_values().user_traits(),
+              file=sys.stderr)
+        raise
     completion_engine.complete_parameters()
 
     return process
