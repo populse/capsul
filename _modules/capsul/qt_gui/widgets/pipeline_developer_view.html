@@ -4073,11 +4073,11 @@
         <span class="k">if</span> <span class="n">file_dialog</span><span class="o">.</span><span class="n">exec_</span><span class="p">():</span>
             <span class="n">filename</span> <span class="o">=</span> <span class="n">file_dialog</span><span class="o">.</span><span class="n">selectedFiles</span><span class="p">()</span>
 
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;filename = QtGui.QFileDialog.getSaveFileName(</span>
-<span class="sd">            None, &#39;Save image of the pipeline&#39;, &#39;&#39;,</span>
-<span class="sd">            &#39;Images (*.png *.xpm *.jpg *.ps *.eps);; All (*)&#39;)&#39;&#39;&#39;</span>
-        <span class="k">if</span> <span class="n">filename</span><span class="p">:</span>
-            <span class="n">pipeline_tools</span><span class="o">.</span><span class="n">save_dot_image</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">filename</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
+<span class="w">            </span><span class="sd">&#39;&#39;&#39;filename = QtGui.QFileDialog.getSaveFileName(</span>
+<span class="sd">                None, &#39;Save image of the pipeline&#39;, &#39;&#39;,</span>
+<span class="sd">                &#39;Images (*.png *.xpm *.jpg *.ps *.eps);; All (*)&#39;)&#39;&#39;&#39;</span>
+            <span class="k">if</span> <span class="n">filename</span><span class="p">:</span>
+                <span class="n">pipeline_tools</span><span class="o">.</span><span class="n">save_dot_image</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">filename</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
 
 
 <div class="viewcode-block" id="PipelineDeveloperView.reset_initial_nodes_positions">
