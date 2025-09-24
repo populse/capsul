@@ -3753,11 +3753,11 @@ class PipelineDeveloperView(QGraphicsView):
         if file_dialog.exec_():
             filename = file_dialog.selectedFiles()
 
-        '''filename = QtGui.QFileDialog.getSaveFileName(
-            None, 'Save image of the pipeline', '',
-            'Images (*.png *.xpm *.jpg *.ps *.eps);; All (*)')'''
-        if filename:
-            pipeline_tools.save_dot_image(self.scene.pipeline, filename[0])
+            '''filename = QtGui.QFileDialog.getSaveFileName(
+                None, 'Save image of the pipeline', '',
+                'Images (*.png *.xpm *.jpg *.ps *.eps);; All (*)')'''
+            if filename:
+                pipeline_tools.save_dot_image(self.scene.pipeline, filename[0])
 
     def reset_initial_nodes_positions(self):
         '''
