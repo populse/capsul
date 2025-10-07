@@ -1,6 +1,7 @@
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v6.0.0  # DO NOT UPDATE: last version to be compatible with Python 3.6
+    rev: v5.0.0  # DO NOT UPDATE: last version to be compatible with Python 3.6
+    # rev: v6.0.0  # OK! we do not update !
     hooks:
     -   id: check-added-large-files
     -   id: check-case-conflict
@@ -16,7 +17,7 @@ repos:
     -   id: destroyed-symlinks
     # -   id: end-of-file-fixer
     -   id: fix-byte-order-marker
-    -   id: fix-encoding-pragma
+    -   id: fix-encoding-pragma  # to remove from rev > v5.0.0
     #-   id: trailing-whitespace  # not ready yet
 
 -   repo: https://github.com/PyCQA/flake8
@@ -26,6 +27,12 @@ repos:
         name: flake8 under python3
         language_version: python3
         exclude: ^(doc/source|capsul)/sphinxext/
+
+# -   repo: https://github.com/asottile/pyupgrade  # to add when rev > v5.0.0
+#     rev: v3.20.0
+#     hooks:
+#    - id: pyupgrade
+#      args: ["--py39-plus"]  # Ensures compatibility with Python 3.9+
 
 ci:  # configuration for https://pre-commit.ci/
     autoupdate_schedule: quarterly  # prevent too frequent PRs
