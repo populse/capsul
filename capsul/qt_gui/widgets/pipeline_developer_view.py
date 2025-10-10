@@ -4718,7 +4718,7 @@ class PipelineDeveloperView(QGraphicsView):
                     existing = True
                     break
             export_action = menu.addAction('export plug')
-            export_action.triggered.connect(self._export_plug)
+            export_action.triggered.connect(lambda checked: self._export_plug())
             if existing:
                 export_action.setEnabled(False)
             if isinstance(node, ProcessNode) \
