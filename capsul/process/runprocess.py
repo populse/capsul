@@ -101,7 +101,9 @@ def set_process_param_from_str(process, k, arg):
                 sub_proc = getattr(sub_node, 'process', None)
                 if sub_proc is not None:
                     return set_process_param_from_str(sub_proc, k2, arg)
-    if not process.trait(k):
+    klist = k.split('.')
+    k = klist[0]
+    if len(klist) == 1 and not process.trait(k):
         if hasattr(process, k):
             # print('set non-trait value:', process, k, repr(arg))
             setattr(process, k, arg)
@@ -112,18 +114,29 @@ def set_process_param_from_str(process, k, arg):
             return
         raise ProcessParamError("Unknown parameter {0} for process {1}"
                                 .format(k, process.name))
+
+    if len(klist) > 1:
+        obj = process
+        for k in klist[:-1]:
+            obj = getattr(obj, k)
+        setattr(obj, klist[-1], arg)
+        return
+
     try:
         evaluate = process.trait(k).trait_type.evaluate
     except AttributeError:
         evaluate = None
-    # print('set_process_param_from_str:', process, k, repr(arg))
     if evaluate:
         arg = evaluate(arg)
     setattr(process, k, arg)
     process.trait(k).forbid_completion = True
     if isinstance(process, Pipeline):
-        process.propagate_metadata(process.pipeline_node, k,
-                                   {'forbid_completion': True})
+        try:
+            process.propagate_metadata(process.pipeline_node, k,
+                                       {'forbid_completion': True})
+        except KeyError:
+            # some traits like pipeline_steps are not parameters
+            pass
 
 
 def get_process_with_params(process_name, study_config, iterated_params=[],
