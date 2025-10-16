@@ -37,6 +37,8 @@ class BuiltinProcessCompletionEngineFactory(ProcessCompletionEngineFactory):
         conform to the API.
         '''
         if hasattr(process, 'completion_engine'):
+            # just in case the process has been changed in the CE
+            process.completion_engine.process = process
             return process.completion_engine
 
         study_config = process.get_study_config()
