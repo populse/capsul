@@ -842,9 +842,13 @@
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;study_config&#39;</span><span class="p">)</span> \
                 <span class="ow">and</span> <span class="n">process</span><span class="o">.</span><span class="n">study_config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> \
                 <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;_has_studyconfig_callback&#39;</span><span class="p">):</span>
-            <span class="n">process</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">on_trait_change</span><span class="p">(</span>
-                <span class="n">process</span><span class="o">.</span><span class="n">_remove_completion_engine</span><span class="p">,</span>
-                <span class="s1">&#39;use_fom,input_fom,output_fom,shared_fom&#39;</span><span class="p">,</span> <span class="n">remove</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">process</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">on_trait_change</span><span class="p">(</span>
+                    <span class="n">process</span><span class="o">.</span><span class="n">_remove_completion_engine</span><span class="p">,</span>
+                    <span class="s1">&#39;use_fom,input_fom,output_fom,shared_fom&#39;</span><span class="p">,</span> <span class="n">remove</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+                <span class="c1"># python shutting down</span>
+                <span class="k">pass</span>
             <span class="k">del</span> <span class="n">process</span><span class="o">.</span><span class="n">_has_studyconfig_callback</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_schemas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
