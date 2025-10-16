@@ -404,6 +404,10 @@ def main():
                       'possibly loading appropriate OpenGL libraries. This is '
                       'not done systematically because of the '
                       'overhead it brings.')
+    group1.add_option('-s', '--show-pipeline', action='store_true',
+                      help='Display and edit pipeline structure')
+    group1.add_option('-e', '--edit', action='store_true',
+                      help='Display and edit process parameters')
     parser.add_option_group(group1)
 
     group2 = OptionGroup(parser, 'Processing',
@@ -490,8 +494,13 @@ def main():
 
     default_fom = 'morphologist-bids-1.0'
 
-    if options.opengl:
-        qt_backend.set_headless(needs_opengl=True)
+    gui = False
+    if options.show_pipeline or options.edit:
+        gui = True
+    qt_backend.set_headless(headless_mode=not gui, needs_opengl=options.opengl)
+    if options.show_pipeline or options.edit:
+        from soma.qt_gui.qt_backend import Qt
+        qapp = Qt.QApplication([])
 
     while options.paramsfile:
         pfile = options.paramsfile
@@ -647,6 +656,28 @@ def main():
 
         del aval, attribs, completion_engine, process
         sys.exit(0)
+
+    if options.show_pipeline:
+        from capsul.qt_gui.widgets import PipelineDeveloperView
+
+        mpv = PipelineDeveloperView(process, allow_open_controller=True,
+                                    show_sub_pipelines=True,
+                                    enable_edition=True)
+        mpv.show()
+
+    if options.edit:
+        from capsul.qt_gui.widgets.attributed_process_widget \
+            import AttributedProcessWidget
+
+        pc = ProcessCompletionEngine.get_completion_engine(process)
+        pcvi = AttributedProcessWidget(
+            process, enable_attr_from_filename=True, enable_load_buttons=True)
+
+        pcvi.show()
+
+    if gui:
+        qapp.exec()
+
 
     resource_id = options.resource_id
     password = options.password
