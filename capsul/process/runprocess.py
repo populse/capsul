@@ -91,7 +91,7 @@ class ProcessParamError(Exception):
 
 def set_process_param_from_str(process, k, arg):
     """Set a process parameter from a string representation."""
-    if '.' in k:
+    if '.' in k and hasattr(process, 'nodes'):
         sub_node_name, k2 = k.split('.', 1)
         sub_node = process.nodes.get(sub_node_name)
         if sub_node is not None:
