@@ -18,6 +18,7 @@ from capsul.attributes.fom_completion_engine \
     FomProcessCompletionEngineIteration
 from capsul.pipeline.process_iteration import ProcessIteration
 from capsul.pipeline.pipeline_nodes import ProcessNode
+from soma.utils.weak_proxy import weak_proxy
 
 
 class BuiltinProcessCompletionEngineFactory(ProcessCompletionEngineFactory):
@@ -37,6 +38,10 @@ class BuiltinProcessCompletionEngineFactory(ProcessCompletionEngineFactory):
         conform to the API.
         '''
         if hasattr(process, 'completion_engine'):
+            # just in case the process has been changed in the CE
+            if process.completion_engine.process != process:
+                process.completion_engine.process = weak_proxy(
+                    process, process.completion_engine._clear_node)
             return process.completion_engine
 
         study_config = process.get_study_config()

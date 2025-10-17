@@ -704,9 +704,13 @@ class ProcessCompletionEngine(traits.HasTraits):
         if hasattr(process, 'study_config') \
                 and process.study_config is not None \
                 and hasattr(process, '_has_studyconfig_callback'):
-            process.study_config.on_trait_change(
-                process._remove_completion_engine,
-                'use_fom,input_fom,output_fom,shared_fom', remove=True)
+            try:
+                process.study_config.on_trait_change(
+                    process._remove_completion_engine,
+                    'use_fom,input_fom,output_fom,shared_fom', remove=True)
+            except ImportError:
+                # python shutting down
+                pass
             del process._has_studyconfig_callback
 
     def _get_schemas(self):
@@ -983,6 +987,10 @@ class ProcessCompletionEngineFactory(object):
         instance, which is quite incomplete.
         '''
         if hasattr(process, 'completion_engine'):
+            # just in case the process has been changed in the CE
+            if process.completion_engine.process != process:
+                process.completion_engine.process = weak_proxy(
+                    process, process.completion_engine._clear_node)
             return process.completion_engine
 
         if isinstance(process, Switch):
