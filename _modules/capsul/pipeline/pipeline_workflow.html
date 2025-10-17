@@ -1232,10 +1232,12 @@
                     <span class="n">sources</span> <span class="o">=</span> <span class="n">pipeline_tools</span><span class="o">.</span><span class="n">find_plug_connection_sources</span><span class="p">(</span>
                         <span class="n">it_node</span><span class="o">.</span><span class="n">plugs</span><span class="p">[</span><span class="n">param</span><span class="p">],</span> <span class="n">it_node</span><span class="p">)</span>
                     <span class="k">for</span> <span class="n">pnode</span><span class="p">,</span> <span class="n">pparam</span><span class="p">,</span> <span class="n">pparent</span> <span class="ow">in</span> <span class="n">sources</span><span class="p">:</span>
-                        <span class="n">pproc</span> <span class="o">=</span> <span class="n">pnode</span>
-                        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">pnode</span><span class="p">,</span> <span class="s1">&#39;process&#39;</span><span class="p">):</span>
-                            <span class="n">pproc</span> <span class="o">=</span> <span class="n">pnode</span><span class="o">.</span><span class="n">process</span>
-                        <span class="n">map_links</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">pproc</span><span class="p">,</span> <span class="n">pparam</span><span class="p">))</span>
+                        <span class="k">if</span> <span class="n">pnode</span><span class="o">.</span><span class="n">enabled</span> <span class="ow">and</span> <span class="n">pnode</span><span class="o">.</span><span class="n">activated</span><span class="p">:</span>
+                            <span class="n">pproc</span> <span class="o">=</span> <span class="n">pnode</span>
+                            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">pnode</span><span class="p">,</span> <span class="s1">&#39;process&#39;</span><span class="p">):</span>
+                                <span class="n">pproc</span> <span class="o">=</span> <span class="n">pnode</span><span class="o">.</span><span class="n">process</span>
+                            <span class="n">map_links</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">pproc</span><span class="p">,</span>
+                                                                    <span class="n">pparam</span><span class="p">))</span>
                     <span class="c1"># record dest of links in iterated nodes</span>
                     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">it_process</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="n">Pipeline</span><span class="p">):</span>
                         <span class="n">dest</span> <span class="o">=</span> \
@@ -1243,12 +1245,13 @@
                                 <span class="n">it_process</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">pipeline_node</span><span class="o">.</span><span class="n">plugs</span><span class="p">[</span><span class="n">param</span><span class="p">],</span>
                                 <span class="n">it_process</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">pipeline_node</span><span class="p">)</span>
                         <span class="k">for</span> <span class="n">pnode</span><span class="p">,</span> <span class="n">pparam</span><span class="p">,</span> <span class="n">pparent</span> <span class="ow">in</span> <span class="n">dest</span><span class="p">:</span>
-                            <span class="n">pproc</span> <span class="o">=</span> <span class="n">pnode</span>
-                            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">pnode</span><span class="p">,</span> <span class="s1">&#39;process&#39;</span><span class="p">):</span>
-                                <span class="n">pproc</span> <span class="o">=</span> <span class="n">pnode</span><span class="o">.</span><span class="n">process</span>
-                            <span class="n">map_iter_links</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">pproc</span><span class="p">,</span> <span class="p">{})</span> \
-                                <span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">pparam</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                                    <span class="p">(</span><span class="n">map_job</span><span class="p">,</span> <span class="n">param</span><span class="p">))</span>
+                            <span class="k">if</span> <span class="n">pipeline_tools</span><span class="o">.</span><span class="n">is_node_enabled</span><span class="p">(</span>
+                                    <span class="n">it_process</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="n">pnode</span><span class="p">):</span>
+                                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">pnode</span><span class="p">,</span> <span class="s1">&#39;process&#39;</span><span class="p">):</span>
+                                    <span class="n">pproc</span> <span class="o">=</span> <span class="n">pnode</span><span class="o">.</span><span class="n">process</span>
+                                <span class="n">map_iter_links</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">pproc</span><span class="p">,</span> <span class="p">{})</span> \
+                                    <span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">pparam</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                        <span class="p">(</span><span class="n">map_job</span><span class="p">,</span> <span class="n">param</span><span class="p">))</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">map_iter_links</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">it_process</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="p">{})</span> \
                             <span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
@@ -1258,11 +1261,12 @@
                     <span class="n">dest</span> <span class="o">=</span> <span class="n">pipeline_tools</span><span class="o">.</span><span class="n">find_plug_connection_destinations</span><span class="p">(</span>
                         <span class="n">it_node</span><span class="o">.</span><span class="n">plugs</span><span class="p">[</span><span class="n">param</span><span class="p">],</span> <span class="n">it_node</span><span class="p">)</span>
                     <span class="k">for</span> <span class="n">pnode</span><span class="p">,</span> <span class="n">pparam</span><span class="p">,</span> <span class="n">pparent</span> <span class="ow">in</span> <span class="n">dest</span><span class="p">:</span>
-                        <span class="n">pproc</span> <span class="o">=</span> <span class="n">pnode</span>
-                        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">pnode</span><span class="p">,</span> <span class="s1">&#39;process&#39;</span><span class="p">):</span>
-                            <span class="n">pproc</span> <span class="o">=</span> <span class="n">pnode</span><span class="o">.</span><span class="n">process</span>
-                        <span class="n">links</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">pproc</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">pparam</span><span class="p">,</span> <span class="p">[])</span> \
-                            <span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">reduce_job</span><span class="p">,</span> <span class="n">param</span><span class="p">))</span>
+                        <span class="k">if</span> <span class="n">pnode</span><span class="o">.</span><span class="n">enabled</span> <span class="ow">and</span> <span class="n">pnode</span><span class="o">.</span><span class="n">activated</span><span class="p">:</span>
+                            <span class="n">pproc</span> <span class="o">=</span> <span class="n">pnode</span>
+                            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">pnode</span><span class="p">,</span> <span class="s1">&#39;process&#39;</span><span class="p">):</span>
+                                <span class="n">pproc</span> <span class="o">=</span> <span class="n">pnode</span><span class="o">.</span><span class="n">process</span>
+                            <span class="n">links</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">pproc</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">pparam</span><span class="p">,</span> <span class="p">[])</span> \
+                                <span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">reduce_job</span><span class="p">,</span> <span class="n">param</span><span class="p">))</span>
                     <span class="c1"># record source of links in iterated nodes</span>
                     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">it_process</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="n">Pipeline</span><span class="p">):</span>
                         <span class="c1">#print(&#39;reduce from pipeline&#39;, param)</span>
@@ -1272,11 +1276,13 @@
                                 <span class="n">it_process</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">pipeline_node</span><span class="p">)</span>
                         <span class="c1">#print(&#39;sources:&#39;, sources)</span>
                         <span class="k">for</span> <span class="n">pnode</span><span class="p">,</span> <span class="n">pparam</span><span class="p">,</span> <span class="n">pparent</span> <span class="ow">in</span> <span class="n">sources</span><span class="p">:</span>
-                            <span class="n">pproc</span> <span class="o">=</span> <span class="n">pnode</span>
-                            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">pnode</span><span class="p">,</span> <span class="s1">&#39;process&#39;</span><span class="p">):</span>
-                                <span class="n">pproc</span> <span class="o">=</span> <span class="n">pnode</span><span class="o">.</span><span class="n">process</span>
-                            <span class="n">red_iter_links</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                                <span class="p">(</span><span class="n">pproc</span><span class="p">,</span> <span class="n">pparam</span><span class="p">))</span>
+                            <span class="k">if</span> <span class="n">pipeline_tools</span><span class="o">.</span><span class="n">is_node_enabled</span><span class="p">(</span>
+                                    <span class="n">it_process</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="n">pnode</span><span class="p">):</span>
+                                <span class="n">pproc</span> <span class="o">=</span> <span class="n">pnode</span>
+                                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">pnode</span><span class="p">,</span> <span class="s1">&#39;process&#39;</span><span class="p">):</span>
+                                    <span class="n">pproc</span> <span class="o">=</span> <span class="n">pnode</span><span class="o">.</span><span class="n">process</span>
+                                <span class="n">red_iter_links</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                    <span class="p">(</span><span class="n">pproc</span><span class="p">,</span> <span class="n">pparam</span><span class="p">))</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">red_iter_links</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                             <span class="p">(</span><span class="n">it_process</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="n">param</span><span class="p">))</span>

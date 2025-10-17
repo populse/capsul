@@ -202,7 +202,7 @@
 <a class="viewcode-back" href="../../../api/process.html#capsul.process.runprocess.set_process_param_from_str">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">set_process_param_from_str</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">arg</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Set a process parameter from a string representation.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="s1">&#39;.&#39;</span> <span class="ow">in</span> <span class="n">k</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s1">&#39;.&#39;</span> <span class="ow">in</span> <span class="n">k</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;nodes&#39;</span><span class="p">):</span>
         <span class="n">sub_node_name</span><span class="p">,</span> <span class="n">k2</span> <span class="o">=</span> <span class="n">k</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">sub_node</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sub_node_name</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">sub_node</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -524,6 +524,10 @@
                       <span class="s1">&#39;possibly loading appropriate OpenGL libraries. This is &#39;</span>
                       <span class="s1">&#39;not done systematically because of the &#39;</span>
                       <span class="s1">&#39;overhead it brings.&#39;</span><span class="p">)</span>
+    <span class="n">group1</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;-s&#39;</span><span class="p">,</span> <span class="s1">&#39;--show-pipeline&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Display and edit pipeline structure&#39;</span><span class="p">)</span>
+    <span class="n">group1</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;-e&#39;</span><span class="p">,</span> <span class="s1">&#39;--edit&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Display and edit process parameters&#39;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_option_group</span><span class="p">(</span><span class="n">group1</span><span class="p">)</span>
 
     <span class="n">group2</span> <span class="o">=</span> <span class="n">OptionGroup</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="s1">&#39;Processing&#39;</span><span class="p">,</span>
@@ -545,6 +549,8 @@
                       <span class="s1">&#39;workflow will not be actually run, because in this &#39;</span>
                       <span class="s1">&#39;situation the user probably wants to use the workflow &#39;</span>
                       <span class="s1">&#39;on his own.&#39;</span><span class="p">)</span>
+    <span class="n">group2</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;-n&#39;</span><span class="p">,</span> <span class="s1">&#39;--name&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;workflow_name&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s1">&#39;workflow name&#39;</span><span class="p">)</span>
     <span class="n">group2</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;-p&#39;</span><span class="p">,</span> <span class="s1">&#39;--password&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;password&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                       <span class="n">help</span><span class="o">=</span><span class="s1">&#39;password to access the remote computing resource. &#39;</span>
                       <span class="s1">&#39;Do not specify it if using a ssh key&#39;</span><span class="p">)</span>
@@ -610,8 +616,13 @@
 
     <span class="n">default_fom</span> <span class="o">=</span> <span class="s1">&#39;morphologist-bids-1.0&#39;</span>
 
-    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">opengl</span><span class="p">:</span>
-        <span class="n">qt_backend</span><span class="o">.</span><span class="n">set_headless</span><span class="p">(</span><span class="n">needs_opengl</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">gui</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">show_pipeline</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">edit</span><span class="p">:</span>
+        <span class="n">gui</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">qt_backend</span><span class="o">.</span><span class="n">set_headless</span><span class="p">(</span><span class="n">headless_mode</span><span class="o">=</span><span class="ow">not</span> <span class="n">gui</span><span class="p">,</span> <span class="n">needs_opengl</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">opengl</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">show_pipeline</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">edit</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">soma.qt_gui.qt_backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">Qt</span>
+        <span class="n">qapp</span> <span class="o">=</span> <span class="n">Qt</span><span class="o">.</span><span class="n">QApplication</span><span class="p">([])</span>
 
     <span class="k">while</span> <span class="n">options</span><span class="o">.</span><span class="n">paramsfile</span><span class="p">:</span>
         <span class="n">pfile</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">paramsfile</span>
@@ -768,6 +779,28 @@
         <span class="k">del</span> <span class="n">aval</span><span class="p">,</span> <span class="n">attribs</span><span class="p">,</span> <span class="n">completion_engine</span><span class="p">,</span> <span class="n">process</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">show_pipeline</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.qt_gui.widgets</span><span class="w"> </span><span class="kn">import</span> <span class="n">PipelineDeveloperView</span>
+
+        <span class="n">mpv</span> <span class="o">=</span> <span class="n">PipelineDeveloperView</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">allow_open_controller</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                    <span class="n">show_sub_pipelines</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                    <span class="n">enable_edition</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">mpv</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">edit</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.qt_gui.widgets.attributed_process_widget</span> \
+            <span class="kn">import</span><span class="w"> </span><span class="nn">AttributedProcessWidget</span>
+
+        <span class="n">pc</span> <span class="o">=</span> <span class="n">ProcessCompletionEngine</span><span class="o">.</span><span class="n">get_completion_engine</span><span class="p">(</span><span class="n">process</span><span class="p">)</span>
+        <span class="n">pcvi</span> <span class="o">=</span> <span class="n">AttributedProcessWidget</span><span class="p">(</span>
+            <span class="n">process</span><span class="p">,</span> <span class="n">enable_attr_from_filename</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">enable_load_buttons</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">pcvi</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">gui</span><span class="p">:</span>
+        <span class="n">qapp</span><span class="o">.</span><span class="n">exec</span><span class="p">()</span>
+
+
     <span class="n">resource_id</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">resource_id</span>
     <span class="n">password</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">password</span>
     <span class="n">rsa_key_pass</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">rsa_key_pass</span>
@@ -781,6 +814,9 @@
 
     <span class="k">else</span><span class="p">:</span>
         <span class="n">file_processing</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">workflow_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">process</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">workflow_name</span>
 
     <span class="n">res</span> <span class="o">=</span> <span class="n">run_process_with_distribution</span><span class="p">(</span>
         <span class="n">study_config</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">soma_workflow</span><span class="p">,</span> <span class="n">resource_id</span><span class="o">=</span><span class="n">resource_id</span><span class="p">,</span>
