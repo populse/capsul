@@ -429,6 +429,8 @@ def main():
                       'workflow will not be actually run, because in this '
                       'situation the user probably wants to use the workflow '
                       'on his own.')
+    group2.add_option('-n', '--name', dest='workflow_name', default=None,
+                      help='workflow name')
     group2.add_option('-p', '--password', dest='password', default=None,
                       help='password to access the remote computing resource. '
                       'Do not specify it if using a ssh key')
@@ -692,6 +694,9 @@ def main():
 
     else:
         file_processing = [None, None]
+
+    if options.workflow_name is not None:
+        process.name = options.workflow_name
 
     res = run_process_with_distribution(
         study_config, process, options.soma_workflow, resource_id=resource_id,
