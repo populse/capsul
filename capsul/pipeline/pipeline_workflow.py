@@ -1121,10 +1121,12 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                     sources = pipeline_tools.find_plug_connection_sources(
                         it_node.plugs[param], it_node)
                     for pnode, pparam, pparent in sources:
-                        pproc = pnode
-                        if hasattr(pnode, 'process'):
-                            pproc = pnode.process
-                        map_links.setdefault(param, []).append((pproc, pparam))
+                        if pnode.enabled and pnode.activated:
+                            pproc = pnode
+                            if hasattr(pnode, 'process'):
+                                pproc = pnode.process
+                            map_links.setdefault(param, []).append((pproc,
+                                                                    pparam))
                     # record dest of links in iterated nodes
                     if isinstance(it_process.process, Pipeline):
                         dest = \
@@ -1132,12 +1134,13 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                                 it_process.process.pipeline_node.plugs[param],
                                 it_process.process.pipeline_node)
                         for pnode, pparam, pparent in dest:
-                            pproc = pnode
-                            if hasattr(pnode, 'process'):
-                                pproc = pnode.process
-                            map_iter_links.setdefault(pproc, {}) \
-                                .setdefault(pparam, []).append(
-                                    (map_job, param))
+                            if pipeline_tools.is_node_enabled(
+                                    it_process.process, node=pnode):
+                                if hasattr(pnode, 'process'):
+                                    pproc = pnode.process
+                                map_iter_links.setdefault(pproc, {}) \
+                                    .setdefault(pparam, []).append(
+                                        (map_job, param))
                     else:
                         map_iter_links.setdefault(it_process.process, {}) \
                             .setdefault(param, []).append(
@@ -1147,11 +1150,12 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                     dest = pipeline_tools.find_plug_connection_destinations(
                         it_node.plugs[param], it_node)
                     for pnode, pparam, pparent in dest:
-                        pproc = pnode
-                        if hasattr(pnode, 'process'):
-                            pproc = pnode.process
-                        links.setdefault(pproc, {}).setdefault(pparam, []) \
-                            .append((reduce_job, param))
+                        if pnode.enabled and pnode.activated:
+                            pproc = pnode
+                            if hasattr(pnode, 'process'):
+                                pproc = pnode.process
+                            links.setdefault(pproc, {}).setdefault(pparam, []) \
+                                .append((reduce_job, param))
                     # record source of links in iterated nodes
                     if isinstance(it_process.process, Pipeline):
                         #print('reduce from pipeline', param)
@@ -1161,11 +1165,13 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                                 it_process.process.pipeline_node)
                         #print('sources:', sources)
                         for pnode, pparam, pparent in sources:
-                            pproc = pnode
-                            if hasattr(pnode, 'process'):
-                                pproc = pnode.process
-                            red_iter_links.setdefault(param, []).append(
-                                (pproc, pparam))
+                            if pipeline_tools.is_node_enabled(
+                                    it_process.process, node=pnode):
+                                pproc = pnode
+                                if hasattr(pnode, 'process'):
+                                    pproc = pnode.process
+                                red_iter_links.setdefault(param, []).append(
+                                    (pproc, pparam))
                     else:
                         red_iter_links.setdefault(param, []).append(
                             (it_process.process, param))
