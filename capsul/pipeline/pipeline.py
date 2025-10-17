@@ -298,9 +298,10 @@ class Pipeline(Process):
         """
         for node_name, node in six.iteritems(self.nodes):
             if node_name == "":
-                    continue
+                continue
             for parameter_name, plug in six.iteritems(node.plugs):
-                if parameter_name in ("nodes_activation", "selection_changed"):
+                if parameter_name in ("nodes_activation", "selection_changed",
+                                      "pipeline_steps", "visible_groups"):
                     continue
                 if (((node_name, parameter_name) not in self.do_not_export and
                     ((plug.output and not plug.links_to) or
@@ -2427,6 +2428,7 @@ class Pipeline(Process):
                     'To get the nodes list in a step:\n'
                     'pipeline.get_step_nodes("my_step")'))
             self.trait('pipeline_steps').expanded = False
+            self.trait('pipeline_steps').optional = True
             self.pipeline_steps = Controller()
         self.pipeline_steps.add_trait(step_name, Bool(nodes=nodes))
         trait = self.pipeline_steps.trait(step_name)
@@ -2570,6 +2572,7 @@ class Pipeline(Process):
         if not self.trait('visible_groups'):
             # add a trait without a plug
             Controller.add_trait(self, 'visible_groups', Set())
+            self.trait('visible_groups').optional = True
         plugs = self.pipeline_node.plugs
         for param, trait in six.iteritems(self.user_traits()):
             plug = plugs.get(param)
