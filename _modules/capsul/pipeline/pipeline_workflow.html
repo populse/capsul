@@ -1247,6 +1247,7 @@
                         <span class="k">for</span> <span class="n">pnode</span><span class="p">,</span> <span class="n">pparam</span><span class="p">,</span> <span class="n">pparent</span> <span class="ow">in</span> <span class="n">dest</span><span class="p">:</span>
                             <span class="k">if</span> <span class="n">pipeline_tools</span><span class="o">.</span><span class="n">is_node_enabled</span><span class="p">(</span>
                                     <span class="n">it_process</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="n">pnode</span><span class="p">):</span>
+                                <span class="n">pproc</span> <span class="o">=</span> <span class="n">pnode</span>
                                 <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">pnode</span><span class="p">,</span> <span class="s1">&#39;process&#39;</span><span class="p">):</span>
                                     <span class="n">pproc</span> <span class="o">=</span> <span class="n">pnode</span><span class="o">.</span><span class="n">process</span>
                                 <span class="n">map_iter_links</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">pproc</span><span class="p">,</span> <span class="p">{})</span> \
