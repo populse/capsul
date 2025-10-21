@@ -1136,6 +1136,7 @@ def workflow_from_pipeline(pipeline, study_config=None, disabled_nodes=None,
                         for pnode, pparam, pparent in dest:
                             if pipeline_tools.is_node_enabled(
                                     it_process.process, node=pnode):
+                                pproc = pnode
                                 if hasattr(pnode, 'process'):
                                     pproc = pnode.process
                                 map_iter_links.setdefault(pproc, {}) \
