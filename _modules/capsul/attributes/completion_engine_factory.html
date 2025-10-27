@@ -148,11 +148,11 @@
 <span class="sd">        conform to the API.</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;completion_engine&#39;</span><span class="p">):</span>
+            <span class="n">ce</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">completion_engine</span>
             <span class="c1"># just in case the process has been changed in the CE</span>
-            <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">completion_engine</span><span class="o">.</span><span class="n">process</span> <span class="o">!=</span> <span class="n">process</span><span class="p">:</span>
-                <span class="n">process</span><span class="o">.</span><span class="n">completion_engine</span><span class="o">.</span><span class="n">process</span> <span class="o">=</span> <span class="n">weak_proxy</span><span class="p">(</span>
-                    <span class="n">process</span><span class="p">,</span> <span class="n">process</span><span class="o">.</span><span class="n">completion_engine</span><span class="o">.</span><span class="n">_clear_node</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">process</span><span class="o">.</span><span class="n">completion_engine</span>
+            <span class="k">if</span> <span class="n">ce</span> <span class="ow">and</span> <span class="n">ce</span><span class="o">.</span><span class="n">process</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">process</span><span class="p">:</span>
+                <span class="n">ce</span><span class="o">.</span><span class="n">process</span> <span class="o">=</span> <span class="n">weak_proxy</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">ce</span><span class="o">.</span><span class="n">_clear_node</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">ce</span>
 
         <span class="n">study_config</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">get_study_config</span><span class="p">()</span>
 
