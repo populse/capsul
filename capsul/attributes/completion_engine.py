@@ -989,7 +989,7 @@ class ProcessCompletionEngineFactory(object):
         if hasattr(process, 'completion_engine'):
             ce = process.completion_engine
             # just in case the process has been changed in the CE
-            if ce and ce.process is not process:
+            if ce and ce.process != process:
                 ce.process = weak_proxy(process, ce._clear_node)
             return ce
 
