@@ -151,7 +151,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">capsul_iteration_step</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="c1">#self.iterated_attributes = self.get_iterated_attributes()</span>
 
-
 <div class="viewcode-block" id="ProcessCompletionEngineIteration.get_iterated_attributes">
 <a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.completion_engine_iteration.ProcessCompletionEngineIteration.get_iterated_attributes">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_iterated_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -176,7 +175,6 @@
             <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="n">pattributes</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">param</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">pattributes</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
                 <span class="k">if</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">attribs</span><span class="p">]</span></div>
-
 
 
 <div class="viewcode-block" id="ProcessCompletionEngineIteration.get_induced_iterative_parameters">
@@ -209,11 +207,10 @@
                 <span class="k">if</span> <span class="n">par_attributes</span><span class="p">:</span>
                     <span class="n">par_attributes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">par_attributes</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
                     <span class="k">if</span> <span class="p">[</span><span class="n">attribute</span> <span class="k">for</span> <span class="n">attribute</span> <span class="ow">in</span> <span class="n">attributes</span>
-                        <span class="k">if</span> <span class="n">attribute</span> <span class="ow">in</span> <span class="n">par_attributes</span><span class="p">]:</span>
+                            <span class="k">if</span> <span class="n">attribute</span> <span class="ow">in</span> <span class="n">par_attributes</span><span class="p">]:</span>
                         <span class="n">induced_params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">induced_params</span></div>
-
 
 
 <div class="viewcode-block" id="ProcessCompletionEngineIteration.get_attribute_values">
@@ -250,12 +247,14 @@
                 <span class="n">trait</span> <span class="o">=</span> <span class="n">pattributes</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">attrib</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">trait</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">attributes</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span>
-                        <span class="n">attrib</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">List</span><span class="p">(</span><span class="n">trait</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="n">trait</span><span class="o">.</span><span class="n">output</span><span class="p">))</span>
+                        <span class="n">attrib</span><span class="p">,</span>
+                        <span class="n">traits</span><span class="o">.</span><span class="n">List</span><span class="p">(</span><span class="n">traits</span><span class="o">.</span><span class="n">Union</span><span class="p">(</span>
+                            <span class="n">trait</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">Instance</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">traits</span><span class="o">.</span><span class="n">Undefined</span><span class="p">))),</span>
+                            <span class="n">output</span><span class="o">=</span><span class="n">trait</span><span class="o">.</span><span class="n">output</span><span class="p">))</span>
                 <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pattributes</span><span class="p">,</span> <span class="n">attrib</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">traits</span><span class="o">.</span><span class="n">Undefined</span><span class="p">:</span>
                     <span class="nb">setattr</span><span class="p">(</span><span class="n">attributes</span><span class="p">,</span> <span class="n">attrib</span><span class="p">,</span> <span class="p">[</span><span class="n">value</span><span class="p">])</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">capsul_attributes</span></div>
-
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">iteration_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process_inputs</span><span class="o">=</span><span class="p">{}):</span>
@@ -293,7 +292,6 @@
         <span class="n">size</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">psize</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">size</span>
-
 
 <div class="viewcode-block" id="ProcessCompletionEngineIteration.complete_parameters">
 <a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.completion_engine_iteration.ProcessCompletionEngineIteration.complete_parameters">[docs]</a>
