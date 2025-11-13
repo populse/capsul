@@ -43,7 +43,6 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
         self.capsul_iteration_step = 0
         #self.iterated_attributes = self.get_iterated_attributes()
 
-
     def get_iterated_attributes(self):
         '''
         '''
@@ -66,7 +65,6 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
             return set(pattributes.user_traits().keys())
         return [param for param in pattributes.user_traits().keys()
                 if param in attribs]
-
 
     def get_induced_iterative_parameters(self):
         '''Iterating over some parameters, and triggering completion through
@@ -96,11 +94,10 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
                 if par_attributes:
                     par_attributes = set(par_attributes.keys())
                     if [attribute for attribute in attributes
-                        if attribute in par_attributes]:
+                            if attribute in par_attributes]:
                         induced_params.append(parameter)
 
         return induced_params
-
 
     def get_attribute_values(self):
         ''' Get attributes Controller associated to a process
@@ -134,12 +131,14 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
                 trait = pattributes.trait(attrib)
                 if trait is not None:
                     attributes.add_trait(
-                        attrib, traits.List(trait, output=trait.output))
+                        attrib,
+                        traits.List(traits.Union(
+                            trait, traits.Instance(type(traits.Undefined))),
+                            output=trait.output))
                 value = getattr(pattributes, attrib, None)
                 if value is not None and value is not traits.Undefined:
                     setattr(attributes, attrib, [value])
         return self.capsul_attributes
-
 
     def iteration_size(self, process_inputs={}):
         process = self.process
@@ -176,7 +175,6 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
         size = max(size, psize)
 
         return size
-
 
     def complete_parameters(self, process_inputs={},
                             complete_iterations=True):

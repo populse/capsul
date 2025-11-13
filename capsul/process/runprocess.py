@@ -64,7 +64,6 @@ from capsul.api import Pipeline
 from capsul.attributes.completion_engine import ProcessCompletionEngine
 from soma.qt_gui import qt_backend
 import os
-import os.path as osp
 import logging
 import sys
 import re
@@ -289,7 +288,9 @@ def run_process_with_distribution(
 
 
 def convert_commandline_parameter(i):
-    if len(i) > 0 and ( i[0] in '[({' or i in ( 'None', 'True', 'False' ) ):
+    i = i.replace('<undefined>', 'Undefined')
+    if len(i) > 0 and (i[0] in '[({' or i in ('None', 'True', 'False',
+                                              'Undefined')):
         try:
             res=eval(i)
         except Exception:
