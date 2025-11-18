@@ -63,6 +63,7 @@ from capsul.api import capsul_engine
 from capsul.api import Pipeline
 from capsul.attributes.completion_engine import ProcessCompletionEngine
 from soma.qt_gui import qt_backend
+from soma.controller import Controller
 import os
 import logging
 import sys
@@ -138,6 +139,53 @@ def set_process_param_from_str(process, k, arg):
             pass
 
 
+def parse_pipeline_steps(process, kwargs):
+    if not isinstance(process, Pipeline):
+        return
+
+    param_steps = kwargs.get('pipeline_steps')
+    if param_steps is None:
+        return
+
+    del kwargs['pipeline_steps']
+
+    pipeline_steps = getattr(process, 'pipeline_steps')
+    if not isinstance(pipeline_steps, Controller):
+        return
+
+    if isinstance(param_steps, str):
+        param_steps = [s.strip() for s in param_steps.split(',')]
+    steps = [[s.strip() for s in p.split('=')] for p in param_steps]
+    for s in steps:
+        if len(s) == 1:
+            s.append(True)
+        else:
+            val = s[1]
+            if val in (0, '0', 'False'):
+                val = False
+            else:
+                val = True
+            s[1] = val
+    steps = [[[s.strip() for s in p[0].split('-')]] + p[1:] for p in steps]
+    if len(steps) >= 1 and steps[0][1]:
+        # set all steps to False
+        steps.insert(0, [['', ''], False])
+
+    for srange, val in steps:
+        if len(srange) == 2:
+            if srange[0] == '':
+                s0 = 0
+            else:
+                s0 = pipeline_steps.user_traits().index(srange[0])
+            if srange[1] == '':
+                s1 = len(pipeline_steps.user_traits()) - 1
+            else:
+                s1 = pipeline_steps.user_traits().index(srange[1])
+            srange = list(pipeline_steps.user_traits())[s0:s1+1]
+        for s in srange:
+            setattr(pipeline_steps, s, val)
+
+
 def get_process_with_params(process_name, study_config, iterated_params=[],
                             attributes={}, *args, **kwargs):
     ''' Instantiate a process, or an iteration over processes, and fill in its
@@ -168,6 +216,8 @@ def get_process_with_params(process_name, study_config, iterated_params=[],
     process = study_config.get_process_instance(process_name)
     signature = process.user_traits()
     params = list(signature.keys())
+
+    steps = parse_pipeline_steps(process, kwargs)
 
     # check for iterations
     if iterated_params:
@@ -338,6 +388,24 @@ def main():
     their node in the parent pipeline:
 
     python -m capsul morphologist.capsul.morphologist Renorm.enabled=False
+
+    Pipeline steps:
+
+    Some pipelines define steps that can be enabled or disabled in order to
+    process only part of the pipeline. They are kind of groups of nodes, but
+    behave a bit differently for the pipeline parameters completion and checks.
+
+    Steps can be specified as the "pipeline_steps" parameter, with a syntax
+    which can mix ranges and values, ex::
+
+        python -m capsul morphologist.capsul.morphologist pipeline_steps="importation,bias_correction"
+
+    will do only these 2 steps. While::
+
+        python -m capsul morphologist.capsul.morphologist pipeline_steps="brain_extraction, head_mesh-, sulci_labelling=False"
+
+    will do brain_extraction, then all steps from head_mesh, except
+    sulci_labelling which is disabled.
     '''
 
     # Set up logging on stderr. This must be called before any logging takes
