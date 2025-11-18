@@ -336,7 +336,7 @@ class ProcessCompletionEngine(traits.HasTraits):
             nodes_list = set([n for n in pipeline.nodes.items()
                               if n[0] != ''
                                   and pipeline_tools.is_node_enabled(
-                                      pipeline, n[0], n[1])])
+                                      pipeline, n[0], n[1], use_steps=False)])
             init_result = True
             done = set()
             todo = [(node_name, node) for node_name, node in nodes_list
