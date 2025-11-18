@@ -169,6 +169,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pipeline</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.attributes.completion_engine</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessCompletionEngine</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">soma.qt_gui</span><span class="w"> </span><span class="kn">import</span> <span class="n">qt_backend</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">soma.controller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Controller</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
@@ -250,6 +251,53 @@
 
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_pipeline_steps</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">Pipeline</span><span class="p">):</span>
+        <span class="k">return</span>
+
+    <span class="n">param_steps</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;pipeline_steps&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">param_steps</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;pipeline_steps&#39;</span><span class="p">]</span>
+
+    <span class="n">pipeline_steps</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;pipeline_steps&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pipeline_steps</span><span class="p">,</span> <span class="n">Controller</span><span class="p">):</span>
+        <span class="k">return</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param_steps</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">param_steps</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">param_steps</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)]</span>
+    <span class="n">steps</span> <span class="o">=</span> <span class="p">[[</span><span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">p</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">)]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">param_steps</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">steps</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">val</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span> <span class="s1">&#39;False&#39;</span><span class="p">):</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+    <span class="n">steps</span> <span class="o">=</span> <span class="p">[[[</span><span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)]]</span> <span class="o">+</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">steps</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">steps</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">steps</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="c1"># set all steps to False</span>
+        <span class="n">steps</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">[[</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">],</span> <span class="kc">False</span><span class="p">])</span>
+
+    <span class="k">for</span> <span class="n">srange</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">steps</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">srange</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">srange</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="n">s0</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">s0</span> <span class="o">=</span> <span class="n">pipeline_steps</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">srange</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">srange</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="n">s1</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pipeline_steps</span><span class="o">.</span><span class="n">user_traits</span><span class="p">())</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">s1</span> <span class="o">=</span> <span class="n">pipeline_steps</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">srange</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">srange</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">pipeline_steps</span><span class="o">.</span><span class="n">user_traits</span><span class="p">())[</span><span class="n">s0</span><span class="p">:</span><span class="n">s1</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">srange</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">pipeline_steps</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+
+
 <div class="viewcode-block" id="get_process_with_params">
 <a class="viewcode-back" href="../../../api/process.html#capsul.process.runprocess.get_process_with_params">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_process_with_params</span><span class="p">(</span><span class="n">process_name</span><span class="p">,</span> <span class="n">study_config</span><span class="p">,</span> <span class="n">iterated_params</span><span class="o">=</span><span class="p">[],</span>
@@ -282,6 +330,8 @@
     <span class="n">process</span> <span class="o">=</span> <span class="n">study_config</span><span class="o">.</span><span class="n">get_process_instance</span><span class="p">(</span><span class="n">process_name</span><span class="p">)</span>
     <span class="n">signature</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()</span>
     <span class="n">params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">signature</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+    <span class="n">steps</span> <span class="o">=</span> <span class="n">parse_pipeline_steps</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
 
     <span class="c1"># check for iterations</span>
     <span class="k">if</span> <span class="n">iterated_params</span><span class="p">:</span>
@@ -458,6 +508,24 @@
 <span class="s1">    their node in the parent pipeline:</span>
 
 <span class="s1">    python -m capsul morphologist.capsul.morphologist Renorm.enabled=False</span>
+
+<span class="s1">    Pipeline steps:</span>
+
+<span class="s1">    Some pipelines define steps that can be enabled or disabled in order to</span>
+<span class="s1">    process only part of the pipeline. They are kind of groups of nodes, but</span>
+<span class="s1">    behave a bit differently for the pipeline parameters completion and checks.</span>
+
+<span class="s1">    Steps can be specified as the &quot;pipeline_steps&quot; parameter, with a syntax</span>
+<span class="s1">    which can mix ranges and values, ex::</span>
+
+<span class="s1">        python -m capsul morphologist.capsul.morphologist pipeline_steps=&quot;importation,bias_correction&quot;</span>
+
+<span class="s1">    will do only these 2 steps. While::</span>
+
+<span class="s1">        python -m capsul morphologist.capsul.morphologist pipeline_steps=&quot;brain_extraction, head_mesh-, sulci_labelling=False&quot;</span>
+
+<span class="s1">    will do brain_extraction, then all steps from head_mesh, except</span>
+<span class="s1">    sulci_labelling which is disabled.</span>
 <span class="s1">    &#39;&#39;&#39;</span>
 
     <span class="c1"># Set up logging on stderr. This must be called before any logging takes</span>
