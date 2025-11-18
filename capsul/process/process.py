@@ -993,6 +993,11 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
                 data.append(
                     get_trait_desc(trait_name, trait,
                                    use_wrap=not rst_formating))
+                if trait_name == 'pipeline_steps':
+                    steps = ', '.join(
+                        getattr(self, 'pipeline_steps').user_traits())
+                    data[-1] += ['', '    Steps for this pipeline:',
+                                 f'    {steps}', '']
 
         # If we want to format the output nicely (rst)
         if data != []:
