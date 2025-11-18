@@ -1523,9 +1523,9 @@
 
 <div class="viewcode-block" id="is_node_enabled">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_tools.is_node_enabled">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">is_node_enabled</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">node_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_node_enabled</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">node_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">use_steps</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39; Checks if the given node is enabled in the pipeline.</span>
-<span class="sd">    It may be disabled if it has its ``enabled`` or ``activated`` properties set to False, or if it is part of a disabled step.</span>
+<span class="sd">    It may be disabled if it has its ``enabled`` or ``activated`` properties set to False, or if it is part of a disabled step (if used_steps is True).</span>
 <span class="sd">    The node may be given as a Node instance, or its name in the pipeline.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">node_name</span><span class="p">]</span>
@@ -1545,11 +1545,11 @@
 
     <span class="n">p</span> <span class="o">=</span> <span class="n">pipeline</span>
     <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
-        <span class="n">steps</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="s1">&#39;pipeline_steps&#39;</span><span class="p">,</span> <span class="n">Controller</span><span class="p">())</span>
-        <span class="n">disabled_nodes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">step</span><span class="p">,</span> <span class="n">trait</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">steps</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()):</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">steps</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span> <span class="ow">and</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">trait</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
-                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">use_steps</span><span class="p">:</span>
+            <span class="n">steps</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="s1">&#39;pipeline_steps&#39;</span><span class="p">,</span> <span class="n">Controller</span><span class="p">())</span>
+            <span class="k">for</span> <span class="n">step</span><span class="p">,</span> <span class="n">trait</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">steps</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">steps</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span> <span class="ow">and</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">trait</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">False</span>
         <span class="n">p</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
         <span class="n">p</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="s1">&#39;process&#39;</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
 
