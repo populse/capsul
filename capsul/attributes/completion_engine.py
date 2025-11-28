@@ -336,7 +336,7 @@ class ProcessCompletionEngine(traits.HasTraits):
             nodes_list = set([n for n in pipeline.nodes.items()
                               if n[0] != ''
                                   and pipeline_tools.is_node_enabled(
-                                      pipeline, n[0], n[1])])
+                                      pipeline, n[0], n[1], use_steps=False)])
             init_result = True
             done = set()
             todo = [(node_name, node) for node_name, node in nodes_list
@@ -987,11 +987,11 @@ class ProcessCompletionEngineFactory(object):
         instance, which is quite incomplete.
         '''
         if hasattr(process, 'completion_engine'):
+            ce = process.completion_engine
             # just in case the process has been changed in the CE
-            if process.completion_engine.process != process:
-                process.completion_engine.process = weak_proxy(
-                    process, process.completion_engine._clear_node)
-            return process.completion_engine
+            if ce and ce.process != process:
+                ce.process = weak_proxy(process, ce._clear_node)
+            return ce
 
         if isinstance(process, Switch):
             return SwitchCompletionEngine(process, name=name)

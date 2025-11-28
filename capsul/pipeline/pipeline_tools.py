@@ -1355,9 +1355,9 @@ def find_node(pipeline, node):
     raise KeyError('Node %s not found in the pipeline %s'
                    % (node.name, pipeline.name))
 
-def is_node_enabled(pipeline, node_name=None, node=None):
+def is_node_enabled(pipeline, node_name=None, node=None, use_steps=True):
     ''' Checks if the given node is enabled in the pipeline.
-    It may be disabled if it has its ``enabled`` or ``activated`` properties set to False, or if it is part of a disabled step.
+    It may be disabled if it has its ``enabled`` or ``activated`` properties set to False, or if it is part of a disabled step (if used_steps is True).
     The node may be given as a Node instance, or its name in the pipeline.
     '''
     names = [node_name]
@@ -1377,11 +1377,11 @@ def is_node_enabled(pipeline, node_name=None, node=None):
 
     p = pipeline
     for name in names:
-        steps = getattr(p, 'pipeline_steps', Controller())
-        disabled_nodes = set()
-        for step, trait in six.iteritems(steps.user_traits()):
-            if not getattr(steps, step) and name in trait.nodes:
-                return False
+        if use_steps:
+            steps = getattr(p, 'pipeline_steps', Controller())
+            for step, trait in six.iteritems(steps.user_traits()):
+                if not getattr(steps, step) and name in trait.nodes:
+                    return False
         p = p.nodes[name]
         p = getattr(p, 'process', p)
 

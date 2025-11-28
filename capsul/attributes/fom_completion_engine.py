@@ -448,8 +448,10 @@ class FomPathCompletionEngine(PathCompletionEngine):
         # rule to match
         parameter_attributes = atp.find_discriminant_attributes(
             fom_parameter=parameter, fom_process=name)
-        d = dict((i, getattr(attributes, i)) \
-            for i in parameter_attributes if i in allowed_attributes)
+        d = {i: getattr(attributes, i)
+             for i in parameter_attributes
+             if i in allowed_attributes
+             and getattr(attributes, i) not in (None, Undefined)}
         d['fom_process'] = name
         d['fom_parameter'] = parameter
         d['fom_format'] = 'fom_preferred'
