@@ -236,18 +236,12 @@ class TestPipeline(unittest.TestCase):
         # Test the output connection
         self.pipeline()
 
-        if sys.version_info >= (2, 7):
-            self.assertIn("toto-5.0-3.0",
-                          [os.path.basename(f)
-                           for f in self.pipeline.output_image])
-            self.assertIn("tutu-5.0-1.0",
-                          [os.path.basename(f)
-                           for f in self.pipeline.output_image])
-        else:
-            self.assertTrue("toto-5.0-3.0" in
-                [os.path.basename(f) for f in self.pipeline.output_image])
-            self.assertTrue("tutu-5.0-1.0" in
-                [os.path.basename(f) for f in self.pipeline.output_image])
+        self.assertIn("toto-5.0-3.0",
+                        [os.path.basename(f)
+                        for f in self.pipeline.output_image])
+        self.assertIn("tutu-5.0-1.0",
+                        [os.path.basename(f)
+                        for f in self.pipeline.output_image])
         self.assertEqual(self.pipeline.other_output, 
                          [self.pipeline.other_input,
                           self.pipeline.other_input])

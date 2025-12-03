@@ -32,7 +32,11 @@ def spm_command(spm_batch_filename):
             # not
             open(spm_batch_filename)
         spm_directory = os.environ.get('SPM_DIRECTORY', '')
+        if spm_directory is not None:
+            spm_directory = osp.expandvars(spm_directory.strip())
         mcr_dir = os.environ.get('MCR_HOME')
+        if mcr_dir is not None:
+            mcr_dir = osp.expandvars(mcr_dir.strip())
         if mcr_dir is None:
             mcr_glob = osp.join(spm_directory, 'mcr', 'v*')
             mcr_dir = glob.glob(mcr_glob)
