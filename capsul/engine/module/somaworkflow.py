@@ -58,6 +58,18 @@ def init_settings(capsul_engine):
                     description="Soma-workflow paths translations mapping: "
                     "{local_path: (identifier, uuid)}",
                 ),
+                dict(
+                    name="max_running_jobs",
+                    type="int",
+                    description="max running jobs in queue (overrides "
+                    "soma-workflow config file settings)"
+                ),
+                dict(
+                    name="max_queued_jobs",
+                    type="int",
+                    description="max queued jobs (overrides "
+                    "soma-workflow config file settings)"
+                ),
             ],
         )
     initialize_callbacks(capsul_engine)
@@ -65,7 +77,7 @@ def init_settings(capsul_engine):
 
 def activate_configurations():
     """
-    Activate the SPM module (set env variables) from the global configurations,
+    Activate the Soma-Workflow module (set env variables) from the global configurations,
     in order to use them via :mod:`capsul.in_context.spm` functions
     """
     conf = engine.configurations.get("capsul.engine.module.somaworkflow", {})
@@ -84,7 +96,8 @@ def edition_widget(engine, environment, config_id="any"):
         controller = widget.controller_widget.controller
         with widget.engine.settings as session:
             values = {}
-            for key in ("computing_resource", "config_file", "queue"):
+            for key in ("computing_resource", "config_file", "queue",
+                        "max_running_jobs", "max_queued_jobs"):
                 if getattr(controller, key) in (None, traits.Undefined, ""):
                     values[key] = None
                 else:
@@ -112,7 +125,9 @@ def edition_widget(engine, environment, config_id="any"):
                     "keep_failed_workflows",
                     "keep_succeeded_workflows",
                     "transfer_paths",
-                    #'path_translations'
+                    "max_running_jobs",
+                    "max_queued_jobs",
+                    #'path_translations',
                 ):
                     setattr(conf, k, values[k])
             if id != widget.config_id:
@@ -156,8 +171,8 @@ def edition_widget(engine, environment, config_id="any"):
                             desc=''))
     controller.add_trait('transfer_paths',
                          traits.List(traits.Directory,
-                            [], output=False,
-                            desc=''))
+                                     [], output=False,
+                                     desc=''))
     controller.add_trait('path_translations',
                          traits.Dict(
                             key_trait=traits.Directory,
@@ -165,6 +180,10 @@ def edition_widget(engine, environment, config_id="any"):
                                                          maxlen=2),
                             value={}, output=False,
                             desc=''))
+    controller.add_trait('max_running_jobs', traits.Int(0, output=False,
+                                                        desc=""))
+    controller.add_trait('max_queued_jobs', traits.Int(0, output=False,
+                                                       desc=""))
     conf = None
     if config_id == "any":
         conf = engine.settings.select_configurations(
@@ -205,6 +224,14 @@ def edition_widget(engine, environment, config_id="any"):
         controller.path_translations = conf.get(
             "capsul.engine.module.somaworkflow", {}
         ).get("path_translations", {})
+        controller.max_running_jobs = conf.get(
+            "capsul.engine.module.somaworkflow", {}).get(
+            "max_running_jobs", Undefined
+        )
+        controller.max_queued_jobs = conf.get(
+            "capsul.engine.module.somaworkflow", {}).get(
+            "max_queued_jobs", Undefined
+        )
 
     # TODO handle several configs
 
@@ -244,6 +271,9 @@ def sync_from_sc(engine, param=None, value=None):
             "SomaWorkflowConfig" in sc.modules
             and "capsul.engine.module.somaworkflow" in engine._loaded_modules
         ):
+            resource_id = sc.somaworkflow_computing_resource
+            if resource_id is None:
+                resource_id = 'localhost'
             with engine.settings as session:
                 cif = engine.settings.config_id_field
                 config = session.config("somaworkflow", "global")

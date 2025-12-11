@@ -170,15 +170,16 @@ def start(engine, process, workflow=None, history=True, get_pipeline=False, **kw
     from capsul.pipeline.pipeline_workflow import workflow_from_pipeline
     import soma_workflow.client as swclient
 
-    swf_config = engine.settings.select_configurations(
-        'global', {'somaworkflow': 'config_id=="somaworkflow"'})
     swm = engine.study_config.modules['SomaWorkflowConfig']
     swm.connect_resource(engine.connected_to())
     controller = swm.get_workflow_controller()
     resource_id = swm.get_resource_id()
 
+    query = 'config_id=="somaworkflow"'
+    if resource_id is not None:
+        query = f'computing_resource == "{resource_id}"'
     resource_config_d = engine.settings.select_configurations(
-        resource_id, {'somaworkflow': 'config_id=="somaworkflow"'})
+        'global', {'somaworkflow': query})
     resource_config = resource_config_d.get(
         'capsul.engine.module.somaworkflow', {})
     has_resource_config = ('capsul.engine.module.somaworkflow'
@@ -192,7 +193,9 @@ def start(engine, process, workflow=None, history=True, get_pipeline=False, **kw
     if workflow is None:
         workflow = workflow_from_pipeline(process, environment=environment)
 
-    queue = getattr(resource_config, 'queue', None)
+    queue = resource_config.get('queue', None)
+    max_running_jobs = resource_config.get('max_running_jobs', None)
+    max_queued_jobs = resource_config.get('max_queued_jobs', None)
     #if hasattr(engine.study_config.somaworkflow_computing_resources_config,
                #resource_id):
         #res_conf = getattr(
@@ -201,6 +204,21 @@ def start(engine, process, workflow=None, history=True, get_pipeline=False, **kw
         #queue = res_conf.queue
         #if queue is Undefined:
             #queue = None
+    if max_running_jobs is not None:
+        controller.config.change_running_jobs_limits(queue, max_running_jobs)
+        if controller.config.is_local_resource(
+                controller.config._config_parser, resource_id) \
+                and controller.config.get_scheduler_type() \
+                == 'local_basic':
+            controller.scheduler_config.set_max_proc_nb(max_running_jobs)
+            controller.scheduler_config.set_proc_nb(max_running_jobs)
+    if max_queued_jobs is not None:
+        controller.config.change_queue_limits(queue, max_queued_jobs)
+        if controller.config.is_local_resource(
+                controller.config._config_parser, resource_id) \
+                and controller.config.get_scheduler_type() \
+                == 'local_basic':
+            controller.scheduler_config.set_proc_nb(max_queued_jobs)
     workflow_name = process.name
     wf_id = controller.submit_workflow(workflow=workflow, name=workflow_name,
                                        queue=queue)

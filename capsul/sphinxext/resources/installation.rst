@@ -36,4 +36,4 @@ Install the python package with *pip*
 Installing the current version
 ===============================
 
-Clone the project at https://bioproj.extra.cea.fr/git/%(NAME_LOWER)s.
+Clone the project at https://bioproj.cea.fr/git/%(NAME_LOWER)s.

@@ -256,7 +256,7 @@ def run_process_with_distribution(
         resource_id=None, password=None, config=None, rsa_key_pass=None,
         queue=None, input_file_processing=None, output_file_processing=None,
         keep_workflow=False, keep_failed_workflow=False,
-        write_workflow_only=None):
+        write_workflow_only=None, max_running_jobs=None, max_queued_jobs=None):
     ''' Run the given process, either sequentially or distributed through
     Soma-Workflow.
 
@@ -299,6 +299,10 @@ def run_process_with_distribution(
         if specified, this is an output filename where the workflow file will
         be written. The workflow will not be actually run, because int his
         situation the user probably wants to use the workflow on his own.
+    max_running_jobs: int
+        override the queue settings for OCFG_MAX_JOB_RUNNING in soma-workflow
+    max_queued_jobs: int
+        override the queue settings for OCFG_MAX_JOB_IN_QUEUE in soma-workflow
     '''
     if write_workflow_only:
         use_soma_workflow = True
@@ -332,6 +336,28 @@ def run_process_with_distribution(
                         resource_id, {})
             getattr(study_config.somaworkflow_computing_resources_config,
                     resource_id).queue = queue
+        if max_running_jobs is not None or max_queued_jobs is not None:
+            values = {}
+            values['computing_resource'] = resource_id
+            if queue is not None:
+                values['queue'] = queue
+            if max_running_jobs is not None:
+                values['max_running_jobs'] = max_running_jobs
+            if max_queued_jobs is not None:
+                values['max_queued_jobs'] = max_queued_jobs
+            engine = study_config.engine
+            engine.load_module('somaworkflow')
+            with engine.settings as session:
+                query = 'config_id == "somaworkflow"'
+                if resource_id is not None:
+                    query += f' AND computing_resource == "{resource_id}"'
+                conf = session.config('somaworkflow', 'global',
+                                      selection=query)
+                if conf is None:
+                    session.new_config('somaworkflow', 'global', values)
+                else:
+                    for k, v in values.items():
+                        setattr(conf, k, v)
 
     res = study_config.run(process)
     return res
@@ -508,6 +534,12 @@ def main():
     group2.add_option('--queue', dest='queue', default=None,
                       help='Queue to use on the computing resource. If not '
                       'specified, use the default queue.')
+    group2.add_option('--max_running', type=int, default=None,
+                      help='set maximum running jobs (override the queue '
+                      'settings in config file)')
+    group2.add_option('--max_queued', type=int, default=None,
+                      help='set maximum queued jobs (override the queue '
+                      'settings in config file)')
     #group2.add_option('--input-processing', dest='input_file_processing',
                       #default=None, help='Input files processing: local_path, '
                       #'transfer, translate, or translate_shared. The default is '
@@ -585,7 +617,7 @@ def main():
         args += new_args
 
     engine = capsul_engine()
-    engine.load_modules(['fom', 'axon'])
+    engine.load_modules(['fom', 'axon', 'somaworkflow'])
     study_config = engine.study_config
 
     if options.config:
@@ -755,6 +787,8 @@ def main():
     rsa_key_pass = options.rsa_key_pass
     queue = options.queue
     file_processing = []
+    max_running_jobs = options.max_running
+    max_queued_jobs = options.max_queued
 
     study_config.use_soma_workflow = options.soma_workflow
 
@@ -772,7 +806,8 @@ def main():
         password=password, rsa_key_pass=rsa_key_pass,
         queue=queue, input_file_processing=file_processing[0],
         output_file_processing=file_processing[1],
-        write_workflow_only=options.write_workflow)
+        write_workflow_only=options.write_workflow,
+        max_running_jobs=max_running_jobs, max_queued_jobs=max_queued_jobs)
 
     # if there was no exception, we assume the process has succeeded.
     # sys.exit(0)
