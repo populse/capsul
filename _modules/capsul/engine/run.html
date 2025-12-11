@@ -282,15 +282,16 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.pipeline.pipeline_workflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">workflow_from_pipeline</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">soma_workflow.client</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">swclient</span>
 
-    <span class="n">swf_config</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">select_configurations</span><span class="p">(</span>
-        <span class="s1">&#39;global&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;somaworkflow&#39;</span><span class="p">:</span> <span class="s1">&#39;config_id==&quot;somaworkflow&quot;&#39;</span><span class="p">})</span>
     <span class="n">swm</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s1">&#39;SomaWorkflowConfig&#39;</span><span class="p">]</span>
     <span class="n">swm</span><span class="o">.</span><span class="n">connect_resource</span><span class="p">(</span><span class="n">engine</span><span class="o">.</span><span class="n">connected_to</span><span class="p">())</span>
     <span class="n">controller</span> <span class="o">=</span> <span class="n">swm</span><span class="o">.</span><span class="n">get_workflow_controller</span><span class="p">()</span>
     <span class="n">resource_id</span> <span class="o">=</span> <span class="n">swm</span><span class="o">.</span><span class="n">get_resource_id</span><span class="p">()</span>
 
+    <span class="n">query</span> <span class="o">=</span> <span class="s1">&#39;config_id==&quot;somaworkflow&quot;&#39;</span>
+    <span class="k">if</span> <span class="n">resource_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;computing_resource == &quot;</span><span class="si">{</span><span class="n">resource_id</span><span class="si">}</span><span class="s1">&quot;&#39;</span>
     <span class="n">resource_config_d</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">select_configurations</span><span class="p">(</span>
-        <span class="n">resource_id</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;somaworkflow&#39;</span><span class="p">:</span> <span class="s1">&#39;config_id==&quot;somaworkflow&quot;&#39;</span><span class="p">})</span>
+        <span class="s1">&#39;global&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;somaworkflow&#39;</span><span class="p">:</span> <span class="n">query</span><span class="p">})</span>
     <span class="n">resource_config</span> <span class="o">=</span> <span class="n">resource_config_d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
         <span class="s1">&#39;capsul.engine.module.somaworkflow&#39;</span><span class="p">,</span> <span class="p">{})</span>
     <span class="n">has_resource_config</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;capsul.engine.module.somaworkflow&#39;</span>
@@ -304,7 +305,9 @@
     <span class="k">if</span> <span class="n">workflow</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">workflow</span> <span class="o">=</span> <span class="n">workflow_from_pipeline</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">environment</span><span class="o">=</span><span class="n">environment</span><span class="p">)</span>
 
-    <span class="n">queue</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">resource_config</span><span class="p">,</span> <span class="s1">&#39;queue&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">queue</span> <span class="o">=</span> <span class="n">resource_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;queue&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">max_running_jobs</span> <span class="o">=</span> <span class="n">resource_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;max_running_jobs&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">max_queued_jobs</span> <span class="o">=</span> <span class="n">resource_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;max_queued_jobs&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
     <span class="c1">#if hasattr(engine.study_config.somaworkflow_computing_resources_config,</span>
                <span class="c1">#resource_id):</span>
         <span class="c1">#res_conf = getattr(</span>
@@ -313,6 +316,21 @@
         <span class="c1">#queue = res_conf.queue</span>
         <span class="c1">#if queue is Undefined:</span>
             <span class="c1">#queue = None</span>
+    <span class="k">if</span> <span class="n">max_running_jobs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">controller</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">change_running_jobs_limits</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="n">max_running_jobs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">controller</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">is_local_resource</span><span class="p">(</span>
+                <span class="n">controller</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">_config_parser</span><span class="p">,</span> <span class="n">resource_id</span><span class="p">)</span> \
+                <span class="ow">and</span> <span class="n">controller</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_scheduler_type</span><span class="p">()</span> \
+                <span class="o">==</span> <span class="s1">&#39;local_basic&#39;</span><span class="p">:</span>
+            <span class="n">controller</span><span class="o">.</span><span class="n">scheduler_config</span><span class="o">.</span><span class="n">set_max_proc_nb</span><span class="p">(</span><span class="n">max_running_jobs</span><span class="p">)</span>
+            <span class="n">controller</span><span class="o">.</span><span class="n">scheduler_config</span><span class="o">.</span><span class="n">set_proc_nb</span><span class="p">(</span><span class="n">max_running_jobs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">max_queued_jobs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">controller</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">change_queue_limits</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="n">max_queued_jobs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">controller</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">is_local_resource</span><span class="p">(</span>
+                <span class="n">controller</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">_config_parser</span><span class="p">,</span> <span class="n">resource_id</span><span class="p">)</span> \
+                <span class="ow">and</span> <span class="n">controller</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_scheduler_type</span><span class="p">()</span> \
+                <span class="o">==</span> <span class="s1">&#39;local_basic&#39;</span><span class="p">:</span>
+            <span class="n">controller</span><span class="o">.</span><span class="n">scheduler_config</span><span class="o">.</span><span class="n">set_proc_nb</span><span class="p">(</span><span class="n">max_queued_jobs</span><span class="p">)</span>
     <span class="n">workflow_name</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">name</span>
     <span class="n">wf_id</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="n">submit_workflow</span><span class="p">(</span><span class="n">workflow</span><span class="o">=</span><span class="n">workflow</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">workflow_name</span><span class="p">,</span>
                                        <span class="n">queue</span><span class="o">=</span><span class="n">queue</span><span class="p">)</span>

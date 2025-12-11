@@ -373,7 +373,7 @@
         <span class="n">resource_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rsa_key_pass</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">queue</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">input_file_processing</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_file_processing</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">keep_workflow</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">keep_failed_workflow</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">write_workflow_only</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">write_workflow_only</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_running_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_queued_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&#39;&#39;&#39; Run the given process, either sequentially or distributed through</span>
 <span class="sd">    Soma-Workflow.</span>
 
@@ -416,6 +416,10 @@
 <span class="sd">        if specified, this is an output filename where the workflow file will</span>
 <span class="sd">        be written. The workflow will not be actually run, because int his</span>
 <span class="sd">        situation the user probably wants to use the workflow on his own.</span>
+<span class="sd">    max_running_jobs: int</span>
+<span class="sd">        override the queue settings for OCFG_MAX_JOB_RUNNING in soma-workflow</span>
+<span class="sd">    max_queued_jobs: int</span>
+<span class="sd">        override the queue settings for OCFG_MAX_JOB_IN_QUEUE in soma-workflow</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">if</span> <span class="n">write_workflow_only</span><span class="p">:</span>
         <span class="n">use_soma_workflow</span> <span class="o">=</span> <span class="kc">True</span>
@@ -449,6 +453,28 @@
                         <span class="n">resource_id</span><span class="p">,</span> <span class="p">{})</span>
             <span class="nb">getattr</span><span class="p">(</span><span class="n">study_config</span><span class="o">.</span><span class="n">somaworkflow_computing_resources_config</span><span class="p">,</span>
                     <span class="n">resource_id</span><span class="p">)</span><span class="o">.</span><span class="n">queue</span> <span class="o">=</span> <span class="n">queue</span>
+        <span class="k">if</span> <span class="n">max_running_jobs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">max_queued_jobs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">values</span><span class="p">[</span><span class="s1">&#39;computing_resource&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">resource_id</span>
+            <span class="k">if</span> <span class="n">queue</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">values</span><span class="p">[</span><span class="s1">&#39;queue&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">queue</span>
+            <span class="k">if</span> <span class="n">max_running_jobs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">values</span><span class="p">[</span><span class="s1">&#39;max_running_jobs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_running_jobs</span>
+            <span class="k">if</span> <span class="n">max_queued_jobs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">values</span><span class="p">[</span><span class="s1">&#39;max_queued_jobs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_queued_jobs</span>
+            <span class="n">engine</span> <span class="o">=</span> <span class="n">study_config</span><span class="o">.</span><span class="n">engine</span>
+            <span class="n">engine</span><span class="o">.</span><span class="n">load_module</span><span class="p">(</span><span class="s1">&#39;somaworkflow&#39;</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">engine</span><span class="o">.</span><span class="n">settings</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+                <span class="n">query</span> <span class="o">=</span> <span class="s1">&#39;config_id == &quot;somaworkflow&quot;&#39;</span>
+                <span class="k">if</span> <span class="n">resource_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">query</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39; AND computing_resource == &quot;</span><span class="si">{</span><span class="n">resource_id</span><span class="si">}</span><span class="s1">&quot;&#39;</span>
+                <span class="n">conf</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s1">&#39;somaworkflow&#39;</span><span class="p">,</span> <span class="s1">&#39;global&#39;</span><span class="p">,</span>
+                                      <span class="n">selection</span><span class="o">=</span><span class="n">query</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">conf</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">session</span><span class="o">.</span><span class="n">new_config</span><span class="p">(</span><span class="s1">&#39;somaworkflow&#39;</span><span class="p">,</span> <span class="s1">&#39;global&#39;</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="nb">setattr</span><span class="p">(</span><span class="n">conf</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
 
     <span class="n">res</span> <span class="o">=</span> <span class="n">study_config</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">process</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">res</span></div>
@@ -628,6 +654,12 @@
     <span class="n">group2</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;--queue&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;queue&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                       <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Queue to use on the computing resource. If not &#39;</span>
                       <span class="s1">&#39;specified, use the default queue.&#39;</span><span class="p">)</span>
+    <span class="n">group2</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;--max_running&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s1">&#39;set maximum running jobs (override the queue &#39;</span>
+                      <span class="s1">&#39;settings in config file)&#39;</span><span class="p">)</span>
+    <span class="n">group2</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;--max_queued&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s1">&#39;set maximum queued jobs (override the queue &#39;</span>
+                      <span class="s1">&#39;settings in config file)&#39;</span><span class="p">)</span>
     <span class="c1">#group2.add_option(&#39;--input-processing&#39;, dest=&#39;input_file_processing&#39;,</span>
                       <span class="c1">#default=None, help=&#39;Input files processing: local_path, &#39;</span>
                       <span class="c1">#&#39;transfer, translate, or translate_shared. The default is &#39;</span>
@@ -705,7 +737,7 @@
         <span class="n">args</span> <span class="o">+=</span> <span class="n">new_args</span>
 
     <span class="n">engine</span> <span class="o">=</span> <span class="n">capsul_engine</span><span class="p">()</span>
-    <span class="n">engine</span><span class="o">.</span><span class="n">load_modules</span><span class="p">([</span><span class="s1">&#39;fom&#39;</span><span class="p">,</span> <span class="s1">&#39;axon&#39;</span><span class="p">])</span>
+    <span class="n">engine</span><span class="o">.</span><span class="n">load_modules</span><span class="p">([</span><span class="s1">&#39;fom&#39;</span><span class="p">,</span> <span class="s1">&#39;axon&#39;</span><span class="p">,</span> <span class="s1">&#39;somaworkflow&#39;</span><span class="p">])</span>
     <span class="n">study_config</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">study_config</span>
 
     <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">config</span><span class="p">:</span>
@@ -875,6 +907,8 @@
     <span class="n">rsa_key_pass</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">rsa_key_pass</span>
     <span class="n">queue</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">queue</span>
     <span class="n">file_processing</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">max_running_jobs</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">max_running</span>
+    <span class="n">max_queued_jobs</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">max_queued</span>
 
     <span class="n">study_config</span><span class="o">.</span><span class="n">use_soma_workflow</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">soma_workflow</span>
 
@@ -892,7 +926,8 @@
         <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">,</span> <span class="n">rsa_key_pass</span><span class="o">=</span><span class="n">rsa_key_pass</span><span class="p">,</span>
         <span class="n">queue</span><span class="o">=</span><span class="n">queue</span><span class="p">,</span> <span class="n">input_file_processing</span><span class="o">=</span><span class="n">file_processing</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
         <span class="n">output_file_processing</span><span class="o">=</span><span class="n">file_processing</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
-        <span class="n">write_workflow_only</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">write_workflow</span><span class="p">)</span>
+        <span class="n">write_workflow_only</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">write_workflow</span><span class="p">,</span>
+        <span class="n">max_running_jobs</span><span class="o">=</span><span class="n">max_running_jobs</span><span class="p">,</span> <span class="n">max_queued_jobs</span><span class="o">=</span><span class="n">max_queued_jobs</span><span class="p">)</span>
 
     <span class="c1"># if there was no exception, we assume the process has succeeded.</span>
     <span class="c1"># sys.exit(0)</span>
