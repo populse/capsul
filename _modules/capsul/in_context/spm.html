@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
     
-    <script src="../../../_static/documentation_options.js?v=0a414f3d"></script>
+    <script src="../../../_static/documentation_options.js?v=14a4cf69"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -138,7 +138,11 @@
             <span class="c1"># not</span>
             <span class="nb">open</span><span class="p">(</span><span class="n">spm_batch_filename</span><span class="p">)</span>
         <span class="n">spm_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;SPM_DIRECTORY&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">spm_directory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">spm_directory</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">expandvars</span><span class="p">(</span><span class="n">spm_directory</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
         <span class="n">mcr_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;MCR_HOME&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">mcr_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mcr_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">expandvars</span><span class="p">(</span><span class="n">mcr_dir</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
         <span class="k">if</span> <span class="n">mcr_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">mcr_glob</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">spm_directory</span><span class="p">,</span> <span class="s1">&#39;mcr&#39;</span><span class="p">,</span> <span class="s1">&#39;v*&#39;</span><span class="p">)</span>
             <span class="n">mcr_dir</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">mcr_glob</span><span class="p">)</span>
