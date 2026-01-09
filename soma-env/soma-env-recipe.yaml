@@ -6,7 +6,7 @@ soma-env:
   components:
     - capsul
   internal-dependencies:
-    - soma-python
+    - soma-base
     - soma-workflow
 
   type: interpreted
