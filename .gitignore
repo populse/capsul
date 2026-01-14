@@ -16,3 +16,7 @@ build/
 /doc/source/*/generated/
 /doc/source/tutorial/capsul_tutorial.ipynb
 capsul.egg-info/
+
+# Generated packages #
+######################
+dist/
