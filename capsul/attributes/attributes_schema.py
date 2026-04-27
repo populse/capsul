@@ -93,7 +93,8 @@ class ProcessAttributes(Controller):
         return (self._process, self._schema_dict)
 
     def set_parameter_attributes(self, parameter, schema, editable_attributes,
-                                 fixed_attibute_values, allow_list=True):
+                                 fixed_attibute_values, allow_list=True,
+                                 force=False):
         '''
         Set attributes associated with a single process parameter.
 
@@ -110,12 +111,16 @@ class ProcessAttributes(Controller):
         allow_list: bool
             if True (the default), it the process parameter is a list, then
             attributes are transformed into lists.
+        force: bool
+            if True, the function does not abort if the parameter already
+            exists in the attributes set.
         '''
         if parameter in self.parameter_attributes:
             if schema == 'link':
                 return  # this is just a lower priority
-            raise KeyError('Attributes already set for parameter %s'
-                           % parameter)
+            if not force:
+                raise KeyError('Attributes already set for parameter %s'
+                               % parameter)
         process = self._process
         if isinstance(process, ProcessNode):
             process = process.process
