@@ -34,6 +34,7 @@ from capsul.attributes.attributes_schema import ProcessAttributes, \
 from soma.fom import DirectoryAsDict
 from soma.path import split_path
 from soma.sorted_dictionary import SortedDictionary
+import collections
 
 
 class FomProcessCompletionEngine(ProcessCompletionEngine):
@@ -114,13 +115,17 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
         study_config = process.study_config
         modules_data = study_config.modules_data
 
-        #Get attributes in input fom
+        # Get attributes in input fom,
+        # search in processes list with a specific to generic order
         id = getattr(process, 'id', None)
-        names_search_list = [self.name]
+        names_search_list = []
+        if hasattr(process, 'context_name'):
+            names_search_list.append(process.context_name)
+        if self.name:
+            names_search_list.append(self.name)
+        names_search_list.append(process.name)
         if id:
             names_search_list.append(id)
-        names_search_list += [process.name,
-                             getattr(process, 'context_name', '')]
 
         schemas = self._get_schemas()
         if not hasattr(self, 'capsul_attributes'):
@@ -141,13 +146,16 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
             # in auto-fom mode, also search in additional and non-loaded FOMs
             foms.update(modules_data.all_foms)
 
-        def editable_attributes(attributes, fom):
+        def editable_attributes(attributes, fom, init_values):
             ea = EditableAttributes()
             for attribute in attributes:
                 if attribute.startswith('fom_'):
-                    continue # skip FOM internals
-                default_value = fom.attribute_definitions[attribute].get(
-                    'default_value', '')
+                    continue  # skip FOM internals
+                default_value = init_values.get(attribute)
+                ea.fom_fixed = init_values
+                if default_value is None:
+                    default_value = fom.attribute_definitions[attribute].get(
+                        'default_value', '')
                 ea.add_trait(attribute, Str(default_value, optional=True))
             return ea
 
@@ -211,28 +219,61 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
 
             if atp is None:
                 continue
+            # we don't stop at first process match as earlier:
+            # we build an attributes dict incrementally using all definitions
+            # so that a specialized process def may just specify attributes,
+            # then reuse a more generic definition, unless the
+            # ".skip_generic" rule is used.
+            fom_patterns = collections.OrderedDict()
+            att_val = {}
+            names = []
             for name in names_search_list:
-                fom_patterns = fom.patterns.get(name)
-                if fom_patterns is not None:
-                    break
-            else:
+                fom_patterns_x = fom.patterns.get(name)
+                if fom_patterns_x is not None:
+                    found = True
+                    if name in names:
+                        continue
+                    names.append(name)
+                    if '.process_attributes' in fom_patterns_x:
+                        # .process_attributes set atts to the whole process.
+                        att_val.update(
+                            fom_patterns_x['.process_attributes'])
+                    keys = [k for k in fom_patterns_x.keys()
+                            if k not in ('.process_attributes',
+                                         '.skip_generic')]
+                    for k in keys:
+                        if k not in fom_patterns:
+                            fom_patterns[k] = fom_patterns_x[k]
+                    if '.skip_generic' in fom_patterns_x \
+                            and fom_patterns_x['.skip_generic']:
+                        break
+            if not found:
                 # print('process', names_search_list, 'not found in', fom_type)
                 continue
 
-            found = True
             # print('completion using FOM:', schema, fom_type, 'for', process.id, ', atp:', atp)
             #break
 
-            for parameter in fom_patterns:
-                param_attributes = atp.find_discriminant_attributes(
-                        fom_parameter=parameter, fom_process=name)
-                ea = editable_attributes(param_attributes, fom)
-                try:
+            done_params = set()
+            for name in names:
+                # for each process name, in order
+                for parameter in fom_patterns:
+                    if parameter in done_params:
+                        continue
+                    param_attributes = atp.find_discriminant_attributes(
+                            fom_parameter=parameter, fom_process=name)
+                    ea = editable_attributes(param_attributes, fom, att_val)
+                    if len(ea.user_traits()) != 0:
+                        done_params.add(parameter)
                     capsul_attributes.set_parameter_attributes(
-                        parameter, schema, ea, {})
-                except KeyError:
-                    # param already registered
-                    pass
+                        parameter, schema, ea, att_val, force=True)
+                    # normally att_vas passed as fixed_attributes_values in
+                    # set_parameter_attributes() should be OK but apparently
+                    # it does not work. Wo we record here in addition.
+                    # To be improved...
+                    proc_att = getattr(capsul_attributes, 'fom_fixed', {})
+                    proc_att.update(att_val)
+                    capsul_attributes.fom_fixed = proc_att
 
             if (schema not in modules_data.foms
                     or modules_data.foms[schema] != fom
@@ -243,6 +284,9 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                 modules_data.fom_atp[schema] = atp
                 setattr(study_config, '%s_fom' % schema, fom_type)
                 fom_modified = True
+
+            # the shema is found, no need to look into others.
+            break
 
         if not found:
             # no FOM contains the process
@@ -278,8 +322,12 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                                 = subprocess_compl.get_attribute_values()
                         except Exception:
                             continue
+                    fom_fixed = getattr(sub_attributes, 'fom_fixed', [])
                     for attribute, trait \
                             in six.iteritems(sub_attributes.user_traits()):
+                        if attribute in fom_fixed:
+                            # don't assign attributes which are set internally
+                            continue
                         if attributes.trait(attribute) is None:
                             attributes.add_trait(attribute, trait)
                             setattr(attributes, attribute,
@@ -406,28 +454,35 @@ class FomPathCompletionEngine(PathCompletionEngine):
 
         #Create completion
         names_search_list = []
+        # same as in create_attributes_with_fom, search in specific to generic
+        # order
+        if getattr(process, 'context_name', ''):
+            names_search_list.append(process.context_name)
+        if process.name not in names_search_list:
+            names_search_list.append(process.name)
         if isinstance(process, Node):
             trait = process.get_trait(parameter)
             name = process.name
             if hasattr(process, 'process'):
-                if hasattr(process.process, 'context_name'):
+                cn = getattr(process.process, 'context_name', None)
+                if cn and cn not in names_search_list:
                     names_search_list.append(process.process.context_name)
-                names_search_list.append(process.process.name)
+                if process.process.name not in names_search_list:
+                    names_search_list.append(process.process.name)
         else:
             trait = process.trait(parameter)
             name = process.id
-            names_search_list.append(name)
+            if name not in names_search_list:
+                names_search_list.append(name)
         if trait.output:
             atp = output_atp
             fom = output_fom
         else:
             atp = input_atp
             fom = input_fom
-        names_search_list += [process.name,
-                              getattr(process, 'context_name', '')]
         for fname in names_search_list:
             fom_patterns = fom.patterns.get(fname)
-            if fom_patterns is not None:
+            if fom_patterns is not None and parameter in fom_patterns:
                 name = fname
                 break
         else:
@@ -452,6 +507,8 @@ class FomPathCompletionEngine(PathCompletionEngine):
              for i in parameter_attributes
              if i in allowed_attributes
              and getattr(attributes, i) not in (None, Undefined)}
+        # merge values set internally
+        d.update(getattr(attributes, 'fom_fixed', {}))
         d['fom_process'] = name
         d['fom_parameter'] = parameter
         d['fom_format'] = 'fom_preferred'
