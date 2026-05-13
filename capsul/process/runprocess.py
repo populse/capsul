@@ -464,15 +464,15 @@ def main():
     group1.add_option('--if', '--input-fom', dest='input_fom',
                       help='input FOM (File Organization Model). Decides '
                       'which files and directories layout for the input '
-                      'data. Generally "morphologist-bids-1.0" or '
-                      '"morphologist-auto-nonoverlap-1.0". Default: '
-                      '"morphologist-bids-1.0"')
+                      'data. Generally "morphologist-bids-2.0" or '
+                      '"morphologist-auto-1.0". Default: '
+                      '"morphologist-bids-2.0"')
     group1.add_option('--of', '--output-fom', dest='output_fom',
                       help='input FOM (File Organization Model). Decides '
                       'which files and directories layout for the output '
-                      'data. Generally "morphologist-bids-1.0" or '
-                      '"morphologist-auto-nonoverlap-1.0". Default: '
-                      '"morphologist-bids-1.0"')
+                      'data. Generally "morphologist-bids-2.0" or '
+                      '"morphologist-auto-1.0". Default: '
+                      '"morphologist-bids-2.0"')
     group1.add_option('--params', dest='paramsfile', default=None,
                       help='specify a file containing commandline parameters. '
                       'The file will contain arguments for this commandline '
@@ -595,7 +595,7 @@ def main():
     parser.disable_interspersed_args()
     (options, args) = parser.parse_args()
 
-    default_fom = 'morphologist-bids-1.0'
+    default_fom = 'morphologist-bids-2.0'
 
     gui = False
     if options.show_pipeline or options.edit:
