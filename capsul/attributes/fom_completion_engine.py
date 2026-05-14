@@ -133,11 +133,6 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
             self.capsul_attributes = ProcessAttributes(self.process, schemas)
         capsul_attributes = self.capsul_attributes
 
-        matching_fom = False
-        input_found = False
-        output_found = False
-        shared_fom = None
-
         # print('create_attributes_with_fom for', self.process, ', FCE:', self, ', foms:', {n: f.fom_names[-1] for n, f in modules_data.foms.items()})
 
         foms = SortedDictionary()
@@ -176,7 +171,7 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
             if schema not in ('input', 'output', 'shared'):
                 # exclude incompatible FOMs
                 for fs in ('input', 'output', 'shared'):
-                    found = False
+                    found = 0
                     f = modules_data.foms.get(fs)
                     if f is None:
                         if fs == 'shared':
@@ -194,19 +189,17 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                             # possibly keep it
                             if fs != 'shared':
                                 # print('extend fom:', schema, 'for', fs, ':', f.fom_names)
-                                for name in names_search_list:
-                                    fom_patterns = fom.patterns.get(name)
-                                    if fom_patterns is not None:
-                                        found = True
-                                        break
-                                #else:
-                                    #print('process not found - discard it')
+                                nfound = len(
+                                    [True for name in names_search_list
+                                     if fom.patterns.get(name) is not None])
+                                if nfound > found:
+                                    found = nfound
+                                    sel_foms[fs] = schema
                             else:
-                                found = True
-                            if found:
+                                found = 1
                                 sel_foms[fs] = schema
 
-        # print('new foms:', sel_foms)
+        print('new foms:', sel_foms)
 
         fom_modified = False
 
@@ -251,7 +244,7 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                 # print('process', names_search_list, 'not found in', fom_type)
                 continue
 
-            # print('completion using FOM:', schema, fom_type, 'for', process.id, ', atp:', atp)
+            print('completion using FOM:', schema, fom_type, 'for', process.id, ', atp:', atp)
             #break
 
             done_params = set()
