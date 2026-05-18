@@ -199,7 +199,7 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                                 found = 1
                                 sel_foms[fs] = schema
 
-        print('new foms:', sel_foms)
+        # print('new foms:', sel_foms)
 
         fom_modified = False
 
@@ -244,8 +244,7 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                 # print('process', names_search_list, 'not found in', fom_type)
                 continue
 
-            print('completion using FOM:', schema, fom_type, 'for', process.id, ', atp:', atp)
-            #break
+            # print('completion using FOM:', schema, fom_type, 'for', process.id, ', atp:', atp)
 
             done_params = set()
             for name in names:
