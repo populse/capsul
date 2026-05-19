@@ -295,6 +295,7 @@ class ProcessCompletionEngine(traits.HasTraits):
             workflow in
             `~capsul.pipeline.pipeline_workflow.workflow_from_pipeline`.
         '''
+        process = get_ref(self.process)
         self.completion_progress = 0.
         self.completion_progress_total = 1.
         self.set_parameters(process_inputs)
@@ -426,9 +427,8 @@ class ProcessCompletionEngine(traits.HasTraits):
             attributes_single = attributes
 
         # now complete process parameters:
-        process = self.process
         if isinstance(process, ProcessNode):
-            process = process.process
+            process = get_ref(process.process)
         for pname, trait in six.iteritems(process.user_traits()):
             if trait.forbid_completion \
                     or process.is_parameter_protected(pname):
@@ -490,6 +490,7 @@ class ProcessCompletionEngine(traits.HasTraits):
                     import traceback
                     traceback.print_exc()
                 #pass
+
         self.completion_progress = self.completion_progress_total
 
 
@@ -502,7 +503,7 @@ class ProcessCompletionEngine(traits.HasTraits):
         attributes: ProcessAttributes instance (Controller)
         '''
         return self.get_path_completion_engine() \
-            .attributes_to_path(self.process, parameter, attributes)
+            .attributes_to_path(get_ref(self.process), parameter, attributes)
 
 
     def set_parameters(self, process_inputs):
@@ -637,6 +638,11 @@ class ProcessCompletionEngine(traits.HasTraits):
         ''' Get a ProcessCompletionEngine instance for a given process/node
         within the framework of its StudyConfig factory function.
         '''
+        process = get_ref(process)
+        completion_engine = getattr(process, 'completion_engine', None)
+        if completion_engine is not None:
+            return completion_engine
+
         #global ce_calls
         #ce_calls += 1
         engine_factory = None
@@ -667,7 +673,9 @@ class ProcessCompletionEngine(traits.HasTraits):
         # but this needs to setup many callbacks that we don't know easily
         # when to clear (process deletion etc)
         ## set the completion engine into the process
-        if completion_engine is not None:
+        if completion_engine is not None \
+                and getattr(process, 'completion_engine', None) \
+                    is not completion_engine:
             process.completion_engine = completion_engine
             process._has_studyconfig_callback = True
             if study_config is not None:
@@ -676,28 +684,28 @@ class ProcessCompletionEngine(traits.HasTraits):
                     nclass = Process
                 else:
                     nclass = Node
-                if not hasattr(nclass, '_remove_completion_engine'):
-                    nclass._remove_completion_engine \
-                        = ProcessCompletionEngine._remove_completion_engine
+                if not hasattr(nclass, '_reset_completion_engine'):
+                    nclass._reset_completion_engine \
+                        = ProcessCompletionEngine._reset_completion_engine
                     nclass.__del__ \
                         = ProcessCompletionEngine._del_process_callback
                 else:
                     try:
                         # remove former callback, if any
                         study_config.on_trait_change(
-                        process._remove_completion_engine,
+                        process._reset_completion_engine,
                         'use_fom,input_fom,output_fom,shared_fom', remove=True)
                     except Exception:
                         pass
                 study_config.on_trait_change(
-                    process._remove_completion_engine,
+                    process._reset_completion_engine,
                     'use_fom,input_fom,output_fom,shared_fom')
         return completion_engine
 
     @staticmethod
-    def _remove_completion_engine(process):
+    def _reset_completion_engine(process):
         if hasattr(process, 'completion_engine'):
-            del process.completion_engine
+            process.completion_engine._rebuild_attributes = True
 
     @staticmethod
     def _del_process_callback(process):
@@ -706,7 +714,7 @@ class ProcessCompletionEngine(traits.HasTraits):
                 and hasattr(process, '_has_studyconfig_callback'):
             try:
                 process.study_config.on_trait_change(
-                    process._remove_completion_engine,
+                    process._reset_completion_engine,
                     'use_fom,input_fom,output_fom,shared_fom', remove=True)
             except ImportError:
                 # python shutting down
