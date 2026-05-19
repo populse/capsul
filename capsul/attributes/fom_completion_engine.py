@@ -13,22 +13,16 @@ Classes
 --------------------------------------------
 '''
 
-from __future__ import print_function
-from __future__ import absolute_import
-
 import os
-import six
-from traits.api import Str, HasTraits, List, Undefined
+from traits.api import Str, Undefined
 
 from soma.controller import Controller, ControllerTrait
 from capsul.pipeline.pipeline import Pipeline
 from capsul.pipeline.pipeline_nodes import Node, Switch, ProcessNode
 from capsul.attributes.completion_engine import ProcessCompletionEngine, \
-    ProcessCompletionEngineFactory, PathCompletionEngine, \
-    PathCompletionEngineFactory
+    PathCompletionEngine
 from capsul.attributes.completion_engine_iteration \
     import ProcessCompletionEngineIteration
-from capsul.pipeline.process_iteration import ProcessIteration
 from capsul.attributes.attributes_schema import ProcessAttributes, \
     EditableAttributes
 from soma.fom import DirectoryAsDict
@@ -285,10 +279,6 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
             raise KeyError('No matching FOM for process %s'
                            % repr(names_search_list))
 
-        #if fom_modified:
-            # the modif will trigger another completion
-            #return
-
         # in a pipeline, we still must iterate over nodes to find switches,
         # which have their own behaviour.
         if isinstance(process, Pipeline):
@@ -316,7 +306,7 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                             continue
                     fom_fixed = getattr(sub_attributes, 'fom_fixed', [])
                     for attribute, trait \
-                            in six.iteritems(sub_attributes.user_traits()):
+                            in sub_attributes.user_traits().items():
                         if attribute in fom_fixed:
                             # don't assign attributes which are set internally
                             continue
@@ -357,6 +347,7 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                 # FOMs have changed: rebuild attributes
                 completion_engine._rebuild_attributes = True
             completion_engine.create_attributes_with_fom()
+
         if process.study_config.input_fom != completion_engine.input_fom:
             process.study_config.input_fom = completion_engine.input_fom
         if process.study_config.output_fom != completion_engine.output_fom:
@@ -547,7 +538,7 @@ class FomPathCompletionEngine(PathCompletionEngine):
                 continue
 
             values = atp.find_attributes_values()
-            attributes = [k for k, v in six.iteritems(values)
+            attributes = [k for k, v in values.items()
                           if k not in ('fom_name', 'fom_process',
                                        'fom_parameter', 'fom_format')
                             and len(v) == 2 and v[1] == (u'', )]
@@ -635,10 +626,3 @@ class FomProcessCompletionEngineIteration(ProcessCompletionEngineIteration):
             iter_attrib.update(parameter_attributes)
         return iter_attrib
 
-
-#class FomPathCompletionEngineFactory(PathCompletionEngineFactory):
-
-    #factory_id = 'fom'
-
-    #def get_path_completion_engine(self, process):
-        #return FomPathCompletionEngine(process)
