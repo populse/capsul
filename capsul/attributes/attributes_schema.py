@@ -16,15 +16,9 @@ Functions
 ---------------------
 '''
 
-from __future__ import print_function
-
-from __future__ import absolute_import
-import six
-from importlib import import_module
-from pkgutil import iter_modules
 from soma.sorted_dictionary import OrderedDict
 from soma.controller import Controller
-from soma.functiontools import partial, SomaPartial
+from soma.functiontools import SomaPartial
 import traits.api as traits
 from capsul.pipeline.pipeline_nodes import ProcessNode
 
@@ -128,13 +122,13 @@ class ProcessAttributes(Controller):
             print('WARNING: parameter', parameter,
                   'not in process', process.name)
             return
-        if isinstance(editable_attributes, six.string_types) \
+        if isinstance(editable_attributes, str) \
                 or isinstance(editable_attributes, EditableAttributes):
             editable_attributes = [editable_attributes]
         parameter_editable_attributes = []
         for ea in editable_attributes:
             add_editable_attributes = False
-            if isinstance(ea, six.string_types):
+            if isinstance(ea, str):
                 key = ea
                 ea = self.editable_attributes.get(key)
                 if ea is None:
@@ -191,7 +185,7 @@ class ProcessAttributes(Controller):
         process = self._process
         if isinstance(process, ProcessNode):
             process = process.process
-        for parameter, trait in six.iteritems(process.user_traits()):
+        for parameter, trait in process.user_traits().items():
             if trait.output:
                 if hasattr(process, 'id'):
                     process_name = process.id
@@ -218,7 +212,7 @@ class ProcessAttributes(Controller):
         '''
         other = self.__class__(self._process, self._schema_dict)
         ea_map = {}
-        for parameter, pa in six.iteritems(self.parameter_attributes):
+        for parameter, pa in self.parameter_attributes.items():
             if parameter not in other.parameter_attributes:
                 # otherwise assume this has been done in a subclass constructor
                 eas, fa = pa
@@ -255,7 +249,7 @@ class ProcessAttributes(Controller):
         other = ProcessAttributes(self._process, self._schema_dict)
 
         ea_map = {}
-        for parameter, pa in six.iteritems(self.parameter_attributes):
+        for parameter, pa in self.parameter_attributes.items():
             if parameter not in other.parameter_attributes:
                 # otherwise assume this has been done in a subclass constructor
                 eas, fa = pa
@@ -264,7 +258,7 @@ class ProcessAttributes(Controller):
                     oea = ea_map.get(ea)
                     if oea is None:
                         oea = EditableAttributes()
-                        for name, trait in six.iteritems(ea.user_traits()):
+                        for name, trait in ea.user_traits().items():
                             if isinstance(trait.trait_type, traits.List):
                                 trait = trait.inner_traits[0]
                             oea.add_trait(name, trait)
