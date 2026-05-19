@@ -28,6 +28,7 @@ from capsul.attributes.attributes_schema import ProcessAttributes, \
 from soma.fom import DirectoryAsDict
 from soma.path import split_path
 from soma.sorted_dictionary import SortedDictionary
+from soma.utils.weak_proxy import get_ref
 import collections
 
 
@@ -102,7 +103,7 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
         """To get useful attributes by the fom"""
 
         # print('create_attributes_with_fom for', self.process, ', FCE:', self)
-        process = self.process
+        process = get_ref(self.process)
         if isinstance(process, ProcessNode):
             process = process.process
 
@@ -314,6 +315,7 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                             attributes.add_trait(attribute, trait)
                             setattr(attributes, attribute,
                                     getattr(sub_attributes, attribute))
+
 
             self._get_linked_attributes()
 

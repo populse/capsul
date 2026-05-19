@@ -16,12 +16,8 @@ Classes
 ------------------------------------
 '''
 
-from __future__ import print_function
-from __future__ import absolute_import
-from soma.singleton import Singleton
 from soma.controller import Controller, ControllerTrait
 from capsul.pipeline.pipeline import Pipeline
-from capsul.pipeline.pipeline import Graph
 from capsul.pipeline.pipeline_nodes import (
     Node, ProcessNode, Switch, PipelineNode)
 from capsul.attributes.attributes_schema import ProcessAttributes, \
@@ -30,11 +26,7 @@ from capsul.pipeline import pipeline_tools
 import traits.api as traits
 from soma.utils.weak_proxy import weak_proxy, get_ref
 from soma.functiontools import SomaPartial
-from soma.controller.trait_utils import relax_exists_constraint
-import six
-import sys
-import copy
-from six.moves import range
+
 
 # DEBUG
 #ce_calls = 0
@@ -155,7 +147,6 @@ class ProcessCompletionEngine(traits.HasTraits):
             for name in names:
                 try:
                     proc_attr_cls = factory.get('process_attributes', name)
-                    found = True
                     break
                 except ValueError:
                     pass
@@ -178,7 +169,7 @@ class ProcessCompletionEngine(traits.HasTraits):
                                    getattr(pipeline, 'context_name',
                                            pipeline.name)))
 
-            for node_name, node in six.iteritems(pipeline.nodes):
+            for node_name, node in pipeline.nodes.items():
                 if node_name == '':
                     continue
                 subprocess = None
@@ -202,7 +193,7 @@ class ProcessCompletionEngine(traits.HasTraits):
                         except Exception:
                             continue
                     for attribute, trait \
-                            in six.iteritems(sub_attributes.user_traits()):
+                            in sub_attributes.user_traits().items():
                         if attribute not in attributes._instance_traits():
                             attributes.add_trait(attribute, trait)
                             # all attributes are optional by default
@@ -225,16 +216,16 @@ class ProcessCompletionEngine(traits.HasTraits):
         forbidden_attributes = set(['generated_by_parameter',
                                     'generated_by_process'])
         done_parameters = set(
-            [p for p, al in six.iteritems(param_attributes)
-              if len([a for a in al if a not in forbidden_attributes])
-              != 0])
-        traits_types = {str: traits.Str, six.text_type: traits.Str, int: traits.Int,
-                        float: traits.Float, list: traits.List}
+            [p for p, al in param_attributes.items()
+             if len([a for a in al if a not in forbidden_attributes])
+             != 0])
+        traits_types = {str: traits.Str, int: traits.Int, float: traits.Float,
+                        list: traits.List}
         pipeline = self.process
         if isinstance(pipeline, PipelineNode):
             pipeline = pipeline.process
         name = pipeline.name
-        for pname, trait in six.iteritems(pipeline.user_traits()):
+        for pname, trait in pipeline.user_traits().items():
             if pname in done_parameters:
                 continue
             plug = pipeline.pipeline_node.plugs.get(pname)
@@ -257,15 +248,10 @@ class ProcessCompletionEngine(traits.HasTraits):
                             and len([x for x in s_p_attributes.keys()
                                     if x not in forbidden_attributes]) != 0:
                         ea = EditableAttributes()
-                        for attribute, value in six.iteritems(
-                                s_p_attributes):
+                        for attribute, value in s_p_attributes.items():
                             if attribute not in forbidden_attributes:
-                                ttype = traits_types.get(type(value))
-                                if ttype is not None:
-                                    trait = ttype()
-                                else:
-                                    trait = value
-                                ea.add_trait(attribute, ttype)
+                                trait = sub_attributes.trait(attribute)
+                                ea.add_trait(attribute, trait)
                                 # all attributes are optional by default
                                 ea.trait(attribute).optional = True
                                 setattr(ea, attribute, value)
@@ -429,7 +415,7 @@ class ProcessCompletionEngine(traits.HasTraits):
         # now complete process parameters:
         if isinstance(process, ProcessNode):
             process = get_ref(process.process)
-        for pname, trait in six.iteritems(process.user_traits()):
+        for pname, trait in process.user_traits().items():
             if trait.forbid_completion \
                     or process.is_parameter_protected(pname):
                 # completion has been explicitly disabled on this parameter
@@ -456,7 +442,7 @@ class ProcessCompletionEngine(traits.HasTraits):
                     # param is a list: call iteratively the path completion
                     # for each attributes values set
                     for item in range(nmax):
-                        for a, t in six.iteritems(attributes.user_traits()):
+                        for a, t in attributes.user_traits().items():
                             if isinstance(t.trait_type, traits.List):
                                 att_value = getattr(attributes, a)
                                 if not isinstance(att_value, list):
@@ -520,11 +506,11 @@ class ProcessCompletionEngine(traits.HasTraits):
         attributes = process_inputs.get('capsul_attributes')
         if attributes:
             avail_attrib = set(dst_attributes.user_traits().keys())
-            attributes = dict((k, v) for k, v in six.iteritems(attributes)
+            attributes = dict((k, v) for k, v in attributes.items()
                               if k in avail_attrib)
             dst_attributes.import_from_dict(attributes)
         process_inputs = dict((k, v) for k, v
-                              in six.iteritems(process_inputs)
+                              in process_inputs.items()
                               if k != 'capsul_attributes')
         process = self.process
         if isinstance(process, ProcessNode):
@@ -578,7 +564,7 @@ class ProcessCompletionEngine(traits.HasTraits):
         if isinstance(process, ProcessNode):
             process = process.process
         if isinstance(process, Pipeline):
-            for node_name, node in six.iteritems(process.nodes):
+            for node_name, node in process.nodes.items():
                 if isinstance(node, Switch):
                     # a switch may change attributes dynamically
                     # so we must be notified if this happens.
@@ -603,7 +589,7 @@ class ProcessCompletionEngine(traits.HasTraits):
             if isinstance(process, PipelineNode):
                 process = process.process
             if isinstance(process, Pipeline):
-                for node_name, node in six.iteritems(process.nodes):
+                for node_name, node in process.nodes.items():
                     if isinstance(node, Switch):
                         # a switch may change attributes dynamically
                         # so we must be notified if this happens.
@@ -735,7 +721,7 @@ class ProcessCompletionEngine(traits.HasTraits):
             'attributes', {}).get('attributes_factory', None)
         if factory is not None:
             for dir_name, schema_name \
-                    in six.iteritems(study_config.attributes_schemas):
+                    in study_config.attributes_schemas.items():
                 schemas[dir_name] = factory.get('schema', schema_name)
         return schemas
 
@@ -795,7 +781,7 @@ class ProcessCompletionEngine(traits.HasTraits):
             if isinstance(process, PipelineNode):
                 process = process.process
             if isinstance(process, Pipeline):
-                for name, node in six.iteritems(process.nodes):
+                for name, node in process.nodes.items():
                     if isinstance(node, Switch) \
                             and hasattr(node, 'completion_engine'):
                         completion_engine = node.completion_engine
@@ -832,7 +818,7 @@ class SwitchCompletionEngine(ProcessCompletionEngine):
             pipeline_name = [pipeline_name]
         forbidden_attributes = set(['generated_by_parameter',
                                     'generated_by_process'])
-        traits_types = {str: traits.Str, six.text_type: traits.Str, int: traits.Int,
+        traits_types = {str: traits.Str, int: traits.Int,
                         float: traits.Float, list: traits.List}
         for out_name in outputs:
             in_name = '_switch_'.join((self.process.switch, out_name))
@@ -871,15 +857,10 @@ class SwitchCompletionEngine(ProcessCompletionEngine):
                             and len([x for x in param_attributes.keys()
                                      if x not in forbidden_attributes]) != 0:
                         ea = EditableAttributes()
-                        for attribute, value in six.iteritems(
-                                param_attributes):
+                        for attribute, value in param_attributes.items():
                             if attribute not in forbidden_attributes:
-                                ttype = traits_types.get(type(value))
-                                if ttype is not None:
-                                    trait = ttype()
-                                else:
-                                    trait = value
-                                ea.add_trait(attribute, ttype)
+                                trait = attributes.trait(attribute)
+                                ea.add_trait(attribute, trait)
                                 # all attributes are optional by default
                                 ea.trait(attribute).optional = True
                                 setattr(ea, attribute, value)
@@ -893,8 +874,7 @@ class SwitchCompletionEngine(ProcessCompletionEngine):
             if found:
                 # propagate from input/output to other side
                 ea = EditableAttributes()
-                for attribute, value in six.iteritems(
-                        param_attributes):
+                for attribute, value in param_attributes.items():
                     ttype = traits_types.get(type(value))
                     if ttype is not None:
                         trait = ttype()
