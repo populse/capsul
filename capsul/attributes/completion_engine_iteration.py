@@ -9,22 +9,13 @@ Classes
 -----------------------------------------
 '''
 
-from __future__ import print_function
-
-from __future__ import absolute_import
-from capsul.pipeline.process_iteration import ProcessIteration
-from capsul.attributes.completion_engine import ProcessCompletionEngine, \
-    ProcessCompletionEngineFactory
+from capsul.attributes.completion_engine import ProcessCompletionEngine
 from capsul.pipeline.pipeline_nodes import ProcessNode
 from capsul.attributes.attributes_schema import ProcessAttributes
-from soma.controller import Controller,ControllerTrait
+from soma.controller import Controller, ControllerTrait
+from soma.utils.weak_proxy import get_ref
 import traits.api as traits
-import six
 import sys
-from six.moves import range
-
-if sys.version_info[0] >= 3:
-    xrange = range
 
 
 class ProcessCompletionEngineIteration(ProcessCompletionEngine):
@@ -36,17 +27,17 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
     Completion performs a single iteration step, stored in
     self.capsul_iteration_step
     '''
+
     def __init__(self, process, name=None):
-        super(ProcessCompletionEngineIteration, self).__init__(
-            process=process, name=name)
-        #self.add_trait('capsul_iteration_step', traits.Int(0))
+        super().__init__(process=process, name=name)
+        # self.add_trait('capsul_iteration_step', traits.Int(0))
         self.capsul_iteration_step = 0
-        #self.iterated_attributes = self.get_iterated_attributes()
+        # self.iterated_attributes = self.get_iterated_attributes()
 
     def get_iterated_attributes(self):
         '''
         '''
-        process = self.process
+        process = get_ref(self.process)
         if isinstance(process, ProcessNode):
             process = process.process
         try:
@@ -124,7 +115,7 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
             self.add_trait('capsul_attributes', ControllerTrait(Controller()))
             self.capsul_attributes = attributes
             iter_attrib = self.get_iterated_attributes()
-            for attrib, trait in six.iteritems(pattributes.user_traits()):
+            for attrib, trait in pattributes.user_traits().items():
                 if attrib not in iter_attrib:
                     attributes.add_trait(attrib, trait)
             for attrib in iter_attrib:
@@ -219,7 +210,7 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
             [(key, []) for key in process.iterative_parameters])
 
         # propagate forbid_completion
-        for param, trait in six.iteritems(process.user_traits()):
+        for param, trait in process.user_traits().items():
             if trait.forbid_completion:
                 if hasattr(process.process, 'propagate_metadata'):
                     process.process.propagate_metadata(
@@ -261,7 +252,6 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
                 print('assign parameter', parameter, ':\n', e,
                       file=sys.stderr)
 
-
     def complete_iteration_step(self, step):
         ''' Complete the parameters on the iterated process for a given
         iteration step.
@@ -271,7 +261,7 @@ class ProcessCompletionEngineIteration(ProcessCompletionEngine):
             process = process.process
 
         # propagate forbid_completion
-        for param, trait in six.iteritems(process.user_traits()):
+        for param, trait in process.user_traits().items():
             if trait.forbid_completion:
                 if hasattr(process.process, 'propagate_metadata'):
                     process.process.propagate_metadata(

@@ -471,8 +471,9 @@ class FomPathCompletionEngine(PathCompletionEngine):
                 name = fname
                 break
         else:
-            raise KeyError('Process not found in FOMs amongst %s' \
-                % repr(names_search_list))
+            raise KeyError(
+                f'Process not found in FOMs amongst {names_search_list}; '
+                f'fom_names: {fom.fom_names}')
 
         allowed_attributes = set(attributes.user_traits().keys())
         allowed_attributes.discard('parameter')
@@ -582,49 +583,6 @@ class FomPathCompletionEngine(PathCompletionEngine):
 
 class FomProcessCompletionEngineIteration(ProcessCompletionEngineIteration):
 
-    def get_iterated_attributes(self):
-        process = self.process
-        if isinstance(process, ProcessNode):
-            process = process.process
-        subprocess = process.process
-
-        FomProcessCompletionEngine.setup_fom(subprocess)
-
-        input_fom = subprocess.study_config.modules_data.foms['input']
-        output_fom = subprocess.study_config.modules_data.foms['output']
-        input_atp = subprocess.study_config.modules_data.fom_atp['input']
-        output_atp = subprocess.study_config.modules_data.fom_atp['output']
-
-        name = subprocess.id
-        names_search_list = (subprocess.id, subprocess.name,
-                             getattr(subprocess, 'context_name', ''))
-        for fom in (input_fom, output_fom):
-            for fname in names_search_list:
-                fom_patterns = fom.patterns.get(fname)
-                if fom_patterns is not None:
-                    name = fname
-                    break
-            else:
-                continue
-            break
-        else:
-            raise KeyError('Process not found in FOMs amongst %s' \
-                % repr(names_search_list))
-
-        iter_attrib = set()
-        if not process.iterative_parameters:
-            params = list(subprocess.user_traits().keys())
-        else:
-            params = process.iterative_parameters
-        for parameter in params:
-            if subprocess.trait(parameter).output:
-                atp = output_atp
-            else:
-                atp = input_atp
-            parameter_attributes = set([
-                x for x in atp.find_discriminant_attributes(
-                    fom_parameter=parameter, fom_process=name)
-                if not x.startswith('fom_')])
-            iter_attrib.update(parameter_attributes)
-        return iter_attrib
-
+    # the general iteration system actually works in this case.
+    # No need to specialize.
+    pass
