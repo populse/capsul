@@ -48,4 +48,15 @@ class CSVFilterNode(filter_node.FilterNode):
             df = pd.read_csv(self.input)
             if df.shape[1] == 1:
                 df = pd.read_csv(self.input, sep=';')
-            self.run_filter(df[self.column])
+            col = None
+            if self.column not in df.columns:
+                try:
+                    # is it a column number ?
+                    col = int(self.column)
+                    if col < len(df.columns):
+                        col = df.columns(col)
+                except ValueError:
+                    pass
+            if col is None:
+                col = df.columns[0]
+            self.run_filter(df[col])
