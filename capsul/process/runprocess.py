@@ -365,7 +365,7 @@ def run_process_with_distribution(
 
 def convert_commandline_parameter(i):
     i = i.replace('<undefined>', 'Undefined')
-    if len(i) > 0 and (i[0] in '[({' or i in ('None', 'True', 'False',
+    if len(i) > 0 and (i[0] in '[({"\'' or i in ('None', 'True', 'False',
                                               'Undefined')):
         try:
             res=eval(i)
