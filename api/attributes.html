@@ -17,7 +17,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
     
-    <script src="../_static/documentation_options.js?v=8e0c35cf"></script>
+    <script src="../_static/documentation_options.js?v=b9f4bfa5"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -234,7 +234,7 @@ determine a single path.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="capsul.attributes.attributes_schema.ProcessAttributes.set_parameter_attributes">
-<span class="sig-name descname"><span class="pre">set_parameter_attributes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">editable_attributes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_attibute_values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/attributes_schema.html#ProcessAttributes.set_parameter_attributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.attributes_schema.ProcessAttributes.set_parameter_attributes" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">set_parameter_attributes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">schema</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">editable_attributes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fixed_attibute_values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_list</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/attributes_schema.html#ProcessAttributes.set_parameter_attributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.attributes_schema.ProcessAttributes.set_parameter_attributes" title="Link to this definition">¶</a></dt>
 <dd><p>Set attributes associated with a single process parameter.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -245,6 +245,8 @@ determine a single path.</p>
 <li><p><strong>fixed_attibute_values</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a><em> (</em><em>str/str</em><em>)</em>) – values of non-editable attributes</p></li>
 <li><p><strong>allow_list</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – if True (the default), it the process parameter is a list, then
 attributes are transformed into lists.</p></li>
+<li><p><strong>force</strong> (<a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a>) – if True, the function does not abort if the parameter already
+exists in the attributes set.</p></li>
 </ul>
 </dd>
 </dl>
@@ -832,12 +834,7 @@ process.name variable will be used.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="capsul.attributes.fom_completion_engine.FomProcessCompletionEngineIteration">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">capsul.attributes.fom_completion_engine.</span></span><span class="sig-name descname"><span class="pre">FomProcessCompletionEngineIteration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/fom_completion_engine.html#FomProcessCompletionEngineIteration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.fom_completion_engine.FomProcessCompletionEngineIteration" title="Link to this definition">¶</a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="capsul.attributes.fom_completion_engine.FomProcessCompletionEngineIteration.get_iterated_attributes">
-<span class="sig-name descname"><span class="pre">get_iterated_attributes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/capsul/attributes/fom_completion_engine.html#FomProcessCompletionEngineIteration.get_iterated_attributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#capsul.attributes.fom_completion_engine.FomProcessCompletionEngineIteration.get_iterated_attributes" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
-
-</dd></dl>
 
 </section>
 </section>
@@ -983,10 +980,7 @@ process.name variable will be used.</p>
 <li><a class="reference internal" href="#capsul.attributes.fom_completion_engine.FomProcessCompletionEngine.path_attributes"><code class="docutils literal notranslate"><span class="pre">FomProcessCompletionEngine.path_attributes()</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#capsul.attributes.fom_completion_engine.FomProcessCompletionEngineIteration"><code class="docutils literal notranslate"><span class="pre">FomProcessCompletionEngineIteration</span></code></a><ul>
-<li><a class="reference internal" href="#capsul.attributes.fom_completion_engine.FomProcessCompletionEngineIteration.get_iterated_attributes"><code class="docutils literal notranslate"><span class="pre">FomProcessCompletionEngineIteration.get_iterated_attributes()</span></code></a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#capsul.attributes.fom_completion_engine.FomProcessCompletionEngineIteration"><code class="docutils literal notranslate"><span class="pre">FomProcessCompletionEngineIteration</span></code></a></li>
 </ul>
 </li>
 </ul>

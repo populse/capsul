@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
     
-    <script src="../../../_static/documentation_options.js?v=8e0c35cf"></script>
+    <script src="../../../_static/documentation_options.js?v=b9f4bfa5"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -119,27 +119,23 @@
 <span class="sd">--------------------------------------------</span>
 <span class="sd">&#39;&#39;&#39;</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">print_function</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">absolute_import</span>
-
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">six</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">traits.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">Str</span><span class="p">,</span> <span class="n">HasTraits</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Undefined</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">traits.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">Str</span><span class="p">,</span> <span class="n">Undefined</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">soma.controller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Controller</span><span class="p">,</span> <span class="n">ControllerTrait</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.pipeline.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pipeline</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.pipeline.pipeline_nodes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Node</span><span class="p">,</span> <span class="n">Switch</span><span class="p">,</span> <span class="n">ProcessNode</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.attributes.completion_engine</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessCompletionEngine</span><span class="p">,</span> \
-    <span class="n">ProcessCompletionEngineFactory</span><span class="p">,</span> <span class="n">PathCompletionEngine</span><span class="p">,</span> \
-    <span class="n">PathCompletionEngineFactory</span>
+    <span class="n">PathCompletionEngine</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.attributes.completion_engine_iteration</span> \
     <span class="kn">import</span><span class="w"> </span><span class="nn">ProcessCompletionEngineIteration</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">capsul.pipeline.process_iteration</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessIteration</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.attributes.attributes_schema</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessAttributes</span><span class="p">,</span> \
     <span class="n">EditableAttributes</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">soma.fom</span><span class="w"> </span><span class="kn">import</span> <span class="n">DirectoryAsDict</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">soma.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">split_path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">soma.sorted_dictionary</span><span class="w"> </span><span class="kn">import</span> <span class="n">SortedDictionary</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">soma.utils.weak_proxy</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_ref</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">collections</span>
 
 
 <div class="viewcode-block" id="FomProcessCompletionEngine">
@@ -220,31 +216,30 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;To get useful attributes by the fom&quot;&quot;&quot;</span>
 
         <span class="c1"># print(&#39;create_attributes_with_fom for&#39;, self.process, &#39;, FCE:&#39;, self)</span>
-        <span class="n">process</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span>
+        <span class="n">process</span> <span class="o">=</span> <span class="n">get_ref</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">ProcessNode</span><span class="p">):</span>
             <span class="n">process</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">process</span>
 
         <span class="n">study_config</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">study_config</span>
         <span class="n">modules_data</span> <span class="o">=</span> <span class="n">study_config</span><span class="o">.</span><span class="n">modules_data</span>
 
-        <span class="c1">#Get attributes in input fom</span>
+        <span class="c1"># Get attributes in input fom,</span>
+        <span class="c1"># search in processes list with a specific to generic order</span>
         <span class="nb">id</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="n">names_search_list</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+        <span class="n">names_search_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;context_name&#39;</span><span class="p">):</span>
+            <span class="n">names_search_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">context_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+            <span class="n">names_search_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">names_search_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">id</span><span class="p">:</span>
             <span class="n">names_search_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
-        <span class="n">names_search_list</span> <span class="o">+=</span> <span class="p">[</span><span class="n">process</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-                             <span class="nb">getattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;context_name&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)]</span>
 
         <span class="n">schemas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_schemas</span><span class="p">()</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;capsul_attributes&#39;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">&#39;capsul_attributes&#39;</span><span class="p">,</span> <span class="n">ControllerTrait</span><span class="p">(</span><span class="n">Controller</span><span class="p">()))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">capsul_attributes</span> <span class="o">=</span> <span class="n">ProcessAttributes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="n">schemas</span><span class="p">)</span>
         <span class="n">capsul_attributes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">capsul_attributes</span>
-
-        <span class="n">matching_fom</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="n">input_found</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="n">output_found</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="n">shared_fom</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># print(&#39;create_attributes_with_fom for&#39;, self.process, &#39;, FCE:&#39;, self, &#39;, foms:&#39;, {n: f.fom_names[-1] for n, f in modules_data.foms.items()})</span>
 
@@ -254,13 +249,16 @@
             <span class="c1"># in auto-fom mode, also search in additional and non-loaded FOMs</span>
             <span class="n">foms</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">modules_data</span><span class="o">.</span><span class="n">all_foms</span><span class="p">)</span>
 
-        <span class="k">def</span><span class="w"> </span><span class="nf">editable_attributes</span><span class="p">(</span><span class="n">attributes</span><span class="p">,</span> <span class="n">fom</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">editable_attributes</span><span class="p">(</span><span class="n">attributes</span><span class="p">,</span> <span class="n">fom</span><span class="p">,</span> <span class="n">init_values</span><span class="p">):</span>
             <span class="n">ea</span> <span class="o">=</span> <span class="n">EditableAttributes</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">attribute</span> <span class="ow">in</span> <span class="n">attributes</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">attribute</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;fom_&#39;</span><span class="p">):</span>
-                    <span class="k">continue</span> <span class="c1"># skip FOM internals</span>
-                <span class="n">default_value</span> <span class="o">=</span> <span class="n">fom</span><span class="o">.</span><span class="n">attribute_definitions</span><span class="p">[</span><span class="n">attribute</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-                    <span class="s1">&#39;default_value&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+                    <span class="k">continue</span>  <span class="c1"># skip FOM internals</span>
+                <span class="n">default_value</span> <span class="o">=</span> <span class="n">init_values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">attribute</span><span class="p">)</span>
+                <span class="n">ea</span><span class="o">.</span><span class="n">fom_fixed</span> <span class="o">=</span> <span class="n">init_values</span>
+                <span class="k">if</span> <span class="n">default_value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">default_value</span> <span class="o">=</span> <span class="n">fom</span><span class="o">.</span><span class="n">attribute_definitions</span><span class="p">[</span><span class="n">attribute</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                        <span class="s1">&#39;default_value&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
                 <span class="n">ea</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="n">attribute</span><span class="p">,</span> <span class="n">Str</span><span class="p">(</span><span class="n">default_value</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
             <span class="k">return</span> <span class="n">ea</span>
 
@@ -281,7 +279,7 @@
             <span class="k">if</span> <span class="n">schema</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;input&#39;</span><span class="p">,</span> <span class="s1">&#39;output&#39;</span><span class="p">,</span> <span class="s1">&#39;shared&#39;</span><span class="p">):</span>
                 <span class="c1"># exclude incompatible FOMs</span>
                 <span class="k">for</span> <span class="n">fs</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;input&#39;</span><span class="p">,</span> <span class="s1">&#39;output&#39;</span><span class="p">,</span> <span class="s1">&#39;shared&#39;</span><span class="p">):</span>
-                    <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="n">found</span> <span class="o">=</span> <span class="mi">0</span>
                     <span class="n">f</span> <span class="o">=</span> <span class="n">modules_data</span><span class="o">.</span><span class="n">foms</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">fs</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">f</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                         <span class="k">if</span> <span class="n">fs</span> <span class="o">==</span> <span class="s1">&#39;shared&#39;</span><span class="p">:</span>
@@ -299,16 +297,14 @@
                             <span class="c1"># possibly keep it</span>
                             <span class="k">if</span> <span class="n">fs</span> <span class="o">!=</span> <span class="s1">&#39;shared&#39;</span><span class="p">:</span>
                                 <span class="c1"># print(&#39;extend fom:&#39;, schema, &#39;for&#39;, fs, &#39;:&#39;, f.fom_names)</span>
-                                <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names_search_list</span><span class="p">:</span>
-                                    <span class="n">fom_patterns</span> <span class="o">=</span> <span class="n">fom</span><span class="o">.</span><span class="n">patterns</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-                                    <span class="k">if</span> <span class="n">fom_patterns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                                        <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
-                                        <span class="k">break</span>
-                                <span class="c1">#else:</span>
-                                    <span class="c1">#print(&#39;process not found - discard it&#39;)</span>
+                                <span class="n">nfound</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span>
+                                    <span class="p">[</span><span class="kc">True</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names_search_list</span>
+                                     <span class="k">if</span> <span class="n">fom</span><span class="o">.</span><span class="n">patterns</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">])</span>
+                                <span class="k">if</span> <span class="n">nfound</span> <span class="o">&gt;</span> <span class="n">found</span><span class="p">:</span>
+                                    <span class="n">found</span> <span class="o">=</span> <span class="n">nfound</span>
+                                    <span class="n">sel_foms</span><span class="p">[</span><span class="n">fs</span><span class="p">]</span> <span class="o">=</span> <span class="n">schema</span>
                             <span class="k">else</span><span class="p">:</span>
-                                <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
-                            <span class="k">if</span> <span class="n">found</span><span class="p">:</span>
+                                <span class="n">found</span> <span class="o">=</span> <span class="mi">1</span>
                                 <span class="n">sel_foms</span><span class="p">[</span><span class="n">fs</span><span class="p">]</span> <span class="o">=</span> <span class="n">schema</span>
 
         <span class="c1"># print(&#39;new foms:&#39;, sel_foms)</span>
@@ -324,28 +320,60 @@
 
             <span class="k">if</span> <span class="n">atp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">continue</span>
+            <span class="c1"># we don&#39;t stop at first process match as earlier:</span>
+            <span class="c1"># we build an attributes dict incrementally using all definitions</span>
+            <span class="c1"># so that a specialized process def may just specify attributes,</span>
+            <span class="c1"># then reuse a more generic definition, unless the</span>
+            <span class="c1"># &quot;.skip_generic&quot; rule is used.</span>
+            <span class="n">fom_patterns</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">()</span>
+            <span class="n">att_val</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">names</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names_search_list</span><span class="p">:</span>
-                <span class="n">fom_patterns</span> <span class="o">=</span> <span class="n">fom</span><span class="o">.</span><span class="n">patterns</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">fom_patterns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="k">break</span>
-            <span class="k">else</span><span class="p">:</span>
+                <span class="n">fom_patterns_x</span> <span class="o">=</span> <span class="n">fom</span><span class="o">.</span><span class="n">patterns</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">fom_patterns_x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="s1">&#39;.process_attributes&#39;</span> <span class="ow">in</span> <span class="n">fom_patterns_x</span><span class="p">:</span>
+                        <span class="c1"># .process_attributes set atts to the whole process.</span>
+                        <span class="n">att_val</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                            <span class="n">fom_patterns_x</span><span class="p">[</span><span class="s1">&#39;.process_attributes&#39;</span><span class="p">])</span>
+                    <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">fom_patterns_x</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+                            <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;.process_attributes&#39;</span><span class="p">,</span>
+                                         <span class="s1">&#39;.skip_generic&#39;</span><span class="p">)]</span>
+                    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">fom_patterns</span><span class="p">:</span>
+                            <span class="n">fom_patterns</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">fom_patterns_x</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="s1">&#39;.skip_generic&#39;</span> <span class="ow">in</span> <span class="n">fom_patterns_x</span> \
+                            <span class="ow">and</span> <span class="n">fom_patterns_x</span><span class="p">[</span><span class="s1">&#39;.skip_generic&#39;</span><span class="p">]:</span>
+                        <span class="k">break</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
                 <span class="c1"># print(&#39;process&#39;, names_search_list, &#39;not found in&#39;, fom_type)</span>
                 <span class="k">continue</span>
 
-            <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="c1"># print(&#39;completion using FOM:&#39;, schema, fom_type, &#39;for&#39;, process.id, &#39;, atp:&#39;, atp)</span>
-            <span class="c1">#break</span>
 
-            <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">fom_patterns</span><span class="p">:</span>
-                <span class="n">param_attributes</span> <span class="o">=</span> <span class="n">atp</span><span class="o">.</span><span class="n">find_discriminant_attributes</span><span class="p">(</span>
-                        <span class="n">fom_parameter</span><span class="o">=</span><span class="n">parameter</span><span class="p">,</span> <span class="n">fom_process</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
-                <span class="n">ea</span> <span class="o">=</span> <span class="n">editable_attributes</span><span class="p">(</span><span class="n">param_attributes</span><span class="p">,</span> <span class="n">fom</span><span class="p">)</span>
-                <span class="k">try</span><span class="p">:</span>
+            <span class="n">done_params</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+                <span class="c1"># for each process name, in order</span>
+                <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">fom_patterns</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">done_params</span><span class="p">:</span>
+                        <span class="k">continue</span>
+                    <span class="n">param_attributes</span> <span class="o">=</span> <span class="n">atp</span><span class="o">.</span><span class="n">find_discriminant_attributes</span><span class="p">(</span>
+                            <span class="n">fom_parameter</span><span class="o">=</span><span class="n">parameter</span><span class="p">,</span> <span class="n">fom_process</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+                    <span class="n">ea</span> <span class="o">=</span> <span class="n">editable_attributes</span><span class="p">(</span><span class="n">param_attributes</span><span class="p">,</span> <span class="n">fom</span><span class="p">,</span> <span class="n">att_val</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ea</span><span class="o">.</span><span class="n">user_traits</span><span class="p">())</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">done_params</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span>
                     <span class="n">capsul_attributes</span><span class="o">.</span><span class="n">set_parameter_attributes</span><span class="p">(</span>
-                        <span class="n">parameter</span><span class="p">,</span> <span class="n">schema</span><span class="p">,</span> <span class="n">ea</span><span class="p">,</span> <span class="p">{})</span>
-                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-                    <span class="c1"># param already registered</span>
-                    <span class="k">pass</span>
+                        <span class="n">parameter</span><span class="p">,</span> <span class="n">schema</span><span class="p">,</span> <span class="n">ea</span><span class="p">,</span> <span class="n">att_val</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="c1"># normally att_vas passed as fixed_attributes_values in</span>
+                    <span class="c1"># set_parameter_attributes() should be OK but apparently</span>
+                    <span class="c1"># it does not work. Wo we record here in addition.</span>
+                    <span class="c1"># To be improved...</span>
+                    <span class="n">proc_att</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">capsul_attributes</span><span class="p">,</span> <span class="s1">&#39;fom_fixed&#39;</span><span class="p">,</span> <span class="p">{})</span>
+                    <span class="n">proc_att</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">att_val</span><span class="p">)</span>
+                    <span class="n">capsul_attributes</span><span class="o">.</span><span class="n">fom_fixed</span> <span class="o">=</span> <span class="n">proc_att</span>
 
             <span class="k">if</span> <span class="p">(</span><span class="n">schema</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">modules_data</span><span class="o">.</span><span class="n">foms</span>
                     <span class="ow">or</span> <span class="n">modules_data</span><span class="o">.</span><span class="n">foms</span><span class="p">[</span><span class="n">schema</span><span class="p">]</span> <span class="o">!=</span> <span class="n">fom</span>
@@ -357,14 +385,13 @@
                 <span class="nb">setattr</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">_fom&#39;</span> <span class="o">%</span> <span class="n">schema</span><span class="p">,</span> <span class="n">fom_type</span><span class="p">)</span>
                 <span class="n">fom_modified</span> <span class="o">=</span> <span class="kc">True</span>
 
+            <span class="c1"># the shema is found, no need to look into others.</span>
+            <span class="k">break</span>
+
         <span class="k">if</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span>
             <span class="c1"># no FOM contains the process</span>
             <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s1">&#39;No matching FOM for process </span><span class="si">%s</span><span class="s1">&#39;</span>
                            <span class="o">%</span> <span class="nb">repr</span><span class="p">(</span><span class="n">names_search_list</span><span class="p">))</span>
-
-        <span class="c1">#if fom_modified:</span>
-            <span class="c1"># the modif will trigger another completion</span>
-            <span class="c1">#return</span>
 
         <span class="c1"># in a pipeline, we still must iterate over nodes to find switches,</span>
         <span class="c1"># which have their own behaviour.</span>
@@ -391,12 +418,17 @@
                                 <span class="o">=</span> <span class="n">subprocess_compl</span><span class="o">.</span><span class="n">get_attribute_values</span><span class="p">()</span>
                         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                             <span class="k">continue</span>
+                    <span class="n">fom_fixed</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sub_attributes</span><span class="p">,</span> <span class="s1">&#39;fom_fixed&#39;</span><span class="p">,</span> <span class="p">[])</span>
                     <span class="k">for</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">trait</span> \
-                            <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">sub_attributes</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()):</span>
+                            <span class="ow">in</span> <span class="n">sub_attributes</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="k">if</span> <span class="n">attribute</span> <span class="ow">in</span> <span class="n">fom_fixed</span><span class="p">:</span>
+                            <span class="c1"># don&#39;t assign attributes which are set internally</span>
+                            <span class="k">continue</span>
                         <span class="k">if</span> <span class="n">attributes</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">attribute</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                             <span class="n">attributes</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="n">attribute</span><span class="p">,</span> <span class="n">trait</span><span class="p">)</span>
                             <span class="nb">setattr</span><span class="p">(</span><span class="n">attributes</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span>
                                     <span class="nb">getattr</span><span class="p">(</span><span class="n">sub_attributes</span><span class="p">,</span> <span class="n">attribute</span><span class="p">))</span>
+
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_get_linked_attributes</span><span class="p">()</span>
 
@@ -431,6 +463,7 @@
                 <span class="c1"># FOMs have changed: rebuild attributes</span>
                 <span class="n">completion_engine</span><span class="o">.</span><span class="n">_rebuild_attributes</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="n">completion_engine</span><span class="o">.</span><span class="n">create_attributes_with_fom</span><span class="p">()</span>
+
         <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">input_fom</span> <span class="o">!=</span> <span class="n">completion_engine</span><span class="o">.</span><span class="n">input_fom</span><span class="p">:</span>
             <span class="n">process</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">input_fom</span> <span class="o">=</span> <span class="n">completion_engine</span><span class="o">.</span><span class="n">input_fom</span>
         <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">output_fom</span> <span class="o">!=</span> <span class="n">completion_engine</span><span class="o">.</span><span class="n">output_fom</span><span class="p">:</span>
@@ -531,33 +564,41 @@
 
         <span class="c1">#Create completion</span>
         <span class="n">names_search_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># same as in create_attributes_with_fom, search in specific to generic</span>
+        <span class="c1"># order</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;context_name&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">):</span>
+            <span class="n">names_search_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">context_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">names_search_list</span><span class="p">:</span>
+            <span class="n">names_search_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">Node</span><span class="p">):</span>
             <span class="n">trait</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">get_trait</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">name</span>
             <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;process&#39;</span><span class="p">):</span>
-                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;context_name&#39;</span><span class="p">):</span>
+                <span class="n">cn</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;context_name&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">cn</span> <span class="ow">and</span> <span class="n">cn</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">names_search_list</span><span class="p">:</span>
                     <span class="n">names_search_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">context_name</span><span class="p">)</span>
-                <span class="n">names_search_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">names_search_list</span><span class="p">:</span>
+                    <span class="n">names_search_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">trait</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">id</span>
-            <span class="n">names_search_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">names_search_list</span><span class="p">:</span>
+                <span class="n">names_search_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">trait</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
             <span class="n">atp</span> <span class="o">=</span> <span class="n">output_atp</span>
             <span class="n">fom</span> <span class="o">=</span> <span class="n">output_fom</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">atp</span> <span class="o">=</span> <span class="n">input_atp</span>
             <span class="n">fom</span> <span class="o">=</span> <span class="n">input_fom</span>
-        <span class="n">names_search_list</span> <span class="o">+=</span> <span class="p">[</span><span class="n">process</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-                              <span class="nb">getattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;context_name&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)]</span>
         <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">names_search_list</span><span class="p">:</span>
             <span class="n">fom_patterns</span> <span class="o">=</span> <span class="n">fom</span><span class="o">.</span><span class="n">patterns</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">fom_patterns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">fom_patterns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">fom_patterns</span><span class="p">:</span>
                 <span class="n">name</span> <span class="o">=</span> <span class="n">fname</span>
                 <span class="k">break</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s1">&#39;Process not found in FOMs amongst </span><span class="si">%s</span><span class="s1">&#39;</span> \
-                <span class="o">%</span> <span class="nb">repr</span><span class="p">(</span><span class="n">names_search_list</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;Process not found in FOMs amongst </span><span class="si">{</span><span class="n">names_search_list</span><span class="si">}</span><span class="s1">; &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;fom_names: </span><span class="si">{</span><span class="n">fom</span><span class="o">.</span><span class="n">fom_names</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
         <span class="n">allowed_attributes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">attributes</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
         <span class="n">allowed_attributes</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="s1">&#39;parameter&#39;</span><span class="p">)</span>
@@ -577,6 +618,8 @@
              <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">parameter_attributes</span>
              <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">allowed_attributes</span>
              <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">attributes</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">)}</span>
+        <span class="c1"># merge values set internally</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">attributes</span><span class="p">,</span> <span class="s1">&#39;fom_fixed&#39;</span><span class="p">,</span> <span class="p">{}))</span>
         <span class="n">d</span><span class="p">[</span><span class="s1">&#39;fom_process&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span>
         <span class="n">d</span><span class="p">[</span><span class="s1">&#39;fom_parameter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">parameter</span>
         <span class="n">d</span><span class="p">[</span><span class="s1">&#39;fom_format&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;fom_preferred&#39;</span>
@@ -626,7 +669,7 @@
                 <span class="k">continue</span>
 
             <span class="n">values</span> <span class="o">=</span> <span class="n">atp</span><span class="o">.</span><span class="n">find_attributes_values</span><span class="p">()</span>
-            <span class="n">attributes</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+            <span class="n">attributes</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
                           <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;fom_name&#39;</span><span class="p">,</span> <span class="s1">&#39;fom_process&#39;</span><span class="p">,</span>
                                        <span class="s1">&#39;fom_parameter&#39;</span><span class="p">,</span> <span class="s1">&#39;fom_format&#39;</span><span class="p">)</span>
                             <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="p">(</span><span class="sa">u</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="p">)]</span>
@@ -678,63 +721,10 @@
 <a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.fom_completion_engine.FomProcessCompletionEngineIteration">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">FomProcessCompletionEngineIteration</span><span class="p">(</span><span class="n">ProcessCompletionEngineIteration</span><span class="p">):</span>
 
-<div class="viewcode-block" id="FomProcessCompletionEngineIteration.get_iterated_attributes">
-<a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.fom_completion_engine.FomProcessCompletionEngineIteration.get_iterated_attributes">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_iterated_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">process</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">ProcessNode</span><span class="p">):</span>
-            <span class="n">process</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">process</span>
-        <span class="n">subprocess</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">process</span>
+    <span class="c1"># the general iteration system actually works in this case.</span>
+    <span class="c1"># No need to specialize.</span>
+    <span class="k">pass</span></div>
 
-        <span class="n">FomProcessCompletionEngine</span><span class="o">.</span><span class="n">setup_fom</span><span class="p">(</span><span class="n">subprocess</span><span class="p">)</span>
-
-        <span class="n">input_fom</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">modules_data</span><span class="o">.</span><span class="n">foms</span><span class="p">[</span><span class="s1">&#39;input&#39;</span><span class="p">]</span>
-        <span class="n">output_fom</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">modules_data</span><span class="o">.</span><span class="n">foms</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">]</span>
-        <span class="n">input_atp</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">modules_data</span><span class="o">.</span><span class="n">fom_atp</span><span class="p">[</span><span class="s1">&#39;input&#39;</span><span class="p">]</span>
-        <span class="n">output_atp</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">modules_data</span><span class="o">.</span><span class="n">fom_atp</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">]</span>
-
-        <span class="n">name</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">id</span>
-        <span class="n">names_search_list</span> <span class="o">=</span> <span class="p">(</span><span class="n">subprocess</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-                             <span class="nb">getattr</span><span class="p">(</span><span class="n">subprocess</span><span class="p">,</span> <span class="s1">&#39;context_name&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">))</span>
-        <span class="k">for</span> <span class="n">fom</span> <span class="ow">in</span> <span class="p">(</span><span class="n">input_fom</span><span class="p">,</span> <span class="n">output_fom</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">names_search_list</span><span class="p">:</span>
-                <span class="n">fom_patterns</span> <span class="o">=</span> <span class="n">fom</span><span class="o">.</span><span class="n">patterns</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">fom_patterns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">name</span> <span class="o">=</span> <span class="n">fname</span>
-                    <span class="k">break</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">continue</span>
-            <span class="k">break</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s1">&#39;Process not found in FOMs amongst </span><span class="si">%s</span><span class="s1">&#39;</span> \
-                <span class="o">%</span> <span class="nb">repr</span><span class="p">(</span><span class="n">names_search_list</span><span class="p">))</span>
-
-        <span class="n">iter_attrib</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">process</span><span class="o">.</span><span class="n">iterative_parameters</span><span class="p">:</span>
-            <span class="n">params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">subprocess</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">params</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">iterative_parameters</span>
-        <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">parameter</span><span class="p">)</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
-                <span class="n">atp</span> <span class="o">=</span> <span class="n">output_atp</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">atp</span> <span class="o">=</span> <span class="n">input_atp</span>
-            <span class="n">parameter_attributes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span>
-                <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">atp</span><span class="o">.</span><span class="n">find_discriminant_attributes</span><span class="p">(</span>
-                    <span class="n">fom_parameter</span><span class="o">=</span><span class="n">parameter</span><span class="p">,</span> <span class="n">fom_process</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;fom_&#39;</span><span class="p">)])</span>
-            <span class="n">iter_attrib</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">parameter_attributes</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">iter_attrib</span></div>
-</div>
-
-
-
-<span class="c1">#class FomPathCompletionEngineFactory(PathCompletionEngineFactory):</span>
-
-    <span class="c1">#factory_id = &#39;fom&#39;</span>
-
-    <span class="c1">#def get_path_completion_engine(self, process):</span>
-        <span class="c1">#return FomPathCompletionEngine(process)</span>
 </pre></div>
 
             <div class="clearer"></div>

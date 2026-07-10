@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
     
-    <script src="../../../_static/documentation_options.js?v=8e0c35cf"></script>
+    <script src="../../../_static/documentation_options.js?v=b9f4bfa5"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -483,7 +483,7 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">convert_commandline_parameter</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
     <span class="n">i</span> <span class="o">=</span> <span class="n">i</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&lt;undefined&gt;&#39;</span><span class="p">,</span> <span class="s1">&#39;Undefined&#39;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="s1">&#39;[({&#39;</span> <span class="ow">or</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;None&#39;</span><span class="p">,</span> <span class="s1">&#39;True&#39;</span><span class="p">,</span> <span class="s1">&#39;False&#39;</span><span class="p">,</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="s1">&#39;[({&quot;</span><span class="se">\&#39;</span><span class="s1">&#39;</span> <span class="ow">or</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;None&#39;</span><span class="p">,</span> <span class="s1">&#39;True&#39;</span><span class="p">,</span> <span class="s1">&#39;False&#39;</span><span class="p">,</span>
                                               <span class="s1">&#39;Undefined&#39;</span><span class="p">)):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">res</span><span class="o">=</span><span class="nb">eval</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
@@ -584,15 +584,15 @@
     <span class="n">group1</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;--if&#39;</span><span class="p">,</span> <span class="s1">&#39;--input-fom&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;input_fom&#39;</span><span class="p">,</span>
                       <span class="n">help</span><span class="o">=</span><span class="s1">&#39;input FOM (File Organization Model). Decides &#39;</span>
                       <span class="s1">&#39;which files and directories layout for the input &#39;</span>
-                      <span class="s1">&#39;data. Generally &quot;morphologist-bids-1.0&quot; or &#39;</span>
-                      <span class="s1">&#39;&quot;morphologist-auto-nonoverlap-1.0&quot;. Default: &#39;</span>
-                      <span class="s1">&#39;&quot;morphologist-bids-1.0&quot;&#39;</span><span class="p">)</span>
+                      <span class="s1">&#39;data. Generally &quot;morphologist-bids-2.0&quot; or &#39;</span>
+                      <span class="s1">&#39;&quot;morphologist-auto-1.0&quot;. Default: &#39;</span>
+                      <span class="s1">&#39;&quot;morphologist-bids-2.0&quot;&#39;</span><span class="p">)</span>
     <span class="n">group1</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;--of&#39;</span><span class="p">,</span> <span class="s1">&#39;--output-fom&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;output_fom&#39;</span><span class="p">,</span>
                       <span class="n">help</span><span class="o">=</span><span class="s1">&#39;input FOM (File Organization Model). Decides &#39;</span>
                       <span class="s1">&#39;which files and directories layout for the output &#39;</span>
-                      <span class="s1">&#39;data. Generally &quot;morphologist-bids-1.0&quot; or &#39;</span>
-                      <span class="s1">&#39;&quot;morphologist-auto-nonoverlap-1.0&quot;. Default: &#39;</span>
-                      <span class="s1">&#39;&quot;morphologist-bids-1.0&quot;&#39;</span><span class="p">)</span>
+                      <span class="s1">&#39;data. Generally &quot;morphologist-bids-2.0&quot; or &#39;</span>
+                      <span class="s1">&#39;&quot;morphologist-auto-1.0&quot;. Default: &#39;</span>
+                      <span class="s1">&#39;&quot;morphologist-bids-2.0&quot;&#39;</span><span class="p">)</span>
     <span class="n">group1</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;--params&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;paramsfile&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                       <span class="n">help</span><span class="o">=</span><span class="s1">&#39;specify a file containing commandline parameters. &#39;</span>
                       <span class="s1">&#39;The file will contain arguments for this commandline &#39;</span>
@@ -715,7 +715,7 @@
     <span class="n">parser</span><span class="o">.</span><span class="n">disable_interspersed_args</span><span class="p">()</span>
     <span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
 
-    <span class="n">default_fom</span> <span class="o">=</span> <span class="s1">&#39;morphologist-bids-1.0&#39;</span>
+    <span class="n">default_fom</span> <span class="o">=</span> <span class="s1">&#39;morphologist-bids-2.0&#39;</span>
 
     <span class="n">gui</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">show_pipeline</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">edit</span><span class="p">:</span>
