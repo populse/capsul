@@ -503,6 +503,13 @@ def main():
                       help='Display and edit pipeline structure')
     group1.add_option('-e', '--edit', action='store_true',
                       help='Display and edit process parameters')
+    group1.add_option('-y', '--interactive', action='store_true',
+                      help='interactive run, for a QC of viewer graphical '
+                      'process. In non-interactive mode, such processes will '
+                      'run offscreen and typically, will try to save a '
+                      'snapshot insteasd of showing an interactive display. '
+                      'This option is incompatible with the soma-workflow '
+                      'mode.')
     parser.add_option_group(group1)
 
     group2 = OptionGroup(parser, 'Processing',
@@ -598,10 +605,13 @@ def main():
     default_fom = 'morphologist-bids-2.0'
 
     gui = False
-    if options.show_pipeline or options.edit:
+    gui_early = False
+    if options.show_pipeline or options.edit or options.interactive:
         gui = True
+        if options.show_pipeline or options.edit:
+            gui_early = True
     qt_backend.set_headless(headless_mode=not gui, needs_opengl=options.opengl)
-    if options.show_pipeline or options.edit:
+    if gui:
         from soma.qt_gui.qt_backend import Qt
         qapp = Qt.QApplication([])
 
@@ -778,9 +788,8 @@ def main():
 
         pcvi.show()
 
-    if gui:
+    if gui_early:
         qapp.exec()
-
 
     resource_id = options.resource_id
     password = options.password
@@ -808,6 +817,9 @@ def main():
         output_file_processing=file_processing[1],
         write_workflow_only=options.write_workflow,
         max_running_jobs=max_running_jobs, max_queued_jobs=max_queued_jobs)
+
+    if options.interactive:
+        qapp.exec()
 
     # if there was no exception, we assume the process has succeeded.
     # sys.exit(0)
