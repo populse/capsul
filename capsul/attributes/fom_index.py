@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from capsul.attributes.completion_engine import ProcessCompletionEngine
+import capsul.info as capinfo
+import soma.info as sominfo
 import traits.api as traits
 import os
 import os.path as osp
@@ -35,9 +37,13 @@ def build_fom_sqlite_index(engine, sqlite_file, directory=None,
     if clear_db and osp.exists(sqlite_file):
         os.unlink(sqlite_file)
     db = sqlite3.connect(sqlite_file)
-    db.execute('CREATE TABLE IF NOT EXISTS fom (fom_name)')
+    db.execute('CREATE TABLE IF NOT EXISTS fom '
+               '(fom_name, capsul_version, fom_version)')
     db.execute(f'CREATE TABLE IF NOT EXISTS files ({", ".join(cols)})')
-    db.execute(f'INSERT OR REPLACE INTO fom (fom_name) VALUES ("{fom}")')
+    capver = f'{capinfo.version_major}.{capinfo.version_minor}'
+    somver = f'{sominfo.version_major}.{sominfo.version_minor}'
+    db.execute('INSERT OR REPLACE INTO fom (fom_name, capsul_version, '
+               f'fom_version) VALUES ("{fom}", "{capver}", "{somver}")')
     # get existing cols
     db_cols = set()
     for col in db.execute('PRAGMA table_info(files)'):
