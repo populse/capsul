@@ -6,10 +6,13 @@ import traits.api as traits
 import os
 import os.path as osp
 import sqlite3
+import time
+import datetime
 
 
 def build_fom_sqlite_index(engine, sqlite_file, directory=None,
                            main_process=None, clear_db=True):
+    t0 = time.time()
     cols = ['filename']
     if main_process is not None:
         # force loading all relatesd FOMS and switch to the most complete one
@@ -72,7 +75,7 @@ def build_fom_sqlite_index(engine, sqlite_file, directory=None,
                 values = ", ".join([f'"{x}"' for x in d.values()])
                 db.execute('INSERT OR REPLACE INTO files '
                            f'({", ".join(d.keys())}) VALUES ({values})')
-            if nfiles % 1000 == 1:
+            if nfiles % 1000 == 0:
                 print(f'\rfiles: {nfiles}, indexed: {nindex}', end='')
 
     db.commit()
@@ -80,4 +83,4 @@ def build_fom_sqlite_index(engine, sqlite_file, directory=None,
     print()
     print('parsed files:', nfiles)
     print('indexed items:', nindex)
-
+    print('parsing time:', datetime.timedelta(seconds=time.time() - t0))
