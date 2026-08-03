@@ -795,8 +795,15 @@ def nodes_with_missing_inputs(pipeline, recursive=True):
                         # the rest is a plugged input from another process,
                         # or an optional empty value
                     if keep_me:
-                        plug_list = selected_nodes.setdefault(node_name, [])
-                        plug_list.append((plug_name, value))
+                        # next ensure that the input is actually used in an
+                        # enabled node
+                        dest = find_plug_connection_destinations(node,
+                                                                 pipeline)
+                        if dest and not any([n for n in dest
+                                             if n[0] not in disabled_nodes]):
+                            plug_list = selected_nodes.setdefault(node_name,
+                                                                  [])
+                            plug_list.append((plug_name, value))
     return selected_nodes
 
 
@@ -856,6 +863,7 @@ def where_is_plug_value_from(plug, recursive=True):
     # not found
     return None, None, None
 
+
 def find_plug_connection_sources(plug, pipeline=None):
     '''
     A bit like :func:`where_is_plug_value_from` but looks for all incoming
@@ -912,6 +920,7 @@ def find_plug_connection_sources(plug, pipeline=None):
                     print('node:', src[0], ', param:', src[1])
 
     return sources
+
 
 def find_plug_connection_destinations(plug, pipeline=None):
     '''
