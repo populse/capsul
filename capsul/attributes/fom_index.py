@@ -56,7 +56,7 @@ def build_fom_sqlite_index(engine, sqlite_file, directory=None,
     nfiles = 0
     nindex = 0
 
-    for dirpath, dirnames, filenames in os.walk(directory):
+    for dirpath, dirnames, filenames in os.walk(directory, followlinks=True):
         for p in dirnames + filenames:
             path = osp.join(dirpath, p)
             rpath = osp.relpath(path, directory)
