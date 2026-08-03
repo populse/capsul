@@ -603,10 +603,15 @@ def disable_runtime_steps_with_existing_outputs(pipeline):
             for param in node.plugs:
                 trait = process.trait(param)
                 if trait.output and (isinstance(trait.trait_type, traits.File)
-                                     or isinstance(trait.trait_type, traits.Directory)):
+                                     or isinstance(trait.trait_type,
+                                                   traits.Directory)):
                     value = getattr(process, param)
                     if value is not None and value is not traits.Undefined \
                             and os.path.exists(value):
+                        if not find_plug_connection_sources(
+                                node.plugs[param]):
+                            # internally disconnected plug
+                            continue
                         # check special case when the output is also an input
                         # (of the same node)
                         disable = True
