@@ -797,7 +797,7 @@ def nodes_with_missing_inputs(pipeline, recursive=True):
                     if keep_me:
                         # next ensure that the input is actually used in an
                         # enabled node
-                        dest = find_plug_connection_destinations(node,
+                        dest = find_plug_connection_destinations(plug,
                                                                  pipeline)
                         if dest and not any([n for n in dest
                                              if n[0] not in disabled_nodes]):
