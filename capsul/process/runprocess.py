@@ -70,6 +70,7 @@ import sys
 import re
 from optparse import OptionParser, OptionGroup
 from traits.api import Undefined, List
+import traits.api as traits
 import tempfile
 import subprocess
 try:
@@ -125,6 +126,8 @@ def set_process_param_from_str(process, k, arg):
     try:
         evaluate = process.trait(k).trait_type.evaluate
     except AttributeError:
+        if type(process.trait(k).trait_type) in (traits.String, traits.Str):
+            evaluate = str
         evaluate = None
     if evaluate:
         arg = evaluate(arg)
