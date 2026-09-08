@@ -18,7 +18,7 @@ from six.moves import range
 logger = logging.getLogger(__name__)
 
 # Soma import
-from soma.qt_gui.qt_backend import QtCore, QtGui, QtWebKit
+from soma.qt_gui.qt_backend import QtCore, QtGui, QtWebEngineWidgets
 from soma.qt_gui.controller_widget import ScrollControllerWidget
 
 # Capsul import
@@ -389,8 +389,8 @@ class CapsulMainWindow(MyQUiLoader):
                 self.pipeline.id + ".html")
 
             # Create and fill a QWebView
-            help = QtWebKit.QWebView()
-            help.load(QtCore.QUrl(path_to_active_pipeline_doc))
+            help = QtWebEngineWidgets.QWebEngineView()
+            help.setUrl(QtCore.QUrl(path_to_active_pipeline_doc))
             help.show()
 
             # Create and set a layout with the web view
