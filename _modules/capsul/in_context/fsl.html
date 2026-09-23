@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
     
-    <script src="../../../_static/documentation_options.js?v=b9f4bfa5"></script>
+    <script src="../../../_static/documentation_options.js?v=727d2f68"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -105,7 +105,7 @@
             
   <h1>Source code for capsul.in_context.fsl</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">'''</span>
 <span class="sd">Specific subprocess-like functions to call FSL taking into account </span>
 <span class="sd">configuration stored in ExecutionContext. To functions and class in</span>
 <span class="sd">this module it is mandatory to activate an ExecutionContext (using a</span>
@@ -116,15 +116,15 @@
 
 <span class="sd">   ce = capsul_engine()</span>
 <span class="sd">   with ce:</span>
-<span class="sd">       fsl_check_call([&#39;bet&#39;, &#39;/somewhere/myimage.nii&#39;])</span>
+<span class="sd">       fsl_check_call(['bet', '/somewhere/myimage.nii'])</span>
 
 <span class="sd">For calling FSL command with this module, the first argument of</span>
 <span class="sd">command line must be the FSL executable without any path nor prefix. </span>
 <span class="sd">Prefix are used in Neurodebian install. For instance on Ubuntu 16.04 </span>
-<span class="sd">Neurodebian FSL commands are prefixed with &quot;fsl5.0-&quot;.</span>
+<span class="sd">Neurodebian FSL commands are prefixed with "fsl5.0-".</span>
 <span class="sd">The appropriate path and eventually prefix are added from the configuration</span>
 <span class="sd">of the ExecutionContext.</span>
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">'''</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">absolute_import</span>
 
@@ -138,9 +138,9 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">soma.utils.env</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_env_lines</span>
 
 
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">'''</span>
 <span class="sd">If this variable is set, it contains FS runtime env variables, allowing to run directly freesurfer commands from this process.</span>
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">'''</span>
 <span class="n">fsl_runtime_env</span> <span class="o">=</span> <span class="kc">None</span>
 
 
@@ -148,49 +148,49 @@
 <a class="viewcode-back" href="../../../api/in_context.html#capsul.in_context.fsl.fsl_command_with_environment">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">fsl_command_with_environment</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">use_prefix</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                                  <span class="n">use_runtime_env</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Given an FSL command where first element is a command name without</span>
-<span class="sd">    any path or prefix (e.g. &quot;bet&quot;). Returns the appropriate command to</span>
+<span class="sd">    any path or prefix (e.g. "bet"). Returns the appropriate command to</span>
 <span class="sd">    call taking into account the FSL configuration stored in the</span>
 <span class="sd">    activated ExecutionContext.</span>
 
 <span class="sd">    Usinfg :func`fsl_env` is an alternative to this.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="k">if</span> <span class="n">use_prefix</span><span class="p">:</span>
-        <span class="n">fsl_prefix</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;FSL_PREFIX&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">fsl_prefix</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'FSL_PREFIX'</span><span class="p">,</span> <span class="s1">''</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">fsl_prefix</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">fsl_prefix</span> <span class="o">=</span> <span class="s1">''</span>
     <span class="k">if</span> <span class="n">use_runtime_env</span> <span class="ow">and</span> <span class="n">fsl_runtime_env</span><span class="p">:</span>
         <span class="n">c0</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">command</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
-        <span class="n">c0</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">fsl_prefix</span><span class="p">,</span> <span class="n">c0</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">c0</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'</span><span class="si">%s%s</span><span class="s1">'</span> <span class="o">%</span> <span class="p">(</span><span class="n">fsl_prefix</span><span class="p">,</span> <span class="n">c0</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
         <span class="n">c0</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="o">*</span><span class="n">c0</span><span class="p">)</span>
         <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="n">c0</span><span class="p">]</span> <span class="o">+</span> <span class="n">command</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
         <span class="k">return</span> <span class="n">cmd</span>
 
-    <span class="n">fsl_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;FSLDIR&#39;</span><span class="p">)</span>
+    <span class="n">fsl_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'FSLDIR'</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">fsl_dir</span><span class="p">:</span>
-        <span class="n">dir_prefix</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">/bin/&#39;</span> <span class="o">%</span> <span class="n">fsl_dir</span>
+        <span class="n">dir_prefix</span> <span class="o">=</span> <span class="s1">'</span><span class="si">%s</span><span class="s1">/bin/'</span> <span class="o">%</span> <span class="n">fsl_dir</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">dir_prefix</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
-    <span class="n">fsl_config</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;FSL_CONFIG&#39;</span><span class="p">)</span>
+        <span class="n">dir_prefix</span> <span class="o">=</span> <span class="s1">''</span>
+    <span class="n">fsl_config</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'FSL_CONFIG'</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">fsl_prefix</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">dir_prefix</span><span class="p">):</span>
-        <span class="n">dir_prefix</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">dir_prefix</span> <span class="o">=</span> <span class="s1">''</span>
 
     <span class="k">if</span> <span class="n">fsl_config</span><span class="p">:</span>
         <span class="n">fsldir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">fsl_config</span><span class="p">)))</span>
-        <span class="n">shell</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;SHELL&#39;</span><span class="p">,</span> <span class="s1">&#39;/bin/sh&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">shell</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;csh&#39;</span><span class="p">):</span>
-            <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="n">shell</span><span class="p">,</span> <span class="s1">&#39;-c&#39;</span><span class="p">,</span> 
-                <span class="s1">&#39;setenv FSLDIR &quot;</span><span class="si">{0}</span><span class="s1">&quot;; setenv PATH &quot;</span><span class="si">{0}</span><span class="s1">/bin:$PATH&quot;; source </span><span class="si">{0}</span><span class="s1">/etc/fslconf/fsl.csh;exec </span><span class="si">{1}{2}</span><span class="s1"> &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">shell</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'SHELL'</span><span class="p">,</span> <span class="s1">'/bin/sh'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">shell</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">'csh'</span><span class="p">):</span>
+            <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="n">shell</span><span class="p">,</span> <span class="s1">'-c'</span><span class="p">,</span> 
+                <span class="s1">'setenv FSLDIR "</span><span class="si">{0}</span><span class="s1">"; setenv PATH "</span><span class="si">{0}</span><span class="s1">/bin:$PATH"; source </span><span class="si">{0}</span><span class="s1">/etc/fslconf/fsl.csh;exec </span><span class="si">{1}{2}</span><span class="s1"> '</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                     <span class="n">fsldir</span><span class="p">,</span> <span class="n">fsl_prefix</span><span class="p">,</span> <span class="n">command</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> \
-                    <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">i</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&#39;&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">command</span><span class="p">[</span><span class="mi">1</span><span class="p">:])]</span>
+                    <span class="s1">' '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">"'</span><span class="si">%s</span><span class="s2">'"</span> <span class="o">%</span> <span class="n">i</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"'"</span><span class="p">,</span> <span class="s2">"</span><span class="se">\\</span><span class="s2">'"</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">command</span><span class="p">[</span><span class="mi">1</span><span class="p">:])]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="n">shell</span><span class="p">,</span> <span class="s1">&#39;-c&#39;</span><span class="p">,</span> 
-                <span class="s1">&#39;export FSLDIR=&quot;</span><span class="si">{0}</span><span class="s1">&quot;; export PATH=&quot;</span><span class="si">{0}</span><span class="s1">/bin:$PATH&quot;; . </span><span class="si">{0}</span><span class="s1">/etc/fslconf/fsl.sh;exec </span><span class="si">{1}{2}</span><span class="s1"> &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="n">shell</span><span class="p">,</span> <span class="s1">'-c'</span><span class="p">,</span> 
+                <span class="s1">'export FSLDIR="</span><span class="si">{0}</span><span class="s1">"; export PATH="</span><span class="si">{0}</span><span class="s1">/bin:$PATH"; . </span><span class="si">{0}</span><span class="s1">/etc/fslconf/fsl.sh;exec </span><span class="si">{1}{2}</span><span class="s1"> '</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                     <span class="n">fsldir</span><span class="p">,</span> <span class="n">fsl_prefix</span><span class="p">,</span> <span class="n">command</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> \
-                    <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">i</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&#39;&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">command</span><span class="p">[</span><span class="mi">1</span><span class="p">:])]</span>
+                    <span class="s1">' '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">"'</span><span class="si">%s</span><span class="s2">'"</span> <span class="o">%</span> <span class="n">i</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"'"</span><span class="p">,</span> <span class="s2">"</span><span class="se">\\</span><span class="s2">'"</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">command</span><span class="p">[</span><span class="mi">1</span><span class="p">:])]</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;</span><span class="si">%s%s%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">dir_prefix</span><span class="p">,</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'</span><span class="si">%s%s%s</span><span class="s1">'</span> <span class="o">%</span> <span class="p">(</span><span class="n">dir_prefix</span><span class="p">,</span>
                            <span class="n">fsl_prefix</span><span class="p">,</span> 
                            <span class="n">command</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span> <span class="o">+</span> <span class="n">command</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
     <span class="k">return</span> <span class="n">cmd</span></div>
@@ -200,41 +200,41 @@
 <div class="viewcode-block" id="fsl_env">
 <a class="viewcode-back" href="../../../api/in_context.html#capsul.in_context.fsl.fsl_env">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">fsl_env</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    get FSL env variables by running the setup script in a separate bash</span>
 <span class="sd">    process</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="k">global</span> <span class="n">fsl_runtime_env</span>
 
     <span class="k">if</span> <span class="n">fsl_runtime_env</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">fsl_runtime_env</span>
 
-    <span class="n">fsl_config</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;FSL_CONFIG&#39;</span><span class="p">)</span>
-    <span class="n">fsl_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;FSLDIR&#39;</span><span class="p">)</span>
+    <span class="n">fsl_config</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'FSL_CONFIG'</span><span class="p">)</span>
+    <span class="n">fsl_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'FSLDIR'</span><span class="p">)</span>
     <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">fsl_config</span><span class="p">:</span>
-        <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;env&#39;</span><span class="p">]</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'env'</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">fsl_dir</span><span class="p">:</span>
-            <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;env&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;PATH&#39;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">pathsep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                <span class="p">[</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">/bin&#39;</span> <span class="o">%</span> <span class="n">fsl_dir</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;PATH&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)])}}</span>
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'env'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'PATH'</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">pathsep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="p">[</span><span class="s1">'</span><span class="si">%s</span><span class="s1">/bin'</span> <span class="o">%</span> <span class="n">fsl_dir</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'PATH'</span><span class="p">,</span> <span class="s1">''</span><span class="p">)])}}</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">cmd</span> <span class="o">=</span> <span class="n">fsl_command_with_environment</span><span class="p">([</span><span class="s1">&#39;env&#39;</span><span class="p">],</span> <span class="n">use_prefix</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="n">fsl_command_with_environment</span><span class="p">([</span><span class="s1">'env'</span><span class="p">],</span> <span class="n">use_prefix</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                                            <span class="n">use_runtime_env</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">new_env</span> <span class="o">=</span> <span class="n">soma</span><span class="o">.</span><span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span>
-        <span class="s1">&#39;utf-8&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="s1">'utf-8'</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
     <span class="n">new_env</span> <span class="o">=</span> <span class="n">parse_env_lines</span><span class="p">(</span><span class="n">new_env</span><span class="p">)</span>
     <span class="n">env</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">new_env</span><span class="p">:</span>
-        <span class="n">name</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">name</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="n">l</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'='</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">six</span><span class="o">.</span><span class="n">ensure_str</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
         <span class="n">val</span> <span class="o">=</span> <span class="n">six</span><span class="o">.</span><span class="n">ensure_str</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39;SHLVL&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'_'</span><span class="p">,</span> <span class="s1">'SHLVL'</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span>
                                            <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">!=</span> <span class="n">val</span><span class="p">):</span>
             <span class="n">env</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
     <span class="c1"># add PATH</span>
     <span class="k">if</span> <span class="n">fsl_dir</span><span class="p">:</span>
-        <span class="n">fsl_bin</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fsl_dir</span><span class="p">,</span> <span class="s1">&#39;bin&#39;</span><span class="p">)</span>
-        <span class="n">env</span><span class="p">[</span><span class="s1">&#39;PATH&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">pathsep</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">fsl_bin</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;PATH&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)])</span>
+        <span class="n">fsl_bin</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fsl_dir</span><span class="p">,</span> <span class="s1">'bin'</span><span class="p">)</span>
+        <span class="n">env</span><span class="p">[</span><span class="s1">'PATH'</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">pathsep</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">fsl_bin</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'PATH'</span><span class="p">,</span> <span class="s1">''</span><span class="p">)])</span>
     <span class="c1"># cache dict</span>
     <span class="n">fsl_runtime_env</span> <span class="o">=</span> <span class="n">env</span>
     <span class="k">return</span> <span class="n">env</span></div>
@@ -244,49 +244,49 @@
 <div class="viewcode-block" id="FslPopen">
 <a class="viewcode-back" href="../../../api/in_context.html#capsul.in_context.fsl.FslPopen">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">FslPopen</span><span class="p">(</span><span class="n">soma</span><span class="o">.</span><span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Equivalent to Python subprocess.Popen for FSL commands</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">cmd</span> <span class="o">=</span> <span class="n">fsl_command_with_environment</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
         <span class="n">env</span> <span class="o">=</span> <span class="n">fsl_env</span><span class="p">()</span>
-        <span class="k">if</span> <span class="s1">&#39;env&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">'env'</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
             <span class="n">env</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
-            <span class="n">env</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;env&#39;</span><span class="p">])</span>
+            <span class="n">env</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">'env'</span><span class="p">])</span>
             <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
-            <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;env&#39;</span><span class="p">]</span>
+            <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">'env'</span><span class="p">]</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">FslPopen</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="fsl_call">
 <a class="viewcode-back" href="../../../api/in_context.html#capsul.in_context.fsl.fsl_call">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">fsl_call</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Equivalent to Python subprocess.call for FSL commands</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="n">cmd</span> <span class="o">=</span> <span class="n">fsl_command_with_environment</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
     <span class="n">env</span> <span class="o">=</span> <span class="n">fsl_env</span><span class="p">()</span>
-    <span class="k">if</span> <span class="s1">&#39;env&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s1">'env'</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
         <span class="n">env</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
-        <span class="n">env</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;env&#39;</span><span class="p">])</span>
+        <span class="n">env</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">'env'</span><span class="p">])</span>
         <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;env&#39;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">'env'</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">soma</span><span class="o">.</span><span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="fsl_check_call">
 <a class="viewcode-back" href="../../../api/in_context.html#capsul.in_context.fsl.fsl_check_call">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">fsl_check_call</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Equivalent to Python subprocess.check_call for FSL commands</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="n">cmd</span> <span class="o">=</span> <span class="n">fsl_command_with_environment</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
     <span class="n">env</span> <span class="o">=</span> <span class="n">fsl_env</span><span class="p">()</span>
-    <span class="k">if</span> <span class="s1">&#39;env&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s1">'env'</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
         <span class="n">env</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
-        <span class="n">env</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;env&#39;</span><span class="p">])</span>
+        <span class="n">env</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">'env'</span><span class="p">])</span>
         <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;env&#39;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">'env'</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">soma</span><span class="o">.</span><span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
@@ -294,16 +294,16 @@
 <div class="viewcode-block" id="fsl_check_output">
 <a class="viewcode-back" href="../../../api/in_context.html#capsul.in_context.fsl.fsl_check_output">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">fsl_check_output</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Equivalent to Python subprocess.check_output for FSL commands</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="n">cmd</span> <span class="o">=</span> <span class="n">fsl_command_with_environment</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
     <span class="n">env</span> <span class="o">=</span> <span class="n">fsl_env</span><span class="p">()</span>
-    <span class="k">if</span> <span class="s1">&#39;env&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s1">'env'</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
         <span class="n">env</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
-        <span class="n">env</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;env&#39;</span><span class="p">])</span>
+        <span class="n">env</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s1">'env'</span><span class="p">])</span>
         <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;env&#39;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">'env'</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">soma</span><span class="o">.</span><span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 </pre></div>

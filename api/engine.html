@@ -17,7 +17,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
     
-    <script src="../_static/documentation_options.js?v=b9f4bfa5"></script>
+    <script src="../_static/documentation_options.js?v=727d2f68"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -211,7 +211,7 @@ process:</p>
 <span class="n">ce</span> <span class="o">=</span> <span class="n">capsul_engine</span><span class="p">()</span>
 <span class="c1"># Nipype is not configured here</span>
 <span class="n">config</span> <span class="o">=</span> <span class="n">capsul_engine</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">select_configurations</span><span class="p">(</span>
-    <span class="s1">&#39;global&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;nipype&#39;</span><span class="p">:</span> <span class="s1">&#39;any&#39;</span><span class="p">})</span>
+    <span class="s1">'global'</span><span class="p">,</span> <span class="p">{</span><span class="s1">'nipype'</span><span class="p">:</span> <span class="s1">'any'</span><span class="p">})</span>
 <span class="n">activate_configuration</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
 <span class="c1"># Nipype is configured here</span>
 </pre></div>
@@ -253,12 +253,12 @@ using <code class="docutils literal notranslate"><span class="pre">with</span> <
 <a class="reference internal" href="#capsul.engine.settings.Settings" title="capsul.engine.settings.Settings"><code class="xref py py-class docutils literal notranslate"><span class="pre">Settings</span></code></a> class for details.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">capsul.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">capsul_engine</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ce</span> <span class="o">=</span> <span class="n">capsul_engine</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">config</span> <span class="o">=</span> <span class="n">ce</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">select_configurations</span><span class="p">(</span><span class="s1">&#39;global&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">config</span> <span class="o">=</span> <span class="n">ce</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">select_configurations</span><span class="p">(</span><span class="s1">'global'</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">config</span> <span class="o">=</span> <span class="n">ce</span><span class="o">.</span><span class="n">global_config</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-<span class="go">{&#39;capsul_engine&#39;: {&#39;uses&#39;: {&#39;capsul.engine.module.fsl&#39;: &#39;ALL&#39;,</span>
-<span class="go">  &#39;capsul.engine.module.matlab&#39;: &#39;ALL&#39;,</span>
-<span class="go">  &#39;capsul.engine.module.spm&#39;: &#39;ALL&#39;}}}</span>
+<span class="go">{'capsul_engine': {'uses': {'capsul.engine.module.fsl': 'ALL',</span>
+<span class="go">  'capsul.engine.module.matlab': 'ALL',</span>
+<span class="go">  'capsul.engine.module.spm': 'ALL'}}}</span>
 </pre></div>
 </div>
 <p>Whenever a new computing resource is used, it can be added as a new
@@ -1073,10 +1073,10 @@ done by using a with clause:</p>
 <span class="n">ce</span> <span class="o">=</span> <span class="n">capsul_engine</span><span class="p">()</span>
 <span class="k">with</span> <span class="n">ce</span><span class="o">.</span><span class="n">settings</span> <span class="k">as</span> <span class="n">settings</span><span class="p">:</span>
     <span class="c1"># Read or modify settings here</span>
-    <span class="n">conf</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">new_config</span><span class="p">(</span><span class="s1">&#39;spm&#39;</span><span class="p">,</span> <span class="s1">&#39;global&#39;</span><span class="p">,</span>
-                               <span class="p">{</span><span class="s1">&#39;version&#39;</span><span class="p">:</span> <span class="s1">&#39;12&#39;</span><span class="p">,</span> <span class="s1">&#39;standalone&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+    <span class="n">conf</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">new_config</span><span class="p">(</span><span class="s1">'spm'</span><span class="p">,</span> <span class="s1">'global'</span><span class="p">,</span>
+                               <span class="p">{</span><span class="s1">'version'</span><span class="p">:</span> <span class="s1">'12'</span><span class="p">,</span> <span class="s1">'standalone'</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
     <span class="c1"># modify value</span>
-    <span class="n">conf</span><span class="o">.</span><span class="n">directory</span> <span class="o">=</span> <span class="s1">&#39;/usr/local/spm12-standalone&#39;</span>
+    <span class="n">conf</span><span class="o">.</span><span class="n">directory</span> <span class="o">=</span> <span class="s1">'/usr/local/spm12-standalone'</span>
 </pre></div>
 </div>
 <p>Create a settings instance using the given populse_db instance</p>
@@ -1128,8 +1128,8 @@ checked for missing values and discarded if there are.</p>
 <p class="rubric">Example</p>
 <p>To select a SPM version greater than 8 for an environment called
 <cite>‘my_environment’</cite> one could use the following code:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">config</span> <span class="o">=</span> <span class="n">ce</span><span class="o">.</span><span class="n">select_configurations</span><span class="p">(</span><span class="s1">&#39;my_environment&#39;</span><span class="p">,</span>
-                                  <span class="n">uses</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;spm&#39;</span><span class="p">:</span> <span class="s1">&#39;version &gt; 8&#39;</span><span class="p">})</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">config</span> <span class="o">=</span> <span class="n">ce</span><span class="o">.</span><span class="n">select_configurations</span><span class="p">(</span><span class="s1">'my_environment'</span><span class="p">,</span>
+                                  <span class="n">uses</span><span class="o">=</span><span class="p">{</span><span class="s1">'spm'</span><span class="p">:</span> <span class="s1">'version &gt; 8'</span><span class="p">})</span>
 </pre></div>
 </div>
 </dd></dl>

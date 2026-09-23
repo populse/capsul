@@ -17,7 +17,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
     
-    <script src="../_static/documentation_options.js?v=b9f4bfa5"></script>
+    <script src="../_static/documentation_options.js?v=727d2f68"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -161,13 +161,13 @@ attributes (see below). Here is an example of a process defined as a
 function returning a value:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">capsul.process.xml</span><span class="w"> </span><span class="kn">import</span> <span class="n">xml_process</span>
 
-<span class="nd">@xml_process</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
-<span class="s1">&lt;process capsul_xml=&quot;2.0&quot;&gt;</span>
-<span class="s1">    &lt;input name=&quot;a&quot; type=&quot;int&quot; doc=&quot;An integer&quot;/&gt;</span>
-<span class="s1">    &lt;input name=&quot;b&quot; type=&quot;int&quot; doc=&quot;Another integer&quot;/&gt;</span>
-<span class="s1">    &lt;return name=&quot;addition&quot; type=&quot;int&quot; doc=&quot;a + b&quot;/&gt;</span>
+<span class="nd">@xml_process</span><span class="p">(</span><span class="s1">'''</span>
+<span class="s1">&lt;process capsul_xml="2.0"&gt;</span>
+<span class="s1">    &lt;input name="a" type="int" doc="An integer"/&gt;</span>
+<span class="s1">    &lt;input name="b" type="int" doc="Another integer"/&gt;</span>
+<span class="s1">    &lt;return name="addition" type="int" doc="a + b"/&gt;</span>
 <span class="s1">&lt;/process&gt;</span>
-<span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="s1">'''</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
      <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
 </pre></div>
@@ -181,20 +181,20 @@ parameter names. If it is a dictionary, each key must correspond to a
 <code class="docutils literal notranslate"><span class="pre">name</span></code> attribute in an <code class="docutils literal notranslate"><span class="pre">&lt;output&gt;</span></code> element. For instance:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">capsul.process.xml</span><span class="w"> </span><span class="kn">import</span> <span class="n">xml_process</span>
 
-<span class="nd">@xml_process</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
-<span class="s1">&lt;process capsul_xml=&quot;2.0&quot;&gt;</span>
-<span class="s1">    &lt;input name=&quot;a&quot; type=&quot;int&quot; doc=&quot;An integer&quot;/&gt;</span>
-<span class="s1">    &lt;input name=&quot;b&quot; type=&quot;int&quot; doc=&quot;Another integer&quot;/&gt;</span>
+<span class="nd">@xml_process</span><span class="p">(</span><span class="s1">'''</span>
+<span class="s1">&lt;process capsul_xml="2.0"&gt;</span>
+<span class="s1">    &lt;input name="a" type="int" doc="An integer"/&gt;</span>
+<span class="s1">    &lt;input name="b" type="int" doc="Another integer"/&gt;</span>
 <span class="s1">    &lt;return&gt;</span>
-<span class="s1">        &lt;output name=&quot;quotient&quot; type=&quot;int&quot; doc=&quot;Quotient of a / b&quot;/&gt;</span>
-<span class="s1">        &lt;output name=&quot;remainder&quot; type=&quot;int&quot; doc=&quot;Remainder of a / b&quot;/&gt;</span>
+<span class="s1">        &lt;output name="quotient" type="int" doc="Quotient of a / b"/&gt;</span>
+<span class="s1">        &lt;output name="remainder" type="int" doc="Remainder of a / b"/&gt;</span>
 <span class="s1">    &lt;/return&gt;</span>
 <span class="s1">&lt;/process&gt;</span>
-<span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="s1">'''</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">divide</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
      <span class="k">return</span> <span class="p">{</span>
-        <span class="s1">&#39;quotient&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">a</span> <span class="o">/</span> <span class="n">b</span><span class="p">),</span>
-        <span class="s1">&#39;remainder&#39;</span><span class="p">:</span> <span class="n">a</span> <span class="o">%</span> <span class="n">b</span><span class="p">,</span>
+        <span class="s1">'quotient'</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">a</span> <span class="o">/</span> <span class="n">b</span><span class="p">),</span>
+        <span class="s1">'remainder'</span><span class="p">:</span> <span class="n">a</span> <span class="o">%</span> <span class="n">b</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="c1"># On a process point of view, it would be equivalent to</span>
     <span class="c1"># use the following code:</span>
@@ -280,32 +280,32 @@ the XML. The recommended method is to use a decorator to explicitly
 define the XML string associated to the function. Here is an example :</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">capsul.process.xml</span><span class="w"> </span><span class="kn">import</span> <span class="n">xml_process</span>
 
-<span class="nd">@xml_process</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
-<span class="s1">&lt;process capsul_xml=&quot;2.0&quot;&gt;</span>
-<span class="s1">    &lt;input name=&quot;input_image&quot; type=&quot;file&quot; desc=&quot;Path of a NIFTI-1 image file.&quot;/&gt;</span>
-<span class="s1">    &lt;input name=&quot;method&quot; type=&quot;enum&quot; values=&quot;[&#39;gt&#39;, &#39;ge&#39;, &#39;lt&#39;, &#39;le&#39;]&quot; desc=&quot;Method for thresolding.&quot;/&gt;</span>
-<span class="s1">    &lt;input name=&quot;threshold&quot; type=&quot;float&quot; desc=&quot;Threshold value.&quot;/&gt;</span>
-<span class="s1">    &lt;output name=&quot;output_image&quot; input_filename=&quot;output_location&quot; type=&quot;file&quot;</span>
-<span class="s1"> desc=&quot;If set, define the output file name. Otherwise, the name is generated using a &quot;threshold_&quot; prefix on the input file name.&quot;/&gt;</span>
+<span class="nd">@xml_process</span><span class="p">(</span><span class="s1">'''</span>
+<span class="s1">&lt;process capsul_xml="2.0"&gt;</span>
+<span class="s1">    &lt;input name="input_image" type="file" desc="Path of a NIFTI-1 image file."/&gt;</span>
+<span class="s1">    &lt;input name="method" type="enum" values="['gt', 'ge', 'lt', 'le']" desc="Method for thresolding."/&gt;</span>
+<span class="s1">    &lt;input name="threshold" type="float" desc="Threshold value."/&gt;</span>
+<span class="s1">    &lt;output name="output_image" input_filename="output_location" type="file"</span>
+<span class="s1"> desc="If set, define the output file name. Otherwise, the name is generated using a "threshold_" prefix on the input file name."/&gt;</span>
 <span class="s1">&lt;/process&gt;</span>
-<span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">threshold</span><span class="p">(</span><span class="n">input_image</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;gt&#39;</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">output_location</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="s1">'''</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">threshold</span><span class="p">(</span><span class="n">input_image</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">'gt'</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">output_location</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
      <span class="k">pass</span>
 </pre></div>
 </div>
 <p>It is also possible to put the XML in the docstring of the function.
 However, this method is not recommend and should be avoided if possible.
 Example :</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">threshold</span><span class="p">(</span><span class="n">input_image</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;gt&#39;</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">output_location</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    &lt;process capsul_xml=&quot;2.0&quot;&gt;</span>
-<span class="sd">        &lt;input name=&quot;input_image&quot; type=&quot;file&quot; desc=&quot;Path of a NIFTI-1 image file.&quot;/&gt;</span>
-<span class="sd">        &lt;input name=&quot;method&quot; type=&quot;enum&quot; values=&quot;[&#39;gt&#39;, &#39;ge&#39;, &#39;lt&#39;, &#39;le&#39;]&quot; desc=&quot;Method for thresolding.&quot;/&gt;</span>
-<span class="sd">        &lt;input name=&quot;threshold&quot; type=&quot;float&quot; desc=&quot;Threshold value.&quot;/&gt;</span>
-<span class="sd">        &lt;output name=&quot;output_image&quot; input_filename=&quot;output_location&quot; type=&quot;file&quot;</span>
-<span class="sd">          desc=&quot;If set, define the output file name. Otherwise, the name is generated using a &#39;threshold_&#39; prefix on the input file name.&quot;/&gt;</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">threshold</span><span class="p">(</span><span class="n">input_image</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">'gt'</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">output_location</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">'''</span>
+<span class="sd">    &lt;process capsul_xml="2.0"&gt;</span>
+<span class="sd">        &lt;input name="input_image" type="file" desc="Path of a NIFTI-1 image file."/&gt;</span>
+<span class="sd">        &lt;input name="method" type="enum" values="['gt', 'ge', 'lt', 'le']" desc="Method for thresolding."/&gt;</span>
+<span class="sd">        &lt;input name="threshold" type="float" desc="Threshold value."/&gt;</span>
+<span class="sd">        &lt;output name="output_image" input_filename="output_location" type="file"</span>
+<span class="sd">          desc="If set, define the output file name. Otherwise, the name is generated using a 'threshold_' prefix on the input file name."/&gt;</span>
 <span class="sd">    &lt;/process&gt;</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
      <span class="k">pass</span>
 </pre></div>
 </div>
@@ -314,25 +314,25 @@ Example :</p>
 <h3>Processes examples<a class="headerlink" href="#processes-examples" title="Link to this heading">¶</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">capsul.process.xml</span><span class="w"> </span><span class="kn">import</span> <span class="n">xml_process</span>
 
-<span class="nd">@xml_process</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
-<span class="s1">&lt;process capsul_xml=&quot;2.0&quot;&gt;</span>
-<span class="s1">    &lt;input name=&quot;input_image&quot; type=&quot;file&quot; doc=&quot;Path of a NIFTI-1 image file.&quot;/&gt;</span>
-<span class="s1">    &lt;input name=&quot;method&quot; type=&quot;enum&quot; values=&quot;[&#39;gt&#39;, &#39;ge&#39;, &#39;lt&#39;, &#39;le&#39;]&quot;</span>
-<span class="s1">     doc=&quot;Method for thresolding.&quot;/&gt;</span>
-<span class="s1">    &lt;input name=&quot;threshold&quot; type=&quot;float&quot; doc=&quot;Threshold value.&quot;/&gt;</span>
-<span class="s1">    &lt;output name=&quot;output_image&quot; input_filename=&quot;output_image&quot; type=&quot;file&quot; doc=&quot;Output file name.&quot;/&gt;</span>
+<span class="nd">@xml_process</span><span class="p">(</span><span class="s1">'''</span>
+<span class="s1">&lt;process capsul_xml="2.0"&gt;</span>
+<span class="s1">    &lt;input name="input_image" type="file" doc="Path of a NIFTI-1 image file."/&gt;</span>
+<span class="s1">    &lt;input name="method" type="enum" values="['gt', 'ge', 'lt', 'le']"</span>
+<span class="s1">     doc="Method for thresolding."/&gt;</span>
+<span class="s1">    &lt;input name="threshold" type="float" doc="Threshold value."/&gt;</span>
+<span class="s1">    &lt;output name="output_image" input_filename="output_image" type="file" doc="Output file name."/&gt;</span>
 <span class="s1">&lt;/process&gt;</span>
-<span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">threshold</span><span class="p">(</span><span class="n">input_image</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;gt&#39;</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="s1">'''</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">threshold</span><span class="p">(</span><span class="n">input_image</span><span class="p">,</span> <span class="n">output_image</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">'gt'</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
      <span class="k">pass</span>
 
-<span class="nd">@xml_process</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
-<span class="s1">&lt;process capsul_xml=&quot;2.0&quot;&gt;</span>
-<span class="s1">    &lt;input name=&quot;input_image&quot; type=&quot;file&quot; doc=&quot;Path of a NIFTI-1 image file.&quot;/&gt;</span>
-<span class="s1">    &lt;input name=&quot;mask&quot; type=&quot;file&quot; doc=&quot;Path of mask binary image.&quot;/&gt;</span>
-<span class="s1">    &lt;output name=&quot;output_image&quot; input_filename=&quot;output_location&quot; type=&quot;file&quot; doc=&quot;Output file name.&quot;/&gt;</span>
+<span class="nd">@xml_process</span><span class="p">(</span><span class="s1">'''</span>
+<span class="s1">&lt;process capsul_xml="2.0"&gt;</span>
+<span class="s1">    &lt;input name="input_image" type="file" doc="Path of a NIFTI-1 image file."/&gt;</span>
+<span class="s1">    &lt;input name="mask" type="file" doc="Path of mask binary image."/&gt;</span>
+<span class="s1">    &lt;output name="output_image" input_filename="output_location" type="file" doc="Output file name."/&gt;</span>
 <span class="s1">&lt;/process&gt;</span>
-<span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="s1">'''</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">mask</span><span class="p">(</span><span class="n">input_image</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">output_location</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
      <span class="k">pass</span>
 </pre></div>
@@ -572,95 +572,95 @@ floating point.</p>
 </section>
 <section id="pipeline-example">
 <h3>Pipeline example<a class="headerlink" href="#pipeline-example" title="Link to this heading">¶</a></h3>
-<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;pipeline</span><span class="w"> </span><span class="na">capsul_xml=</span><span class="s">&quot;2.0&quot;</span><span class="nt">&gt;</span>
-<span class="w">    </span><span class="nt">&lt;process</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;threshold_gt_1&quot;</span>
-<span class="w">     </span><span class="na">module=</span><span class="s">&quot;capsul.process.test.test_load_from_description.threshold&quot;</span><span class="nt">&gt;</span>
-<span class="w">        </span><span class="nt">&lt;set</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;threshold&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;1&quot;</span><span class="nt">/&gt;</span>
-<span class="w">        </span><span class="nt">&lt;set</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;method&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;&#39;gt&#39;&quot;</span><span class="nt">/&gt;</span>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;pipeline</span><span class="w"> </span><span class="na">capsul_xml=</span><span class="s">"2.0"</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="nt">&lt;process</span><span class="w"> </span><span class="na">name=</span><span class="s">"threshold_gt_1"</span>
+<span class="w">     </span><span class="na">module=</span><span class="s">"capsul.process.test.test_load_from_description.threshold"</span><span class="nt">&gt;</span>
+<span class="w">        </span><span class="nt">&lt;set</span><span class="w"> </span><span class="na">name=</span><span class="s">"threshold"</span><span class="w"> </span><span class="na">value=</span><span class="s">"1"</span><span class="nt">/&gt;</span>
+<span class="w">        </span><span class="nt">&lt;set</span><span class="w"> </span><span class="na">name=</span><span class="s">"method"</span><span class="w"> </span><span class="na">value=</span><span class="s">"'gt'"</span><span class="nt">/&gt;</span>
 <span class="w">    </span><span class="nt">&lt;/process&gt;</span>
-<span class="w">    </span><span class="nt">&lt;process</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;threshold_gt_10&quot;</span>
-<span class="w">     </span><span class="na">module=</span><span class="s">&quot;capsul.process.test.test_load_from_description.threshold&quot;</span><span class="nt">&gt;</span>
-<span class="w">        </span><span class="nt">&lt;set</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;threshold&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;10&quot;</span><span class="nt">/&gt;</span>
-<span class="w">        </span><span class="nt">&lt;set</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;method&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;&#39;gt&#39;&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;process</span><span class="w"> </span><span class="na">name=</span><span class="s">"threshold_gt_10"</span>
+<span class="w">     </span><span class="na">module=</span><span class="s">"capsul.process.test.test_load_from_description.threshold"</span><span class="nt">&gt;</span>
+<span class="w">        </span><span class="nt">&lt;set</span><span class="w"> </span><span class="na">name=</span><span class="s">"threshold"</span><span class="w"> </span><span class="na">value=</span><span class="s">"10"</span><span class="nt">/&gt;</span>
+<span class="w">        </span><span class="nt">&lt;set</span><span class="w"> </span><span class="na">name=</span><span class="s">"method"</span><span class="w"> </span><span class="na">value=</span><span class="s">"'gt'"</span><span class="nt">/&gt;</span>
 <span class="w">    </span><span class="nt">&lt;/process&gt;</span>
-<span class="w">    </span><span class="nt">&lt;process</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;threshold_gt_100&quot;</span>
-<span class="w">     </span><span class="na">module=</span><span class="s">&quot;capsul.process.test.test_load_from_description.threshold&quot;</span><span class="nt">&gt;</span>
-<span class="w">        </span><span class="nt">&lt;set</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;threshold&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;100&quot;</span><span class="nt">/&gt;</span>
-<span class="w">        </span><span class="nt">&lt;set</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;method&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;&#39;gt&#39;&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;process</span><span class="w"> </span><span class="na">name=</span><span class="s">"threshold_gt_100"</span>
+<span class="w">     </span><span class="na">module=</span><span class="s">"capsul.process.test.test_load_from_description.threshold"</span><span class="nt">&gt;</span>
+<span class="w">        </span><span class="nt">&lt;set</span><span class="w"> </span><span class="na">name=</span><span class="s">"threshold"</span><span class="w"> </span><span class="na">value=</span><span class="s">"100"</span><span class="nt">/&gt;</span>
+<span class="w">        </span><span class="nt">&lt;set</span><span class="w"> </span><span class="na">name=</span><span class="s">"method"</span><span class="w"> </span><span class="na">value=</span><span class="s">"'gt'"</span><span class="nt">/&gt;</span>
 <span class="w">    </span><span class="nt">&lt;/process&gt;</span>
-<span class="w">    </span><span class="nt">&lt;process</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;threshold_lt_1&quot;</span>
-<span class="w">     </span><span class="na">module=</span><span class="s">&quot;capsul.process.test.test_load_from_description.threshold&quot;</span><span class="nt">&gt;</span>
-<span class="w">        </span><span class="nt">&lt;set</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;threshold&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;1&quot;</span><span class="nt">/&gt;</span>
-<span class="w">        </span><span class="nt">&lt;set</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;method&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;&#39;lt&#39;&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;process</span><span class="w"> </span><span class="na">name=</span><span class="s">"threshold_lt_1"</span>
+<span class="w">     </span><span class="na">module=</span><span class="s">"capsul.process.test.test_load_from_description.threshold"</span><span class="nt">&gt;</span>
+<span class="w">        </span><span class="nt">&lt;set</span><span class="w"> </span><span class="na">name=</span><span class="s">"threshold"</span><span class="w"> </span><span class="na">value=</span><span class="s">"1"</span><span class="nt">/&gt;</span>
+<span class="w">        </span><span class="nt">&lt;set</span><span class="w"> </span><span class="na">name=</span><span class="s">"method"</span><span class="w"> </span><span class="na">value=</span><span class="s">"'lt'"</span><span class="nt">/&gt;</span>
 <span class="w">    </span><span class="nt">&lt;/process&gt;</span>
-<span class="w">    </span><span class="nt">&lt;process</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;threshold_lt_10&quot;</span>
-<span class="w">     </span><span class="na">module=</span><span class="s">&quot;capsul.process.test.test_load_from_description.threshold&quot;</span><span class="nt">&gt;</span>
-<span class="w">        </span><span class="nt">&lt;set</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;threshold&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;10&quot;</span><span class="nt">/&gt;</span>
-<span class="w">        </span><span class="nt">&lt;set</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;method&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;&#39;lt&#39;&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;process</span><span class="w"> </span><span class="na">name=</span><span class="s">"threshold_lt_10"</span>
+<span class="w">     </span><span class="na">module=</span><span class="s">"capsul.process.test.test_load_from_description.threshold"</span><span class="nt">&gt;</span>
+<span class="w">        </span><span class="nt">&lt;set</span><span class="w"> </span><span class="na">name=</span><span class="s">"threshold"</span><span class="w"> </span><span class="na">value=</span><span class="s">"10"</span><span class="nt">/&gt;</span>
+<span class="w">        </span><span class="nt">&lt;set</span><span class="w"> </span><span class="na">name=</span><span class="s">"method"</span><span class="w"> </span><span class="na">value=</span><span class="s">"'lt'"</span><span class="nt">/&gt;</span>
 <span class="w">    </span><span class="nt">&lt;/process&gt;</span>
-<span class="w">    </span><span class="nt">&lt;process</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;threshold_lt_100&quot;</span>
-<span class="w">     </span><span class="na">module=</span><span class="s">&quot;capsul.process.test.test_load_from_description.threshold&quot;</span><span class="nt">&gt;</span>
-<span class="w">        </span><span class="nt">&lt;set</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;threshold&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;100&quot;</span><span class="nt">/&gt;</span>
-<span class="w">        </span><span class="nt">&lt;set</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;method&quot;</span><span class="w"> </span><span class="na">value=</span><span class="s">&quot;&#39;lt&#39;&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;process</span><span class="w"> </span><span class="na">name=</span><span class="s">"threshold_lt_100"</span>
+<span class="w">     </span><span class="na">module=</span><span class="s">"capsul.process.test.test_load_from_description.threshold"</span><span class="nt">&gt;</span>
+<span class="w">        </span><span class="nt">&lt;set</span><span class="w"> </span><span class="na">name=</span><span class="s">"threshold"</span><span class="w"> </span><span class="na">value=</span><span class="s">"100"</span><span class="nt">/&gt;</span>
+<span class="w">        </span><span class="nt">&lt;set</span><span class="w"> </span><span class="na">name=</span><span class="s">"method"</span><span class="w"> </span><span class="na">value=</span><span class="s">"'lt'"</span><span class="nt">/&gt;</span>
 <span class="w">    </span><span class="nt">&lt;/process&gt;</span>
-<span class="w">    </span><span class="nt">&lt;process</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;mask_1&quot;</span>
-<span class="w">     </span><span class="na">module=</span><span class="s">&quot;capsul.process.test.test_load_from_description.mask&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="nt">&lt;process</span><span class="w"> </span><span class="na">name=</span><span class="s">"mask_1"</span>
+<span class="w">     </span><span class="na">module=</span><span class="s">"capsul.process.test.test_load_from_description.mask"</span><span class="nt">&gt;</span>
 <span class="w">    </span><span class="nt">&lt;/process&gt;</span>
-<span class="w">    </span><span class="nt">&lt;process</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;mask_10&quot;</span>
-<span class="w">     </span><span class="na">module=</span><span class="s">&quot;capsul.process.test.test_load_from_description.mask&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="nt">&lt;process</span><span class="w"> </span><span class="na">name=</span><span class="s">"mask_10"</span>
+<span class="w">     </span><span class="na">module=</span><span class="s">"capsul.process.test.test_load_from_description.mask"</span><span class="nt">&gt;</span>
 <span class="w">    </span><span class="nt">&lt;/process&gt;</span>
-<span class="w">    </span><span class="nt">&lt;process</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;mask_100&quot;</span>
-<span class="w">     </span><span class="na">module=</span><span class="s">&quot;capsul.process.test.test_load_from_description.mask&quot;</span><span class="nt">&gt;</span>
+<span class="w">    </span><span class="nt">&lt;process</span><span class="w"> </span><span class="na">name=</span><span class="s">"mask_100"</span>
+<span class="w">     </span><span class="na">module=</span><span class="s">"capsul.process.test.test_load_from_description.mask"</span><span class="nt">&gt;</span>
 <span class="w">    </span><span class="nt">&lt;/process&gt;</span>
 
-<span class="w">    </span><span class="nt">&lt;link</span><span class="w"> </span><span class="na">source=</span><span class="s">&quot;input_image&quot;</span><span class="w"> </span><span class="na">dest=</span><span class="s">&quot;threshold_gt_1.input_image&quot;</span><span class="nt">/&gt;</span>
-<span class="w">    </span><span class="nt">&lt;link</span><span class="w"> </span><span class="na">source=</span><span class="s">&quot;input_image&quot;</span><span class="w"> </span><span class="na">dest=</span><span class="s">&quot;threshold_gt_10.input_image&quot;</span><span class="nt">/&gt;</span>
-<span class="w">    </span><span class="nt">&lt;link</span><span class="w"> </span><span class="na">source=</span><span class="s">&quot;input_image&quot;</span><span class="w"> </span><span class="na">dest=</span><span class="s">&quot;threshold_gt_100.input_image&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;link</span><span class="w"> </span><span class="na">source=</span><span class="s">"input_image"</span><span class="w"> </span><span class="na">dest=</span><span class="s">"threshold_gt_1.input_image"</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;link</span><span class="w"> </span><span class="na">source=</span><span class="s">"input_image"</span><span class="w"> </span><span class="na">dest=</span><span class="s">"threshold_gt_10.input_image"</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;link</span><span class="w"> </span><span class="na">source=</span><span class="s">"input_image"</span><span class="w"> </span><span class="na">dest=</span><span class="s">"threshold_gt_100.input_image"</span><span class="nt">/&gt;</span>
 
-<span class="w">    </span><span class="nt">&lt;link</span><span class="w"> </span><span class="na">source=</span><span class="s">&quot;input_image&quot;</span><span class="w"> </span><span class="na">dest=</span><span class="s">&quot;threshold_lt_1.input_image&quot;</span><span class="nt">/&gt;</span>
-<span class="w">    </span><span class="nt">&lt;link</span><span class="w"> </span><span class="na">source=</span><span class="s">&quot;input_image&quot;</span><span class="w"> </span><span class="na">dest=</span><span class="s">&quot;threshold_lt_10.input_image&quot;</span><span class="nt">/&gt;</span>
-<span class="w">    </span><span class="nt">&lt;link</span><span class="w"> </span><span class="na">source=</span><span class="s">&quot;input_image&quot;</span><span class="w"> </span><span class="na">dest=</span><span class="s">&quot;threshold_lt_100.input_image&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;link</span><span class="w"> </span><span class="na">source=</span><span class="s">"input_image"</span><span class="w"> </span><span class="na">dest=</span><span class="s">"threshold_lt_1.input_image"</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;link</span><span class="w"> </span><span class="na">source=</span><span class="s">"input_image"</span><span class="w"> </span><span class="na">dest=</span><span class="s">"threshold_lt_10.input_image"</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;link</span><span class="w"> </span><span class="na">source=</span><span class="s">"input_image"</span><span class="w"> </span><span class="na">dest=</span><span class="s">"threshold_lt_100.input_image"</span><span class="nt">/&gt;</span>
 
-<span class="w">    </span><span class="nt">&lt;link</span><span class="w"> </span><span class="na">source=</span><span class="s">&quot;input_image&quot;</span><span class="w"> </span><span class="na">dest=</span><span class="s">&quot;mask_1.input_image&quot;</span><span class="nt">/&gt;</span>
-<span class="w">    </span><span class="nt">&lt;link</span><span class="w"> </span><span class="na">source=</span><span class="s">&quot;input_image&quot;</span><span class="w"> </span><span class="na">dest=</span><span class="s">&quot;mask_10.input_image&quot;</span><span class="nt">/&gt;</span>
-<span class="w">    </span><span class="nt">&lt;link</span><span class="w"> </span><span class="na">source=</span><span class="s">&quot;input_image&quot;</span><span class="w"> </span><span class="na">dest=</span><span class="s">&quot;mask_100.input_image&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;link</span><span class="w"> </span><span class="na">source=</span><span class="s">"input_image"</span><span class="w"> </span><span class="na">dest=</span><span class="s">"mask_1.input_image"</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;link</span><span class="w"> </span><span class="na">source=</span><span class="s">"input_image"</span><span class="w"> </span><span class="na">dest=</span><span class="s">"mask_10.input_image"</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;link</span><span class="w"> </span><span class="na">source=</span><span class="s">"input_image"</span><span class="w"> </span><span class="na">dest=</span><span class="s">"mask_100.input_image"</span><span class="nt">/&gt;</span>
 
-<span class="w">    </span><span class="nt">&lt;link</span><span class="w"> </span><span class="na">source=</span><span class="s">&quot;threshold_gt_1.output_image&quot;</span><span class="w"> </span><span class="na">dest=</span><span class="s">&quot;mask_1.mask&quot;</span><span class="nt">/&gt;</span>
-<span class="w">    </span><span class="nt">&lt;link</span><span class="w"> </span><span class="na">source=</span><span class="s">&quot;threshold_gt_10.output_image&quot;</span><span class="w"> </span><span class="na">dest=</span><span class="s">&quot;mask_10.mask&quot;</span><span class="nt">/&gt;</span>
-<span class="w">    </span><span class="nt">&lt;link</span><span class="w"> </span><span class="na">source=</span><span class="s">&quot;threshold_gt_100.output_image&quot;</span><span class="w"> </span><span class="na">dest=</span><span class="s">&quot;mask_100.mask&quot;</span><span class="nt">/&gt;</span>
-<span class="w">    </span><span class="nt">&lt;link</span><span class="w"> </span><span class="na">source=</span><span class="s">&quot;threshold_lt_1.output_image&quot;</span><span class="w"> </span><span class="na">dest=</span><span class="s">&quot;mask_1.mask&quot;</span><span class="nt">/&gt;</span>
-<span class="w">    </span><span class="nt">&lt;link</span><span class="w"> </span><span class="na">source=</span><span class="s">&quot;threshold_lt_10.output_image&quot;</span><span class="w"> </span><span class="na">dest=</span><span class="s">&quot;mask_10.mask&quot;</span><span class="nt">/&gt;</span>
-<span class="w">    </span><span class="nt">&lt;link</span><span class="w"> </span><span class="na">source=</span><span class="s">&quot;threshold_lt_100.output_image&quot;</span><span class="w"> </span><span class="na">dest=</span><span class="s">&quot;mask_100.mask&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;link</span><span class="w"> </span><span class="na">source=</span><span class="s">"threshold_gt_1.output_image"</span><span class="w"> </span><span class="na">dest=</span><span class="s">"mask_1.mask"</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;link</span><span class="w"> </span><span class="na">source=</span><span class="s">"threshold_gt_10.output_image"</span><span class="w"> </span><span class="na">dest=</span><span class="s">"mask_10.mask"</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;link</span><span class="w"> </span><span class="na">source=</span><span class="s">"threshold_gt_100.output_image"</span><span class="w"> </span><span class="na">dest=</span><span class="s">"mask_100.mask"</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;link</span><span class="w"> </span><span class="na">source=</span><span class="s">"threshold_lt_1.output_image"</span><span class="w"> </span><span class="na">dest=</span><span class="s">"mask_1.mask"</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;link</span><span class="w"> </span><span class="na">source=</span><span class="s">"threshold_lt_10.output_image"</span><span class="w"> </span><span class="na">dest=</span><span class="s">"mask_10.mask"</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;link</span><span class="w"> </span><span class="na">source=</span><span class="s">"threshold_lt_100.output_image"</span><span class="w"> </span><span class="na">dest=</span><span class="s">"mask_100.mask"</span><span class="nt">/&gt;</span>
 
-<span class="w">    </span><span class="nt">&lt;link</span><span class="w"> </span><span class="na">source=</span><span class="s">&quot;mask_1.output_image&quot;</span><span class="w"> </span><span class="na">dest=</span><span class="s">&quot;output_1&quot;</span><span class="nt">/&gt;</span>
-<span class="w">    </span><span class="nt">&lt;link</span><span class="w"> </span><span class="na">source=</span><span class="s">&quot;mask_10.output_image&quot;</span><span class="w"> </span><span class="na">dest=</span><span class="s">&quot;output_10&quot;</span><span class="nt">/&gt;</span>
-<span class="w">    </span><span class="nt">&lt;link</span><span class="w"> </span><span class="na">source=</span><span class="s">&quot;mask_100.output_image&quot;</span><span class="w"> </span><span class="na">dest=</span><span class="s">&quot;output_100&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;link</span><span class="w"> </span><span class="na">source=</span><span class="s">"mask_1.output_image"</span><span class="w"> </span><span class="na">dest=</span><span class="s">"output_1"</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;link</span><span class="w"> </span><span class="na">source=</span><span class="s">"mask_10.output_image"</span><span class="w"> </span><span class="na">dest=</span><span class="s">"output_10"</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;link</span><span class="w"> </span><span class="na">source=</span><span class="s">"mask_100.output_image"</span><span class="w"> </span><span class="na">dest=</span><span class="s">"output_100"</span><span class="nt">/&gt;</span>
 
-<span class="w">    </span><span class="nt">&lt;processes_selection</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;select_method&quot;</span><span class="nt">&gt;</span>
-<span class="w">        </span><span class="nt">&lt;processes_group</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;greater than&quot;</span><span class="nt">&gt;</span>
-<span class="w">            </span><span class="nt">&lt;process</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;threshold_gt_1&quot;</span><span class="nt">/&gt;</span>
-<span class="w">            </span><span class="nt">&lt;process</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;threshold_gt_10&quot;</span><span class="nt">/&gt;</span>
-<span class="w">            </span><span class="nt">&lt;process</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;threshold_gt_100&quot;</span><span class="nt">/&gt;</span>
+<span class="w">    </span><span class="nt">&lt;processes_selection</span><span class="w"> </span><span class="na">name=</span><span class="s">"select_method"</span><span class="nt">&gt;</span>
+<span class="w">        </span><span class="nt">&lt;processes_group</span><span class="w"> </span><span class="na">name=</span><span class="s">"greater than"</span><span class="nt">&gt;</span>
+<span class="w">            </span><span class="nt">&lt;process</span><span class="w"> </span><span class="na">name=</span><span class="s">"threshold_gt_1"</span><span class="nt">/&gt;</span>
+<span class="w">            </span><span class="nt">&lt;process</span><span class="w"> </span><span class="na">name=</span><span class="s">"threshold_gt_10"</span><span class="nt">/&gt;</span>
+<span class="w">            </span><span class="nt">&lt;process</span><span class="w"> </span><span class="na">name=</span><span class="s">"threshold_gt_100"</span><span class="nt">/&gt;</span>
 <span class="w">        </span><span class="nt">&lt;/processes_group&gt;</span>
-<span class="w">        </span><span class="nt">&lt;processes_group</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;lower than&quot;</span><span class="nt">&gt;</span>
-<span class="w">            </span><span class="nt">&lt;process</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;threshold_lt_1&quot;</span><span class="nt">/&gt;</span>
-<span class="w">            </span><span class="nt">&lt;process</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;threshold_lt_10&quot;</span><span class="nt">/&gt;</span>
-<span class="w">            </span><span class="nt">&lt;process</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;threshold_lt_100&quot;</span><span class="nt">/&gt;</span>
+<span class="w">        </span><span class="nt">&lt;processes_group</span><span class="w"> </span><span class="na">name=</span><span class="s">"lower than"</span><span class="nt">&gt;</span>
+<span class="w">            </span><span class="nt">&lt;process</span><span class="w"> </span><span class="na">name=</span><span class="s">"threshold_lt_1"</span><span class="nt">/&gt;</span>
+<span class="w">            </span><span class="nt">&lt;process</span><span class="w"> </span><span class="na">name=</span><span class="s">"threshold_lt_10"</span><span class="nt">/&gt;</span>
+<span class="w">            </span><span class="nt">&lt;process</span><span class="w"> </span><span class="na">name=</span><span class="s">"threshold_lt_100"</span><span class="nt">/&gt;</span>
 <span class="w">        </span><span class="nt">&lt;/processes_group&gt;</span>
 <span class="w">    </span><span class="nt">&lt;/processes_selection&gt;</span>
 
 <span class="w">    </span><span class="nt">&lt;gui&gt;</span>
-<span class="w">        </span><span class="nt">&lt;position</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;threshold_gt_100&quot;</span><span class="w"> </span><span class="na">x=</span><span class="s">&quot;386.0&quot;</span><span class="w"> </span><span class="na">y=</span><span class="s">&quot;403.0&quot;</span><span class="nt">/&gt;</span>
-<span class="w">        </span><span class="nt">&lt;position</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;inputs&quot;</span><span class="w"> </span><span class="na">x=</span><span class="s">&quot;50.0&quot;</span><span class="w"> </span><span class="na">y=</span><span class="s">&quot;50.0&quot;</span><span class="nt">/&gt;</span>
-<span class="w">        </span><span class="nt">&lt;position</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;mask_1&quot;</span><span class="w"> </span><span class="na">x=</span><span class="s">&quot;815.0&quot;</span><span class="w"> </span><span class="na">y=</span><span class="s">&quot;153.0&quot;</span><span class="nt">/&gt;</span>
-<span class="w">        </span><span class="nt">&lt;position</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;threshold_gt_10&quot;</span><span class="w"> </span><span class="na">x=</span><span class="s">&quot;374.0&quot;</span><span class="w"> </span><span class="na">y=</span><span class="s">&quot;242.0&quot;</span><span class="nt">/&gt;</span>
-<span class="w">        </span><span class="nt">&lt;position</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;threshold_lt_100&quot;</span><span class="w"> </span><span class="na">x=</span><span class="s">&quot;556.0&quot;</span><span class="w"> </span><span class="na">y=</span><span class="s">&quot;314.0&quot;</span><span class="nt">/&gt;</span>
-<span class="w">        </span><span class="nt">&lt;position</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;threshold_gt_1&quot;</span><span class="w"> </span><span class="na">x=</span><span class="s">&quot;371.0&quot;</span><span class="w"> </span><span class="na">y=</span><span class="s">&quot;88.0&quot;</span><span class="nt">/&gt;</span>
-<span class="w">        </span><span class="nt">&lt;position</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;mask_10&quot;</span><span class="w"> </span><span class="na">x=</span><span class="s">&quot;820.0&quot;</span><span class="w"> </span><span class="na">y=</span><span class="s">&quot;293.0&quot;</span><span class="nt">/&gt;</span>
-<span class="w">        </span><span class="nt">&lt;position</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;mask_100&quot;</span><span class="w"> </span><span class="na">x=</span><span class="s">&quot;826.0&quot;</span><span class="w"> </span><span class="na">y=</span><span class="s">&quot;451.0&quot;</span><span class="nt">/&gt;</span>
-<span class="w">        </span><span class="nt">&lt;position</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;threshold_lt_1&quot;</span><span class="w"> </span><span class="na">x=</span><span class="s">&quot;570.0&quot;</span><span class="w"> </span><span class="na">y=</span><span class="s">&quot;6.0&quot;</span><span class="nt">/&gt;</span>
-<span class="w">        </span><span class="nt">&lt;position</span><span class="w"> </span><span class="na">name=</span><span class="s">&quot;threshold_lt_10&quot;</span><span class="w"> </span><span class="na">x=</span><span class="s">&quot;568.0&quot;</span><span class="w"> </span><span class="na">y=</span><span class="s">&quot;145.0&quot;</span><span class="nt">/&gt;</span>
-<span class="w">        </span><span class="nt">&lt;zoom</span><span class="w"> </span><span class="na">level=</span><span class="s">&quot;1.0&quot;</span><span class="nt">/&gt;</span>
+<span class="w">        </span><span class="nt">&lt;position</span><span class="w"> </span><span class="na">name=</span><span class="s">"threshold_gt_100"</span><span class="w"> </span><span class="na">x=</span><span class="s">"386.0"</span><span class="w"> </span><span class="na">y=</span><span class="s">"403.0"</span><span class="nt">/&gt;</span>
+<span class="w">        </span><span class="nt">&lt;position</span><span class="w"> </span><span class="na">name=</span><span class="s">"inputs"</span><span class="w"> </span><span class="na">x=</span><span class="s">"50.0"</span><span class="w"> </span><span class="na">y=</span><span class="s">"50.0"</span><span class="nt">/&gt;</span>
+<span class="w">        </span><span class="nt">&lt;position</span><span class="w"> </span><span class="na">name=</span><span class="s">"mask_1"</span><span class="w"> </span><span class="na">x=</span><span class="s">"815.0"</span><span class="w"> </span><span class="na">y=</span><span class="s">"153.0"</span><span class="nt">/&gt;</span>
+<span class="w">        </span><span class="nt">&lt;position</span><span class="w"> </span><span class="na">name=</span><span class="s">"threshold_gt_10"</span><span class="w"> </span><span class="na">x=</span><span class="s">"374.0"</span><span class="w"> </span><span class="na">y=</span><span class="s">"242.0"</span><span class="nt">/&gt;</span>
+<span class="w">        </span><span class="nt">&lt;position</span><span class="w"> </span><span class="na">name=</span><span class="s">"threshold_lt_100"</span><span class="w"> </span><span class="na">x=</span><span class="s">"556.0"</span><span class="w"> </span><span class="na">y=</span><span class="s">"314.0"</span><span class="nt">/&gt;</span>
+<span class="w">        </span><span class="nt">&lt;position</span><span class="w"> </span><span class="na">name=</span><span class="s">"threshold_gt_1"</span><span class="w"> </span><span class="na">x=</span><span class="s">"371.0"</span><span class="w"> </span><span class="na">y=</span><span class="s">"88.0"</span><span class="nt">/&gt;</span>
+<span class="w">        </span><span class="nt">&lt;position</span><span class="w"> </span><span class="na">name=</span><span class="s">"mask_10"</span><span class="w"> </span><span class="na">x=</span><span class="s">"820.0"</span><span class="w"> </span><span class="na">y=</span><span class="s">"293.0"</span><span class="nt">/&gt;</span>
+<span class="w">        </span><span class="nt">&lt;position</span><span class="w"> </span><span class="na">name=</span><span class="s">"mask_100"</span><span class="w"> </span><span class="na">x=</span><span class="s">"826.0"</span><span class="w"> </span><span class="na">y=</span><span class="s">"451.0"</span><span class="nt">/&gt;</span>
+<span class="w">        </span><span class="nt">&lt;position</span><span class="w"> </span><span class="na">name=</span><span class="s">"threshold_lt_1"</span><span class="w"> </span><span class="na">x=</span><span class="s">"570.0"</span><span class="w"> </span><span class="na">y=</span><span class="s">"6.0"</span><span class="nt">/&gt;</span>
+<span class="w">        </span><span class="nt">&lt;position</span><span class="w"> </span><span class="na">name=</span><span class="s">"threshold_lt_10"</span><span class="w"> </span><span class="na">x=</span><span class="s">"568.0"</span><span class="w"> </span><span class="na">y=</span><span class="s">"145.0"</span><span class="nt">/&gt;</span>
+<span class="w">        </span><span class="nt">&lt;zoom</span><span class="w"> </span><span class="na">level=</span><span class="s">"1.0"</span><span class="nt">/&gt;</span>
 <span class="w">    </span><span class="nt">&lt;/gui&gt;</span>
 <span class="nt">&lt;/pipeline&gt;</span>
 </pre></div>
@@ -695,13 +695,13 @@ instance, to try to instantiate all processes and pipelines defined in
 the module <code class="docutils literal notranslate"><span class="pre">clinfmri</span></code> :</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">capsul.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_process_instance</span><span class="p">,</span> <span class="n">find_processes</span>
 
-<span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">find_processes</span><span class="p">(</span><span class="s1">&#39;clinfmri&#39;</span><span class="p">):</span>
+<span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">find_processes</span><span class="p">(</span><span class="s1">'clinfmri'</span><span class="p">):</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">get_process_instance</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-        <span class="nb">print</span> <span class="s1">&#39;FAILED&#39;</span><span class="p">,</span> <span class="n">p</span>
+        <span class="nb">print</span> <span class="s1">'FAILED'</span><span class="p">,</span> <span class="n">p</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="nb">print</span> <span class="s1">&#39;GOOD&#39;</span><span class="p">,</span> <span class="n">p</span>
+        <span class="nb">print</span> <span class="s1">'GOOD'</span><span class="p">,</span> <span class="n">p</span>
 </pre></div>
 </div>
 <section id="xml-validation">

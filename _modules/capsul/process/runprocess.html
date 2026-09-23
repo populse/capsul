@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
     
-    <script src="../../../_static/documentation_options.js?v=b9f4bfa5"></script>
+    <script src="../../../_static/documentation_options.js?v=727d2f68"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -116,21 +116,21 @@
 <span class="c1"># French law and abiding by the rules of distribution of free software.</span>
 <span class="c1"># You can  use, modify and/or redistribute the software under the</span>
 <span class="c1"># terms of the CeCILL license version 2 as circulated by CEA, CNRS</span>
-<span class="c1"># and INRIA at the following URL &quot;http://www.cecill.info&quot;.</span>
+<span class="c1"># and INRIA at the following URL "http://www.cecill.info".</span>
 <span class="c1">#</span>
 <span class="c1"># As a counterpart to the access to the source code and  rights to copy,</span>
 <span class="c1"># modify and redistribute granted by the license, users are provided only</span>
-<span class="c1"># with a limited warranty  and the software&#39;s author,  the holder of the</span>
+<span class="c1"># with a limited warranty  and the software's author,  the holder of the</span>
 <span class="c1"># economic rights,  and the successive licensors  have only  limited</span>
 <span class="c1"># liability.</span>
 <span class="c1">#</span>
-<span class="c1"># In this respect, the user&#39;s attention is drawn to the risks associated</span>
+<span class="c1"># In this respect, the user's attention is drawn to the risks associated</span>
 <span class="c1"># with loading,  using,  modifying and/or developing or reproducing the</span>
 <span class="c1"># software by the user in light of its specific status of free software,</span>
 <span class="c1"># that may mean  that it is complicated to manipulate,  and  that  also</span>
 <span class="c1"># therefore means  that it is reserved for developers  and  experienced</span>
 <span class="c1"># professionals having in-depth computer knowledge. Users are therefore</span>
-<span class="c1"># encouraged to load and test the software&#39;s suitability as regards their</span>
+<span class="c1"># encouraged to load and test the software's suitability as regards their</span>
 <span class="c1"># requirements in conditions enabling the security of their systems and/or</span>
 <span class="c1"># data to be ensured and,  more generally, to use and operate it in the</span>
 <span class="c1"># same conditions as regards security.</span>
@@ -138,7 +138,7 @@
 <span class="c1"># The fact that you are presently reading this means that you have had</span>
 <span class="c1"># knowledge of the CeCILL license version 2 and that you accept its terms.</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">capsul.process.runprocess is not a real python module, but rather an executable script with commandline arguments and options parsing. It is provided as a module just to be easily called via the python command in a portable way::</span>
 
 <span class="sd">    python -m capsul.process.runprocess &lt;process name&gt; &lt;process arguments&gt;</span>
@@ -162,7 +162,7 @@
 <span class="sd">++++++++++++</span>
 
 
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">StudyConfig</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">capsul_engine</span>
@@ -176,6 +176,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">optparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">OptionParser</span><span class="p">,</span> <span class="n">OptionGroup</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">traits.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">Undefined</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">traits.api</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">traits</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
 <span class="k">try</span><span class="p">:</span>
@@ -192,8 +193,8 @@
 <div class="viewcode-block" id="ProcessParamError">
 <a class="viewcode-back" href="../../../api/process.html#capsul.process.runprocess.ProcessParamError">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ProcessParamError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39; Exception used in the ``runprocess`` module</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">''' Exception used in the ``runprocess`` module</span>
+<span class="sd">    '''</span>
     <span class="k">pass</span></div>
 
 
@@ -201,29 +202,29 @@
 <div class="viewcode-block" id="set_process_param_from_str">
 <a class="viewcode-back" href="../../../api/process.html#capsul.process.runprocess.set_process_param_from_str">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">set_process_param_from_str</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">arg</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Set a process parameter from a string representation.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="s1">&#39;.&#39;</span> <span class="ow">in</span> <span class="n">k</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;nodes&#39;</span><span class="p">):</span>
-        <span class="n">sub_node_name</span><span class="p">,</span> <span class="n">k2</span> <span class="o">=</span> <span class="n">k</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">"""Set a process parameter from a string representation."""</span>
+    <span class="k">if</span> <span class="s1">'.'</span> <span class="ow">in</span> <span class="n">k</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">'nodes'</span><span class="p">):</span>
+        <span class="n">sub_node_name</span><span class="p">,</span> <span class="n">k2</span> <span class="o">=</span> <span class="n">k</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'.'</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">sub_node</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sub_node_name</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">sub_node</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">set_process_param_from_str</span><span class="p">(</span><span class="n">sub_node</span><span class="p">,</span> <span class="n">k2</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-                <span class="n">sub_proc</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sub_node</span><span class="p">,</span> <span class="s1">&#39;process&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="n">sub_proc</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sub_node</span><span class="p">,</span> <span class="s1">'process'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">sub_proc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="k">return</span> <span class="n">set_process_param_from_str</span><span class="p">(</span><span class="n">sub_proc</span><span class="p">,</span> <span class="n">k2</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
-    <span class="n">klist</span> <span class="o">=</span> <span class="n">k</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+    <span class="n">klist</span> <span class="o">=</span> <span class="n">k</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'.'</span><span class="p">)</span>
     <span class="n">k</span> <span class="o">=</span> <span class="n">klist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">klist</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">process</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
-            <span class="c1"># print(&#39;set non-trait value:&#39;, process, k, repr(arg))</span>
+            <span class="c1"># print('set non-trait value:', process, k, repr(arg))</span>
             <span class="nb">setattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
             <span class="k">return</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;pipeline_node&#39;</span><span class="p">)</span> \
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">'pipeline_node'</span><span class="p">)</span> \
                 <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">pipeline_node</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
             <span class="nb">setattr</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">pipeline_node</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
             <span class="k">return</span>
-        <span class="k">raise</span> <span class="n">ProcessParamError</span><span class="p">(</span><span class="s2">&quot;Unknown parameter </span><span class="si">{0}</span><span class="s2"> for process </span><span class="si">{1}</span><span class="s2">&quot;</span>
+        <span class="k">raise</span> <span class="n">ProcessParamError</span><span class="p">(</span><span class="s2">"Unknown parameter </span><span class="si">{0}</span><span class="s2"> for process </span><span class="si">{1}</span><span class="s2">"</span>
                                 <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">process</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">klist</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
@@ -236,6 +237,8 @@
     <span class="k">try</span><span class="p">:</span>
         <span class="n">evaluate</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="o">.</span><span class="n">trait_type</span><span class="o">.</span><span class="n">evaluate</span>
     <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="o">.</span><span class="n">trait_type</span><span class="p">)</span> <span class="ow">in</span> <span class="p">(</span><span class="n">traits</span><span class="o">.</span><span class="n">String</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">Str</span><span class="p">):</span>
+            <span class="n">evaluate</span> <span class="o">=</span> <span class="nb">str</span>
         <span class="n">evaluate</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="n">evaluate</span><span class="p">:</span>
         <span class="n">arg</span> <span class="o">=</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
@@ -244,7 +247,7 @@
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">Pipeline</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">process</span><span class="o">.</span><span class="n">propagate_metadata</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">pipeline_node</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span>
-                                       <span class="p">{</span><span class="s1">&#39;forbid_completion&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+                                       <span class="p">{</span><span class="s1">'forbid_completion'</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="c1"># some traits like pipeline_steps are not parameters</span>
             <span class="k">pass</span></div>
@@ -255,41 +258,41 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">Pipeline</span><span class="p">):</span>
         <span class="k">return</span>
 
-    <span class="n">param_steps</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;pipeline_steps&#39;</span><span class="p">)</span>
+    <span class="n">param_steps</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'pipeline_steps'</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">param_steps</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span>
 
-    <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;pipeline_steps&#39;</span><span class="p">]</span>
+    <span class="k">del</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">'pipeline_steps'</span><span class="p">]</span>
 
-    <span class="n">pipeline_steps</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;pipeline_steps&#39;</span><span class="p">)</span>
+    <span class="n">pipeline_steps</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">'pipeline_steps'</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pipeline_steps</span><span class="p">,</span> <span class="n">Controller</span><span class="p">):</span>
         <span class="k">return</span>
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param_steps</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="n">param_steps</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">param_steps</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)]</span>
-    <span class="n">steps</span> <span class="o">=</span> <span class="p">[[</span><span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">p</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">)]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">param_steps</span><span class="p">]</span>
+        <span class="n">param_steps</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">param_steps</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">','</span><span class="p">)]</span>
+    <span class="n">steps</span> <span class="o">=</span> <span class="p">[[</span><span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">p</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'='</span><span class="p">)]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">param_steps</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">steps</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">s</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">val</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">val</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span> <span class="s1">&#39;False&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">val</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">'0'</span><span class="p">,</span> <span class="s1">'False'</span><span class="p">):</span>
                 <span class="n">val</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">val</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
-    <span class="n">steps</span> <span class="o">=</span> <span class="p">[[[</span><span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)]]</span> <span class="o">+</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">steps</span><span class="p">]</span>
+    <span class="n">steps</span> <span class="o">=</span> <span class="p">[[[</span><span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'-'</span><span class="p">)]]</span> <span class="o">+</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">steps</span><span class="p">]</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">steps</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">steps</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]:</span>
         <span class="c1"># set all steps to False</span>
-        <span class="n">steps</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">[[</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">],</span> <span class="kc">False</span><span class="p">])</span>
+        <span class="n">steps</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">[[</span><span class="s1">''</span><span class="p">,</span> <span class="s1">''</span><span class="p">],</span> <span class="kc">False</span><span class="p">])</span>
 
     <span class="k">for</span> <span class="n">srange</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">steps</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">srange</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">srange</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">srange</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">''</span><span class="p">:</span>
                 <span class="n">s0</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">s0</span> <span class="o">=</span> <span class="n">pipeline_steps</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">srange</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-            <span class="k">if</span> <span class="n">srange</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">srange</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">''</span><span class="p">:</span>
                 <span class="n">s1</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">pipeline_steps</span><span class="o">.</span><span class="n">user_traits</span><span class="p">())</span> <span class="o">-</span> <span class="mi">1</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">s1</span> <span class="o">=</span> <span class="n">pipeline_steps</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">srange</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
@@ -302,7 +305,7 @@
 <a class="viewcode-back" href="../../../api/process.html#capsul.process.runprocess.get_process_with_params">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_process_with_params</span><span class="p">(</span><span class="n">process_name</span><span class="p">,</span> <span class="n">study_config</span><span class="p">,</span> <span class="n">iterated_params</span><span class="o">=</span><span class="p">[],</span>
                             <span class="n">attributes</span><span class="o">=</span><span class="p">{},</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39; Instantiate a process, or an iteration over processes, and fill in its</span>
+<span class="w">    </span><span class="sd">''' Instantiate a process, or an iteration over processes, and fill in its</span>
 <span class="sd">    parameters.</span>
 
 <span class="sd">    Parameters</span>
@@ -317,7 +320,7 @@
 <span class="sd">    attributes: dict (optional)</span>
 <span class="sd">        dictionary of attributes for completion system.</span>
 <span class="sd">    *args:</span>
-<span class="sd">        sequential parameters for the process. In iteration, &quot;normal&quot;</span>
+<span class="sd">        sequential parameters for the process. In iteration, "normal"</span>
 <span class="sd">        parameters are set with the same value for all iterations, and iterated</span>
 <span class="sd">        parameters dispatch their values to each iteration.</span>
 <span class="sd">    **kwargs:</span>
@@ -326,7 +329,7 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    process: Process instance</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="n">process</span> <span class="o">=</span> <span class="n">study_config</span><span class="o">.</span><span class="n">get_process_instance</span><span class="p">(</span><span class="n">process_name</span><span class="p">)</span>
     <span class="n">signature</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()</span>
     <span class="n">params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">signature</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
@@ -337,7 +340,7 @@
     <span class="k">if</span> <span class="n">iterated_params</span><span class="p">:</span>
 
         <span class="n">pipeline</span> <span class="o">=</span> <span class="n">study_config</span><span class="o">.</span><span class="n">get_process_instance</span><span class="p">(</span><span class="n">Pipeline</span><span class="p">)</span>
-        <span class="n">pipeline</span><span class="o">.</span><span class="n">add_iterative_process</span><span class="p">(</span><span class="s1">&#39;iteration&#39;</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">iterated_params</span><span class="p">)</span>
+        <span class="n">pipeline</span><span class="o">.</span><span class="n">add_iterative_process</span><span class="p">(</span><span class="s1">'iteration'</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">iterated_params</span><span class="p">)</span>
         <span class="n">pipeline</span><span class="o">.</span><span class="n">autoexport_nodes_parameters</span><span class="p">(</span><span class="n">include_optional</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">process</span> <span class="o">=</span> <span class="n">pipeline</span>
 
@@ -355,8 +358,8 @@
     <span class="k">try</span><span class="p">:</span>
         <span class="n">completion_engine</span><span class="o">.</span><span class="n">get_attribute_values</span><span class="p">()</span><span class="o">.</span><span class="n">import_from_dict</span><span class="p">(</span><span class="n">attributes</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;error in completion attributes settings. Controller attributes &#39;</span>
-              <span class="s1">&#39;are:&#39;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">'error in completion attributes settings. Controller attributes '</span>
+              <span class="s1">'are:'</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">completion_engine</span><span class="o">.</span><span class="n">get_attribute_values</span><span class="p">()</span><span class="o">.</span><span class="n">user_traits</span><span class="p">(),</span>
               <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
         <span class="k">raise</span>
@@ -374,7 +377,7 @@
         <span class="n">queue</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">input_file_processing</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_file_processing</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">keep_workflow</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">keep_failed_workflow</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">write_workflow_only</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_running_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_queued_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39; Run the given process, either sequentially or distributed through</span>
+<span class="w">    </span><span class="sd">''' Run the given process, either sequentially or distributed through</span>
 <span class="sd">    Soma-Workflow.</span>
 
 <span class="sd">    Parameters</span>
@@ -420,7 +423,7 @@
 <span class="sd">        override the queue settings for OCFG_MAX_JOB_RUNNING in soma-workflow</span>
 <span class="sd">    max_queued_jobs: int</span>
 <span class="sd">        override the queue settings for OCFG_MAX_JOB_IN_QUEUE in soma-workflow</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="k">if</span> <span class="n">write_workflow_only</span><span class="p">:</span>
         <span class="n">use_soma_workflow</span> <span class="o">=</span> <span class="kc">True</span>
 
@@ -440,7 +443,7 @@
 
             <span class="k">return</span>
 
-        <span class="n">swm</span> <span class="o">=</span> <span class="n">study_config</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s1">&#39;SomaWorkflowConfig&#39;</span><span class="p">]</span>
+        <span class="n">swm</span> <span class="o">=</span> <span class="n">study_config</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s1">'SomaWorkflowConfig'</span><span class="p">]</span>
         <span class="n">resource_id</span> <span class="o">=</span> <span class="n">swm</span><span class="o">.</span><span class="n">get_resource_id</span><span class="p">(</span><span class="n">resource_id</span><span class="p">,</span> <span class="n">set_it</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">password</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">rsa_key_pass</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">swm</span><span class="o">.</span><span class="n">set_computing_resource_password</span><span class="p">(</span><span class="n">resource_id</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span>
@@ -455,23 +458,23 @@
                     <span class="n">resource_id</span><span class="p">)</span><span class="o">.</span><span class="n">queue</span> <span class="o">=</span> <span class="n">queue</span>
         <span class="k">if</span> <span class="n">max_running_jobs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">max_queued_jobs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">values</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="n">values</span><span class="p">[</span><span class="s1">&#39;computing_resource&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">resource_id</span>
+            <span class="n">values</span><span class="p">[</span><span class="s1">'computing_resource'</span><span class="p">]</span> <span class="o">=</span> <span class="n">resource_id</span>
             <span class="k">if</span> <span class="n">queue</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">values</span><span class="p">[</span><span class="s1">&#39;queue&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">queue</span>
+                <span class="n">values</span><span class="p">[</span><span class="s1">'queue'</span><span class="p">]</span> <span class="o">=</span> <span class="n">queue</span>
             <span class="k">if</span> <span class="n">max_running_jobs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">values</span><span class="p">[</span><span class="s1">&#39;max_running_jobs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_running_jobs</span>
+                <span class="n">values</span><span class="p">[</span><span class="s1">'max_running_jobs'</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_running_jobs</span>
             <span class="k">if</span> <span class="n">max_queued_jobs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">values</span><span class="p">[</span><span class="s1">&#39;max_queued_jobs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_queued_jobs</span>
+                <span class="n">values</span><span class="p">[</span><span class="s1">'max_queued_jobs'</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_queued_jobs</span>
             <span class="n">engine</span> <span class="o">=</span> <span class="n">study_config</span><span class="o">.</span><span class="n">engine</span>
-            <span class="n">engine</span><span class="o">.</span><span class="n">load_module</span><span class="p">(</span><span class="s1">&#39;somaworkflow&#39;</span><span class="p">)</span>
+            <span class="n">engine</span><span class="o">.</span><span class="n">load_module</span><span class="p">(</span><span class="s1">'somaworkflow'</span><span class="p">)</span>
             <span class="k">with</span> <span class="n">engine</span><span class="o">.</span><span class="n">settings</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
-                <span class="n">query</span> <span class="o">=</span> <span class="s1">&#39;config_id == &quot;somaworkflow&quot;&#39;</span>
+                <span class="n">query</span> <span class="o">=</span> <span class="s1">'config_id == "somaworkflow"'</span>
                 <span class="k">if</span> <span class="n">resource_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">query</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39; AND computing_resource == &quot;</span><span class="si">{</span><span class="n">resource_id</span><span class="si">}</span><span class="s1">&quot;&#39;</span>
-                <span class="n">conf</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s1">&#39;somaworkflow&#39;</span><span class="p">,</span> <span class="s1">&#39;global&#39;</span><span class="p">,</span>
+                    <span class="n">query</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">' AND computing_resource == "</span><span class="si">{</span><span class="n">resource_id</span><span class="si">}</span><span class="s1">"'</span>
+                <span class="n">conf</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s1">'somaworkflow'</span><span class="p">,</span> <span class="s1">'global'</span><span class="p">,</span>
                                       <span class="n">selection</span><span class="o">=</span><span class="n">query</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">conf</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">session</span><span class="o">.</span><span class="n">new_config</span><span class="p">(</span><span class="s1">&#39;somaworkflow&#39;</span><span class="p">,</span> <span class="s1">&#39;global&#39;</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
+                    <span class="n">session</span><span class="o">.</span><span class="n">new_config</span><span class="p">(</span><span class="s1">'somaworkflow'</span><span class="p">,</span> <span class="s1">'global'</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                         <span class="nb">setattr</span><span class="p">(</span><span class="n">conf</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
@@ -482,9 +485,9 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">convert_commandline_parameter</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
-    <span class="n">i</span> <span class="o">=</span> <span class="n">i</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&lt;undefined&gt;&#39;</span><span class="p">,</span> <span class="s1">&#39;Undefined&#39;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="s1">&#39;[({&quot;</span><span class="se">\&#39;</span><span class="s1">&#39;</span> <span class="ow">or</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;None&#39;</span><span class="p">,</span> <span class="s1">&#39;True&#39;</span><span class="p">,</span> <span class="s1">&#39;False&#39;</span><span class="p">,</span>
-                                              <span class="s1">&#39;Undefined&#39;</span><span class="p">)):</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="n">i</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'&lt;undefined&gt;'</span><span class="p">,</span> <span class="s1">'Undefined'</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="s1">'[({"</span><span class="se">\'</span><span class="s1">'</span> <span class="ow">or</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'None'</span><span class="p">,</span> <span class="s1">'True'</span><span class="p">,</span> <span class="s1">'False'</span><span class="p">,</span>
+                                              <span class="s1">'Undefined'</span><span class="p">)):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">res</span><span class="o">=</span><span class="nb">eval</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
@@ -498,13 +501,13 @@
 <div class="viewcode-block" id="main">
 <a class="viewcode-back" href="../../../api/process.html#capsul.process.runprocess.main">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39; Run the :mod:`capsul.process.runprocess` module as a commandline</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">''' Run the :mod:`capsul.process.runprocess` module as a commandline</span>
+<span class="sd">    '''</span>
 
     <span class="c1"># disable any GUI</span>
     <span class="n">qt_backend</span><span class="o">.</span><span class="n">set_headless</span><span class="p">(</span><span class="n">needs_opengl</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-    <span class="n">usage</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;Usage: python -m capsul [options] processname [arg1] [arg2] ...</span>
+    <span class="n">usage</span> <span class="o">=</span> <span class="s1">'''Usage: python -m capsul [options] processname [arg1] [arg2] ...</span>
 <span class="s1">    [argx=valuex] [argy=valuey] ...</span>
 
 <span class="s1">    Example::</span>
@@ -528,7 +531,7 @@
 <span class="s1">        axon-runprocess capsul://capsul.engine.write_engine_config engine.json</span>
 
 <span class="s1">    Then the file ``engine.json`` will be OK.</span>
-<span class="s1">    Alternatively, using &quot;--config axon&quot; will do this for you internally.</span>
+<span class="s1">    Alternatively, using "--config axon" will do this for you internally.</span>
 
 <span class="s1">    It is possible to reach sub-process parameters in a pipeline by addressing</span>
 <span class="s1">    their node in the parent pipeline:</span>
@@ -541,187 +544,197 @@
 <span class="s1">    process only part of the pipeline. They are kind of groups of nodes, but</span>
 <span class="s1">    behave a bit differently for the pipeline parameters completion and checks.</span>
 
-<span class="s1">    Steps can be specified as the &quot;pipeline_steps&quot; parameter, with a syntax</span>
+<span class="s1">    Steps can be specified as the "pipeline_steps" parameter, with a syntax</span>
 <span class="s1">    which can mix ranges and values, ex::</span>
 
-<span class="s1">        python -m capsul morphologist.capsul.morphologist pipeline_steps=&quot;importation,bias_correction&quot;</span>
+<span class="s1">        python -m capsul morphologist.capsul.morphologist pipeline_steps="importation,bias_correction"</span>
 
 <span class="s1">    will do only these 2 steps. While::</span>
 
-<span class="s1">        python -m capsul morphologist.capsul.morphologist pipeline_steps=&quot;brain_extraction, head_mesh-, sulci_labelling=False&quot;</span>
+<span class="s1">        python -m capsul morphologist.capsul.morphologist pipeline_steps="brain_extraction, head_mesh-, sulci_labelling=False"</span>
 
 <span class="s1">    will do brain_extraction, then all steps from head_mesh, except</span>
 <span class="s1">    sulci_labelling which is disabled.</span>
-<span class="s1">    &#39;&#39;&#39;</span>
+<span class="s1">    '''</span>
 
     <span class="c1"># Set up logging on stderr. This must be called before any logging takes</span>
-    <span class="c1"># place, to avoid &quot;No handlers could be found for logger&quot; errors.</span>
+    <span class="c1"># place, to avoid "No handlers could be found for logger" errors.</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">()</span>
 
-    <span class="n">parser</span> <span class="o">=</span> <span class="n">OptionParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Run a single CAPSUL process&#39;</span><span class="p">,</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">OptionParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">'Run a single CAPSUL process'</span><span class="p">,</span>
         <span class="n">usage</span><span class="o">=</span><span class="n">usage</span><span class="p">)</span>
     <span class="n">group1</span> <span class="o">=</span> <span class="n">OptionGroup</span><span class="p">(</span>
-        <span class="n">parser</span><span class="p">,</span> <span class="s1">&#39;Config&#39;</span><span class="p">,</span>
-        <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Processing configuration, database options&#39;</span><span class="p">)</span>
-    <span class="n">group1</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;--studyconfig&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;studyconfig&#39;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;load StudyConfig configuration from the given file (JSON)&#39;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="p">,</span> <span class="s1">'Config'</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s1">'Processing configuration, database options'</span><span class="p">)</span>
+    <span class="n">group1</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">'--studyconfig'</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">'studyconfig'</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">'load StudyConfig configuration from the given file (JSON)'</span><span class="p">)</span>
     <span class="n">group1</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
-        <span class="s1">&#39;--config&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;config&#39;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;load Capsul engine configuration from the given file (JSON) &#39;</span>
-        <span class="s1">&#39;(CapsulEngine shape, not Studyconfig -- use --studyconfig &#39;</span>
-        <span class="s1">&#39;otherwise). Using &quot;--config axon&quot; will run the conversion process in &#39;</span>
-        <span class="s1">&#39;Axon and import the config.&#39;</span><span class="p">)</span>
-    <span class="n">group1</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;-i&#39;</span><span class="p">,</span> <span class="s1">&#39;--input&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;input_directory&#39;</span><span class="p">,</span>
-                      <span class="n">help</span><span class="o">=</span><span class="s1">&#39;input data directory (if not specified in &#39;</span>
-                      <span class="s1">&#39;studyconfig file). If not specified neither on the &#39;</span>
-                      <span class="s1">&#39;commandline nor study configfile, taken as the same as &#39;</span>
-                      <span class="s1">&#39;output.&#39;</span><span class="p">)</span>
-    <span class="n">group1</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;-o&#39;</span><span class="p">,</span> <span class="s1">&#39;--output&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;output_directory&#39;</span><span class="p">,</span>
-                      <span class="n">help</span><span class="o">=</span><span class="s1">&#39;output data directory (if not specified in &#39;</span>
-                      <span class="s1">&#39;studyconfig file). If not specified neither on the &#39;</span>
-                      <span class="s1">&#39;commandline nor study configfile, taken as the same as &#39;</span>
-                      <span class="s1">&#39;input.&#39;</span><span class="p">)</span>
-    <span class="n">group1</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;--if&#39;</span><span class="p">,</span> <span class="s1">&#39;--input-fom&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;input_fom&#39;</span><span class="p">,</span>
-                      <span class="n">help</span><span class="o">=</span><span class="s1">&#39;input FOM (File Organization Model). Decides &#39;</span>
-                      <span class="s1">&#39;which files and directories layout for the input &#39;</span>
-                      <span class="s1">&#39;data. Generally &quot;morphologist-bids-2.0&quot; or &#39;</span>
-                      <span class="s1">&#39;&quot;morphologist-auto-1.0&quot;. Default: &#39;</span>
-                      <span class="s1">&#39;&quot;morphologist-bids-2.0&quot;&#39;</span><span class="p">)</span>
-    <span class="n">group1</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;--of&#39;</span><span class="p">,</span> <span class="s1">&#39;--output-fom&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;output_fom&#39;</span><span class="p">,</span>
-                      <span class="n">help</span><span class="o">=</span><span class="s1">&#39;input FOM (File Organization Model). Decides &#39;</span>
-                      <span class="s1">&#39;which files and directories layout for the output &#39;</span>
-                      <span class="s1">&#39;data. Generally &quot;morphologist-bids-2.0&quot; or &#39;</span>
-                      <span class="s1">&#39;&quot;morphologist-auto-1.0&quot;. Default: &#39;</span>
-                      <span class="s1">&#39;&quot;morphologist-bids-2.0&quot;&#39;</span><span class="p">)</span>
-    <span class="n">group1</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;--params&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;paramsfile&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                      <span class="n">help</span><span class="o">=</span><span class="s1">&#39;specify a file containing commandline parameters. &#39;</span>
-                      <span class="s1">&#39;The file will contain arguments for this commandline &#39;</span>
-                      <span class="s1">&#39;(argv): it is an alternative to providing them here. &#39;</span>
-                      <span class="s1">&#39;It can be useful to reuse parameters, or when the &#39;</span>
-                      <span class="s1">&#39;parameters are too long (in a large iteration, &#39;</span>
-                      <span class="s1">&#39;typically). The file syntax is one line per parameter, &#39;</span>
-                      <span class="s1">&#39;with no further parsing. It will be processed after &#39;</span>
-                      <span class="s1">&#39;all the current commandline arguments, not right now &#39;</span>
-                      <span class="s1">&#39;as the argument appears. But if a parameter has &#39;</span>
-                      <span class="s1">&#39;already been set (via commandline), it will not be &#39;</span>
-                      <span class="s1">&#39;replaced: first set arguments have priority. If the &#39;</span>
-                      <span class="s1">&#39;params file itself contains a --params parameter, &#39;</span>
-                      <span class="s1">&#39;then another file will be read afterwards, and so on.&#39;</span><span class="p">)</span>
-    <span class="n">group1</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;--opengl&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                      <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Tell the process loading system that we will &#39;</span>
-                      <span class="s1">&#39;require headless OpenGL, which needs proper setup and &#39;</span>
-                      <span class="s1">&#39;libraries loading tweaks. Without this option, Qt and &#39;</span>
-                      <span class="s1">&#39;potentially graphical modules will be initialized in &#39;</span>
-                      <span class="s1">&#39;headless mode, but there will be no check for a &#39;</span>
-                      <span class="s1">&#39;working OpenGL/GLX implementation. In some cases it &#39;</span>
-                      <span class="s1">&#39;will work anyway, but in others (no X server) OpenGL &#39;</span>
-                      <span class="s1">&#39;will require using a virtual X server (Xvfb) and &#39;</span>
-                      <span class="s1">&#39;possibly loading appropriate OpenGL libraries. This is &#39;</span>
-                      <span class="s1">&#39;not done systematically because of the &#39;</span>
-                      <span class="s1">&#39;overhead it brings.&#39;</span><span class="p">)</span>
-    <span class="n">group1</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;-s&#39;</span><span class="p">,</span> <span class="s1">&#39;--show-pipeline&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
-                      <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Display and edit pipeline structure&#39;</span><span class="p">)</span>
-    <span class="n">group1</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;-e&#39;</span><span class="p">,</span> <span class="s1">&#39;--edit&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
-                      <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Display and edit process parameters&#39;</span><span class="p">)</span>
+        <span class="s1">'--config'</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">'config'</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">'load Capsul engine configuration from the given file (JSON) '</span>
+        <span class="s1">'(CapsulEngine shape, not Studyconfig -- use --studyconfig '</span>
+        <span class="s1">'otherwise). Using "--config axon" will run the conversion process in '</span>
+        <span class="s1">'Axon and import the config.'</span><span class="p">)</span>
+    <span class="n">group1</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">'-i'</span><span class="p">,</span> <span class="s1">'--input'</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">'input_directory'</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s1">'input data directory (if not specified in '</span>
+                      <span class="s1">'studyconfig file). If not specified neither on the '</span>
+                      <span class="s1">'commandline nor study configfile, taken as the same as '</span>
+                      <span class="s1">'output.'</span><span class="p">)</span>
+    <span class="n">group1</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">'-o'</span><span class="p">,</span> <span class="s1">'--output'</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">'output_directory'</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s1">'output data directory (if not specified in '</span>
+                      <span class="s1">'studyconfig file). If not specified neither on the '</span>
+                      <span class="s1">'commandline nor study configfile, taken as the same as '</span>
+                      <span class="s1">'input.'</span><span class="p">)</span>
+    <span class="n">group1</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">'--if'</span><span class="p">,</span> <span class="s1">'--input-fom'</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">'input_fom'</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s1">'input FOM (File Organization Model). Decides '</span>
+                      <span class="s1">'which files and directories layout for the input '</span>
+                      <span class="s1">'data. Generally "morphologist-bids-2.0" or '</span>
+                      <span class="s1">'"morphologist-auto-1.0". Default: '</span>
+                      <span class="s1">'"morphologist-bids-2.0"'</span><span class="p">)</span>
+    <span class="n">group1</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">'--of'</span><span class="p">,</span> <span class="s1">'--output-fom'</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">'output_fom'</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s1">'input FOM (File Organization Model). Decides '</span>
+                      <span class="s1">'which files and directories layout for the output '</span>
+                      <span class="s1">'data. Generally "morphologist-bids-2.0" or '</span>
+                      <span class="s1">'"morphologist-auto-1.0". Default: '</span>
+                      <span class="s1">'"morphologist-bids-2.0"'</span><span class="p">)</span>
+    <span class="n">group1</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">'--params'</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">'paramsfile'</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s1">'specify a file containing commandline parameters. '</span>
+                      <span class="s1">'The file will contain arguments for this commandline '</span>
+                      <span class="s1">'(argv): it is an alternative to providing them here. '</span>
+                      <span class="s1">'It can be useful to reuse parameters, or when the '</span>
+                      <span class="s1">'parameters are too long (in a large iteration, '</span>
+                      <span class="s1">'typically). The file syntax is one line per parameter, '</span>
+                      <span class="s1">'with no further parsing. It will be processed after '</span>
+                      <span class="s1">'all the current commandline arguments, not right now '</span>
+                      <span class="s1">'as the argument appears. But if a parameter has '</span>
+                      <span class="s1">'already been set (via commandline), it will not be '</span>
+                      <span class="s1">'replaced: first set arguments have priority. If the '</span>
+                      <span class="s1">'params file itself contains a --params parameter, '</span>
+                      <span class="s1">'then another file will be read afterwards, and so on.'</span><span class="p">)</span>
+    <span class="n">group1</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">'--opengl'</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">'store_true'</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s1">'Tell the process loading system that we will '</span>
+                      <span class="s1">'require headless OpenGL, which needs proper setup and '</span>
+                      <span class="s1">'libraries loading tweaks. Without this option, Qt and '</span>
+                      <span class="s1">'potentially graphical modules will be initialized in '</span>
+                      <span class="s1">'headless mode, but there will be no check for a '</span>
+                      <span class="s1">'working OpenGL/GLX implementation. In some cases it '</span>
+                      <span class="s1">'will work anyway, but in others (no X server) OpenGL '</span>
+                      <span class="s1">'will require using a virtual X server (Xvfb) and '</span>
+                      <span class="s1">'possibly loading appropriate OpenGL libraries. This is '</span>
+                      <span class="s1">'not done systematically because of the '</span>
+                      <span class="s1">'overhead it brings.'</span><span class="p">)</span>
+    <span class="n">group1</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">'-s'</span><span class="p">,</span> <span class="s1">'--show-pipeline'</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">'store_true'</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s1">'Display and edit pipeline structure'</span><span class="p">)</span>
+    <span class="n">group1</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">'-e'</span><span class="p">,</span> <span class="s1">'--edit'</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">'store_true'</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s1">'Display and edit process parameters'</span><span class="p">)</span>
+    <span class="n">group1</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">'-y'</span><span class="p">,</span> <span class="s1">'--interactive'</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">'store_true'</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s1">'interactive run, for a QC of viewer graphical '</span>
+                      <span class="s1">'process. In non-interactive mode, such processes will '</span>
+                      <span class="s1">'run offscreen and typically, will try to save a '</span>
+                      <span class="s1">'snapshot insteasd of showing an interactive display. '</span>
+                      <span class="s1">'This option is incompatible with the soma-workflow '</span>
+                      <span class="s1">'mode.'</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_option_group</span><span class="p">(</span><span class="n">group1</span><span class="p">)</span>
 
-    <span class="n">group2</span> <span class="o">=</span> <span class="n">OptionGroup</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="s1">&#39;Processing&#39;</span><span class="p">,</span>
-                        <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Processing options, distributed execution&#39;</span><span class="p">)</span>
-    <span class="n">group2</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;--swf&#39;</span><span class="p">,</span> <span class="s1">&#39;--soma_workflow&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;soma_workflow&#39;</span><span class="p">,</span>
+    <span class="n">group2</span> <span class="o">=</span> <span class="n">OptionGroup</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="s1">'Processing'</span><span class="p">,</span>
+                        <span class="n">description</span><span class="o">=</span><span class="s1">'Processing options, distributed execution'</span><span class="p">)</span>
+    <span class="n">group2</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">'--swf'</span><span class="p">,</span> <span class="s1">'--soma_workflow'</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">'soma_workflow'</span><span class="p">,</span>
                       <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                      <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span>
-                      <span class="n">help</span><span class="o">=</span><span class="s1">&#39;use soma_workflow. Soma-Workflow &#39;</span>
-                      <span class="s1">&#39;configuration has to be setup and valid for non-local &#39;</span>
-                      <span class="s1">&#39;execution, and additional file transfer options &#39;</span>
-                      <span class="s1">&#39;may be used. The default is *not* to use SWF and &#39;</span>
-                      <span class="s1">&#39;process mono-processor, sequential execution.&#39;</span><span class="p">)</span>
-    <span class="n">group2</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;-r&#39;</span><span class="p">,</span> <span class="s1">&#39;--resource_id&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;resource_id&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                      <span class="n">help</span><span class="o">=</span><span class="s1">&#39;soma-workflow resource ID, defaults to localhost&#39;</span><span class="p">)</span>
-    <span class="n">group2</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;-w&#39;</span><span class="p">,</span> <span class="s1">&#39;--write-workflow-only&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;write_workflow&#39;</span><span class="p">,</span>
+                      <span class="n">action</span><span class="o">=</span><span class="s1">'store_true'</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s1">'use soma_workflow. Soma-Workflow '</span>
+                      <span class="s1">'configuration has to be setup and valid for non-local '</span>
+                      <span class="s1">'execution, and additional file transfer options '</span>
+                      <span class="s1">'may be used. The default is *not* to use SWF and '</span>
+                      <span class="s1">'process mono-processor, sequential execution.'</span><span class="p">)</span>
+    <span class="n">group2</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">'-r'</span><span class="p">,</span> <span class="s1">'--resource_id'</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">'resource_id'</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s1">'soma-workflow resource ID, defaults to localhost'</span><span class="p">)</span>
+    <span class="n">group2</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">'-w'</span><span class="p">,</span> <span class="s1">'--write-workflow-only'</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">'write_workflow'</span><span class="p">,</span>
                       <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                      <span class="n">help</span><span class="o">=</span><span class="s1">&#39;if specified, this is an output &#39;</span>
-                      <span class="s1">&#39;filename where the workflow file will be written. The &#39;</span>
-                      <span class="s1">&#39;workflow will not be actually run, because in this &#39;</span>
-                      <span class="s1">&#39;situation the user probably wants to use the workflow &#39;</span>
-                      <span class="s1">&#39;on his own.&#39;</span><span class="p">)</span>
-    <span class="n">group2</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;-n&#39;</span><span class="p">,</span> <span class="s1">&#39;--name&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;workflow_name&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                      <span class="n">help</span><span class="o">=</span><span class="s1">&#39;workflow name&#39;</span><span class="p">)</span>
-    <span class="n">group2</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;-p&#39;</span><span class="p">,</span> <span class="s1">&#39;--password&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;password&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                      <span class="n">help</span><span class="o">=</span><span class="s1">&#39;password to access the remote computing resource. &#39;</span>
-                      <span class="s1">&#39;Do not specify it if using a ssh key&#39;</span><span class="p">)</span>
-    <span class="n">group2</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;--rsa-pass&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;rsa_key_pass&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                      <span class="n">help</span><span class="o">=</span><span class="s1">&#39;RSA key password, for ssh key access&#39;</span><span class="p">)</span>
-    <span class="n">group2</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;--queue&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;queue&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                      <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Queue to use on the computing resource. If not &#39;</span>
-                      <span class="s1">&#39;specified, use the default queue.&#39;</span><span class="p">)</span>
-    <span class="n">group2</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;--max_running&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                      <span class="n">help</span><span class="o">=</span><span class="s1">&#39;set maximum running jobs (override the queue &#39;</span>
-                      <span class="s1">&#39;settings in config file)&#39;</span><span class="p">)</span>
-    <span class="n">group2</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;--max_queued&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                      <span class="n">help</span><span class="o">=</span><span class="s1">&#39;set maximum queued jobs (override the queue &#39;</span>
-                      <span class="s1">&#39;settings in config file)&#39;</span><span class="p">)</span>
-    <span class="c1">#group2.add_option(&#39;--input-processing&#39;, dest=&#39;input_file_processing&#39;,</span>
-                      <span class="c1">#default=None, help=&#39;Input files processing: local_path, &#39;</span>
-                      <span class="c1">#&#39;transfer, translate, or translate_shared. The default is &#39;</span>
-                      <span class="c1">#&#39;local_path if the computing resource is the localhost, or &#39;</span>
-                      <span class="c1">#&#39;translate_shared otherwise.&#39;)</span>
-    <span class="c1">#group2.add_option(&#39;--output-processing&#39;, dest=&#39;output_file_processing&#39;,</span>
-                      <span class="c1">#default=None, help=&#39;Output files processing: local_path, &#39;</span>
-                      <span class="c1">#&#39;transfer, or translate. The default is local_path.&#39;)</span>
-    <span class="n">group2</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;--keep-succeeded-workflow&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;keep_succeded_workflow&#39;</span><span class="p">,</span>
-                      <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                      <span class="n">help</span><span class="o">=</span><span class="s1">&#39;keep the workflow in the computing resource &#39;</span>
-                      <span class="s1">&#39;database after execution. By default it is removed.&#39;</span><span class="p">)</span>
-    <span class="n">group2</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;--delete-failed-workflow&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;delete_failed_workflow&#39;</span><span class="p">,</span>
-                      <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                      <span class="n">help</span><span class="o">=</span><span class="s1">&#39;delete the workflow in the computing resource &#39;</span>
-                      <span class="s1">&#39;database after execution, if it has failed. By default &#39;</span>
-                      <span class="s1">&#39;it is kept.&#39;</span><span class="p">)</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s1">'if specified, this is an output '</span>
+                      <span class="s1">'filename where the workflow file will be written. The '</span>
+                      <span class="s1">'workflow will not be actually run, because in this '</span>
+                      <span class="s1">'situation the user probably wants to use the workflow '</span>
+                      <span class="s1">'on his own.'</span><span class="p">)</span>
+    <span class="n">group2</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">'-n'</span><span class="p">,</span> <span class="s1">'--name'</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">'workflow_name'</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s1">'workflow name'</span><span class="p">)</span>
+    <span class="n">group2</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">'-p'</span><span class="p">,</span> <span class="s1">'--password'</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">'password'</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s1">'password to access the remote computing resource. '</span>
+                      <span class="s1">'Do not specify it if using a ssh key'</span><span class="p">)</span>
+    <span class="n">group2</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">'--rsa-pass'</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">'rsa_key_pass'</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s1">'RSA key password, for ssh key access'</span><span class="p">)</span>
+    <span class="n">group2</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">'--queue'</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">'queue'</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s1">'Queue to use on the computing resource. If not '</span>
+                      <span class="s1">'specified, use the default queue.'</span><span class="p">)</span>
+    <span class="n">group2</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">'--max_running'</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s1">'set maximum running jobs (override the queue '</span>
+                      <span class="s1">'settings in config file)'</span><span class="p">)</span>
+    <span class="n">group2</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">'--max_queued'</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s1">'set maximum queued jobs (override the queue '</span>
+                      <span class="s1">'settings in config file)'</span><span class="p">)</span>
+    <span class="c1">#group2.add_option('--input-processing', dest='input_file_processing',</span>
+                      <span class="c1">#default=None, help='Input files processing: local_path, '</span>
+                      <span class="c1">#'transfer, translate, or translate_shared. The default is '</span>
+                      <span class="c1">#'local_path if the computing resource is the localhost, or '</span>
+                      <span class="c1">#'translate_shared otherwise.')</span>
+    <span class="c1">#group2.add_option('--output-processing', dest='output_file_processing',</span>
+                      <span class="c1">#default=None, help='Output files processing: local_path, '</span>
+                      <span class="c1">#'transfer, or translate. The default is local_path.')</span>
+    <span class="n">group2</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">'--keep-succeeded-workflow'</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">'keep_succeded_workflow'</span><span class="p">,</span>
+                      <span class="n">action</span><span class="o">=</span><span class="s1">'store_true'</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s1">'keep the workflow in the computing resource '</span>
+                      <span class="s1">'database after execution. By default it is removed.'</span><span class="p">)</span>
+    <span class="n">group2</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">'--delete-failed-workflow'</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">'delete_failed_workflow'</span><span class="p">,</span>
+                      <span class="n">action</span><span class="o">=</span><span class="s1">'store_true'</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s1">'delete the workflow in the computing resource '</span>
+                      <span class="s1">'database after execution, if it has failed. By default '</span>
+                      <span class="s1">'it is kept.'</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_option_group</span><span class="p">(</span><span class="n">group2</span><span class="p">)</span>
 
-    <span class="n">group3</span> <span class="o">=</span> <span class="n">OptionGroup</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="s1">&#39;Iteration&#39;</span><span class="p">,</span>
-                        <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Iteration&#39;</span><span class="p">)</span>
-    <span class="n">group3</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;-I&#39;</span><span class="p">,</span> <span class="s1">&#39;--iterate&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;iterate_on&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;append&#39;</span><span class="p">,</span>
-                      <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Iterate the given process, iterating over the &#39;</span>
-                      <span class="s1">&#39;given parameter(s). Multiple parameters may be &#39;</span>
-                      <span class="s1">&#39;iterated jointly using several -I options. In the &#39;</span>
-                      <span class="s1">&#39;process parameters, values are replaced by lists, all &#39;</span>
-                      <span class="s1">&#39;iterated lists should have the same size.</span><span class="se">\n</span><span class="s1">&#39;</span>
-                      <span class="s1">&#39;Ex:</span><span class="se">\n</span><span class="s1">&#39;</span>
-                      <span class="s1">&#39;python -m capsul -I par_a -I par_c a_process &#39;</span>
-                      <span class="s1">&#39;par_a=&quot;[1, 2]&quot; par_b=&quot;something&quot; &#39;</span>
-                      <span class="s1">&#39;par_c=&quot;[</span><span class="se">\\</span><span class="s1">&quot;one</span><span class="se">\\</span><span class="s1">&quot;, </span><span class="se">\\</span><span class="s1">&quot;two</span><span class="se">\\</span><span class="s1">&quot;]&quot;&#39;</span><span class="p">)</span>
+    <span class="n">group3</span> <span class="o">=</span> <span class="n">OptionGroup</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="s1">'Iteration'</span><span class="p">,</span>
+                        <span class="n">description</span><span class="o">=</span><span class="s1">'Iteration'</span><span class="p">)</span>
+    <span class="n">group3</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">'-I'</span><span class="p">,</span> <span class="s1">'--iterate'</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">'iterate_on'</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">'append'</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s1">'Iterate the given process, iterating over the '</span>
+                      <span class="s1">'given parameter(s). Multiple parameters may be '</span>
+                      <span class="s1">'iterated jointly using several -I options. In the '</span>
+                      <span class="s1">'process parameters, values are replaced by lists, all '</span>
+                      <span class="s1">'iterated lists should have the same size.</span><span class="se">\n</span><span class="s1">'</span>
+                      <span class="s1">'Ex:</span><span class="se">\n</span><span class="s1">'</span>
+                      <span class="s1">'python -m capsul -I par_a -I par_c a_process '</span>
+                      <span class="s1">'par_a="[1, 2]" par_b="something" '</span>
+                      <span class="s1">'par_c="[</span><span class="se">\\</span><span class="s1">"one</span><span class="se">\\</span><span class="s1">", </span><span class="se">\\</span><span class="s1">"two</span><span class="se">\\</span><span class="s1">"]"'</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_option_group</span><span class="p">(</span><span class="n">group3</span><span class="p">)</span>
 
-    <span class="n">group4</span> <span class="o">=</span> <span class="n">OptionGroup</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="s1">&#39;Attributes completion&#39;</span><span class="p">)</span>
-    <span class="n">group4</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;-a&#39;</span><span class="p">,</span> <span class="s1">&#39;--attribute&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;attributes&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;append&#39;</span><span class="p">,</span>
+    <span class="n">group4</span> <span class="o">=</span> <span class="n">OptionGroup</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="s1">'Attributes completion'</span><span class="p">)</span>
+    <span class="n">group4</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">'-a'</span><span class="p">,</span> <span class="s1">'--attribute'</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">'attributes'</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">'append'</span><span class="p">,</span>
                       <span class="n">default</span><span class="o">=</span><span class="p">[],</span>
-                      <span class="n">help</span><span class="o">=</span><span class="s1">&#39;set completion (including FOM) attribute. &#39;</span>
-                      <span class="s1">&#39;Syntax: attribute=value, value the same syntax as &#39;</span>
-                      <span class="s1">&#39;process parameters (python syntax for lists, for &#39;</span>
-                      <span class="s1">&#39;instance), with proper quotes if needed for shell &#39;</span>
-                      <span class="s1">&#39;escaping.</span><span class="se">\n</span><span class="s1">&#39;</span>
-                      <span class="s1">&#39;Ex: -a acquisition=&quot;default&quot; &#39;</span>
-                      <span class="s1">&#39;-a subject=</span><span class="se">\&#39;</span><span class="s1">[&quot;s1&quot;, &quot;s2&quot;]</span><span class="se">\&#39;</span><span class="s1">&#39;</span><span class="p">)</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s1">'set completion (including FOM) attribute. '</span>
+                      <span class="s1">'Syntax: attribute=value, value the same syntax as '</span>
+                      <span class="s1">'process parameters (python syntax for lists, for '</span>
+                      <span class="s1">'instance), with proper quotes if needed for shell '</span>
+                      <span class="s1">'escaping.</span><span class="se">\n</span><span class="s1">'</span>
+                      <span class="s1">'Ex: -a acquisition="default" '</span>
+                      <span class="s1">'-a subject=</span><span class="se">\'</span><span class="s1">["s1", "s2"]</span><span class="se">\'</span><span class="s1">'</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_option_group</span><span class="p">(</span><span class="n">group4</span><span class="p">)</span>
 
-    <span class="n">group5</span> <span class="o">=</span> <span class="n">OptionGroup</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="s1">&#39;Help&#39;</span><span class="p">,</span>
-                        <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Help and documentation options&#39;</span><span class="p">)</span>
-    <span class="n">group5</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">&#39;--process-help&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;process_help&#39;</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;display specified process help&#39;</span><span class="p">)</span>
+    <span class="n">group5</span> <span class="o">=</span> <span class="n">OptionGroup</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="s1">'Help'</span><span class="p">,</span>
+                        <span class="n">description</span><span class="o">=</span><span class="s1">'Help and documentation options'</span><span class="p">)</span>
+    <span class="n">group5</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s1">'--process-help'</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">'process_help'</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s1">'store_true'</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">'display specified process help'</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_option_group</span><span class="p">(</span><span class="n">group5</span><span class="p">)</span>
 
     <span class="n">parser</span><span class="o">.</span><span class="n">disable_interspersed_args</span><span class="p">()</span>
     <span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
 
-    <span class="n">default_fom</span> <span class="o">=</span> <span class="s1">&#39;morphologist-bids-2.0&#39;</span>
+    <span class="n">default_fom</span> <span class="o">=</span> <span class="s1">'morphologist-bids-2.0'</span>
 
     <span class="n">gui</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">show_pipeline</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">edit</span><span class="p">:</span>
+    <span class="n">gui_early</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">show_pipeline</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">edit</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">interactive</span><span class="p">:</span>
         <span class="n">gui</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">show_pipeline</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">edit</span><span class="p">:</span>
+            <span class="n">gui_early</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">qt_backend</span><span class="o">.</span><span class="n">set_headless</span><span class="p">(</span><span class="n">headless_mode</span><span class="o">=</span><span class="ow">not</span> <span class="n">gui</span><span class="p">,</span> <span class="n">needs_opengl</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">opengl</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">show_pipeline</span> <span class="ow">or</span> <span class="n">options</span><span class="o">.</span><span class="n">edit</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">gui</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">soma.qt_gui.qt_backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">Qt</span>
         <span class="n">qapp</span> <span class="o">=</span> <span class="n">Qt</span><span class="o">.</span><span class="n">QApplication</span><span class="p">([])</span>
 
@@ -737,17 +750,17 @@
         <span class="n">args</span> <span class="o">+=</span> <span class="n">new_args</span>
 
     <span class="n">engine</span> <span class="o">=</span> <span class="n">capsul_engine</span><span class="p">()</span>
-    <span class="n">engine</span><span class="o">.</span><span class="n">load_modules</span><span class="p">([</span><span class="s1">&#39;fom&#39;</span><span class="p">,</span> <span class="s1">&#39;axon&#39;</span><span class="p">,</span> <span class="s1">&#39;somaworkflow&#39;</span><span class="p">])</span>
+    <span class="n">engine</span><span class="o">.</span><span class="n">load_modules</span><span class="p">([</span><span class="s1">'fom'</span><span class="p">,</span> <span class="s1">'axon'</span><span class="p">,</span> <span class="s1">'somaworkflow'</span><span class="p">])</span>
     <span class="n">study_config</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">study_config</span>
 
     <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">config</span><span class="p">:</span>
         <span class="n">config_file</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">config</span>
         <span class="n">tmp</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">config</span> <span class="o">==</span> <span class="s1">&#39;axon&#39;</span><span class="p">:</span>
-            <span class="n">tmp</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkstemp</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;capsul_conf&#39;</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s1">&#39;.json&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">config</span> <span class="o">==</span> <span class="s1">'axon'</span><span class="p">:</span>
+            <span class="n">tmp</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkstemp</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s1">'capsul_conf'</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s1">'.json'</span><span class="p">)</span>
             <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-            <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;axon-runprocess&#39;</span><span class="p">,</span>
-                    <span class="s1">&#39;capsul://capsul.engine.write_engine_config&#39;</span><span class="p">,</span>
+            <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'axon-runprocess'</span><span class="p">,</span>
+                    <span class="s1">'capsul://capsul.engine.write_engine_config'</span><span class="p">,</span>
                     <span class="n">tmp</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
             <span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
             <span class="n">config_file</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
@@ -770,7 +783,7 @@
         <span class="n">engine</span> <span class="o">=</span> <span class="n">study_config</span><span class="o">.</span><span class="n">engine</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">study_config</span> <span class="o">=</span> <span class="n">StudyConfig</span><span class="p">(</span>
-            <span class="n">modules</span><span class="o">=</span><span class="n">StudyConfig</span><span class="o">.</span><span class="n">default_modules</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;FomConfig&#39;</span><span class="p">])</span>
+            <span class="n">modules</span><span class="o">=</span><span class="n">StudyConfig</span><span class="o">.</span><span class="n">default_modules</span> <span class="o">+</span> <span class="p">[</span><span class="s1">'FomConfig'</span><span class="p">])</span>
         <span class="n">study_config</span><span class="o">.</span><span class="n">read_configuration</span><span class="p">()</span>
         <span class="n">study_config</span><span class="o">.</span><span class="n">use_fom</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="n">engine</span> <span class="o">=</span> <span class="n">study_config</span><span class="o">.</span><span class="n">engine</span>
@@ -779,11 +792,11 @@
         <span class="n">study_config</span><span class="o">.</span><span class="n">input_directory</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">input_directory</span>
     <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">output_directory</span><span class="p">:</span>
         <span class="n">study_config</span><span class="o">.</span><span class="n">output_directory</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">output_directory</span>
-    <span class="k">if</span> <span class="n">study_config</span><span class="o">.</span><span class="n">output_directory</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> \
-            <span class="ow">and</span> <span class="n">study_config</span><span class="o">.</span><span class="n">input_directory</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">study_config</span><span class="o">.</span><span class="n">output_directory</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">,</span> <span class="s1">''</span><span class="p">)</span> \
+            <span class="ow">and</span> <span class="n">study_config</span><span class="o">.</span><span class="n">input_directory</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">,</span> <span class="s1">''</span><span class="p">):</span>
         <span class="n">study_config</span><span class="o">.</span><span class="n">output_directory</span> <span class="o">=</span> <span class="n">study_config</span><span class="o">.</span><span class="n">input_directory</span>
-    <span class="k">if</span> <span class="n">study_config</span><span class="o">.</span><span class="n">input_directory</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> \
-            <span class="ow">and</span> <span class="n">study_config</span><span class="o">.</span><span class="n">output_directory</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">study_config</span><span class="o">.</span><span class="n">input_directory</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">,</span> <span class="s1">''</span><span class="p">)</span> \
+            <span class="ow">and</span> <span class="n">study_config</span><span class="o">.</span><span class="n">output_directory</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">,</span> <span class="s1">''</span><span class="p">):</span>
         <span class="n">study_config</span><span class="o">.</span><span class="n">input_directory</span> <span class="o">=</span> <span class="n">study_config</span><span class="o">.</span><span class="n">output_directory</span>
     <span class="n">study_config</span><span class="o">.</span><span class="n">somaworkflow_keep_succeeded_workflows</span> \
         <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">keep_succeded_workflow</span>
@@ -791,7 +804,7 @@
         <span class="o">=</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">delete_failed_workflow</span>
 
     <span class="k">with</span> <span class="n">engine</span><span class="o">.</span><span class="n">settings</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
-        <span class="n">config</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s1">&#39;fom&#39;</span><span class="p">,</span> <span class="s1">&#39;global&#39;</span><span class="p">)</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s1">'fom'</span><span class="p">,</span> <span class="s1">'global'</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">input_fom</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">config</span><span class="o">.</span><span class="n">input_fom</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">input_fom</span>
         <span class="k">else</span><span class="p">:</span>
@@ -799,7 +812,7 @@
                 <span class="n">config</span><span class="o">.</span><span class="n">input_fom</span> <span class="o">=</span> <span class="n">default_fom</span>
             <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
                 <span class="k">global</span> <span class="n">sys</span>  <span class="c1"># WHY does the global import not work here ??</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Warning: FOM&#39;</span><span class="p">,</span> <span class="n">default_fom</span><span class="p">,</span> <span class="s1">&#39;could not be loaded.&#39;</span><span class="p">,</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">'Warning: FOM'</span><span class="p">,</span> <span class="n">default_fom</span><span class="p">,</span> <span class="s1">'could not be loaded.'</span><span class="p">,</span>
                       <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">output_fom</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">config</span><span class="o">.</span><span class="n">output_fom</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">output_fom</span>
@@ -809,13 +822,13 @@
             <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
                 <span class="k">pass</span>
 
-    <span class="n">kwre</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;([a-zA-Z_](\.?[a-zA-Z0-9_])*)\s*=\s*(.*)$&#39;</span><span class="p">)</span>
+    <span class="n">kwre</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">'([a-zA-Z_](\.?[a-zA-Z0-9_])*)\s*=\s*(.*)$'</span><span class="p">)</span>
 
     <span class="n">attributes</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">att</span> <span class="ow">in</span> <span class="n">options</span><span class="o">.</span><span class="n">attributes</span><span class="p">:</span>
         <span class="n">m</span> <span class="o">=</span> <span class="n">kwre</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">att</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">m</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">SyntaxError</span><span class="p">(</span><span class="s1">&#39;syntax error in attribute definition: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">att</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">SyntaxError</span><span class="p">(</span><span class="s1">'syntax error in attribute definition: </span><span class="si">%s</span><span class="s1">'</span> <span class="o">%</span> <span class="n">att</span><span class="p">)</span>
         <span class="n">attributes</span><span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="n">convert_commandline_parameter</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
 
     <span class="n">args</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">((</span><span class="n">convert_commandline_parameter</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">args</span><span class="p">))</span>
@@ -843,7 +856,7 @@
                                           <span class="n">attributes</span><span class="p">,</span>
                                           <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">ProcessParamError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;error: </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"error: </span><span class="si">{0}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">process_help</span><span class="p">:</span>
@@ -855,25 +868,25 @@
             <span class="o">=</span> <span class="n">ProcessCompletionEngine</span><span class="o">.</span><span class="n">get_completion_engine</span><span class="p">(</span><span class="n">process</span><span class="p">)</span>
         <span class="n">attribs</span> <span class="o">=</span> <span class="n">completion_engine</span><span class="o">.</span><span class="n">get_attribute_values</span><span class="p">()</span>
         <span class="n">aval</span> <span class="o">=</span> <span class="n">attribs</span><span class="o">.</span><span class="n">export_to_dict</span><span class="p">()</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Completion attributes:&#39;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;----------------------&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">'Completion attributes:'</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">'----------------------'</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">()</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;(note: may differ depending on study config file contents, &#39;</span>
-              <span class="s1">&#39;completion rules (FOM)...)&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">'(note: may differ depending on study config file contents, '</span>
+              <span class="s1">'completion rules (FOM)...)'</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">()</span>
 
-        <span class="n">skipped</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s1">&#39;generated_by_parameter&#39;</span><span class="p">,</span> <span class="s1">&#39;generated_by_process&#39;</span><span class="p">])</span>
+        <span class="n">skipped</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s1">'generated_by_parameter'</span><span class="p">,</span> <span class="s1">'generated_by_process'</span><span class="p">])</span>
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">aval</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">skipped</span><span class="p">:</span>
                 <span class="k">continue</span>
             <span class="n">ttype</span> <span class="o">=</span> <span class="n">attribs</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">trait_type</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attribs</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">trait_type</span><span class="p">,</span> <span class="n">List</span><span class="p">):</span>
-                <span class="n">ttype</span> <span class="o">+=</span> <span class="s1">&#39;(</span><span class="si">%s</span><span class="s1">)&#39;</span> \
+                <span class="n">ttype</span> <span class="o">+=</span> <span class="s1">'(</span><span class="si">%s</span><span class="s1">)'</span> \
                     <span class="o">%</span> <span class="n">attribs</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">inner_traits</span><span class="p">[</span>
                         <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">trait_type</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">:&#39;</span> <span class="o">%</span> <span class="n">name</span><span class="p">,</span> <span class="n">ttype</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">'</span><span class="si">%s</span><span class="s1">:'</span> <span class="o">%</span> <span class="n">name</span><span class="p">,</span> <span class="n">ttype</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">value</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">):</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;   &#39;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">'   '</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
         <span class="nb">print</span><span class="p">()</span>
 
@@ -898,9 +911,8 @@
 
         <span class="n">pcvi</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 
-    <span class="k">if</span> <span class="n">gui</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">gui_early</span><span class="p">:</span>
         <span class="n">qapp</span><span class="o">.</span><span class="n">exec</span><span class="p">()</span>
-
 
     <span class="n">resource_id</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">resource_id</span>
     <span class="n">password</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">password</span>
@@ -929,6 +941,9 @@
         <span class="n">write_workflow_only</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">write_workflow</span><span class="p">,</span>
         <span class="n">max_running_jobs</span><span class="o">=</span><span class="n">max_running_jobs</span><span class="p">,</span> <span class="n">max_queued_jobs</span><span class="o">=</span><span class="n">max_queued_jobs</span><span class="p">)</span>
 
+    <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">interactive</span><span class="p">:</span>
+        <span class="n">qapp</span><span class="o">.</span><span class="n">exec</span><span class="p">()</span>
+
     <span class="c1"># if there was no exception, we assume the process has succeeded.</span>
     <span class="c1"># sys.exit(0)</span>
     <span class="c1"># no error, do a dirty exit, but avoid cleanup crashes after the process</span>
@@ -936,10 +951,10 @@
     <span class="n">os</span><span class="o">.</span><span class="n">_exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
 
 
-    <span class="c1"># otherwise it has raised an exception, exit &quot;normally&quot;</span>
+    <span class="c1"># otherwise it has raised an exception, exit "normally"</span>
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">'__main__'</span><span class="p">:</span>
     <span class="n">main</span><span class="p">()</span>
 </pre></div>
 

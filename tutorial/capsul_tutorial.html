@@ -18,7 +18,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
     
-    <script src="../_static/documentation_options.js?v=b9f4bfa5"></script>
+    <script src="../_static/documentation_options.js?v=727d2f68"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -125,7 +125,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">print_function</span>
 <span class="c1"># the following to avoid display when this notebook is converted to sphinx doc</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ALLOW_GUI&#39;</span><span class="p">,</span> <span class="s1">&#39;TRUE&#39;</span><span class="p">)</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;FALSE&#39;</span><span class="p">,</span> <span class="s1">&#39;0&#39;</span><span class="p">):</span>
+<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ALLOW_GUI'</span><span class="p">,</span> <span class="s1">'TRUE'</span><span class="p">)</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'FALSE'</span><span class="p">,</span> <span class="s1">'0'</span><span class="p">):</span>
     <span class="n">use_gui</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="k">else</span><span class="p">:</span>
     <span class="o">%</span><span class="k">gui</span> qt4
@@ -149,7 +149,7 @@
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2.6.23
+2.6.24
 </pre></div></div>
 </div>
 <h1><p>Process and pipeline creation API</p>
@@ -170,12 +170,12 @@
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Process1</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s2">&quot;ff&quot;</span><span class="p">,</span> <span class="n">Float</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">,</span> <span class="n">Float</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s2">"ff"</span><span class="p">,</span> <span class="n">Float</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s2">"out"</span><span class="p">,</span> <span class="n">Float</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_run_process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">ff</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Process1 execution, f:&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">,</span> <span class="s1">&#39;, ff:&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ff</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">'Process1 execution, f:'</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">,</span> <span class="s1">', ff:'</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ff</span><span class="p">)</span>
 
 <span class="n">process</span> <span class="o">=</span> <span class="n">Process1</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
@@ -185,7 +185,7 @@
 
 <span class="c1">#execution</span>
 <span class="n">process</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Process result =&#39;</span><span class="p">,</span> <span class="n">process</span><span class="o">.</span><span class="n">out</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Process result ='</span><span class="p">,</span> <span class="n">process</span><span class="o">.</span><span class="n">out</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -209,11 +209,11 @@ Process result = 145.9
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Process2</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="n">Float</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="n">Str</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s2">"a"</span><span class="p">,</span> <span class="n">Float</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s2">"b"</span><span class="p">,</span> <span class="n">Str</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_commandline</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;echo&#39;</span><span class="p">,</span> <span class="s1">&#39;Process2 execution, a: </span><span class="si">%f</span><span class="s1">, b: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s1">'echo'</span><span class="p">,</span> <span class="s1">'Process2 execution, a: </span><span class="si">%f</span><span class="s1">, b: </span><span class="si">%s</span><span class="s1">'</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">)]</span>
 <br/></pre></div>
 </div>
 </div>
@@ -226,13 +226,13 @@ Process result = 145.9
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">capsul.process.xml</span><span class="w"> </span><span class="kn">import</span> <span class="n">xml_process</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_process_instance</span>
 
-<span class="nd">@xml_process</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
-<span class="s1">&lt;process capsul_xml=&quot;2.0&quot;&gt;</span>
-<span class="s1">    &lt;input name=&quot;a&quot; type=&quot;int&quot; doc=&quot;An integer&quot;/&gt;</span>
-<span class="s1">    &lt;input name=&quot;b&quot; type=&quot;int&quot; doc=&quot;Another integer&quot;/&gt;</span>
-<span class="s1">    &lt;return name=&quot;addition&quot; type=&quot;int&quot; doc=&quot;a + b&quot;/&gt;</span>
+<span class="nd">@xml_process</span><span class="p">(</span><span class="s1">'''</span>
+<span class="s1">&lt;process capsul_xml="2.0"&gt;</span>
+<span class="s1">    &lt;input name="a" type="int" doc="An integer"/&gt;</span>
+<span class="s1">    &lt;input name="b" type="int" doc="Another integer"/&gt;</span>
+<span class="s1">    &lt;return name="addition" type="int" doc="a + b"/&gt;</span>
 <span class="s1">&lt;/process&gt;</span>
-<span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="s1">'''</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
      <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
 </pre></div>
@@ -246,7 +246,7 @@ Process result = 145.9
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">capsul.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_process_instance</span>
 
-<span class="n">process</span> <span class="o">=</span> <span class="n">get_process_instance</span><span class="p">(</span><span class="s1">&#39;__main__.add&#39;</span><span class="p">)</span>
+<span class="n">process</span> <span class="o">=</span> <span class="n">get_process_instance</span><span class="p">(</span><span class="s1">'__main__.add'</span><span class="p">)</span>
 <br/></pre></div>
 </div>
 </div>
@@ -258,7 +258,7 @@ Process result = 145.9
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">process</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="mi">40</span>
 <span class="n">process</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="mi">2</span>
 <span class="n">process</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">process</span><span class="o">.</span><span class="n">b</span><span class="p">,</span> <span class="s1">&#39;=&#39;</span><span class="p">,</span> <span class="n">process</span><span class="o">.</span><span class="n">addition</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="s1">'+'</span><span class="p">,</span> <span class="n">process</span><span class="o">.</span><span class="n">b</span><span class="p">,</span> <span class="s1">'='</span><span class="p">,</span> <span class="n">process</span><span class="o">.</span><span class="n">addition</span><span class="p">)</span>
 <br/></pre></div>
 </div>
 </div>
@@ -276,19 +276,19 @@ Process result = 145.9
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@xml_process</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;</span>
-<span class="s1">&lt;process capsul_xml=&quot;2.0&quot;&gt;</span>
-<span class="s1">    &lt;input name=&quot;a&quot; type=&quot;file&quot; doc=&quot;A file&quot;/&gt;</span>
-<span class="s1">    &lt;input name=&quot;b&quot; type=&quot;file&quot; doc=&quot;Another file&quot;/&gt;</span>
-<span class="s1">    &lt;output name=&quot;c&quot; type=&quot;file&quot; input_filename=&quot;c&quot; doc=&quot;output concatenated file&quot;/&gt;</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@xml_process</span><span class="p">(</span><span class="s1">'''</span>
+<span class="s1">&lt;process capsul_xml="2.0"&gt;</span>
+<span class="s1">    &lt;input name="a" type="file" doc="A file"/&gt;</span>
+<span class="s1">    &lt;input name="b" type="file" doc="Another file"/&gt;</span>
+<span class="s1">    &lt;output name="c" type="file" input_filename="c" doc="output concatenated file"/&gt;</span>
 <span class="s1">&lt;/process&gt;</span>
-<span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="s1">'''</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">cat</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
-     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
          <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">a</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
          <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">b</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
 
-<span class="n">process</span> <span class="o">=</span> <span class="n">get_process_instance</span><span class="p">(</span><span class="s1">&#39;__main__.cat&#39;</span><span class="p">)</span>
+<span class="n">process</span> <span class="o">=</span> <span class="n">get_process_instance</span><span class="p">(</span><span class="s1">'__main__.cat'</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -305,8 +305,8 @@ Process result = 145.9
 
     <span class="k">def</span><span class="w"> </span><span class="nf">pipeline_definition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Create processes</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s2">&quot;node1&quot;</span><span class="p">,</span> <span class="n">Process1</span><span class="p">())</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s2">&quot;node2&quot;</span><span class="p">,</span> <span class="n">Process2</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s2">"node1"</span><span class="p">,</span> <span class="n">Process1</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s2">"node2"</span><span class="p">,</span> <span class="n">Process2</span><span class="p">())</span>
 
 <span class="n">pipeline1</span> <span class="o">=</span> <span class="n">Pipeline1</span><span class="p">()</span>
 </pre></div>
@@ -318,7 +318,7 @@ Process result = 145.9
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;use_gui&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'use_gui'</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
     <span class="c1"># note that the qt backend may be either PyQt4 or PySide.</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">soma.qt_gui.qt_backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">QtGui</span>
@@ -338,7 +338,7 @@ Process result = 145.9
     <span class="n">view1</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="n">run_qt_loop</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;close window to gon on...&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">'close window to gon on...'</span><span class="p">)</span>
         <span class="n">app</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -350,7 +350,7 @@ Process result = 145.9
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;use_gui&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'use_gui'</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">soma.qt_gui.controller_widget</span><span class="w"> </span><span class="kn">import</span> <span class="n">ControllerWidget</span>
 
     <span class="n">controller1</span> <span class="o">=</span> <span class="n">ControllerWidget</span><span class="p">(</span><span class="n">pipeline1</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -373,12 +373,12 @@ Process result = 145.9
 
     <span class="k">def</span><span class="w"> </span><span class="nf">pipeline_definition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Create processes</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s2">&quot;node1&quot;</span><span class="p">,</span> <span class="n">Process1</span><span class="p">())</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s2">&quot;node2&quot;</span><span class="p">,</span> <span class="n">Process2</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s2">"node1"</span><span class="p">,</span> <span class="n">Process1</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s2">"node2"</span><span class="p">,</span> <span class="n">Process2</span><span class="p">())</span>
         <span class="c1"># links</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_link</span><span class="p">(</span><span class="s1">&#39;node2.a-&gt;node1.ff&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_link</span><span class="p">(</span><span class="s1">'node2.a-&gt;node1.ff'</span><span class="p">)</span>
         <span class="c1"># custom exports</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">export_parameter</span><span class="p">(</span><span class="s2">&quot;node2&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;node_string&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">export_parameter</span><span class="p">(</span><span class="s2">"node2"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"node_string"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -387,7 +387,7 @@ Process result = 145.9
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pipeline2</span> <span class="o">=</span> <span class="n">Pipeline2</span><span class="p">()</span>
-<span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;use_gui&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+<span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'use_gui'</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
     <span class="n">view2</span> <span class="o">=</span> <span class="n">PipelineDevelopperView</span><span class="p">(</span><span class="n">pipeline2</span><span class="p">)</span>
     <span class="n">view2</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">run_qt_loop</span><span class="p">:</span>
@@ -401,7 +401,7 @@ Process result = 145.9
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pipeline2</span><span class="o">.</span><span class="n">f</span> <span class="o">=</span> <span class="mf">13.2</span>
-<span class="n">pipeline2</span><span class="o">.</span><span class="n">node_string</span> <span class="o">=</span> <span class="s2">&quot;blop&quot;</span>
+<span class="n">pipeline2</span><span class="o">.</span><span class="n">node_string</span> <span class="o">=</span> <span class="s2">"blop"</span>
 <span class="n">pipeline2</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -424,9 +424,9 @@ Process1 execution, f: 13.2 , ff: 0.0
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">capsul.process.test</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">test</span>
 
-<span class="n">xmldesc</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;xml_pipeline.xml&quot;</span><span class="p">)</span>
-<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">xmldesc</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">openfile</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">openfile</span><span class="o">.</span><span class="n">readlines</span><span class="p">()))</span>
+<span class="n">xmldesc</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">"xml_pipeline.xml"</span><span class="p">)</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">xmldesc</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">openfile</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">openfile</span><span class="o">.</span><span class="n">readlines</span><span class="p">()))</span>
 </pre></div>
 </div>
 </div>
@@ -474,7 +474,7 @@ Process1 execution, f: 13.2 , ff: 0.0
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">capsul.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_process_instance</span>
 
-<span class="n">xmlpipe</span> <span class="o">=</span> <span class="n">get_process_instance</span><span class="p">(</span><span class="s2">&quot;capsul.process.test.xml_pipeline&quot;</span><span class="p">)</span>
+<span class="n">xmlpipe</span> <span class="o">=</span> <span class="n">get_process_instance</span><span class="p">(</span><span class="s2">"capsul.process.test.xml_pipeline"</span><span class="p">)</span>
 <span class="n">xmlpipe</span><span class="o">.</span><span class="n">help</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -525,7 +525,7 @@ out1: a string ([&#39;String&#39;] - mandatory)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;use_gui&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'use_gui'</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">soma.qt_gui.qt_backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">QtGui</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.qt_gui.widgets</span><span class="w"> </span><span class="kn">import</span> <span class="n">PipelineDevelopperView</span>
@@ -556,12 +556,12 @@ out1: a string ([&#39;String&#39;] - mandatory)
 
     <span class="k">def</span><span class="w"> </span><span class="nf">pipeline_definition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Create processes</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s2">&quot;node1&quot;</span><span class="p">,</span> <span class="n">Process1</span><span class="p">())</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s2">&quot;node2&quot;</span><span class="p">,</span> <span class="n">Process2</span><span class="p">())</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_switch</span><span class="p">(</span><span class="s2">&quot;switch&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;case1&quot;</span><span class="p">,</span> <span class="s2">&quot;case2&quot;</span><span class="p">],</span> <span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s2">"node1"</span><span class="p">,</span> <span class="n">Process1</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s2">"node2"</span><span class="p">,</span> <span class="n">Process2</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_switch</span><span class="p">(</span><span class="s2">"switch"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"case1"</span><span class="p">,</span> <span class="s2">"case2"</span><span class="p">],</span> <span class="p">[</span><span class="s2">"output"</span><span class="p">])</span>
         <span class="c1">#links</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_link</span><span class="p">(</span><span class="s2">&quot;node1.out-&gt;switch.case1_switch_output&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_link</span><span class="p">(</span><span class="s2">&quot;node2.a-&gt;switch.case2_switch_output&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_link</span><span class="p">(</span><span class="s2">"node1.out-&gt;switch.case1_switch_output"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_link</span><span class="p">(</span><span class="s2">"node2.a-&gt;switch.case2_switch_output"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -570,7 +570,7 @@ out1: a string ([&#39;String&#39;] - mandatory)
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pipeline3</span> <span class="o">=</span> <span class="n">Pipeline3</span><span class="p">()</span>
-<span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;use_gui&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+<span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'use_gui'</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
     <span class="n">view3</span> <span class="o">=</span> <span class="n">PipelineDevelopperView</span><span class="p">(</span><span class="n">pipeline3</span><span class="p">,</span> <span class="n">allow_open_controller</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_sub_pipelines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">view3</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">run_qt_loop</span><span class="p">:</span>
@@ -583,9 +583,9 @@ out1: a string ([&#39;String&#39;] - mandatory)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pipeline3</span><span class="o">.</span><span class="n">switch</span> <span class="o">=</span> <span class="s2">&quot;case2&quot;</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pipeline3</span><span class="o">.</span><span class="n">switch</span> <span class="o">=</span> <span class="s2">"case2"</span>
 
-<span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;use_gui&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+<span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'use_gui'</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
     <span class="n">view3</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">run_qt_loop</span><span class="p">:</span>
         <span class="n">app</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
@@ -596,7 +596,7 @@ out1: a string ([&#39;String&#39;] - mandatory)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pipeline3</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="s1">&#39;yup&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pipeline3</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="s1">'yup'</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -616,9 +616,9 @@ Process2 execution, a: 0.000000, b: yup
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">capsul.process.test</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">test</span>
 
-<span class="n">xmldesc</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;test_pipeline.xml&quot;</span><span class="p">)</span>
-<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">xmldesc</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">openfile</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">openfile</span><span class="o">.</span><span class="n">readlines</span><span class="p">()))</span>
+<span class="n">xmldesc</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">"test_pipeline.xml"</span><span class="p">)</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">xmldesc</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">openfile</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">openfile</span><span class="o">.</span><span class="n">readlines</span><span class="p">()))</span>
 </pre></div>
 </div>
 </div>
@@ -742,7 +742,7 @@ Process2 execution, a: 0.000000, b: yup
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">capsul.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_process_instance</span>
 
-<span class="n">xmlpipe</span> <span class="o">=</span> <span class="n">get_process_instance</span><span class="p">(</span><span class="s2">&quot;capsul.process.test.test_pipeline&quot;</span><span class="p">)</span>
+<span class="n">xmlpipe</span> <span class="o">=</span> <span class="n">get_process_instance</span><span class="p">(</span><span class="s2">"capsul.process.test.test_pipeline"</span><span class="p">)</span>
 <span class="n">xmlpipe</span><span class="o">.</span><span class="n">help</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -794,7 +794,7 @@ output_100: a string or os.PathLike object ([&#39;File (filename:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;use_gui&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'use_gui'</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">soma.qt_gui.qt_backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">QtGui</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.qt_gui.widgets</span><span class="w"> </span><span class="kn">import</span> <span class="n">PipelineDevelopperView</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">soma.qt_gui.controller_widget</span><span class="w"> </span><span class="kn">import</span> <span class="n">ControllerWidget</span>
@@ -816,28 +816,28 @@ output_100: a string or os.PathLike object ([&#39;File (filename:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@xml_process</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;&lt;process capsul_xml=&quot;2.0&quot;&gt;</span>
-<span class="s1">    &lt;input name=&quot;inputs&quot; type=&quot;list_float&quot; doc=&quot;numbers&quot;/&gt;</span>
-<span class="s1">    &lt;return name=&quot;addition&quot; type=&quot;float&quot; doc=&quot;sum all inputs&quot;/&gt;</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@xml_process</span><span class="p">(</span><span class="s1">'''&lt;process capsul_xml="2.0"&gt;</span>
+<span class="s1">    &lt;input name="inputs" type="list_float" doc="numbers"/&gt;</span>
+<span class="s1">    &lt;return name="addition" type="float" doc="sum all inputs"/&gt;</span>
 <span class="s1">&lt;/process&gt;</span>
-<span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="s1">'''</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">sum_node</span><span class="p">(</span><span class="n">inputs</span><span class="p">):</span>
     <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
 
-<span class="nd">@xml_process</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;&lt;process capsul_xml=&quot;2.0&quot;&gt;</span>
-<span class="s1">    &lt;input name=&quot;a&quot; type=&quot;float&quot; doc=&quot;number&quot;/&gt;</span>
-<span class="s1">    &lt;return name=&quot;b&quot; type=&quot;float&quot; doc=&quot;a + 12&quot;/&gt;</span>
+<span class="nd">@xml_process</span><span class="p">(</span><span class="s1">'''&lt;process capsul_xml="2.0"&gt;</span>
+<span class="s1">    &lt;input name="a" type="float" doc="number"/&gt;</span>
+<span class="s1">    &lt;return name="b" type="float" doc="a + 12"/&gt;</span>
 <span class="s1">&lt;/process&gt;</span>
-<span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="s1">'''</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">add_12</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="mi">12</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">Pipeline4</span><span class="p">(</span><span class="n">Pipeline</span><span class="p">):</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">pipeline_definition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_iterative_process</span><span class="p">(</span><span class="s2">&quot;add_12&quot;</span><span class="p">,</span> <span class="s1">&#39;__main__.add_12&#39;</span><span class="p">,</span> <span class="n">iterative_plugs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s2">&quot;sum_node&quot;</span><span class="p">,</span> <span class="s1">&#39;__main__.sum_node&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_link</span><span class="p">(</span><span class="s1">&#39;add_12.b-&gt;sum_node.inputs&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_iterative_process</span><span class="p">(</span><span class="s2">"add_12"</span><span class="p">,</span> <span class="s1">'__main__.add_12'</span><span class="p">,</span> <span class="n">iterative_plugs</span><span class="o">=</span><span class="p">[</span><span class="s1">'a'</span><span class="p">,</span> <span class="s1">'b'</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s2">"sum_node"</span><span class="p">,</span> <span class="s1">'__main__.sum_node'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_link</span><span class="p">(</span><span class="s1">'add_12.b-&gt;sum_node.inputs'</span><span class="p">)</span>
 <br/></pre></div>
 </div>
 </div>
@@ -846,7 +846,7 @@ output_100: a string or os.PathLike object ([&#39;File (filename:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pipeline4</span> <span class="o">=</span> <span class="n">Pipeline4</span><span class="p">()</span>
-<span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;use_gui&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+<span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'use_gui'</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
     <span class="n">view4</span> <span class="o">=</span> <span class="n">PipelineDevelopperView</span><span class="p">(</span><span class="n">pipeline4</span><span class="p">,</span> <span class="n">allow_open_controller</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_sub_pipelines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">view4</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">run_qt_loop</span><span class="p">:</span>
@@ -884,33 +884,33 @@ output_100: a string or os.PathLike object ([&#39;File (filename:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@xml_process</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;&lt;process capsul_xml=&quot;2.0&quot;&gt;</span>
-<span class="s1">    &lt;input name=&quot;input&quot; type=&quot;file&quot; doc=&quot;input file&quot;/&gt;</span>
-<span class="s1">    &lt;output name=&quot;output&quot; type=&quot;file&quot; input_filename=&quot;output&quot; doc=&quot;output file&quot;/&gt;</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@xml_process</span><span class="p">(</span><span class="s1">'''&lt;process capsul_xml="2.0"&gt;</span>
+<span class="s1">    &lt;input name="input" type="file" doc="input file"/&gt;</span>
+<span class="s1">    &lt;output name="output" type="file" input_filename="output" doc="output file"/&gt;</span>
 <span class="s1">&lt;/process&gt;</span>
-<span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="s1">'''</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">node_first</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">output</span><span class="p">):</span>
     <span class="n">lines</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;* </span><span class="si">%s</span><span class="s1"> *&#39;</span> <span class="o">%</span> <span class="n">l</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">]))</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">'* </span><span class="si">%s</span><span class="s1"> *'</span> <span class="o">%</span> <span class="n">l</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">]))</span>
 
-<span class="nd">@xml_process</span><span class="p">(</span><span class="s1">&#39;&#39;&#39;&lt;process capsul_xml=&quot;2.0&quot;&gt;</span>
-<span class="s1">    &lt;input name=&quot;a&quot; type=&quot;file&quot; doc=&quot;input file&quot;/&gt;</span>
-<span class="s1">    &lt;output name=&quot;b&quot; type=&quot;file&quot; input_filename=&quot;b&quot; doc=&quot;output file&quot;/&gt;</span>
+<span class="nd">@xml_process</span><span class="p">(</span><span class="s1">'''&lt;process capsul_xml="2.0"&gt;</span>
+<span class="s1">    &lt;input name="a" type="file" doc="input file"/&gt;</span>
+<span class="s1">    &lt;output name="b" type="file" input_filename="b" doc="output file"/&gt;</span>
 <span class="s1">&lt;/process&gt;</span>
-<span class="s1">&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="s1">'''</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">node_second</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
     <span class="n">lines</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">a</span><span class="p">)</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">l</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="s1">&#39;^&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">]))</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">''</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">l</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'*'</span><span class="p">,</span> <span class="s1">'^'</span><span class="p">)</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">]))</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">Pipeline5</span><span class="p">(</span><span class="n">Pipeline</span><span class="p">):</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">pipeline_definition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s2">&quot;node1&quot;</span><span class="p">,</span> <span class="s1">&#39;__main__.node_first&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s2">&quot;node2&quot;</span><span class="p">,</span> <span class="s1">&#39;__main__.node_second&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_link</span><span class="p">(</span><span class="s1">&#39;node1.output-&gt;node2.a&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">export_parameter</span><span class="p">(</span><span class="s1">&#39;node1&#39;</span><span class="p">,</span> <span class="s1">&#39;output&#39;</span><span class="p">,</span> <span class="s1">&#39;intermediate&#39;</span><span class="p">,</span> <span class="n">is_optional</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s2">"node1"</span><span class="p">,</span> <span class="s1">'__main__.node_first'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s2">"node2"</span><span class="p">,</span> <span class="s1">'__main__.node_second'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_link</span><span class="p">(</span><span class="s1">'node1.output-&gt;node2.a'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">export_parameter</span><span class="p">(</span><span class="s1">'node1'</span><span class="p">,</span> <span class="s1">'output'</span><span class="p">,</span> <span class="s1">'intermediate'</span><span class="p">,</span> <span class="n">is_optional</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -919,7 +919,7 @@ output_100: a string or os.PathLike object ([&#39;File (filename:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pipeline5</span> <span class="o">=</span> <span class="n">Pipeline5</span><span class="p">()</span>
-<span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;use_gui&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+<span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'use_gui'</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
     <span class="n">view5</span> <span class="o">=</span> <span class="n">PipelineDevelopperView</span><span class="p">(</span><span class="n">pipeline5</span><span class="p">,</span> <span class="n">allow_open_controller</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_sub_pipelines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">view5</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">run_qt_loop</span><span class="p">:</span>
@@ -933,10 +933,10 @@ output_100: a string or os.PathLike object ([&#39;File (filename:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">infile</span> <span class="o">=</span> <span class="s1">&#39;/tmp/dummy.txt&#39;</span>
-<span class="n">outfile</span> <span class="o">=</span> <span class="s1">&#39;/tmp/dummy_modified.txt&#39;</span>
-<span class="n">intermediate</span> <span class="o">=</span> <span class="s1">&#39;/tmp/dummy_intermediate.txt&#39;</span>
-<span class="nb">open</span><span class="p">(</span><span class="n">infile</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;I ate 5 cakes this morning.</span><span class="se">\n</span><span class="s1">Let</span><span class="se">\&#39;</span><span class="s1">s eat 3 or 4 more.</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">infile</span> <span class="o">=</span> <span class="s1">'/tmp/dummy.txt'</span>
+<span class="n">outfile</span> <span class="o">=</span> <span class="s1">'/tmp/dummy_modified.txt'</span>
+<span class="n">intermediate</span> <span class="o">=</span> <span class="s1">'/tmp/dummy_intermediate.txt'</span>
+<span class="nb">open</span><span class="p">(</span><span class="n">infile</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">'I ate 5 cakes this morning.</span><span class="se">\n</span><span class="s1">Let</span><span class="se">\'</span><span class="s1">s eat 3 or 4 more.</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
 <span class="n">pipeline5</span><span class="o">.</span><span class="n">input</span> <span class="o">=</span> <span class="n">infile</span>
 <span class="n">pipeline5</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="n">outfile</span>
 <span class="n">pipeline5</span><span class="o">.</span><span class="n">intermediate</span> <span class="o">=</span> <span class="n">intermediate</span>
@@ -972,12 +972,12 @@ output_100: a string or os.PathLike object ([&#39;File (filename:
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Pipeline6</span><span class="p">(</span><span class="n">Pipeline</span><span class="p">):</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">pipeline_definition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s2">&quot;node1&quot;</span><span class="p">,</span> <span class="s1">&#39;__main__.node_first&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s2">&quot;node2&quot;</span><span class="p">,</span> <span class="s1">&#39;__main__.node_second&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_optional_output_switch</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;input&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_link</span><span class="p">(</span><span class="s1">&#39;node1.output-&gt;node2.a&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_link</span><span class="p">(</span><span class="s1">&#39;node1.output-&gt;b.input_switch_b&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">export_parameter</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;intermediate&#39;</span><span class="p">,</span> <span class="n">is_optional</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s2">"node1"</span><span class="p">,</span> <span class="s1">'__main__.node_first'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s2">"node2"</span><span class="p">,</span> <span class="s1">'__main__.node_second'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_optional_output_switch</span><span class="p">(</span><span class="s1">'b'</span><span class="p">,</span> <span class="s1">'input'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_link</span><span class="p">(</span><span class="s1">'node1.output-&gt;node2.a'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_link</span><span class="p">(</span><span class="s1">'node1.output-&gt;b.input_switch_b'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">export_parameter</span><span class="p">(</span><span class="s1">'b'</span><span class="p">,</span> <span class="s1">'b'</span><span class="p">,</span> <span class="s1">'intermediate'</span><span class="p">,</span> <span class="n">is_optional</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -986,7 +986,7 @@ output_100: a string or os.PathLike object ([&#39;File (filename:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pipeline6</span> <span class="o">=</span> <span class="n">Pipeline6</span><span class="p">()</span>
-<span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;use_gui&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+<span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'use_gui'</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
     <span class="n">view6</span> <span class="o">=</span> <span class="n">PipelineDevelopperView</span><span class="p">(</span><span class="n">pipeline6</span><span class="p">,</span> <span class="n">allow_open_controller</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_sub_pipelines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">view6</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">run_qt_loop</span><span class="p">:</span>
@@ -1039,7 +1039,7 @@ output_100: a string or os.PathLike object ([&#39;File (filename:
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># the switch has been switched on automatically</span>
 <span class="c1"># node1.output gets the value assigned to pipeline6.intermediate</span>
-<span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;use_gui&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+<span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'use_gui'</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
     <span class="n">view6</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">run_qt_loop</span><span class="p">:</span>
         <span class="n">app</span><span class="o">.</span><span class="n">exec_</span><span class="p">()</span>
@@ -1098,13 +1098,13 @@ output_100: a string or os.PathLike object ([&#39;File (filename:
 <span class="c1"># from capsul.study_config.config_modules.freesurfer_config import FreeSurferConfig</span>
 <span class="c1"># from capsul.study_config.config_modules.brainvisa_config import BrainVISAConfig</span>
 
-<span class="n">default_config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;use_soma_workflow&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+<span class="n">default_config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"use_soma_workflow"</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
 <span class="n">study_config</span> <span class="o">=</span> <span class="n">StudyConfig</span><span class="p">(</span><span class="n">initial_config</span><span class="o">=</span><span class="n">default_config</span><span class="p">,</span>
                            <span class="n">modules</span><span class="o">=</span><span class="n">StudyConfig</span><span class="o">.</span><span class="n">default_modules</span> <span class="o">+</span> \
-                           <span class="p">[</span><span class="s1">&#39;BrainVISAConfig&#39;</span><span class="p">,</span> <span class="s1">&#39;FSLConfig&#39;</span><span class="p">,</span> <span class="s1">&#39;FomConfig&#39;</span><span class="p">])</span>
+                           <span class="p">[</span><span class="s1">'BrainVISAConfig'</span><span class="p">,</span> <span class="s1">'FSLConfig'</span><span class="p">,</span> <span class="s1">'FomConfig'</span><span class="p">])</span>
 
 <span class="c1"># inspect config options</span>
-<span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">study_config</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span> <span class="nb">print</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="s1">&#39;:  &#39;</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">study_config</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span> <span class="nb">print</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="s1">':  '</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
@@ -1137,14 +1137,14 @@ somaworkflow_computing_resource :   &lt;undefined&gt;
 somaworkflow_config_file :   &lt;undefined&gt;
 somaworkflow_keep_failed_workflows :   True
 somaworkflow_keep_succeeded_workflows :   False
-somaworkflow_computing_resources_config :   &lt;soma.controller.controller.OpenKeyController object at 0x7faf940ca4d0&gt;
+somaworkflow_computing_resources_config :   &lt;soma.controller.controller.OpenKeyController object at 0x7f9ffc238e00&gt;
 spm_directory :   &lt;undefined&gt;
 spm_standalone :   &lt;undefined&gt;
 spm_version :   &lt;undefined&gt;
 spm_exec :   &lt;undefined&gt;
 spm_mcr_directory :   &lt;undefined&gt;
 use_spm :   &lt;undefined&gt;
-shared_directory :   /opt/hostedtoolcache/Python/3.10.20/x64/lib/python3.10/site-packages/share/brainvisa-share-6.0
+shared_directory :   /opt/hostedtoolcache/Python/3.10.21/x64/lib/python3.10/site-packages/share/brainvisa-share-6.0
 input_fom :
 output_fom :
 shared_fom :
@@ -1167,10 +1167,10 @@ path_completion :   &lt;undefined&gt;
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">capsul.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">StudyConfig</span>
 
 <span class="n">study_config</span> <span class="o">=</span> <span class="n">StudyConfig</span><span class="p">(</span>
-    <span class="n">modules</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;FSLConfig&quot;</span><span class="p">],</span>
-    <span class="n">fsl_config</span><span class="o">=</span><span class="s2">&quot;/etc/fsl/5.0/fsl.sh&quot;</span><span class="p">,</span>
+    <span class="n">modules</span><span class="o">=</span><span class="p">[</span><span class="s2">"FSLConfig"</span><span class="p">],</span>
+    <span class="n">fsl_config</span><span class="o">=</span><span class="s2">"/etc/fsl/5.0/fsl.sh"</span><span class="p">,</span>
     <span class="n">use_smart_caching</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">output_directory</span><span class="o">=</span><span class="s2">&quot;/tmp/capsul_demo&quot;</span><span class="p">)</span>
+    <span class="n">output_directory</span><span class="o">=</span><span class="s2">"/tmp/capsul_demo"</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">study_config</span><span class="o">.</span><span class="n">run</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1249,32 +1249,32 @@ Process1 execution, f: 13.2 , ff: 0.0
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Process1</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s2">&quot;ff&quot;</span><span class="p">,</span> <span class="n">Float</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s2">&quot;out&quot;</span><span class="p">,</span> <span class="n">Float</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s2">"ff"</span><span class="p">,</span> <span class="n">Float</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s2">"out"</span><span class="p">,</span> <span class="n">Float</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_commandline</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;echo&#39;</span><span class="p">,</span> <span class="s1">&#39;Process1 execution, f: </span><span class="si">%f</span><span class="s1">, ff: </span><span class="si">%f</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ff</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s1">'echo'</span><span class="p">,</span> <span class="s1">'Process1 execution, f: </span><span class="si">%f</span><span class="s1">, ff: </span><span class="si">%f</span><span class="s1">'</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ff</span><span class="p">)]</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">Process2</span><span class="p">(</span><span class="n">Process</span><span class="p">):</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Process2</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="n">Float</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="n">Str</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s2">"a"</span><span class="p">,</span> <span class="n">Float</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s2">"b"</span><span class="p">,</span> <span class="n">Str</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_commandline</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;echo&#39;</span><span class="p">,</span> <span class="s1">&#39;Process2 execution, a: </span><span class="si">%f</span><span class="s1">, b: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s1">'echo'</span><span class="p">,</span> <span class="s1">'Process2 execution, a: </span><span class="si">%f</span><span class="s1">, b: </span><span class="si">%s</span><span class="s1">'</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">)]</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">Pipeline2</span><span class="p">(</span><span class="n">Pipeline</span><span class="p">):</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">pipeline_definition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Create processes</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s2">&quot;node1&quot;</span><span class="p">,</span> <span class="n">Process1</span><span class="p">())</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s2">&quot;node2&quot;</span><span class="p">,</span> <span class="n">Process2</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s2">"node1"</span><span class="p">,</span> <span class="n">Process1</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s2">"node2"</span><span class="p">,</span> <span class="n">Process2</span><span class="p">())</span>
         <span class="c1"># links</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_link</span><span class="p">(</span><span class="s1">&#39;node2.a-&gt;node1.ff&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_link</span><span class="p">(</span><span class="s1">'node2.a-&gt;node1.ff'</span><span class="p">)</span>
         <span class="c1"># custom exports</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">export_parameter</span><span class="p">(</span><span class="s2">&quot;node2&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;node_string&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">export_parameter</span><span class="p">(</span><span class="s2">"node2"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"node_string"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1286,8 +1286,8 @@ Process1 execution, f: 13.2 , ff: 0.0
 
 <span class="n">pipeline2</span> <span class="o">=</span> <span class="n">get_process_instance</span><span class="p">(</span><span class="n">Pipeline2</span><span class="p">)</span>
 <span class="n">workflow</span> <span class="o">=</span> <span class="n">workflow_from_pipeline</span><span class="p">(</span><span class="n">pipeline2</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;jobs:&#39;</span><span class="p">,</span> <span class="n">workflow</span><span class="o">.</span><span class="n">jobs</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;dependencies:&#39;</span><span class="p">,</span> <span class="n">workflow</span><span class="o">.</span><span class="n">dependencies</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'jobs:'</span><span class="p">,</span> <span class="n">workflow</span><span class="o">.</span><span class="n">jobs</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'dependencies:'</span><span class="p">,</span> <span class="n">workflow</span><span class="o">.</span><span class="n">dependencies</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1296,8 +1296,8 @@ Process1 execution, f: 13.2 , ff: 0.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-jobs: [&lt;soma_workflow.client_types.Job object at 0x7fafacc677f0&gt;, &lt;soma_workflow.client_types.Job object at 0x7faf943ecc40&gt;]
-dependencies: {(&lt;soma_workflow.client_types.Job object at 0x7faf943ecc40&gt;, &lt;soma_workflow.client_types.Job object at 0x7fafacc677f0&gt;)}
+jobs: [&lt;soma_workflow.client_types.Job object at 0x7fa010167b80&gt;, &lt;soma_workflow.client_types.Job object at 0x7fa010165a80&gt;]
+dependencies: {(&lt;soma_workflow.client_types.Job object at 0x7fa010165a80&gt;, &lt;soma_workflow.client_types.Job object at 0x7fa010167b80&gt;)}
 </pre></div></div>
 </div>
 <p>The workwlow can be saved and reloaded in soma_workflow_gui, or used in a soma-workflow controller:</p>
@@ -1308,13 +1308,13 @@ dependencies: {(&lt;soma_workflow.client_types.Job object at 0x7faf943ecc40&gt;,
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">soma_workflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">client</span> <span class="k">as</span> <span class="n">swclient</span>
 
 <span class="c1"># save workflow to disk in json format</span>
-<span class="n">swclient</span><span class="o">.</span><span class="n">Helper</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="s1">&#39;/tmp/pipeline2.workflow&#39;</span><span class="p">,</span> <span class="n">workflow</span><span class="p">)</span>
+<span class="n">swclient</span><span class="o">.</span><span class="n">Helper</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="s1">'/tmp/pipeline2.workflow'</span><span class="p">,</span> <span class="n">workflow</span><span class="p">)</span>
 
 <span class="c1"># run locally via a workflow controller</span>
 <span class="n">wc</span> <span class="o">=</span> <span class="n">swclient</span><span class="o">.</span><span class="n">WorkflowController</span><span class="p">()</span>
 <span class="n">wf_id</span> <span class="o">=</span> <span class="n">wc</span><span class="o">.</span><span class="n">submit_workflow</span><span class="p">(</span><span class="n">workflow</span><span class="p">)</span>
 <span class="n">swclient</span><span class="o">.</span><span class="n">Helper</span><span class="o">.</span><span class="n">wait_workflow</span><span class="p">(</span><span class="n">wf_id</span><span class="p">,</span> <span class="n">wc</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;execution status:&#39;</span><span class="p">,</span> <span class="n">wc</span><span class="o">.</span><span class="n">workflow_status</span><span class="p">(</span><span class="n">wf_id</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'execution status:'</span><span class="p">,</span> <span class="n">wc</span><span class="o">.</span><span class="n">workflow_status</span><span class="p">(</span><span class="n">wf_id</span><span class="p">))</span>
 <span class="n">wc</span><span class="o">.</span><span class="n">delete_workflow</span><span class="p">(</span><span class="n">wf_id</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1344,7 +1344,7 @@ True
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-<span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="s1">&#39;/tmp/pipeline2.workflow&#39;</span><span class="p">)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="s1">'/tmp/pipeline2.workflow'</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1353,7 +1353,7 @@ True
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[47]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">study_config</span> <span class="o">=</span> <span class="n">StudyConfig</span><span class="p">(</span><span class="n">modules</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;SomaWorkflowConfig&#39;</span><span class="p">])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">study_config</span> <span class="o">=</span> <span class="n">StudyConfig</span><span class="p">(</span><span class="n">modules</span><span class="o">=</span><span class="p">[</span><span class="s1">'SomaWorkflowConfig'</span><span class="p">])</span>
 <span class="n">study_config</span><span class="o">.</span><span class="n">use_soma_workflow</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="n">study_config</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">pipeline2</span><span class="p">)</span>
 <span class="c1"># if execution fails, an exception should be raised.</span>
@@ -1375,7 +1375,7 @@ Workflow controller initialised
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">study_config</span><span class="o">.</span><span class="n">somaworkflow_keep_succeeded_workflows</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="n">wc</span> <span class="o">=</span> <span class="n">study_config</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s1">&#39;SomaWorkflowConfig&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get_workflow_controller</span><span class="p">()</span>
+<span class="n">wc</span> <span class="o">=</span> <span class="n">study_config</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s1">'SomaWorkflowConfig'</span><span class="p">]</span><span class="o">.</span><span class="n">get_workflow_controller</span><span class="p">()</span>
 <span class="k">if</span> <span class="n">wc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">init_wf_list</span> <span class="o">=</span> <span class="n">wc</span><span class="o">.</span><span class="n">workflows</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
 <span class="k">else</span><span class="p">:</span>
@@ -1383,12 +1383,12 @@ Workflow controller initialised
 <span class="k">try</span><span class="p">:</span>
     <span class="n">study_config</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">pipeline2</span><span class="p">)</span>
 <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Workflow failed:&#39;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">'Workflow failed:'</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
 <span class="c1"># get workflow after running</span>
-<span class="n">wc</span> <span class="o">=</span> <span class="n">study_config</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s1">&#39;SomaWorkflowConfig&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get_workflow_controller</span><span class="p">()</span>
+<span class="n">wc</span> <span class="o">=</span> <span class="n">study_config</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s1">'SomaWorkflowConfig'</span><span class="p">]</span><span class="o">.</span><span class="n">get_workflow_controller</span><span class="p">()</span>
 <span class="n">wf_list</span> <span class="o">=</span> <span class="n">wc</span><span class="o">.</span><span class="n">workflows</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
 <span class="n">wf_id</span> <span class="o">=</span> <span class="p">[</span><span class="n">wf</span> <span class="k">for</span> <span class="n">wf</span> <span class="ow">in</span> <span class="n">wf_list</span> <span class="k">if</span> <span class="n">wf</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">init_wf_list</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;workflow id:&#39;</span><span class="p">,</span> <span class="n">wf_id</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'workflow id:'</span><span class="p">,</span> <span class="n">wf_id</span><span class="p">)</span>
 <span class="n">wc</span><span class="o">.</span><span class="n">delete_workflow</span><span class="p">(</span><span class="n">wf_id</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1436,7 +1436,7 @@ True
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[50]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">study_config</span> <span class="o">=</span> <span class="n">StudyConfig</span><span class="p">(</span><span class="n">modules</span><span class="o">=</span><span class="n">StudyConfig</span><span class="o">.</span><span class="n">default_modules</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;BrainVISAConfig&#39;</span><span class="p">,</span> <span class="s1">&#39;NipypeConfig&#39;</span><span class="p">])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">study_config</span> <span class="o">=</span> <span class="n">StudyConfig</span><span class="p">(</span><span class="n">modules</span><span class="o">=</span><span class="n">StudyConfig</span><span class="o">.</span><span class="n">default_modules</span> <span class="o">+</span> <span class="p">[</span><span class="s1">'BrainVISAConfig'</span><span class="p">,</span> <span class="s1">'NipypeConfig'</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
@@ -1461,43 +1461,43 @@ True
 <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.in_context</span><span class="w"> </span><span class="kn">import</span> <span class="n">fsl</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">Bet</span><span class="p">(</span><span class="n">Process</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    A process that calls bet command without any parameter except input and output files.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="n">input_image</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">optional</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">output_image</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="n">optional</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_run_process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">fsl</span><span class="o">.</span><span class="n">fsl_check_call</span><span class="p">([</span><span class="s1">&#39;bet&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_image</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_image</span><span class="p">])</span>
+        <span class="n">fsl</span><span class="o">.</span><span class="n">fsl_check_call</span><span class="p">([</span><span class="s1">'bet'</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_image</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_image</span><span class="p">])</span>
 
 <span class="k">try</span><span class="p">:</span>
     <span class="n">study_config</span> <span class="o">=</span> <span class="n">StudyConfig</span><span class="p">(</span><span class="n">use_fsl</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">except</span> <span class="ne">EnvironmentError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
     <span class="c1"># If FSL cannot be configured automatically, tells why</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;FSL cannot be configured automatically:&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">'FSL cannot be configured automatically:'</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
     <span class="n">study_config</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="k">if</span> <span class="n">study_config</span> <span class="ow">and</span> <span class="n">study_config</span><span class="o">.</span><span class="n">use_fsl</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
     <span class="k">with</span> <span class="n">study_config</span><span class="o">.</span><span class="n">engine</span><span class="p">:</span>
         <span class="c1"># Try to find an image in FSL installation directory</span>
-        <span class="n">test_image</span> <span class="o">=</span> <span class="s1">&#39;/usr/share/data/fsl-mni152-templates/MNI152_T1_1mm_brain.nii.gz&#39;</span>
+        <span class="n">test_image</span> <span class="o">=</span> <span class="s1">'/usr/share/data/fsl-mni152-templates/MNI152_T1_1mm_brain.nii.gz'</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">test_image</span><span class="p">):</span>
-            <span class="n">fsl_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;FSLDIR&#39;</span><span class="p">)</span>
+            <span class="n">fsl_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'FSLDIR'</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">fsl_dir</span> <span class="ow">and</span> <span class="n">study_config</span><span class="o">.</span><span class="n">fsl_config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">Undefined</span><span class="p">:</span>
                 <span class="n">fsl_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">study_config</span><span class="o">.</span><span class="n">fsl_config</span><span class="p">)))</span>
                 <span class="k">if</span> <span class="n">fsl_dir</span><span class="p">:</span>
-                    <span class="n">test_image</span> <span class="o">=</span> <span class="n">glob</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fsl_dir</span><span class="p">,</span> <span class="s1">&#39;fslpython/envs/fslpython/lib/python*/site-packages/nibabel/tests/data/anatomical.nii&#39;</span><span class="p">))</span>
+                    <span class="n">test_image</span> <span class="o">=</span> <span class="n">glob</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fsl_dir</span><span class="p">,</span> <span class="s1">'fslpython/envs/fslpython/lib/python*/site-packages/nibabel/tests/data/anatomical.nii'</span><span class="p">))</span>
                     <span class="k">if</span> <span class="n">test_image</span><span class="p">:</span>
                         <span class="n">test_image</span> <span class="o">=</span> <span class="n">test_image</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;FSL test data cannot be found&#39;</span><span class="p">)</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s1">'FSL test data cannot be found'</span><span class="p">)</span>
                         <span class="n">test_image</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="n">test_image</span><span class="p">:</span>
             <span class="n">bet</span> <span class="o">=</span> <span class="n">study_config</span><span class="o">.</span><span class="n">get_process_instance</span><span class="p">(</span><span class="n">Bet</span><span class="p">)</span>
-            <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="n">suffix</span><span class="o">=</span><span class="s1">&#39;.nii.gz&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="n">suffix</span><span class="o">=</span><span class="s1">'.nii.gz'</span><span class="p">)</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
                 <span class="n">bet</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">input_image</span><span class="o">=</span><span class="n">test_image</span><span class="p">,</span> <span class="n">output_image</span><span class="o">=</span><span class="n">tmp</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Output file size:&#39;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">bet</span><span class="o">.</span><span class="n">output_image</span><span class="p">)</span><span class="o">.</span><span class="n">st_size</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">'Output file size:'</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">bet</span><span class="o">.</span><span class="n">output_image</span><span class="p">)</span><span class="o">.</span><span class="n">st_size</span><span class="p">)</span>
 <br/></pre></div>
 </div>
 </div>
@@ -1518,18 +1518,18 @@ FSL cannot be configured automatically: FSL command &#34;bet&#34; cannot be foun
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">capsul.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">StudyConfig</span><span class="p">,</span> <span class="n">get_process_instance</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">soma.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_in_path</span>
 
-<span class="n">study_config</span> <span class="o">=</span> <span class="n">StudyConfig</span><span class="p">(</span><span class="n">modules</span><span class="o">=</span><span class="n">StudyConfig</span><span class="o">.</span><span class="n">default_modules</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;NipypeConfig&#39;</span><span class="p">])</span>
+<span class="n">study_config</span> <span class="o">=</span> <span class="n">StudyConfig</span><span class="p">(</span><span class="n">modules</span><span class="o">=</span><span class="n">StudyConfig</span><span class="o">.</span><span class="n">default_modules</span> <span class="o">+</span> <span class="p">[</span><span class="s1">'NipypeConfig'</span><span class="p">])</span>
 
-<span class="c1"># It is necessary to have FLS commands (such as &quot;bet&quot;) in</span>
+<span class="c1"># It is necessary to have FLS commands (such as "bet") in</span>
 <span class="c1"># the PATH in order to use FSL via Nipype</span>
-<span class="k">if</span> <span class="n">study_config</span><span class="o">.</span><span class="n">use_nipype</span> <span class="ow">and</span> <span class="n">find_in_path</span><span class="p">(</span><span class="s1">&#39;bet&#39;</span><span class="p">):</span>
-    <span class="n">betpipe</span> <span class="o">=</span> <span class="n">get_process_instance</span><span class="p">(</span><span class="s2">&quot;nipype.interfaces.fsl.BET&quot;</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">study_config</span><span class="o">.</span><span class="n">use_nipype</span> <span class="ow">and</span> <span class="n">find_in_path</span><span class="p">(</span><span class="s1">'bet'</span><span class="p">):</span>
+    <span class="n">betpipe</span> <span class="o">=</span> <span class="n">get_process_instance</span><span class="p">(</span><span class="s2">"nipype.interfaces.fsl.BET"</span><span class="p">)</span>
     <span class="n">betpipe</span><span class="o">.</span><span class="n">get_help</span><span class="p">()</span>
-    <span class="n">betpipe</span><span class="o">.</span><span class="n">in_file</span><span class="o">=</span><span class="s2">&quot;/tmp/MNI152_T1_2mm.nii.gz&quot;</span>
-    <span class="n">betpipe</span><span class="o">.</span><span class="n">output_directory</span> <span class="o">=</span> <span class="s1">&#39;/tmp&#39;</span>
+    <span class="n">betpipe</span><span class="o">.</span><span class="n">in_file</span><span class="o">=</span><span class="s2">"/tmp/MNI152_T1_2mm.nii.gz"</span>
+    <span class="n">betpipe</span><span class="o">.</span><span class="n">output_directory</span> <span class="o">=</span> <span class="s1">'/tmp'</span>
 <span class="k">else</span><span class="p">:</span>
     <span class="n">betpipe</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;NiPype is not present.&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">'NiPype is not present.'</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1560,63 +1560,63 @@ NiPype is not present.
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">capsul.pipeline.xml</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_xml_pipeline</span>
 
-<span class="n">xmlstr</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;&lt;pipeline capsul_xml=&quot;2.0&quot;&gt;</span>
-<span class="s1">        &lt;process name=&quot;proc1&quot;</span>
-<span class="s1">            module=&quot;capsul.pipeline.test.test_pipeline.DummyProcess&quot;&gt;</span>
+<span class="n">xmlstr</span> <span class="o">=</span> <span class="s1">'''&lt;pipeline capsul_xml="2.0"&gt;</span>
+<span class="s1">        &lt;process name="proc1"</span>
+<span class="s1">            module="capsul.pipeline.test.test_pipeline.DummyProcess"&gt;</span>
 <span class="s1">        &lt;/process&gt;</span>
-<span class="s1">        &lt;process name=&quot;proc2&quot;</span>
-<span class="s1">            module=&quot;capsul.pipeline.test.test_pipeline.DummyProcess&quot;&gt;</span>
+<span class="s1">        &lt;process name="proc2"</span>
+<span class="s1">            module="capsul.pipeline.test.test_pipeline.DummyProcess"&gt;</span>
 <span class="s1">        &lt;/process&gt;</span>
-<span class="s1">        &lt;process name=&quot;proc3&quot;</span>
-<span class="s1">            module=&quot;capsul.pipeline.test.test_pipeline.DummyProcess&quot;&gt;</span>
+<span class="s1">        &lt;process name="proc3"</span>
+<span class="s1">            module="capsul.pipeline.test.test_pipeline.DummyProcess"&gt;</span>
 <span class="s1">        &lt;/process&gt;</span>
-<span class="s1">        &lt;process name=&quot;proc4&quot;</span>
-<span class="s1">            module=&quot;capsul.pipeline.test.test_pipeline.DummyProcess&quot;&gt;</span>
+<span class="s1">        &lt;process name="proc4"</span>
+<span class="s1">            module="capsul.pipeline.test.test_pipeline.DummyProcess"&gt;</span>
 <span class="s1">        &lt;/process&gt;</span>
-<span class="s1">        &lt;switch name=&quot;proc_select&quot; switch_value=&quot;proc1&quot;&gt;</span>
-<span class="s1">            &lt;input name=&quot;proc1&quot;/&gt;</span>
-<span class="s1">            &lt;input name=&quot;proc2&quot;/&gt;</span>
-<span class="s1">            &lt;output name=&quot;image&quot;/&gt;</span>
+<span class="s1">        &lt;switch name="proc_select" switch_value="proc1"&gt;</span>
+<span class="s1">            &lt;input name="proc1"/&gt;</span>
+<span class="s1">            &lt;input name="proc2"/&gt;</span>
+<span class="s1">            &lt;output name="image"/&gt;</span>
 <span class="s1">        &lt;/switch&gt;</span>
-<span class="s1">        &lt;switch name=&quot;proc_select2&quot; switch_value=&quot;proc3&quot;&gt;</span>
-<span class="s1">            &lt;input name=&quot;proc3&quot;/&gt;</span>
-<span class="s1">            &lt;input name=&quot;proc4&quot;/&gt;</span>
-<span class="s1">            &lt;output name=&quot;image&quot;/&gt;</span>
+<span class="s1">        &lt;switch name="proc_select2" switch_value="proc3"&gt;</span>
+<span class="s1">            &lt;input name="proc3"/&gt;</span>
+<span class="s1">            &lt;input name="proc4"/&gt;</span>
+<span class="s1">            &lt;output name="image"/&gt;</span>
 <span class="s1">        &lt;/switch&gt;</span>
-<span class="s1">        &lt;link source=&quot;input_image1&quot; dest=&quot;proc1.input_image&quot;/&gt;</span>
-<span class="s1">        &lt;link source=&quot;input_image2&quot; dest=&quot;proc2.input_image&quot;/&gt;</span>
-<span class="s1">        &lt;link source=&quot;proc_select&quot; dest=&quot;proc_select.switch&quot;/&gt;</span>
-<span class="s1">        &lt;link source=&quot;proc_select2&quot; dest=&quot;proc_select2.switch&quot;/&gt;</span>
-<span class="s1">        &lt;link source=&quot;input_image4&quot; dest=&quot;proc4.input_image&quot;/&gt;</span>
-<span class="s1">        &lt;link source=&quot;input_image3&quot; dest=&quot;proc3.input_image&quot;/&gt;</span>
+<span class="s1">        &lt;link source="input_image1" dest="proc1.input_image"/&gt;</span>
+<span class="s1">        &lt;link source="input_image2" dest="proc2.input_image"/&gt;</span>
+<span class="s1">        &lt;link source="proc_select" dest="proc_select.switch"/&gt;</span>
+<span class="s1">        &lt;link source="proc_select2" dest="proc_select2.switch"/&gt;</span>
+<span class="s1">        &lt;link source="input_image4" dest="proc4.input_image"/&gt;</span>
+<span class="s1">        &lt;link source="input_image3" dest="proc3.input_image"/&gt;</span>
 
-<span class="s1">        &lt;link dest=&quot;image_out1&quot; source=&quot;proc_select.image&quot; weak_link=&quot;true&quot;/&gt;</span>
-<span class="s1">        &lt;link dest=&quot;image_out3&quot; source=&quot;proc3.output_image&quot; weak_link=&quot;true&quot;/&gt;</span>
-<span class="s1">        &lt;link dest=&quot;image_out5&quot; source=&quot;proc_select2.image&quot; weak_link=&quot;true&quot;/&gt;</span>
+<span class="s1">        &lt;link dest="image_out1" source="proc_select.image" weak_link="true"/&gt;</span>
+<span class="s1">        &lt;link dest="image_out3" source="proc3.output_image" weak_link="true"/&gt;</span>
+<span class="s1">        &lt;link dest="image_out5" source="proc_select2.image" weak_link="true"/&gt;</span>
 
-<span class="s1">        &lt;link source=&quot;input_image1&quot; dest=&quot;proc1.input_image&quot;&gt;&lt;/link&gt;</span>
-<span class="s1">        &lt;link source=&quot;input_image2&quot; dest=&quot;proc2.input_image&quot;&gt;&lt;/link&gt;</span>
-<span class="s1">        &lt;link source=&quot;proc_select&quot; dest=&quot;proc_select.switch&quot;&gt;&lt;/link&gt;</span>
-<span class="s1">        &lt;link source=&quot;proc_select2&quot; dest=&quot;proc_select2.switch&quot;&gt;&lt;/link&gt;</span>
-<span class="s1">        &lt;link source=&quot;input_image4&quot; dest=&quot;proc4.input_image&quot;&gt;&lt;/link&gt;</span>
-<span class="s1">        &lt;link source=&quot;input_image3&quot; dest=&quot;proc3.input_image&quot;&gt;&lt;/link&gt;</span>
-<span class="s1">        &lt;link source=&quot;proc1.output_image&quot; dest=&quot;proc_select.proc1_switch_image&quot;&gt;&lt;/link&gt;</span>
-<span class="s1">        &lt;link source=&quot;proc2.output_image&quot; dest=&quot;proc_select.proc2_switch_image&quot;&gt;&lt;/link&gt;</span>
-<span class="s1">        &lt;link source=&quot;proc3.output_image&quot; dest=&quot;proc_select2.proc3_switch_image&quot;&gt;&lt;/link&gt;</span>
-<span class="s1">        &lt;link source=&quot;proc4.output_image&quot; dest=&quot;proc_select2.proc4_switch_image&quot;&gt;&lt;/link&gt;</span>
+<span class="s1">        &lt;link source="input_image1" dest="proc1.input_image"&gt;&lt;/link&gt;</span>
+<span class="s1">        &lt;link source="input_image2" dest="proc2.input_image"&gt;&lt;/link&gt;</span>
+<span class="s1">        &lt;link source="proc_select" dest="proc_select.switch"&gt;&lt;/link&gt;</span>
+<span class="s1">        &lt;link source="proc_select2" dest="proc_select2.switch"&gt;&lt;/link&gt;</span>
+<span class="s1">        &lt;link source="input_image4" dest="proc4.input_image"&gt;&lt;/link&gt;</span>
+<span class="s1">        &lt;link source="input_image3" dest="proc3.input_image"&gt;&lt;/link&gt;</span>
+<span class="s1">        &lt;link source="proc1.output_image" dest="proc_select.proc1_switch_image"&gt;&lt;/link&gt;</span>
+<span class="s1">        &lt;link source="proc2.output_image" dest="proc_select.proc2_switch_image"&gt;&lt;/link&gt;</span>
+<span class="s1">        &lt;link source="proc3.output_image" dest="proc_select2.proc3_switch_image"&gt;&lt;/link&gt;</span>
+<span class="s1">        &lt;link source="proc4.output_image" dest="proc_select2.proc4_switch_image"&gt;&lt;/link&gt;</span>
 <span class="s1">    &lt;gui&gt;</span>
-<span class="s1">        &lt;position name=&quot;inputs&quot; x=&quot;-151.0&quot; y=&quot;227.4447&quot;&gt;&lt;/position&gt;</span>
-<span class="s1">        &lt;position name=&quot;proc_select&quot; x=&quot;381.6498&quot; y=&quot;160.1012&quot;&gt;&lt;/position&gt;</span>
-<span class="s1">        &lt;position name=&quot;outputs&quot; x=&quot;668.1498&quot; y=&quot;319.9886&quot;&gt;&lt;/position&gt;</span>
-<span class="s1">        &lt;position name=&quot;proc_select2&quot; x=&quot;381.6498&quot; y=&quot;507.1947&quot;&gt;&lt;/position&gt;</span>
-<span class="s1">        &lt;position name=&quot;proc4&quot; x=&quot;144.2624&quot; y=&quot;589.7949&quot;&gt;&lt;/position&gt;</span>
-<span class="s1">        &lt;position name=&quot;proc1&quot; x=&quot;123.2624&quot; y=&quot;-4.0&quot;&gt;&lt;/position&gt;</span>
-<span class="s1">        &lt;position name=&quot;proc3&quot; x=&quot;146.2624&quot; y=&quot;391.9886&quot;&gt;&lt;/position&gt;</span>
-<span class="s1">        &lt;position name=&quot;proc2&quot; x=&quot;132.2624&quot; y=&quot;171.8197&quot;&gt;&lt;/position&gt;</span>
+<span class="s1">        &lt;position name="inputs" x="-151.0" y="227.4447"&gt;&lt;/position&gt;</span>
+<span class="s1">        &lt;position name="proc_select" x="381.6498" y="160.1012"&gt;&lt;/position&gt;</span>
+<span class="s1">        &lt;position name="outputs" x="668.1498" y="319.9886"&gt;&lt;/position&gt;</span>
+<span class="s1">        &lt;position name="proc_select2" x="381.6498" y="507.1947"&gt;&lt;/position&gt;</span>
+<span class="s1">        &lt;position name="proc4" x="144.2624" y="589.7949"&gt;&lt;/position&gt;</span>
+<span class="s1">        &lt;position name="proc1" x="123.2624" y="-4.0"&gt;&lt;/position&gt;</span>
+<span class="s1">        &lt;position name="proc3" x="146.2624" y="391.9886"&gt;&lt;/position&gt;</span>
+<span class="s1">        &lt;position name="proc2" x="132.2624" y="171.8197"&gt;&lt;/position&gt;</span>
 <span class="s1">    &lt;/gui&gt;</span>
-<span class="s1">&lt;/pipeline&gt;&#39;&#39;&#39;</span>
+<span class="s1">&lt;/pipeline&gt;'''</span>
 
-<span class="n">DemoPipeline</span> <span class="o">=</span> <span class="n">create_xml_pipeline</span><span class="p">(</span><span class="s1">&#39;__main__&#39;</span><span class="p">,</span> <span class="s1">&#39;DemoPipeline&#39;</span><span class="p">,</span> <span class="n">xmlstr</span><span class="p">)</span>
+<span class="n">DemoPipeline</span> <span class="o">=</span> <span class="n">create_xml_pipeline</span><span class="p">(</span><span class="s1">'__main__'</span><span class="p">,</span> <span class="s1">'DemoPipeline'</span><span class="p">,</span> <span class="n">xmlstr</span><span class="p">)</span>
 <span class="n">pipeline</span> <span class="o">=</span> <span class="n">DemoPipeline</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -1625,7 +1625,7 @@ NiPype is not present.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[55]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;use_gui&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'use_gui'</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.qt_gui.widgets</span><span class="w"> </span><span class="kn">import</span> <span class="n">PipelineDevelopperView</span>
 
     <span class="n">pv</span> <span class="o">=</span> <span class="n">PipelineDevelopperView</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">allow_open_controller</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_sub_pipelines</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1644,47 +1644,47 @@ NiPype is not present.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[56]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fom_content</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;{</span>
-<span class="s1">    &quot;fom_name&quot;: &quot;demo_fom&quot;,</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fom_content</span> <span class="o">=</span> <span class="s1">'''{</span>
+<span class="s1">    "fom_name": "demo_fom",</span>
 
-<span class="s1">    &quot;formats&quot;: {</span>
-<span class="s1">        &quot;NIFTI&quot;: &quot;nii&quot;,</span>
-<span class="s1">        &quot;NIFTI gz&quot;: &quot;nii.gz&quot;</span>
+<span class="s1">    "formats": {</span>
+<span class="s1">        "NIFTI": "nii",</span>
+<span class="s1">        "NIFTI gz": "nii.gz"</span>
 <span class="s1">    },</span>
-<span class="s1">    &quot;format_lists&quot;: {</span>
-<span class="s1">        &quot;images&quot;: [&quot;NIFTI gz&quot;, &quot;NIFTI&quot;]</span>
-<span class="s1">    },</span>
-
-<span class="s1">    &quot;shared_patterns&quot;: {</span>
-<span class="s1">      &quot;subject_dir&quot;: &quot;&lt;center&gt;_&lt;subject&gt;&quot;</span>
+<span class="s1">    "format_lists": {</span>
+<span class="s1">        "images": ["NIFTI gz", "NIFTI"]</span>
 <span class="s1">    },</span>
 
-<span class="s1">    &quot;processes&quot;: {</span>
-<span class="s1">        &quot;DemoPipeline&quot;: {</span>
-<span class="s1">            &quot;input_image1&quot;:</span>
-<span class="s1">                [[&quot;input:&lt;center&gt;_&lt;subject&gt;/&lt;subject&gt;&quot;, &quot;images&quot;]],</span>
-<span class="s1">            &quot;input_image2&quot;:</span>
-<span class="s1">                [[&quot;input:</span><span class="si">{subject_dir}</span><span class="s1">/alt2_&lt;subject&gt;&quot;, &quot;images&quot;]],</span>
-<span class="s1">            &quot;input_image3&quot;:</span>
-<span class="s1">                [[&quot;input:</span><span class="si">{subject_dir}</span><span class="s1">/alt2_&lt;subject&gt;&quot;, &quot;images&quot;]],</span>
-<span class="s1">            &quot;input_image4&quot;:</span>
-<span class="s1">                [[&quot;input:</span><span class="si">{subject_dir}</span><span class="s1">/alt4_&lt;subject&gt;&quot;, &quot;images&quot;]],</span>
-<span class="s1">            &quot;image_out1&quot;:</span>
-<span class="s1">                [[&quot;output:</span><span class="si">{subject_dir}</span><span class="s1">/out_image_&lt;subject&gt;_1&quot;, &quot;images&quot;]],</span>
-<span class="s1">            &quot;image_out3&quot;:</span>
-<span class="s1">                [[&quot;output:</span><span class="si">{subject_dir}</span><span class="s1">/out_image_&lt;subject&gt;_3&quot;, &quot;images&quot;]]</span>
+<span class="s1">    "shared_patterns": {</span>
+<span class="s1">      "subject_dir": "&lt;center&gt;_&lt;subject&gt;"</span>
+<span class="s1">    },</span>
+
+<span class="s1">    "processes": {</span>
+<span class="s1">        "DemoPipeline": {</span>
+<span class="s1">            "input_image1":</span>
+<span class="s1">                [["input:&lt;center&gt;_&lt;subject&gt;/&lt;subject&gt;", "images"]],</span>
+<span class="s1">            "input_image2":</span>
+<span class="s1">                [["input:</span><span class="si">{subject_dir}</span><span class="s1">/alt2_&lt;subject&gt;", "images"]],</span>
+<span class="s1">            "input_image3":</span>
+<span class="s1">                [["input:</span><span class="si">{subject_dir}</span><span class="s1">/alt2_&lt;subject&gt;", "images"]],</span>
+<span class="s1">            "input_image4":</span>
+<span class="s1">                [["input:</span><span class="si">{subject_dir}</span><span class="s1">/alt4_&lt;subject&gt;", "images"]],</span>
+<span class="s1">            "image_out1":</span>
+<span class="s1">                [["output:</span><span class="si">{subject_dir}</span><span class="s1">/out_image_&lt;subject&gt;_1", "images"]],</span>
+<span class="s1">            "image_out3":</span>
+<span class="s1">                [["output:</span><span class="si">{subject_dir}</span><span class="s1">/out_image_&lt;subject&gt;_3", "images"]]</span>
 <span class="s1">        },</span>
-<span class="s1">        &quot;DemoPipeline.proc4&quot;: {</span>
-<span class="s1">            &quot;output_image&quot;: [[&quot;output:</span><span class="si">{subject_dir}</span><span class="s1">/out_image_&lt;subject&gt;_4&quot;, &quot;images&quot;]]</span>
+<span class="s1">        "DemoPipeline.proc4": {</span>
+<span class="s1">            "output_image": [["output:</span><span class="si">{subject_dir}</span><span class="s1">/out_image_&lt;subject&gt;_4", "images"]]</span>
 <span class="s1">        }</span>
 <span class="s1">    }</span>
 
 <span class="s1">}</span>
-<span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">'''</span>
 
-<span class="k">try</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="s1">&#39;/tmp/capsul_demo&#39;</span><span class="p">)</span>
+<span class="k">try</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="s1">'/tmp/capsul_demo'</span><span class="p">)</span>
 <span class="k">except</span><span class="p">:</span> <span class="k">pass</span>
-<span class="nb">open</span><span class="p">(</span><span class="s1">&#39;/tmp/capsul_demo/demo_fom.json&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">fom_content</span><span class="p">)</span>
+<span class="nb">open</span><span class="p">(</span><span class="s1">'/tmp/capsul_demo/demo_fom.json'</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">fom_content</span><span class="p">)</span>
 <br/></pre></div>
 </div>
 </div>
@@ -1707,43 +1707,43 @@ NiPype is not present.
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">StudyConfig</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.attributes.completion_engine</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessCompletionEngine</span>
-<span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;use_gui&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+<span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'use_gui'</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">soma.qt_gui.controller_widget</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScrollControllerWidget</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.qt_gui.widgets.attributed_process_widget</span><span class="w"> </span><span class="kn">import</span> <span class="n">AttributedProcessWidget</span>
 
 <span class="c1"># the following 4 lines are a hack to add /tmp/capsul_demo to the FOM search path</span>
 <span class="c1"># before it is used by StudyConfig</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">soma.application</span><span class="w"> </span><span class="kn">import</span> <span class="n">Application</span>
-<span class="n">soma_app</span> <span class="o">=</span> <span class="n">Application</span><span class="p">(</span><span class="s1">&#39;capsul&#39;</span><span class="p">,</span> <span class="n">plugin_modules</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;soma.fom&#39;</span><span class="p">])</span>
+<span class="n">soma_app</span> <span class="o">=</span> <span class="n">Application</span><span class="p">(</span><span class="s1">'capsul'</span><span class="p">,</span> <span class="n">plugin_modules</span><span class="o">=</span><span class="p">[</span><span class="s1">'soma.fom'</span><span class="p">])</span>
 <span class="n">soma_app</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
-<span class="n">soma_app</span><span class="o">.</span><span class="n">fom_manager</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;/tmp/capsul_demo&#39;</span><span class="p">)</span>
+<span class="n">soma_app</span><span class="o">.</span><span class="n">fom_manager</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">'/tmp/capsul_demo'</span><span class="p">)</span>
 
 <span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
-  <span class="s2">&quot;name&quot;</span> <span class="p">:</span> <span class="s2">&quot;morphologist_fom&quot;</span><span class="p">,</span>
-  <span class="s2">&quot;input_directory&quot;</span> <span class="p">:</span> <span class="s2">&quot;/data/capsul_demo&quot;</span><span class="p">,</span>
-  <span class="s2">&quot;output_directory&quot;</span> <span class="p">:</span> <span class="s2">&quot;/data/capsul_demo&quot;</span><span class="p">,</span>
-  <span class="s2">&quot;input_fom&quot;</span> <span class="p">:</span> <span class="s2">&quot;demo_fom&quot;</span><span class="p">,</span>
-  <span class="s2">&quot;output_fom&quot;</span> <span class="p">:</span> <span class="s2">&quot;demo_fom&quot;</span><span class="p">,</span>
-  <span class="s2">&quot;use_soma_workflow&quot;</span> <span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-  <span class="s2">&quot;use_fom&quot;</span> <span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-  <span class="s2">&quot;volumes_format&quot;</span> <span class="p">:</span> <span class="s2">&quot;nii.gz&quot;</span><span class="p">,</span>
-  <span class="s2">&quot;meshes_format&quot;</span> <span class="p">:</span> <span class="s2">&quot;gii&quot;</span><span class="p">,</span>
+  <span class="s2">"name"</span> <span class="p">:</span> <span class="s2">"morphologist_fom"</span><span class="p">,</span>
+  <span class="s2">"input_directory"</span> <span class="p">:</span> <span class="s2">"/data/capsul_demo"</span><span class="p">,</span>
+  <span class="s2">"output_directory"</span> <span class="p">:</span> <span class="s2">"/data/capsul_demo"</span><span class="p">,</span>
+  <span class="s2">"input_fom"</span> <span class="p">:</span> <span class="s2">"demo_fom"</span><span class="p">,</span>
+  <span class="s2">"output_fom"</span> <span class="p">:</span> <span class="s2">"demo_fom"</span><span class="p">,</span>
+  <span class="s2">"use_soma_workflow"</span> <span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+  <span class="s2">"use_fom"</span> <span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+  <span class="s2">"volumes_format"</span> <span class="p">:</span> <span class="s2">"nii.gz"</span><span class="p">,</span>
+  <span class="s2">"meshes_format"</span> <span class="p">:</span> <span class="s2">"gii"</span><span class="p">,</span>
 <span class="p">}</span>
 
 <span class="n">study_config</span> <span class="o">=</span> <span class="n">StudyConfig</span><span class="p">(</span><span class="n">init_config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-                           <span class="n">modules</span><span class="o">=</span><span class="n">StudyConfig</span><span class="o">.</span><span class="n">default_modules</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;FomConfig&#39;</span><span class="p">,</span> <span class="s1">&#39;BrainVISAConfig&#39;</span><span class="p">])</span>
+                           <span class="n">modules</span><span class="o">=</span><span class="n">StudyConfig</span><span class="o">.</span><span class="n">default_modules</span> <span class="o">+</span> <span class="p">[</span><span class="s1">'FomConfig'</span><span class="p">,</span> <span class="s1">'BrainVISAConfig'</span><span class="p">])</span>
 <span class="n">soma_app</span><span class="o">.</span><span class="n">fom_manager</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># while debugging</span>
 
 <span class="n">mp</span> <span class="o">=</span> <span class="n">study_config</span><span class="o">.</span><span class="n">get_process_instance</span><span class="p">(</span><span class="n">DemoPipeline</span><span class="p">)</span>
 
 <span class="n">ce</span> <span class="o">=</span> <span class="n">ProcessCompletionEngine</span><span class="o">.</span><span class="n">get_completion_engine</span><span class="p">(</span><span class="n">mp</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;completion engine type:&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">ce</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'completion engine type:'</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">ce</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
 <span class="n">attributes</span> <span class="o">=</span> <span class="n">ce</span><span class="o">.</span><span class="n">get_attribute_values</span><span class="p">()</span>
 <span class="n">ce</span><span class="o">.</span><span class="n">install_auto_completion</span><span class="p">()</span>
-<span class="n">attributes</span><span class="o">.</span><span class="n">center</span> <span class="o">=</span> <span class="s1">&#39;subjects&#39;</span>
-<span class="n">attributes</span><span class="o">.</span><span class="n">subject</span> <span class="o">=</span> <span class="s1">&#39;irm2&#39;</span>
+<span class="n">attributes</span><span class="o">.</span><span class="n">center</span> <span class="o">=</span> <span class="s1">'subjects'</span>
+<span class="n">attributes</span><span class="o">.</span><span class="n">subject</span> <span class="o">=</span> <span class="s1">'irm2'</span>
 
-<span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;use_gui&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+<span class="k">if</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'use_gui'</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
     <span class="c1"># pipeline controller GUI</span>
     <span class="n">p_view</span> <span class="o">=</span> <span class="n">ScrollControllerWidget</span><span class="p">(</span><span class="n">mp</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">p_view</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
@@ -1774,12 +1774,12 @@ completion engine type: FomProcessCompletionEngine
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[58]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mp</span><span class="o">.</span><span class="n">proc_select2</span> <span class="o">=</span> <span class="s2">&quot;proc3&quot;</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;switch proc_select2 value:&quot;</span><span class="p">,</span> <span class="n">mp</span><span class="o">.</span><span class="n">proc_select2</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;output image_out5:&quot;</span><span class="p">,</span> <span class="n">mp</span><span class="o">.</span><span class="n">image_out5</span><span class="p">)</span>
-<span class="n">mp</span><span class="o">.</span><span class="n">proc_select2</span> <span class="o">=</span> <span class="s2">&quot;proc4&quot;</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;switch proc_select2 value:&quot;</span><span class="p">,</span> <span class="n">mp</span><span class="o">.</span><span class="n">proc_select2</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;output image_out5:&quot;</span><span class="p">,</span> <span class="n">mp</span><span class="o">.</span><span class="n">image_out5</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mp</span><span class="o">.</span><span class="n">proc_select2</span> <span class="o">=</span> <span class="s2">"proc3"</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"switch proc_select2 value:"</span><span class="p">,</span> <span class="n">mp</span><span class="o">.</span><span class="n">proc_select2</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"output image_out5:"</span><span class="p">,</span> <span class="n">mp</span><span class="o">.</span><span class="n">image_out5</span><span class="p">)</span>
+<span class="n">mp</span><span class="o">.</span><span class="n">proc_select2</span> <span class="o">=</span> <span class="s2">"proc4"</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"switch proc_select2 value:"</span><span class="p">,</span> <span class="n">mp</span><span class="o">.</span><span class="n">proc_select2</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"output image_out5:"</span><span class="p">,</span> <span class="n">mp</span><span class="o">.</span><span class="n">image_out5</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1803,7 +1803,7 @@ output image_out5: /data/capsul_demo/subjects_irm2/out_image_irm2_4.nii.gz
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
-<span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="s1">&#39;/tmp/capsul_demo&#39;</span><span class="p">)</span>
+<span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="s1">'/tmp/capsul_demo'</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>

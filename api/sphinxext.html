@@ -17,7 +17,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
     
-    <script src="../_static/documentation_options.js?v=b9f4bfa5"></script>
+    <script src="../_static/documentation_options.js?v=727d2f68"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -120,14 +120,14 @@
 <span class="c1"># we must actually write in sources for now.</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
 
-<span class="n">module_to_document</span> <span class="o">=</span> <span class="s1">&#39;morphologist.capsul&#39;</span>  <span class="c1"># replace with your modules set</span>
+<span class="n">module_to_document</span> <span class="o">=</span> <span class="s1">'morphologist.capsul'</span>  <span class="c1"># replace with your modules set</span>
 <span class="n">sphinx_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
-<span class="n">proc_rst_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sphinx_dir</span><span class="p">,</span> <span class="s1">&#39;process_docs&#39;</span><span class="p">)</span>
+<span class="n">proc_rst_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sphinx_dir</span><span class="p">,</span> <span class="s1">'process_docs'</span><span class="p">)</span>
 <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">proc_rst_dir</span><span class="p">):</span>
     <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">proc_rst_dir</span><span class="p">)</span>
-<span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span> <span class="s1">&#39;-m&#39;</span><span class="p">,</span> <span class="s1">&#39;capsul.sphinxext.capsul_pipeline_rst&#39;</span><span class="p">,</span>
-      <span class="s1">&#39;-i&#39;</span><span class="p">,</span> <span class="n">module_to_document</span><span class="p">,</span> <span class="s1">&#39;-o&#39;</span><span class="p">,</span> <span class="n">proc_rst_dir</span><span class="p">,</span> <span class="s1">&#39;--schema&#39;</span><span class="p">]</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;generating CAPSUL processes docs...&#39;</span><span class="p">)</span>
+<span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span> <span class="s1">'-m'</span><span class="p">,</span> <span class="s1">'capsul.sphinxext.capsul_pipeline_rst'</span><span class="p">,</span>
+      <span class="s1">'-i'</span><span class="p">,</span> <span class="n">module_to_document</span><span class="p">,</span> <span class="s1">'-o'</span><span class="p">,</span> <span class="n">proc_rst_dir</span><span class="p">,</span> <span class="s1">'--schema'</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'generating CAPSUL processes docs...'</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
 <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
 </pre></div>

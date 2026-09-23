@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
     
-    <script src="../../../../_static/documentation_options.js?v=b9f4bfa5"></script>
+    <script src="../../../../_static/documentation_options.js?v=727d2f68"></script>
     <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -105,14 +105,14 @@
             
   <h1>Source code for capsul.study_config.config_modules.matlab_config</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">'''</span>
 <span class="sd">Matlab configuration module</span>
 
 <span class="sd">Classes</span>
 <span class="sd">=======</span>
 <span class="sd">:class:`MatlabConfig`</span>
 <span class="sd">---------------------</span>
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">'''</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">print_function</span>
 
@@ -126,34 +126,34 @@
 <div class="viewcode-block" id="MatlabConfig">
 <a class="viewcode-back" href="../../../../api/study_config.html#capsul.study_config.config_modules.matlab_config.MatlabConfig">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">MatlabConfig</span><span class="p">(</span><span class="n">StudyConfigModule</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Matlab path configuration</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">study_config</span><span class="p">,</span> <span class="n">configuration</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">MatlabConfig</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="n">configuration</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">&#39;matlab_exec&#39;</span><span class="p">,</span> <span class="n">File</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">'matlab_exec'</span><span class="p">,</span> <span class="n">File</span><span class="p">(</span>
             <span class="n">Undefined</span><span class="p">,</span>
             <span class="n">output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;Matlab command path&#39;</span><span class="p">,</span>
+            <span class="n">desc</span><span class="o">=</span><span class="s1">'Matlab command path'</span><span class="p">,</span>
             <span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">groups</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;matlab&#39;</span><span class="p">]))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s2">&quot;use_matlab&quot;</span><span class="p">,</span> <span class="n">Bool</span><span class="p">(</span>
+            <span class="n">groups</span><span class="o">=</span><span class="p">[</span><span class="s1">'matlab'</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s2">"use_matlab"</span><span class="p">,</span> <span class="n">Bool</span><span class="p">(</span>
             <span class="n">Undefined</span><span class="p">,</span>
-            <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;If True, Matlab configuration is set up on startup&quot;</span><span class="p">,</span>
-            <span class="n">groups</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;matlab&#39;</span><span class="p">]))</span>
+            <span class="n">desc</span><span class="o">=</span><span class="s2">"If True, Matlab configuration is set up on startup"</span><span class="p">,</span>
+            <span class="n">groups</span><span class="o">=</span><span class="p">[</span><span class="s1">'matlab'</span><span class="p">]))</span>
 
 <div class="viewcode-block" id="MatlabConfig.initialize_module">
 <a class="viewcode-back" href="../../../../api/study_config.html#capsul.study_config.config_modules.matlab_config.MatlabConfig.initialize_module">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">initialize_module</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Set up Matlab environment according to current configuration.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">""" Set up Matlab environment according to current configuration.</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">matlab_exec</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">use_matlab</span><span class="p">:</span>
             <span class="c1"># fix pathological config (appearing sometimes for an unknown reason)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">use_matlab</span> <span class="o">=</span> <span class="n">Undefined</span>
-        <span class="k">if</span> <span class="s1">&#39;capsul.engine.module.matlab&#39;</span> \
+        <span class="k">if</span> <span class="s1">'capsul.engine.module.matlab'</span> \
                 <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">_loaded_modules</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">load_module</span><span class="p">(</span><span class="s1">&#39;capsul.engine.module.matlab&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">load_module</span><span class="p">(</span><span class="s1">'capsul.engine.module.matlab'</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">engine</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">CapsulEngine</span><span class="p">:</span>
             <span class="c1"># engine is a proxy, thus we are initialized from a real</span>
@@ -182,15 +182,15 @@
             <span class="c1">#Matlab</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">use_matlab</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="k">if</span> <span class="n">force_configuration</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">EnvironmentError</span><span class="p">(</span><span class="s1">&#39;matlab_exec must be defined in order &#39;</span>
-                                       <span class="s1">&#39;to use Matlab&#39;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">EnvironmentError</span><span class="p">(</span><span class="s1">'matlab_exec must be defined in order '</span>
+                                       <span class="s1">'to use Matlab'</span><span class="p">)</span>
             <span class="k">return</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">matlab_exec</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">use_matlab</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="k">if</span> <span class="n">force_configuration</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">EnvironmentError</span><span class="p">(</span><span class="s1">&#39;&quot;</span><span class="si">%s</span><span class="s1">&quot; does not exist. Matlab &#39;</span>
-                                      <span class="s1">&#39;configuration is not valid.&#39;</span> <span class="o">%</span> \
+                <span class="k">raise</span> <span class="ne">EnvironmentError</span><span class="p">(</span><span class="s1">'"</span><span class="si">%s</span><span class="s1">" does not exist. Matlab '</span>
+                                      <span class="s1">'configuration is not valid.'</span> <span class="o">%</span> \
                                       <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">matlab_exec</span><span class="p">)</span>
             <span class="k">return</span></div>
 
@@ -198,36 +198,36 @@
 <div class="viewcode-block" id="MatlabConfig.initialize_callbacks">
 <a class="viewcode-back" href="../../../../api/study_config.html#capsul.study_config.config_modules.matlab_config.MatlabConfig.initialize_callbacks">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">initialize_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">on_trait_change</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sync_to_engine</span><span class="p">,</span> <span class="s1">&#39;matlab_exec&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">on_trait_change</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sync_to_engine</span><span class="p">,</span> <span class="s1">'matlab_exec'</span><span class="p">)</span>
         <span class="c1">#  WARNING ref to self in callback</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">module_notifiers</span><span class="p">[</span>
-            <span class="s1">&#39;capsul.engine.module.matlab&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">sync_from_engine</span><span class="p">]</span></div>
+            <span class="s1">'capsul.engine.module.matlab'</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">sync_from_engine</span><span class="p">]</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">sync_to_engine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">param</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">tparam</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;matlab_exec&#39;</span><span class="p">:</span> <span class="s1">&#39;executable&#39;</span><span class="p">}</span>
+            <span class="n">tparam</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'matlab_exec'</span><span class="p">:</span> <span class="s1">'executable'</span><span class="p">}</span>
             <span class="n">ceparam</span> <span class="o">=</span> <span class="n">tparam</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">ceparam</span> <span class="o">=</span> <span class="s1">&#39;executable&#39;</span>
+            <span class="n">ceparam</span> <span class="o">=</span> <span class="s1">'executable'</span>
             <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">matlab_exec</span>
             <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="n">Undefined</span><span class="p">:</span>
                 <span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">ceparam</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">settings</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
-                <span class="n">config</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s1">&#39;matlab&#39;</span><span class="p">,</span> <span class="s1">&#39;global&#39;</span><span class="p">,</span> <span class="nb">any</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">config</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s1">'matlab'</span><span class="p">,</span> <span class="s1">'global'</span><span class="p">,</span> <span class="nb">any</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="p">(</span><span class="n">ceparam</span> <span class="o">!=</span><span class="s1">&#39;executable&#39;</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">ceparam</span> <span class="o">!=</span><span class="s1">'executable'</span>
                              <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">matlab_exec</span>
-                                <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)):</span>
+                                <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">,</span> <span class="s1">''</span><span class="p">)):</span>
                         <span class="n">cif</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">config_id_field</span>
                         <span class="n">matlab_exec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">matlab_exec</span>
                         <span class="k">if</span> <span class="n">matlab_exec</span> <span class="ow">is</span> <span class="n">Undefined</span><span class="p">:</span>
                             <span class="n">matlab_exec</span> <span class="o">=</span> <span class="kc">None</span>
                         <span class="n">session</span><span class="o">.</span><span class="n">new_config</span><span class="p">(</span>
-                            <span class="s1">&#39;matlab&#39;</span><span class="p">,</span> <span class="s1">&#39;global&#39;</span><span class="p">,</span>
-                            <span class="p">{</span><span class="s1">&#39;executable&#39;</span><span class="p">:</span> <span class="n">matlab_exec</span><span class="p">,</span>
-                            <span class="n">cif</span><span class="p">:</span> <span class="s1">&#39;matlab&#39;</span><span class="p">})</span>
+                            <span class="s1">'matlab'</span><span class="p">,</span> <span class="s1">'global'</span><span class="p">,</span>
+                            <span class="p">{</span><span class="s1">'executable'</span><span class="p">:</span> <span class="n">matlab_exec</span><span class="p">,</span>
+                            <span class="n">cif</span><span class="p">:</span> <span class="s1">'matlab'</span><span class="p">})</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="n">Undefined</span><span class="p">:</span>
                         <span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>
@@ -236,7 +236,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">sync_from_engine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">use_matlab</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># avoid transcient inconsistencies</span>
         <span class="k">if</span> <span class="n">param</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">tparam</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;executable&#39;</span><span class="p">:</span> <span class="s1">&#39;matlab_exec&#39;</span><span class="p">}</span>
+            <span class="n">tparam</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'executable'</span><span class="p">:</span> <span class="s1">'matlab_exec'</span><span class="p">}</span>
             <span class="n">scparam</span> <span class="o">=</span> <span class="n">tparam</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">scparam</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -247,7 +247,7 @@
                 <span class="c1"># in case we reset matlab_exec to Undefined</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">use_matlab</span> <span class="o">=</span> <span class="n">Undefined</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">settings</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
-                <span class="n">config</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s1">&#39;matlab&#39;</span><span class="p">,</span> <span class="s1">&#39;global&#39;</span><span class="p">,</span> <span class="nb">any</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">config</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s1">'matlab'</span><span class="p">,</span> <span class="s1">'global'</span><span class="p">,</span> <span class="nb">any</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">config</span><span class="p">:</span>
                     <span class="n">matlab_exec</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">executable</span>
                     <span class="k">if</span> <span class="n">matlab_exec</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>

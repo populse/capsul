@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
     
-    <script src="../../../../_static/documentation_options.js?v=b9f4bfa5"></script>
+    <script src="../../../../_static/documentation_options.js?v=727d2f68"></script>
     <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -105,14 +105,14 @@
             
   <h1>Source code for capsul.study_config.config_modules.brainvisa_config</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">'''</span>
 <span class="sd">Configuration module which links with `Axon &lt;http://brainvisa.info/axon/user_doc&gt;`_</span>
 
 <span class="sd">Classes</span>
 <span class="sd">=======</span>
 <span class="sd">:class:`BrainVISAConfig`</span>
 <span class="sd">------------------------</span>
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">'''</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">print_function</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">absolute_import</span>
@@ -125,7 +125,7 @@
 <div class="viewcode-block" id="BrainVISAConfig">
 <a class="viewcode-back" href="../../../../api/study_config.html#capsul.study_config.config_modules.brainvisa_config.BrainVISAConfig">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BrainVISAConfig</span><span class="p">(</span><span class="n">StudyConfigModule</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Configuration module allowing to use `BrainVISA / Axon &lt;http://brainvisa.info/axon/user_doc&gt;`_ shared data in Capsul processes.</span>
 
 <span class="sd">    This module adds the following options (traits) in the</span>
@@ -133,28 +133,28 @@
 
 <span class="sd">    shared_directory: str (filename)</span>
 <span class="sd">        Study shared directory</span>
-<span class="sd">     &#39;&#39;&#39;</span>
+<span class="sd">     '''</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">study_config</span><span class="p">,</span> <span class="n">configuration</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">BrainVISAConfig</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="n">configuration</span><span class="p">)</span>
-        <span class="n">study_config</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">&#39;shared_directory&#39;</span><span class="p">,</span><span class="n">Directory</span><span class="p">(</span>
+        <span class="n">study_config</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">'shared_directory'</span><span class="p">,</span><span class="n">Directory</span><span class="p">(</span>
             <span class="n">Undefined</span><span class="p">,</span>
             <span class="n">output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;Study shared directory&#39;</span><span class="p">,</span> <span class="n">groups</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;brainvisa&#39;</span><span class="p">]))</span>
+            <span class="n">desc</span><span class="o">=</span><span class="s1">'Study shared directory'</span><span class="p">,</span> <span class="n">groups</span><span class="o">=</span><span class="p">[</span><span class="s1">'brainvisa'</span><span class="p">]))</span>
 
         <span class="n">study_config</span><span class="o">.</span><span class="n">shared_directory</span> <span class="o">=</span> <span class="n">soma_config</span><span class="o">.</span><span class="n">BRAINVISA_SHARE</span>
         <span class="c1"># the following would be good but if Axon is not present, it will</span>
         <span class="c1"># use an unavailable FOM and cause an error.</span>
-        <span class="c1">#if &#39;FomConfig&#39; in self.study_config.modules \</span>
-                <span class="c1">#and self.study_config.shared_fom in (None, &#39;&#39;):</span>
-            <span class="c1">#self.study_config.shared_fom = &#39;shared-brainvisa-1.0&#39;</span>
+        <span class="c1">#if 'FomConfig' in self.study_config.modules \</span>
+                <span class="c1">#and self.study_config.shared_fom in (None, ''):</span>
+            <span class="c1">#self.study_config.shared_fom = 'shared-brainvisa-1.0'</span>
 
 
 <div class="viewcode-block" id="BrainVISAConfig.initialize_module">
 <a class="viewcode-back" href="../../../../api/study_config.html#capsul.study_config.config_modules.brainvisa_config.BrainVISAConfig.initialize_module">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">initialize_module</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
+<span class="sd">        '''</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.engine</span><span class="w"> </span><span class="kn">import</span> <span class="n">CapsulEngine</span>
 
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">engine</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">CapsulEngine</span><span class="p">:</span>
@@ -163,17 +163,17 @@
             <span class="c1"># BUT values are actuallu defined from here...</span>
             <span class="n">old_shared</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">shared_directory</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">settings</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
-                <span class="n">config</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s1">&#39;axon&#39;</span><span class="p">,</span> <span class="s1">&#39;global&#39;</span><span class="p">)</span>
+                <span class="n">config</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s1">'axon'</span><span class="p">,</span> <span class="s1">'global'</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">config</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">shared_directory</span> <span class="ow">is</span> <span class="n">Undefined</span><span class="p">:</span>
                     <span class="n">config</span><span class="o">.</span><span class="n">shared_directory</span> <span class="o">=</span> <span class="n">old_shared</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">sync_from_engine</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">sync_to_engine</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># otherwise engine is &quot;owned&quot; by StudyConfig</span>
-            <span class="k">if</span> <span class="s1">&#39;capsul.engine.module.axon&#39;</span> \
+            <span class="c1"># otherwise engine is "owned" by StudyConfig</span>
+            <span class="k">if</span> <span class="s1">'capsul.engine.module.axon'</span> \
                     <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">_loaded_modules</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">load_module</span><span class="p">(</span>
-                    <span class="s1">&#39;capsul.engine.module.axon&#39;</span><span class="p">)</span>
+                    <span class="s1">'capsul.engine.module.axon'</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">sync_to_engine</span><span class="p">()</span></div>
 
 
@@ -182,30 +182,30 @@
 <a class="viewcode-back" href="../../../../api/study_config.html#capsul.study_config.config_modules.brainvisa_config.BrainVISAConfig.initialize_callbacks">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">initialize_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">on_trait_change</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sync_to_engine</span><span class="p">,</span>
-                                          <span class="p">[</span><span class="s1">&#39;shared_directory&#39;</span><span class="p">,</span> <span class="s1">&#39;user_level&#39;</span><span class="p">])</span>
+                                          <span class="p">[</span><span class="s1">'shared_directory'</span><span class="p">,</span> <span class="s1">'user_level'</span><span class="p">])</span>
         <span class="c1">#  WARNING ref to self in callback</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">module_notifiers</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span>
-            <span class="s1">&#39;capsul.engine.module.axon&#39;</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sync_from_engine</span><span class="p">)</span></div>
+            <span class="s1">'capsul.engine.module.axon'</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sync_from_engine</span><span class="p">)</span></div>
 
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">sync_to_engine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_syncing&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">'_syncing'</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
             <span class="k">return</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_syncing</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">settings</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
                 <span class="n">cif</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">config_id_field</span>
-                <span class="n">config</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s1">&#39;axon&#39;</span><span class="p">,</span> <span class="s1">&#39;global&#39;</span><span class="p">)</span>
+                <span class="n">config</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s1">'axon'</span><span class="p">,</span> <span class="s1">'global'</span><span class="p">)</span>
                 <span class="n">shared_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">shared_directory</span>
                 <span class="k">if</span> <span class="n">shared_dir</span> <span class="ow">is</span> <span class="n">Undefined</span><span class="p">:</span>
                     <span class="n">shared_dir</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">session</span><span class="o">.</span><span class="n">new_config</span><span class="p">(</span>
-                        <span class="s1">&#39;axon&#39;</span><span class="p">,</span> <span class="s1">&#39;global&#39;</span><span class="p">,</span>
-                        <span class="p">{</span><span class="s1">&#39;shared_directory&#39;</span><span class="p">:</span> <span class="n">shared_dir</span><span class="p">,</span>
-                        <span class="s1">&#39;user_level&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">user_level</span><span class="p">,</span>
-                          <span class="n">cif</span><span class="p">:</span> <span class="s1">&#39;axon&#39;</span><span class="p">})</span>
+                        <span class="s1">'axon'</span><span class="p">,</span> <span class="s1">'global'</span><span class="p">,</span>
+                        <span class="p">{</span><span class="s1">'shared_directory'</span><span class="p">:</span> <span class="n">shared_dir</span><span class="p">,</span>
+                        <span class="s1">'user_level'</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">user_level</span><span class="p">,</span>
+                          <span class="n">cif</span><span class="p">:</span> <span class="s1">'axon'</span><span class="p">})</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">config</span><span class="o">.</span><span class="n">shared_directory</span> <span class="o">=</span> <span class="n">shared_dir</span>
                     <span class="n">config</span><span class="o">.</span><span class="n">user_level</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">user_level</span>
@@ -214,12 +214,12 @@
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">sync_from_engine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_syncing&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">'_syncing'</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
             <span class="k">return</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_syncing</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">settings</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
-                <span class="n">config</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s1">&#39;axon&#39;</span><span class="p">,</span> <span class="s1">&#39;global&#39;</span><span class="p">,</span> <span class="nb">any</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">config</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s1">'axon'</span><span class="p">,</span> <span class="s1">'global'</span><span class="p">,</span> <span class="nb">any</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">config</span><span class="p">:</span>
                     <span class="n">shared_dir</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">shared_directory</span>
                     <span class="k">if</span> <span class="n">shared_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>

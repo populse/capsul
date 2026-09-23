@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
     
-    <script src="../../../../_static/documentation_options.js?v=b9f4bfa5"></script>
+    <script src="../../../../_static/documentation_options.js?v=727d2f68"></script>
     <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -118,18 +118,18 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">init_settings</span><span class="p">(</span><span class="n">capsul_engine</span><span class="p">):</span>
     <span class="k">with</span> <span class="n">capsul_engine</span><span class="o">.</span><span class="n">settings</span> <span class="k">as</span> <span class="n">settings</span><span class="p">:</span>
         <span class="n">settings</span><span class="o">.</span><span class="n">ensure_module_fields</span><span class="p">(</span>
-            <span class="s2">&quot;matlab&quot;</span><span class="p">,</span>
+            <span class="s2">"matlab"</span><span class="p">,</span>
             <span class="p">[</span>
                 <span class="nb">dict</span><span class="p">(</span>
-                    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;executable&quot;</span><span class="p">,</span>
-                    <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;str&quot;</span><span class="p">,</span>
-                    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Full path of the matlab executable&quot;</span><span class="p">,</span>
+                    <span class="n">name</span><span class="o">=</span><span class="s2">"executable"</span><span class="p">,</span>
+                    <span class="nb">type</span><span class="o">=</span><span class="s2">"str"</span><span class="p">,</span>
+                    <span class="n">description</span><span class="o">=</span><span class="s2">"Full path of the matlab executable"</span><span class="p">,</span>
                 <span class="p">),</span>
                 <span class="nb">dict</span><span class="p">(</span>
-                    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;mcr_directory&quot;</span><span class="p">,</span>
-                    <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;str&quot;</span><span class="p">,</span>
-                    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Full path of the matlab MCR directory, for use &quot;</span>
-                    <span class="s2">&quot;with standalone binaries&quot;</span><span class="p">,</span>
+                    <span class="n">name</span><span class="o">=</span><span class="s2">"mcr_directory"</span><span class="p">,</span>
+                    <span class="nb">type</span><span class="o">=</span><span class="s2">"str"</span><span class="p">,</span>
+                    <span class="n">description</span><span class="o">=</span><span class="s2">"Full path of the matlab MCR directory, for use "</span>
+                    <span class="s2">"with standalone binaries"</span><span class="p">,</span>
                 <span class="p">),</span>
             <span class="p">],</span>
         <span class="p">)</span>
@@ -138,21 +138,21 @@
 <div class="viewcode-block" id="check_configurations">
 <a class="viewcode-back" href="../../../../api/engine.html#capsul.engine.module.matlab.check_configurations">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">check_configurations</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Check if the activated configuration is valid for Matlab and return</span>
 <span class="sd">    an error message if there is an error or None if everything is good.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">matlab_executable</span> <span class="o">=</span> <span class="n">capsul</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">configurations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-        <span class="s2">&quot;capsul.engine.module.matlab&quot;</span><span class="p">,</span> <span class="p">{}</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;executable&quot;</span><span class="p">)</span>
-    <span class="n">mcr</span> <span class="o">=</span> <span class="n">capsul</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">configurations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;capsul.engine.module.matlab&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-        <span class="s2">&quot;mcr_directory&quot;</span>
+        <span class="s2">"capsul.engine.module.matlab"</span><span class="p">,</span> <span class="p">{}</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"executable"</span><span class="p">)</span>
+    <span class="n">mcr</span> <span class="o">=</span> <span class="n">capsul</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">configurations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"capsul.engine.module.matlab"</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+        <span class="s2">"mcr_directory"</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">matlab_executable</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">mcr</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">&quot;both matlab.executable and matlab.mcr_directory are not defined&quot;</span>
+        <span class="k">return</span> <span class="s2">"both matlab.executable and matlab.mcr_directory are not defined"</span>
     <span class="k">if</span> <span class="n">matlab_executable</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">matlab_executable</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">(</span>
-            <span class="s1">&#39;Matlab executable is defined as &quot;</span><span class="si">%s</span><span class="s1">&quot; but this path does not exist&#39;</span>
+            <span class="s1">'Matlab executable is defined as "</span><span class="si">%s</span><span class="s1">" but this path does not exist'</span>
             <span class="o">%</span> <span class="n">matlab_executable</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="kc">None</span></div>
@@ -162,16 +162,16 @@
 <div class="viewcode-block" id="check_notably_invalid_config">
 <a class="viewcode-back" href="../../../../api/engine.html#capsul.engine.module.matlab.check_notably_invalid_config">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">check_notably_invalid_config</span><span class="p">(</span><span class="n">conf</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Checks if the given module config is obviously invalid, for instance if a mandatory path is not filled</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    invalid: list</span>
 <span class="sd">        list of invalid config keys</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">invalid</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;executable&quot;</span><span class="p">,</span> <span class="s2">&quot;mcr_directory&quot;</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"executable"</span><span class="p">,</span> <span class="s2">"mcr_directory"</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">invalid</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">invalid</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
@@ -185,10 +185,10 @@
 
 <div class="viewcode-block" id="edition_widget">
 <a class="viewcode-back" href="../../../../api/engine.html#capsul.engine.module.matlab.edition_widget">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">edition_widget</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">environment</span><span class="p">,</span> <span class="n">config_id</span><span class="o">=</span><span class="s2">&quot;matlab&quot;</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Edition GUI for matlab config - see</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">edition_widget</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">environment</span><span class="p">,</span> <span class="n">config_id</span><span class="o">=</span><span class="s2">"matlab"</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Edition GUI for matlab config - see</span>
 <span class="sd">    :class:`~capsul.qt_gui.widgets.settings_editor.SettingsEditor`</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">soma.qt_gui.controller_widget</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScrollControllerWidget</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">soma.controller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Controller</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">types</span>
@@ -199,61 +199,61 @@
         <span class="n">controller</span> <span class="o">=</span> <span class="n">widget</span><span class="o">.</span><span class="n">controller_widget</span><span class="o">.</span><span class="n">controller</span>
         <span class="k">with</span> <span class="n">widget</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">settings</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
             <span class="n">conf</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">config_id</span><span class="p">,</span> <span class="n">widget</span><span class="o">.</span><span class="n">environment</span><span class="p">)</span>
-            <span class="n">values</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;config_id&quot;</span><span class="p">:</span> <span class="n">config_id</span><span class="p">}</span>
-            <span class="k">if</span> <span class="n">controller</span><span class="o">.</span><span class="n">executable</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">Undefined</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
-                <span class="n">values</span><span class="p">[</span><span class="s2">&quot;executable&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"config_id"</span><span class="p">:</span> <span class="n">config_id</span><span class="p">}</span>
+            <span class="k">if</span> <span class="n">controller</span><span class="o">.</span><span class="n">executable</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">Undefined</span><span class="p">,</span> <span class="s2">""</span><span class="p">):</span>
+                <span class="n">values</span><span class="p">[</span><span class="s2">"executable"</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">values</span><span class="p">[</span><span class="s2">&quot;executable&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="n">executable</span>
-            <span class="k">if</span> <span class="n">controller</span><span class="o">.</span><span class="n">mcr_directory</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">Undefined</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
-                <span class="n">values</span><span class="p">[</span><span class="s2">&quot;mcr_directory&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">values</span><span class="p">[</span><span class="s2">"executable"</span><span class="p">]</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="n">executable</span>
+            <span class="k">if</span> <span class="n">controller</span><span class="o">.</span><span class="n">mcr_directory</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">Undefined</span><span class="p">,</span> <span class="s2">""</span><span class="p">):</span>
+                <span class="n">values</span><span class="p">[</span><span class="s2">"mcr_directory"</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">values</span><span class="p">[</span><span class="s2">&quot;mcr_directory&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="n">mcr_directory</span>
+                <span class="n">values</span><span class="p">[</span><span class="s2">"mcr_directory"</span><span class="p">]</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="n">mcr_directory</span>
             <span class="k">if</span> <span class="n">conf</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">session</span><span class="o">.</span><span class="n">new_config</span><span class="p">(</span><span class="n">config_id</span><span class="p">,</span> <span class="n">widget</span><span class="o">.</span><span class="n">environment</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">(</span>
-                    <span class="s2">&quot;executable&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;mcr_directory&quot;</span><span class="p">,</span>
+                    <span class="s2">"executable"</span><span class="p">,</span>
+                    <span class="s2">"mcr_directory"</span><span class="p">,</span>
                 <span class="p">):</span>
-                    <span class="c1"># don&#39;t check invalid files: they may be valid on a remote</span>
+                    <span class="c1"># don't check invalid files: they may be valid on a remote</span>
                     <span class="c1"># server</span>
-                    <span class="c1"># if (k == &#39;mcr_directory&#39; and</span>
+                    <span class="c1"># if (k == 'mcr_directory' and</span>
                     <span class="c1"># values[k] and</span>
                     <span class="c1"># not os.path.isdir(values[k])):</span>
-                    <span class="c1"># raise NotADirectoryError(&#39;\nMatlab mcr_directory &#39;</span>
-                    <span class="c1">#&#39;was not updated:\n{} is &#39;</span>
-                    <span class="c1">#&#39;not existing!&#39;.format(</span>
+                    <span class="c1"># raise NotADirectoryError('\nMatlab mcr_directory '</span>
+                    <span class="c1">#'was not updated:\n{} is '</span>
+                    <span class="c1">#'not existing!'.format(</span>
                     <span class="c1"># values[k]))</span>
-                    <span class="c1"># elif (k == &#39;executable&#39; and</span>
+                    <span class="c1"># elif (k == 'executable' and</span>
                     <span class="c1"># values[k] and</span>
                     <span class="c1"># not os.path.isfile(values[k])):</span>
-                    <span class="c1"># raise FileNotFoundError(&#39;\nMatlab executable &#39;</span>
-                    <span class="c1">#&#39;was not updated:\n{} is &#39;</span>
-                    <span class="c1">#&#39;not existing!&#39;.format(</span>
+                    <span class="c1"># raise FileNotFoundError('\nMatlab executable '</span>
+                    <span class="c1">#'was not updated:\n{} is '</span>
+                    <span class="c1">#'not existing!'.format(</span>
                     <span class="c1"># values[k]))</span>
                     <span class="c1"># else:</span>
                     <span class="nb">setattr</span><span class="p">(</span><span class="n">conf</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">values</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
 
     <span class="n">controller</span> <span class="o">=</span> <span class="n">Controller</span><span class="p">()</span>
     <span class="n">controller</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span>
-        <span class="s2">&quot;executable&quot;</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Full path of the matlab executable&quot;</span><span class="p">)</span>
+        <span class="s2">"executable"</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">desc</span><span class="o">=</span><span class="s2">"Full path of the matlab executable"</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="n">controller</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span>
-        <span class="s2">&quot;mcr_directory&quot;</span><span class="p">,</span>
+        <span class="s2">"mcr_directory"</span><span class="p">,</span>
         <span class="n">traits</span><span class="o">.</span><span class="n">Directory</span><span class="p">(</span>
-            <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Full path of the matlab MCR &quot;</span>
-            <span class="s2">&quot;directory, or use with standalone &quot;</span>
-            <span class="s2">&quot;binaries&quot;</span>
+            <span class="n">desc</span><span class="o">=</span><span class="s2">"Full path of the matlab MCR "</span>
+            <span class="s2">"directory, or use with standalone "</span>
+            <span class="s2">"binaries"</span>
         <span class="p">),</span>
     <span class="p">)</span>
 
-    <span class="n">conf</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">select_configurations</span><span class="p">(</span><span class="n">environment</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;matlab&quot;</span><span class="p">:</span> <span class="s2">&quot;any&quot;</span><span class="p">})</span>
+    <span class="n">conf</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">select_configurations</span><span class="p">(</span><span class="n">environment</span><span class="p">,</span> <span class="p">{</span><span class="s2">"matlab"</span><span class="p">:</span> <span class="s2">"any"</span><span class="p">})</span>
     <span class="k">if</span> <span class="n">conf</span><span class="p">:</span>
-        <span class="n">controller</span><span class="o">.</span><span class="n">executable</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;capsul.engine.module.matlab&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-            <span class="s2">&quot;executable&quot;</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">Undefined</span>
+        <span class="n">controller</span><span class="o">.</span><span class="n">executable</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"capsul.engine.module.matlab"</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s2">"executable"</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">Undefined</span>
         <span class="p">)</span>
-        <span class="n">controller</span><span class="o">.</span><span class="n">mcr_directory</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;capsul.engine.module.matlab&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-            <span class="s2">&quot;mcr_directory&quot;</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">Undefined</span>
+        <span class="n">controller</span><span class="o">.</span><span class="n">mcr_directory</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"capsul.engine.module.matlab"</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s2">"mcr_directory"</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">Undefined</span>
         <span class="p">)</span>
 
     <span class="n">widget</span> <span class="o">=</span> <span class="n">ScrollControllerWidget</span><span class="p">(</span><span class="n">controller</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>

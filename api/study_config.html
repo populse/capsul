@@ -17,7 +17,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
     
-    <script src="../_static/documentation_options.js?v=b9f4bfa5"></script>
+    <script src="../_static/documentation_options.js?v=727d2f68"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -354,14 +354,14 @@ and management.</p>
 fsl.Merge interface to files</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">capsul.process</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_process_instance</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">nipype_fsl_merge</span> <span class="o">=</span> <span class="n">get_process_instance</span><span class="p">(</span>
-<span class="gp">... </span>   <span class="s2">&quot;nipype.interfaces.fsl.Merge&quot;</span><span class="p">)</span>
+<span class="gp">... </span>   <span class="s2">"nipype.interfaces.fsl.Merge"</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">fsl_merge</span> <span class="o">=</span> <span class="n">mem</span><span class="o">.</span><span class="n">cache</span><span class="p">(</span><span class="n">nipype_fsl_merge</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Now we apply it to a list of files. We need to specify the
 list of input files and the dimension along which the files
 should be merged.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">fsl_merge</span><span class="p">(</span><span class="n">in_files</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;a.nii&#39;</span><span class="p">,</span> <span class="s1">&#39;b.nii&#39;</span><span class="p">],</span> <span class="n">dimension</span><span class="o">=</span><span class="s1">&#39;t&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">fsl_merge</span><span class="p">(</span><span class="n">in_files</span><span class="o">=</span><span class="p">[</span><span class="s1">'a.nii'</span><span class="p">,</span> <span class="s1">'b.nii'</span><span class="p">],</span> <span class="n">dimension</span><span class="o">=</span><span class="s1">'t'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>We can retrieve the resulting file from the outputs:</p>
@@ -677,10 +677,10 @@ file name is either defined in the global configuration or in
 “~/.config/capsul/&lt;study_name&gt;/config.json”.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">capsul.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">StudyConfig</span>
 
-<span class="n">study_config</span> <span class="o">=</span> <span class="n">StudyConfig</span><span class="p">(</span><span class="n">modules</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;SPMConfig&#39;</span><span class="p">,</span> <span class="s1">&#39;FomConfig&#39;</span><span class="p">])</span>
+<span class="n">study_config</span> <span class="o">=</span> <span class="n">StudyConfig</span><span class="p">(</span><span class="n">modules</span><span class="o">=</span><span class="p">[</span><span class="s1">'SPMConfig'</span><span class="p">,</span> <span class="s1">'FomConfig'</span><span class="p">])</span>
 <span class="c1"># or:</span>
 <span class="n">study_config</span> <span class="o">=</span> <span class="n">StudyConfig</span><span class="p">(</span><span class="n">modules</span><span class="o">=</span><span class="n">StudyConfig</span><span class="o">.</span><span class="n">default_modules</span> <span class="o">+</span>
-<span class="p">[</span><span class="s1">&#39;FomConfig&#39;</span><span class="p">])</span>
+<span class="p">[</span><span class="s1">'FomConfig'</span><span class="p">])</span>
 </pre></div>
 </div>
 <dl class="py attribute">

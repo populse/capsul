@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
     
-    <script src="../../../../_static/documentation_options.js?v=b9f4bfa5"></script>
+    <script src="../../../../_static/documentation_options.js?v=727d2f68"></script>
     <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -105,10 +105,10 @@
             
   <h1>Source code for capsul.pipeline.custom_nodes.strcat_node</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">'''</span>
 <span class="sd">:class:`StrCatNode`</span>
 <span class="sd">-------------------</span>
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">'''</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">absolute_import</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.pipeline.pipeline_nodes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Node</span>
@@ -122,16 +122,16 @@
 <div class="viewcode-block" id="StrCatNode">
 <a class="viewcode-back" href="../../../../api/pipeline.html#capsul.pipeline.custom_nodes.strcat_node.StrCatNode">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">StrCatNode</span><span class="p">(</span><span class="n">Node</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    This &quot;inert&quot; node concatenates its inputs (as strings) and generates the</span>
+<span class="w">    </span><span class="sd">'''</span>
+<span class="sd">    This "inert" node concatenates its inputs (as strings) and generates the</span>
 <span class="sd">    concatenation on one of its plugs. All plugs may be inputs or outputs.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
 
-    <span class="n">_doc_path</span> <span class="o">=</span> <span class="s1">&#39;api/pipeline.html#strcatnode&#39;</span>
+    <span class="n">_doc_path</span> <span class="o">=</span> <span class="s1">'api/pipeline.html#strcatnode'</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">concat_plug</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span>
                  <span class="n">make_optional</span><span class="o">=</span><span class="p">(),</span> <span class="n">param_types</span><span class="o">=</span><span class="p">{}):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        pipeline: Pipeline</span>
@@ -150,17 +150,17 @@
 <span class="sd">        param_types: dict</span>
 <span class="sd">            parameters types dict: {param_name: trait_type_as_string}</span>
 
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="n">node_inputs</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="p">(</span><span class="n">i</span> <span class="ow">in</span> <span class="n">make_optional</span><span class="p">))</span>
                        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">params</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">outputs</span><span class="p">]</span>
         <span class="n">node_outputs</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="p">(</span><span class="n">i</span> <span class="ow">in</span> <span class="n">make_optional</span><span class="p">))</span>
                         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">outputs</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">outputs</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">concat_plug</span> <span class="ow">in</span> <span class="n">outputs</span><span class="p">:</span>
-            <span class="n">node_outputs</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">concat_plug</span><span class="p">,</span>
-                                 <span class="s1">&#39;optional&#39;</span><span class="p">:</span> <span class="n">concat_plug</span> <span class="ow">in</span> <span class="n">make_optional</span><span class="p">})</span>
+            <span class="n">node_outputs</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">'name'</span><span class="p">:</span> <span class="n">concat_plug</span><span class="p">,</span>
+                                 <span class="s1">'optional'</span><span class="p">:</span> <span class="n">concat_plug</span> <span class="ow">in</span> <span class="n">make_optional</span><span class="p">})</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">node_inputs</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">concat_plug</span><span class="p">,</span>
-                                <span class="s1">&#39;optional&#39;</span><span class="p">:</span> <span class="n">concat_plug</span> <span class="ow">in</span> <span class="n">make_optional</span><span class="p">})</span>
+            <span class="n">node_inputs</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">'name'</span><span class="p">:</span> <span class="n">concat_plug</span><span class="p">,</span>
+                                <span class="s1">'optional'</span><span class="p">:</span> <span class="n">concat_plug</span> <span class="ow">in</span> <span class="n">make_optional</span><span class="p">})</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">StrCatNode</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">node_inputs</span><span class="p">,</span>
                                       <span class="n">node_outputs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_concat_sequence</span> <span class="o">=</span> <span class="n">params</span>
@@ -186,7 +186,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">on_trait_change</span><span class="p">(</span><span class="n">update_callback</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_concat_sequence</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">cat_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">six</span><span class="o">.</span><span class="n">text_type</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="s1">''</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">six</span><span class="o">.</span><span class="n">text_type</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
                           <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_concat_sequence</span><span class="p">])</span>
         <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_concat_plug</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
 
@@ -204,10 +204,10 @@
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">configure_controller</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">Controller</span><span class="p">()</span>
-        <span class="n">c</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">&#39;parameters&#39;</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">List</span><span class="p">(</span><span class="n">traits</span><span class="o">.</span><span class="n">Str</span><span class="p">()))</span>
-        <span class="n">c</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">&#39;concat_plug&#39;</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">Str</span><span class="p">())</span>
-        <span class="n">c</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">&#39;outputs&#39;</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">List</span><span class="p">(</span><span class="n">traits</span><span class="o">.</span><span class="n">Str</span><span class="p">()))</span>
-        <span class="n">c</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">&#39;param_types&#39;</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">List</span><span class="p">(</span><span class="n">traits</span><span class="o">.</span><span class="n">Str</span><span class="p">(</span><span class="s1">&#39;Str&#39;</span><span class="p">)))</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">'parameters'</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">List</span><span class="p">(</span><span class="n">traits</span><span class="o">.</span><span class="n">Str</span><span class="p">()))</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">'concat_plug'</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">Str</span><span class="p">())</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">'outputs'</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">List</span><span class="p">(</span><span class="n">traits</span><span class="o">.</span><span class="n">Str</span><span class="p">()))</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">'param_types'</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">List</span><span class="p">(</span><span class="n">traits</span><span class="o">.</span><span class="n">Str</span><span class="p">(</span><span class="s1">'Str'</span><span class="p">)))</span>
         <span class="k">return</span> <span class="n">c</span>
 
     <span class="nd">@classmethod</span>
@@ -226,13 +226,13 @@
         <span class="k">return</span> <span class="n">node</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">params_to_command</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;custom_job&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s1">'custom_job'</span><span class="p">]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">build_job</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">referenced_input_files</span><span class="o">=</span><span class="p">[],</span>
                   <span class="n">referenced_output_files</span><span class="o">=</span><span class="p">[],</span> <span class="n">param_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">soma_workflow.custom_jobs</span><span class="w"> </span><span class="kn">import</span> <span class="n">StrCatJob</span>
-        <span class="n">param_dict</span><span class="p">[</span><span class="s1">&#39;input_names&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_concat_sequence</span>
-        <span class="n">param_dict</span><span class="p">[</span><span class="s1">&#39;output_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_concat_plug</span>
+        <span class="n">param_dict</span><span class="p">[</span><span class="s1">'input_names'</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_concat_sequence</span>
+        <span class="n">param_dict</span><span class="p">[</span><span class="s1">'output_name'</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_concat_plug</span>
         <span class="c1"># transmit values</span>
         <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_concat_sequence</span><span class="p">:</span>
             <span class="n">param_dict</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">)</span>

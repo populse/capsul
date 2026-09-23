@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
     
-    <script src="../../../../_static/documentation_options.js?v=b9f4bfa5"></script>
+    <script src="../../../../_static/documentation_options.js?v=727d2f68"></script>
     <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -105,7 +105,7 @@
             
   <h1>Source code for capsul.qt_apps.utils.find_pipelines</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">'''</span>
 <span class="sd">Functions</span>
 <span class="sd">=========</span>
 <span class="sd">:func:`find_pipelines_from_description`</span>
@@ -114,7 +114,7 @@
 <span class="sd">---------------------------------</span>
 <span class="sd">:func:`lists2dict`</span>
 <span class="sd">------------------</span>
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">'''</span>
 
 <span class="c1"># System import</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">absolute_import</span>
@@ -137,7 +137,7 @@
 <div class="viewcode-block" id="find_pipelines_from_description">
 <a class="viewcode-back" href="../../../../api/qt_apps.html#capsul.qt_apps.utils.find_pipelines.find_pipelines_from_description">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">find_pipelines_from_description</span><span class="p">(</span><span class="n">module_name</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot; Function that list all the pipeline of a module.</span>
+<span class="w">    </span><span class="sd">""" Function that list all the pipeline of a module.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -154,12 +154,12 @@
 <span class="sd">        the url to the documentation.</span>
 <span class="sd">    pipelines: list</span>
 <span class="sd">        a list a pipeline string descriptions.        </span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Try to import the module</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="nb">__import__</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Can&#39;t load module </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">module_name</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"Can't load module </span><span class="si">{0}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">module_name</span><span class="p">))</span>
         <span class="k">return</span> <span class="p">{},</span> <span class="p">[]</span>
 
     <span class="c1"># Get the module path</span>
@@ -168,7 +168,7 @@
 
     <span class="c1"># Build the expected pipeline description file</span>
     <span class="n">description_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-        <span class="n">module_path</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">.capsul&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">module_name</span><span class="p">))</span>
+        <span class="n">module_path</span><span class="p">,</span> <span class="s2">"</span><span class="si">{0}</span><span class="s2">.capsul"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">module_name</span><span class="p">))</span>
 
     <span class="c1"># Load the description file</span>
     <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">description_file</span><span class="p">):</span>
@@ -177,7 +177,7 @@
 
         <span class="c1"># Organize the pipeline string description by module names</span>
         <span class="n">structured_pipelines</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">lists2dict</span><span class="p">([</span><span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">pipelines</span><span class="p">],</span> <span class="n">url</span><span class="p">,</span> <span class="n">structured_pipelines</span><span class="p">)</span>
+        <span class="n">lists2dict</span><span class="p">([</span><span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"."</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">pipelines</span><span class="p">],</span> <span class="n">url</span><span class="p">,</span> <span class="n">structured_pipelines</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">structured_pipelines</span><span class="p">,</span> <span class="n">pipelines</span>
 
@@ -190,7 +190,7 @@
 <div class="viewcode-block" id="find_pipeline_and_process">
 <a class="viewcode-back" href="../../../../api/qt_apps.html#capsul.qt_apps.utils.find_pipelines.find_pipeline_and_process">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">find_pipeline_and_process</span><span class="p">(</span><span class="n">module_name</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot; Function that return all the Pipeline and Process classes of a module.</span>
+<span class="w">    </span><span class="sd">""" Function that return all the Pipeline and Process classes of a module.</span>
 
 <span class="sd">    All the mdoule path are scanned recuresively. Any pipeline or process will</span>
 <span class="sd">    be added to the output.</span>
@@ -206,42 +206,42 @@
 <span class="sd">    output: dict</span>
 <span class="sd">        a dictionary with a list of pipeline and process string descriptions</span>
 <span class="sd">        found in the module.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="c1"># Try to import the module</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="nb">__import__</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Can&#39;t load module </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">module_name</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"Can't load module </span><span class="si">{0}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">module_name</span><span class="p">))</span>
         <span class="k">return</span> <span class="p">{},</span> <span class="p">[]</span>
 
     <span class="c1"># Get the module path</span>
     <span class="n">module</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">module_name</span><span class="p">]</span>
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="s1">&#39;__path__&#39;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="s1">'__path__'</span><span class="p">):</span>
         <span class="n">module_path</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">__path__</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">module_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">module</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)</span>
 
     <span class="c1"># Use setuptools to go through the module</span>
-    <span class="n">sub_modules</span> <span class="o">=</span> <span class="n">find_packages</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">module_path</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;doc&quot;</span><span class="p">,</span> <span class="p">))</span>
-    <span class="n">sub_modules</span> <span class="o">=</span> <span class="p">[</span><span class="n">module_name</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">sub_modules</span><span class="p">]</span>
+    <span class="n">sub_modules</span> <span class="o">=</span> <span class="n">find_packages</span><span class="p">(</span><span class="n">where</span><span class="o">=</span><span class="n">module_path</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="p">(</span><span class="s2">"doc"</span><span class="p">,</span> <span class="p">))</span>
+    <span class="n">sub_modules</span> <span class="o">=</span> <span class="p">[</span><span class="n">module_name</span> <span class="o">+</span> <span class="s2">"."</span> <span class="o">+</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">sub_modules</span><span class="p">]</span>
     <span class="n">sub_modules</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">module_name</span><span class="p">)</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Modules found with setuptools: &#39;</span><span class="si">{0}</span><span class="s2">&#39;.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sub_modules</span><span class="p">))</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Modules found with setuptools: '</span><span class="si">{0}</span><span class="s2">'."</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sub_modules</span><span class="p">))</span>
 
     <span class="c1"># Shift</span>
-    <span class="n">shift</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">module_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">))</span>
+    <span class="n">shift</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">module_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"."</span><span class="p">))</span>
 
     <span class="c1"># Create a set with all pipelines and process</span>
     <span class="n">pip_and_proc</span> <span class="o">=</span> <span class="p">[</span><span class="nb">set</span><span class="p">(),</span> <span class="nb">set</span><span class="p">()]</span>
     <span class="k">for</span> <span class="n">sub_module</span> <span class="ow">in</span> <span class="n">sub_modules</span><span class="p">:</span>
         <span class="c1"># Get the sub module path</span>
         <span class="n">sub_module_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="n">module_path</span><span class="p">,</span> <span class="o">*</span><span class="n">sub_module</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="n">shift</span><span class="p">:])</span>
+            <span class="n">module_path</span><span class="p">,</span> <span class="o">*</span><span class="n">sub_module</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"."</span><span class="p">)[</span><span class="n">shift</span><span class="p">:])</span>
 
         <span class="c1"># List all the module in submodule path</span>
         <span class="n">sub_sub_module_names</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">sub_module</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">x</span><span class="p">[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">sub_module_path</span><span class="p">)</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.py&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">))]</span>
+            <span class="n">sub_module</span> <span class="o">+</span> <span class="s2">"."</span> <span class="o">+</span> <span class="n">x</span><span class="p">[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">sub_module_path</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">".py"</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"_"</span><span class="p">))]</span>
 
         <span class="c1"># Try to import the sub sub module</span>
         <span class="k">for</span> <span class="n">sub_sub_module_name</span> <span class="ow">in</span> <span class="n">sub_sub_module_names</span><span class="p">:</span>
@@ -249,9 +249,9 @@
                 <span class="nb">__import__</span><span class="p">(</span><span class="n">sub_sub_module_name</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
                 <span class="n">exc_info</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exception</span><span class="p">(</span><span class="o">*</span><span class="n">exc_info</span><span class="p">)))</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Can&#39;t load module &quot;</span>
-                              <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sub_sub_module_name</span><span class="p">))</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exception</span><span class="p">(</span><span class="o">*</span><span class="n">exc_info</span><span class="p">)))</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"Can't load module "</span>
+                              <span class="s2">"</span><span class="si">{0}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sub_sub_module_name</span><span class="p">))</span>
                 <span class="k">continue</span>
 
             <span class="c1"># Get the module</span>
@@ -259,7 +259,7 @@
 
             <span class="c1"># From all the tools, find Pipeline instance</span>
             <span class="k">for</span> <span class="n">tool_name</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">sub_sub_module</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">tool_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">tool_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"_"</span><span class="p">):</span>
                     <span class="k">continue</span>
                 <span class="n">tool</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sub_sub_module</span><span class="p">,</span> <span class="n">tool_name</span><span class="p">)</span>
                 <span class="c1"># Check all the authorized derived class</span>
@@ -268,12 +268,12 @@
                     <span class="k">if</span> <span class="p">(</span><span class="n">isclass</span><span class="p">(</span><span class="n">tool</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">tool</span><span class="p">,</span> <span class="n">parent_class</span><span class="p">))</span> \
                             <span class="ow">and</span> <span class="n">tool</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">parent_classes</span><span class="p">:</span>
                         <span class="n">pip_and_proc</span><span class="p">[</span><span class="n">cnt</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
-                            <span class="n">sub_sub_module_name</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">tool_name</span><span class="p">)</span>
+                            <span class="n">sub_sub_module_name</span> <span class="o">+</span> <span class="s2">"."</span> <span class="o">+</span> <span class="n">tool_name</span><span class="p">)</span>
                         <span class="k">break</span>
     <span class="c1"># Format output</span>
     <span class="n">output</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;pipeline_descs&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">pip_and_proc</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
-        <span class="s2">&quot;process_descs&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">pip_and_proc</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="s2">"pipeline_descs"</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">pip_and_proc</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+        <span class="s2">"process_descs"</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">pip_and_proc</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
     <span class="p">}</span>
 
     <span class="k">return</span> <span class="n">output</span></div>
@@ -283,7 +283,7 @@
 <div class="viewcode-block" id="lists2dict">
 <a class="viewcode-back" href="../../../../api/qt_apps.html#capsul.qt_apps.utils.find_pipelines.lists2dict">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">lists2dict</span><span class="p">(</span><span class="n">list_of_pipeline_description</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot; Convert a list of split module names to a hierarchic dictionary with</span>
+<span class="w">    </span><span class="sd">""" Convert a list of split module names to a hierarchic dictionary with</span>
 <span class="sd">    list leafs that contain the url to the module documentation.</span>
 
 <span class="sd">    Parameters</span>
@@ -298,13 +298,13 @@
 <span class="sd">    d: hierachic dict</span>
 <span class="sd">        each key is a sub module of the module. Leafs contain a list with</span>
 <span class="sd">        the url to the documentation.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Go through all pipeline descriptions</span>
     <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">list_of_pipeline_description</span><span class="p">:</span>
 
         <span class="c1"># Reach a leaf (a pipeline)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">d</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">url</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">url</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">)</span>
 
         <span class="c1"># Continue the recursion</span>
         <span class="k">else</span><span class="p">:</span>

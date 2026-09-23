@@ -17,7 +17,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
     
-    <script src="../_static/documentation_options.js?v=b9f4bfa5"></script>
+    <script src="../_static/documentation_options.js?v=727d2f68"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -113,14 +113,14 @@
 <p>Using an existing completion model is a matter of configuration in StudyConfig. One must use the AttributesModule of StudyConfig, then specify which organization schemas to use.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">capsul.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">StudyConfig</span>
 
-<span class="n">study_config</span> <span class="o">=</span> <span class="n">StudyConfig</span><span class="p">(</span><span class="s1">&#39;test_study&#39;</span><span class="p">,</span> <span class="n">modules</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;AttributesConfig&#39;</span><span class="p">])</span>
-<span class="n">study_config</span><span class="o">.</span><span class="n">input_directory</span> <span class="o">=</span> <span class="s1">&#39;/tmp/in&#39;</span>
-<span class="n">study_config</span><span class="o">.</span><span class="n">output_directory</span> <span class="o">=</span> <span class="s1">&#39;/tmp/out&#39;</span>
+<span class="n">study_config</span> <span class="o">=</span> <span class="n">StudyConfig</span><span class="p">(</span><span class="s1">'test_study'</span><span class="p">,</span> <span class="n">modules</span><span class="o">=</span><span class="p">[</span><span class="s1">'AttributesConfig'</span><span class="p">])</span>
+<span class="n">study_config</span><span class="o">.</span><span class="n">input_directory</span> <span class="o">=</span> <span class="s1">'/tmp/in'</span>
+<span class="n">study_config</span><span class="o">.</span><span class="n">output_directory</span> <span class="o">=</span> <span class="s1">'/tmp/out'</span>
 <span class="n">study_config</span><span class="o">.</span><span class="n">attributes_schema_paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-    <span class="s1">&#39;capsul.attributes.test.test_attributed_process&#39;</span><span class="p">)</span>
-<span class="n">study_config</span><span class="o">.</span><span class="n">attributes_schemas</span><span class="p">[</span><span class="s1">&#39;input&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;custom_ex&#39;</span>
-<span class="n">study_config</span><span class="o">.</span><span class="n">attributes_schemas</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;custom_ex&#39;</span>
-<span class="n">study_config</span><span class="o">.</span><span class="n">path_completion</span> <span class="o">=</span> <span class="s1">&#39;custom_ex&#39;</span>
+    <span class="s1">'capsul.attributes.test.test_attributed_process'</span><span class="p">)</span>
+<span class="n">study_config</span><span class="o">.</span><span class="n">attributes_schemas</span><span class="p">[</span><span class="s1">'input'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'custom_ex'</span>
+<span class="n">study_config</span><span class="o">.</span><span class="n">attributes_schemas</span><span class="p">[</span><span class="s1">'output'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'custom_ex'</span>
+<span class="n">study_config</span><span class="o">.</span><span class="n">path_completion</span> <span class="o">=</span> <span class="s1">'custom_ex'</span>
 </pre></div>
 </div>
 <p>In this example, the example schemas are defined in the test example <code class="docutils literal notranslate"><span class="pre">test_attributed_process</span></code>. Completion involves several modular elements:</p>
@@ -132,11 +132,11 @@
 </ul>
 <p>Once configured, using completion on a process works as in this example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">process</span> <span class="o">=</span> <span class="n">study_config</span><span class="o">.</span><span class="n">get_process_instance</span><span class="p">(</span>
-    <span class="s1">&#39;capsul.attributes.test.test_attributed_process.DummyProcess&#39;</span><span class="p">)</span>
+    <span class="s1">'capsul.attributes.test.test_attributed_process.DummyProcess'</span><span class="p">)</span>
 <span class="n">compl_engine</span> <span class="o">=</span> <span class="n">ProcessCompletionEngine</span><span class="o">.</span><span class="n">get_completion_engine</span><span class="p">(</span><span class="n">process</span><span class="p">)</span>
 <span class="n">attributes</span> <span class="o">=</span> <span class="n">compl_engine</span><span class="o">.</span><span class="n">get_attribute_values</span><span class="p">()</span>
-<span class="n">attributes</span><span class="o">.</span><span class="n">center</span> <span class="o">=</span> <span class="s1">&#39;jojo&#39;</span>
-<span class="n">attributes</span><span class="o">.</span><span class="n">subject</span> <span class="o">=</span> <span class="s1">&#39;barbapapa&#39;</span>
+<span class="n">attributes</span><span class="o">.</span><span class="n">center</span> <span class="o">=</span> <span class="s1">'jojo'</span>
+<span class="n">attributes</span><span class="o">.</span><span class="n">subject</span> <span class="o">=</span> <span class="s1">'barbapapa'</span>
 <span class="n">compl_engine</span><span class="o">.</span><span class="n">complete_parameters</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -145,9 +145,9 @@
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">attributes</span><span class="o">.</span><span class="n">on_trait_change</span><span class="p">(</span><span class="n">compl_engine</span><span class="o">.</span><span class="n">attributes_changed</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">attributes</span><span class="o">.</span><span class="n">subject</span> <span class="o">=</span> <span class="s1">&#39;casimir&#39;</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">attributes</span><span class="o">.</span><span class="n">subject</span> <span class="o">=</span> <span class="s1">'casimir'</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">process</span><span class="o">.</span><span class="n">truc</span>
-<span class="go">&#39;/tmp/in/DummyProcess_truc_jojo_casimir&#39;</span>
+<span class="go">'/tmp/in/DummyProcess_truc_jojo_casimir'</span>
 </pre></div>
 </div>
 <p>Note that completion will also take place inside iterations in an iterative process, when generating a workflow.</p>
@@ -170,7 +170,7 @@
 <section id="path-building-from-attributes">
 <h4>Path building from attributes<a class="headerlink" href="#path-building-from-attributes" title="Link to this heading">¶</a></h4>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">MyPathCompletion</span><span class="p">(</span><span class="n">PathCompletionEngineFactory</span><span class="p">,</span> <span class="n">PathCompletionEngine</span><span class="p">):</span>
-    <span class="n">factory_id</span> <span class="o">=</span> <span class="s1">&#39;custom_ex&#39;</span>
+    <span class="n">factory_id</span> <span class="o">=</span> <span class="s1">'custom_ex'</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">MyPathCompletion</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -187,11 +187,11 @@
             <span class="n">val</span> <span class="o">=</span> <span class="n">att_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">val</span> <span class="ow">and</span> <span class="n">val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">Undefined</span><span class="p">:</span>
                 <span class="n">elements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">))</span>
-        <span class="k">if</span> <span class="s1">&#39;generated_by_parameter&#39;</span> <span class="ow">in</span> <span class="n">att_dict</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">'generated_by_parameter'</span> <span class="ow">in</span> <span class="n">att_dict</span><span class="p">:</span>
             <span class="n">directory</span> <span class="o">=</span> <span class="n">study_config</span><span class="o">.</span><span class="n">output_directory</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">directory</span> <span class="o">=</span> <span class="n">study_config</span><span class="o">.</span><span class="n">input_directory</span>
-        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">elements</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s1">'_'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">elements</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>Note the <code class="docutils literal notranslate"><span class="pre">factory_id</span></code> class variable: it is used to register the classes in a factory managed in the study config AttributesConfig module. Its value may be named in the <code class="docutils literal notranslate"><span class="pre">study_config.attributes_schemas</span></code> dictionary, as a value for a given directory organization.</p>
@@ -199,7 +199,7 @@
 <section id="declaring-attributes-sets">
 <h4>Declaring attributes sets<a class="headerlink" href="#declaring-attributes-sets" title="Link to this heading">¶</a></h4>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">CustomAttributesSchema</span><span class="p">(</span><span class="n">AttributesSchema</span><span class="p">):</span>
-    <span class="n">factory_id</span> <span class="o">=</span> <span class="s1">&#39;custom_ex&#39;</span>
+    <span class="n">factory_id</span> <span class="o">=</span> <span class="s1">'custom_ex'</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">Acquisition</span><span class="p">(</span><span class="n">EditableAttributes</span><span class="p">):</span>
         <span class="n">center</span> <span class="o">=</span> <span class="n">String</span><span class="p">()</span>
@@ -217,14 +217,14 @@
 <section id="declaring-process-and-parameters-attributes">
 <h4>Declaring process and parameters attributes<a class="headerlink" href="#declaring-process-and-parameters-attributes" title="Link to this heading">¶</a></h4>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">DummyProcessAttributes</span><span class="p">(</span><span class="n">ProcessAttributes</span><span class="p">):</span>
-    <span class="n">factory_id</span> <span class="o">=</span> <span class="s1">&#39;DummyProcess&#39;</span>
+    <span class="n">factory_id</span> <span class="o">=</span> <span class="s1">'DummyProcess'</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">schema_dict</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">DummyProcessAttributes</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">schema_dict</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_parameter_attributes</span><span class="p">(</span><span class="s1">&#39;truc&#39;</span><span class="p">,</span> <span class="s1">&#39;input&#39;</span><span class="p">,</span> <span class="s1">&#39;Acquisition&#39;</span><span class="p">,</span>
-                                      <span class="nb">dict</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;array&#39;</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_parameter_attributes</span><span class="p">(</span><span class="s1">&#39;bidule&#39;</span><span class="p">,</span> <span class="s1">&#39;output&#39;</span><span class="p">,</span> <span class="s1">&#39;Acquisition&#39;</span><span class="p">,</span>
-                                      <span class="nb">dict</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;array&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_parameter_attributes</span><span class="p">(</span><span class="s1">'truc'</span><span class="p">,</span> <span class="s1">'input'</span><span class="p">,</span> <span class="s1">'Acquisition'</span><span class="p">,</span>
+                                      <span class="nb">dict</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">'array'</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_parameter_attributes</span><span class="p">(</span><span class="s1">'bidule'</span><span class="p">,</span> <span class="s1">'output'</span><span class="p">,</span> <span class="s1">'Acquisition'</span><span class="p">,</span>
+                                      <span class="nb">dict</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">'array'</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>In this example, the parameters <code class="docutils literal notranslate"><span class="pre">truc</span></code> and <code class="docutils literal notranslate"><span class="pre">bidule</span></code> will inherit the attributes declared for <code class="docutils literal notranslate"><span class="pre">Acquisition</span></code>: namely, <code class="docutils literal notranslate"><span class="pre">center</span></code> and <code class="docutils literal notranslate"><span class="pre">subject</span></code>.</p>
@@ -243,16 +243,16 @@
 <p>FOMs are integrated in the completion system. It is activated using the FomConfig module of StudyConfig:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">capsul.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">StudyConfig</span>
 
-<span class="n">study_config</span> <span class="o">=</span> <span class="n">StudyConfig</span><span class="p">(</span><span class="s1">&#39;test_study&#39;</span><span class="p">,</span> <span class="n">modules</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;FomConfig&#39;</span><span class="p">])</span>
-<span class="n">study_config</span><span class="o">.</span><span class="n">inpupt_fom</span> <span class="o">=</span> <span class="s1">&#39;morphologist-auto-1.0&#39;</span>
-<span class="n">study_config</span><span class="o">.</span><span class="n">output_fom</span> <span class="o">=</span> <span class="s1">&#39;morphologist-auto-1.0&#39;</span>
+<span class="n">study_config</span> <span class="o">=</span> <span class="n">StudyConfig</span><span class="p">(</span><span class="s1">'test_study'</span><span class="p">,</span> <span class="n">modules</span><span class="o">=</span><span class="p">[</span><span class="s1">'FomConfig'</span><span class="p">])</span>
+<span class="n">study_config</span><span class="o">.</span><span class="n">inpupt_fom</span> <span class="o">=</span> <span class="s1">'morphologist-auto-1.0'</span>
+<span class="n">study_config</span><span class="o">.</span><span class="n">output_fom</span> <span class="o">=</span> <span class="s1">'morphologist-auto-1.0'</span>
 </pre></div>
 </div>
 <p>The FOM module (through the AttributesConfig module) sets up the attributes schema:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">study_config</span><span class="o">.</span><span class="n">attributes_schema_paths</span>
-<span class="go">[&#39;capsul.attributes.completion_engine_factory&#39;]</span>
+<span class="go">['capsul.attributes.completion_engine_factory']</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">study_config</span><span class="o">.</span><span class="n">process_completion</span>
-<span class="go">&#39;builtin&#39;</span>
+<span class="go">'builtin'</span>
 </pre></div>
 </div>
 <p>The rest works just as the above completion system.</p>
@@ -263,54 +263,54 @@
 <p>In Capsul a StudyConfig option, <cite>StudyConfig.fom_path</cite> is defined in the <a class="reference internal" href="../api/study_config.html#capsul.study_config.config_modules.fom_config.FomConfig" title="capsul.study_config.config_modules.fom_config.FomConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">FomConfig</span></code></a> module to handle the FOM search path.</p>
 <p>Ex:</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;fom_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;morphologist-auto-nonoverlap-1.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"fom_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"morphologist-auto-nonoverlap-1.0"</span><span class="p">,</span>
 
-<span class="w">    </span><span class="nt">&quot;fom_import&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;formats-brainvisa-1.0&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;brainvisa-formats-3.2.0&quot;</span><span class="p">,</span>
-<span class="w">                   </span><span class="s2">&quot;shared-brainvisa-1.0&quot;</span><span class="p">],</span>
+<span class="w">    </span><span class="nt">"fom_import"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"formats-brainvisa-1.0"</span><span class="p">,</span><span class="w"> </span><span class="s2">"brainvisa-formats-3.2.0"</span><span class="p">,</span>
+<span class="w">                   </span><span class="s2">"shared-brainvisa-1.0"</span><span class="p">],</span>
 
-<span class="w">    </span><span class="nt">&quot;attribute_definitions&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;acquisition&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;default_value&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;default_acquisition&quot;</span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;analysis&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;default_value&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;default_analysis&quot;</span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;sulci_recognition_session&quot;</span><span class="w"> </span><span class="p">:</span><span class="w">  </span><span class="p">{</span><span class="nt">&quot;default_value&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;default_session&quot;</span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;graph_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;default_value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;3.1&quot;</span><span class="p">},</span>
+<span class="w">    </span><span class="nt">"attribute_definitions"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"acquisition"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"default_value"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"default_acquisition"</span><span class="p">},</span>
+<span class="w">      </span><span class="nt">"analysis"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"default_value"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"default_analysis"</span><span class="p">},</span>
+<span class="w">      </span><span class="nt">"sulci_recognition_session"</span><span class="w"> </span><span class="p">:</span><span class="w">  </span><span class="p">{</span><span class="nt">"default_value"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"default_session"</span><span class="p">},</span>
+<span class="w">      </span><span class="nt">"graph_version"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"default_value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"3.1"</span><span class="p">},</span>
 <span class="w">    </span><span class="p">},</span>
 
-<span class="w">    </span><span class="nt">&quot;shared_patterns&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;acquisition&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;center&gt;/&lt;subject&gt;/t1mri/&lt;acquisition&gt;&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;analysis&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{acquisition}/&lt;analysis&gt;&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;recognition_analysis&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{analysis}/folds/&lt;graph_version&gt;/&lt;sulci_recognition_session&gt;_auto&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"shared_patterns"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"acquisition"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;center&gt;/&lt;subject&gt;/t1mri/&lt;acquisition&gt;"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"analysis"</span><span class="p">:</span><span class="w"> </span><span class="s2">"{acquisition}/&lt;analysis&gt;"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"recognition_analysis"</span><span class="p">:</span><span class="w"> </span><span class="s2">"{analysis}/folds/&lt;graph_version&gt;/&lt;sulci_recognition_session&gt;_auto"</span><span class="p">,</span>
 <span class="w">    </span><span class="p">},</span>
 
-<span class="w">    </span><span class="nt">&quot;processes&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;Morphologist&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;t1mri&quot;</span><span class="p">:</span>
-<span class="w">                </span><span class="p">[[</span><span class="s2">&quot;input:{acquisition}/&lt;subject&gt;&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;images&quot;</span><span class="p">]],</span>
-<span class="w">            </span><span class="nt">&quot;imported_t1mri&quot;</span><span class="p">:</span>
-<span class="w">                </span><span class="p">[[</span><span class="s2">&quot;output:{acquisition}/&lt;subject&gt;&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;images&quot;</span><span class="p">]],</span>
-<span class="w">            </span><span class="nt">&quot;t1mri_referential&quot;</span><span class="p">:</span>
-<span class="w">                </span><span class="p">[[</span><span class="s2">&quot;output:{acquisition}/registration/RawT1-&lt;subject&gt;_&lt;acquisition&gt;&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Referential&quot;</span><span class="p">]],</span>
-<span class="w">            </span><span class="nt">&quot;reoriented_t1mri&quot;</span><span class="p">:</span>
-<span class="w">                </span><span class="p">[[</span><span class="s2">&quot;output:{acquisition}/&lt;subject&gt;&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;images&quot;</span><span class="p">]],</span>
-<span class="w">            </span><span class="nt">&quot;t1mri_nobias&quot;</span><span class="p">:</span>
-<span class="w">                </span><span class="p">[[</span><span class="s2">&quot;output:{analysis}/nobias_&lt;subject&gt;&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;images&quot;</span><span class="w"> </span><span class="p">]],</span>
-<span class="w">            </span><span class="nt">&quot;split_brain&quot;</span><span class="p">:</span>
-<span class="w">                </span><span class="p">[[</span><span class="s2">&quot;output:{analysis}/segmentation/voronoi_&lt;subject&gt;&quot;</span><span class="p">,</span><span class="s2">&quot;images&quot;</span><span class="p">]],</span>
-<span class="w">            </span><span class="nt">&quot;left_graph&quot;</span><span class="p">:</span>
-<span class="w">                </span><span class="p">[[</span><span class="s2">&quot;output:{analysis}/folds/&lt;graph_version&gt;/&lt;side&gt;&lt;subject&gt;&quot;</span><span class="p">,</span>
-<span class="w">                    </span><span class="s2">&quot;Graph and data&quot;</span><span class="p">,</span>
-<span class="w">                    </span><span class="p">{</span><span class="nt">&quot;side&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;L&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;labelled&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;No&quot;</span><span class="p">}]],</span>
-<span class="w">            </span><span class="nt">&quot;left_labelled_graph&quot;</span><span class="p">:</span>
-<span class="w">                </span><span class="p">[[</span><span class="s2">&quot;output:{recognition_analysis}/&lt;side&gt;&lt;subject&gt;_&lt;sulci_recognition_session&gt;_auto&quot;</span><span class="p">,</span>
-<span class="w">                    </span><span class="s2">&quot;Graph and data&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;side&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;L&quot;</span><span class="p">}]],</span>
-<span class="w">            </span><span class="nt">&quot;right_graph&quot;</span><span class="p">:</span>
-<span class="w">                </span><span class="p">[[</span><span class="s2">&quot;output:{analysis}/folds/&lt;graph_version&gt;/&lt;side&gt;&lt;subject&gt;&quot;</span><span class="p">,</span>
-<span class="w">                    </span><span class="s2">&quot;Graph and data&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;side&quot;</span><span class="p">:</span><span class="s2">&quot;R&quot;</span><span class="p">,</span><span class="nt">&quot;labelled&quot;</span><span class="p">:</span><span class="s2">&quot;No&quot;</span><span class="p">}]],</span>
-<span class="w">            </span><span class="nt">&quot;right_labelled_graph&quot;</span><span class="p">:</span>
-<span class="w">                </span><span class="p">[[</span><span class="s2">&quot;output:{recognition_analysis}/&lt;side&gt;&lt;subject&gt;_&lt;sulci_recognition_session&gt;_auto&quot;</span><span class="p">,</span>
-<span class="w">                    </span><span class="s2">&quot;Graph and data&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;side&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;R&quot;</span><span class="p">}]],</span>
-<span class="w">            </span><span class="nt">&quot;Talairach_transform&quot;</span><span class="p">:</span>
-<span class="w">                </span><span class="p">[[</span><span class="s2">&quot;output:{acquisition}/registration/RawT1-&lt;subject&gt;_&lt;acquisition&gt;_TO_Talairach-ACPC&quot;</span><span class="p">,</span>
-<span class="w">                    </span><span class="s2">&quot;Transformation matrix&quot;</span><span class="p">]]</span>
+<span class="w">    </span><span class="nt">"processes"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">"Morphologist"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">"t1mri"</span><span class="p">:</span>
+<span class="w">                </span><span class="p">[[</span><span class="s2">"input:{acquisition}/&lt;subject&gt;"</span><span class="p">,</span><span class="w"> </span><span class="s2">"images"</span><span class="p">]],</span>
+<span class="w">            </span><span class="nt">"imported_t1mri"</span><span class="p">:</span>
+<span class="w">                </span><span class="p">[[</span><span class="s2">"output:{acquisition}/&lt;subject&gt;"</span><span class="p">,</span><span class="w"> </span><span class="s2">"images"</span><span class="p">]],</span>
+<span class="w">            </span><span class="nt">"t1mri_referential"</span><span class="p">:</span>
+<span class="w">                </span><span class="p">[[</span><span class="s2">"output:{acquisition}/registration/RawT1-&lt;subject&gt;_&lt;acquisition&gt;"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Referential"</span><span class="p">]],</span>
+<span class="w">            </span><span class="nt">"reoriented_t1mri"</span><span class="p">:</span>
+<span class="w">                </span><span class="p">[[</span><span class="s2">"output:{acquisition}/&lt;subject&gt;"</span><span class="p">,</span><span class="w"> </span><span class="s2">"images"</span><span class="p">]],</span>
+<span class="w">            </span><span class="nt">"t1mri_nobias"</span><span class="p">:</span>
+<span class="w">                </span><span class="p">[[</span><span class="s2">"output:{analysis}/nobias_&lt;subject&gt;"</span><span class="p">,</span><span class="w"> </span><span class="s2">"images"</span><span class="w"> </span><span class="p">]],</span>
+<span class="w">            </span><span class="nt">"split_brain"</span><span class="p">:</span>
+<span class="w">                </span><span class="p">[[</span><span class="s2">"output:{analysis}/segmentation/voronoi_&lt;subject&gt;"</span><span class="p">,</span><span class="s2">"images"</span><span class="p">]],</span>
+<span class="w">            </span><span class="nt">"left_graph"</span><span class="p">:</span>
+<span class="w">                </span><span class="p">[[</span><span class="s2">"output:{analysis}/folds/&lt;graph_version&gt;/&lt;side&gt;&lt;subject&gt;"</span><span class="p">,</span>
+<span class="w">                    </span><span class="s2">"Graph and data"</span><span class="p">,</span>
+<span class="w">                    </span><span class="p">{</span><span class="nt">"side"</span><span class="p">:</span><span class="w"> </span><span class="s2">"L"</span><span class="p">,</span><span class="w"> </span><span class="nt">"labelled"</span><span class="p">:</span><span class="w"> </span><span class="s2">"No"</span><span class="p">}]],</span>
+<span class="w">            </span><span class="nt">"left_labelled_graph"</span><span class="p">:</span>
+<span class="w">                </span><span class="p">[[</span><span class="s2">"output:{recognition_analysis}/&lt;side&gt;&lt;subject&gt;_&lt;sulci_recognition_session&gt;_auto"</span><span class="p">,</span>
+<span class="w">                    </span><span class="s2">"Graph and data"</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nt">"side"</span><span class="p">:</span><span class="w"> </span><span class="s2">"L"</span><span class="p">}]],</span>
+<span class="w">            </span><span class="nt">"right_graph"</span><span class="p">:</span>
+<span class="w">                </span><span class="p">[[</span><span class="s2">"output:{analysis}/folds/&lt;graph_version&gt;/&lt;side&gt;&lt;subject&gt;"</span><span class="p">,</span>
+<span class="w">                    </span><span class="s2">"Graph and data"</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nt">"side"</span><span class="p">:</span><span class="s2">"R"</span><span class="p">,</span><span class="nt">"labelled"</span><span class="p">:</span><span class="s2">"No"</span><span class="p">}]],</span>
+<span class="w">            </span><span class="nt">"right_labelled_graph"</span><span class="p">:</span>
+<span class="w">                </span><span class="p">[[</span><span class="s2">"output:{recognition_analysis}/&lt;side&gt;&lt;subject&gt;_&lt;sulci_recognition_session&gt;_auto"</span><span class="p">,</span>
+<span class="w">                    </span><span class="s2">"Graph and data"</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nt">"side"</span><span class="p">:</span><span class="w"> </span><span class="s2">"R"</span><span class="p">}]],</span>
+<span class="w">            </span><span class="nt">"Talairach_transform"</span><span class="p">:</span>
+<span class="w">                </span><span class="p">[[</span><span class="s2">"output:{acquisition}/registration/RawT1-&lt;subject&gt;_&lt;acquisition&gt;_TO_Talairach-ACPC"</span><span class="p">,</span>
+<span class="w">                    </span><span class="s2">"Transformation matrix"</span><span class="p">]]</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
@@ -325,25 +325,25 @@
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">capsul.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pipeline</span><span class="p">,</span> <span class="n">StudyConfig</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.attributes.completion_engine</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessCompletionEngine</span>
 
-<span class="n">study_config</span> <span class="o">=</span> <span class="n">StudyConfig</span><span class="p">(</span><span class="s1">&#39;test_study&#39;</span><span class="p">,</span> <span class="n">modules</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;FomConfig&#39;</span><span class="p">])</span>
-<span class="n">study_config</span><span class="o">.</span><span class="n">input_fom</span> <span class="o">=</span> <span class="s1">&#39;morphologist-auto-nonoverlap-1.0&#39;</span>
-<span class="n">study_config</span><span class="o">.</span><span class="n">output_fom</span> <span class="o">=</span> <span class="s1">&#39;morphologist-auto-nonoverlap-1.0&#39;</span>
+<span class="n">study_config</span> <span class="o">=</span> <span class="n">StudyConfig</span><span class="p">(</span><span class="s1">'test_study'</span><span class="p">,</span> <span class="n">modules</span><span class="o">=</span><span class="p">[</span><span class="s1">'FomConfig'</span><span class="p">])</span>
+<span class="n">study_config</span><span class="o">.</span><span class="n">input_fom</span> <span class="o">=</span> <span class="s1">'morphologist-auto-nonoverlap-1.0'</span>
+<span class="n">study_config</span><span class="o">.</span><span class="n">output_fom</span> <span class="o">=</span> <span class="s1">'morphologist-auto-nonoverlap-1.0'</span>
 
 <span class="n">pipeline</span> <span class="o">=</span> <span class="n">study_config</span><span class="o">.</span><span class="n">get_iteration_pipeline</span><span class="p">(</span>
-    <span class="s1">&#39;iter&#39;</span><span class="p">,</span> <span class="s1">&#39;morpho&#39;</span><span class="p">,</span> <span class="s1">&#39;morphologist.capsul.morphologist&#39;</span><span class="p">,</span>
-    <span class="n">iterative_plugs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;t1mri&#39;</span><span class="p">])</span>
+    <span class="s1">'iter'</span><span class="p">,</span> <span class="s1">'morpho'</span><span class="p">,</span> <span class="s1">'morphologist.capsul.morphologist'</span><span class="p">,</span>
+    <span class="n">iterative_plugs</span><span class="o">=</span><span class="p">[</span><span class="s1">'t1mri'</span><span class="p">])</span>
 
 <span class="n">cm</span> <span class="o">=</span> <span class="n">ProcessCompletionEngine</span><span class="o">.</span><span class="n">get_completion_engine</span><span class="p">(</span><span class="n">pipeline</span><span class="p">)</span>
-<span class="n">cm</span><span class="o">.</span><span class="n">get_attribute_values</span><span class="p">()</span><span class="o">.</span><span class="n">subject</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;s1&#39;</span><span class="p">,</span> <span class="s1">&#39;s2&#39;</span><span class="p">,</span> <span class="s1">&#39;s3&#39;</span><span class="p">]</span>
+<span class="n">cm</span><span class="o">.</span><span class="n">get_attribute_values</span><span class="p">()</span><span class="o">.</span><span class="n">subject</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'s1'</span><span class="p">,</span> <span class="s1">'s2'</span><span class="p">,</span> <span class="s1">'s3'</span><span class="p">]</span>
 <span class="n">cm</span><span class="o">.</span><span class="n">complete_parameters</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>Note that <a class="reference internal" href="../api/study_config.html#capsul.study_config.study_config.StudyConfig.get_iteration_pipeline" title="capsul.study_config.study_config.StudyConfig.get_iteration_pipeline"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_iteration_pipeline()</span></code></a> is the equivalent of:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pipeline</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">()</span>
 <span class="n">pipeline</span><span class="o">.</span><span class="n">set_study_config</span><span class="p">(</span><span class="n">study_config</span><span class="p">)</span>
-<span class="n">pipeline</span><span class="o">.</span><span class="n">add_iterative_process</span><span class="p">(</span><span class="s1">&#39;morpho&#39;</span><span class="p">,</span>
-                               <span class="s1">&#39;morphologist.capsul.morphologist&#39;</span><span class="p">,</span>
-                               <span class="n">iterative_plugs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;t1mri&#39;</span><span class="p">])</span>
+<span class="n">pipeline</span><span class="o">.</span><span class="n">add_iterative_process</span><span class="p">(</span><span class="s1">'morpho'</span><span class="p">,</span>
+                               <span class="s1">'morphologist.capsul.morphologist'</span><span class="p">,</span>
+                               <span class="n">iterative_plugs</span><span class="o">=</span><span class="p">[</span><span class="s1">'t1mri'</span><span class="p">])</span>
 <span class="n">pipeline</span><span class="o">.</span><span class="n">autoexport_nodes_parameters</span><span class="p">(</span><span class="n">include_optional</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>

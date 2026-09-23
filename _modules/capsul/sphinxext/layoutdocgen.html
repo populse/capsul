@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
     
-    <script src="../../../_static/documentation_options.js?v=b9f4bfa5"></script>
+    <script src="../../../_static/documentation_options.js?v=727d2f68"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -126,10 +126,10 @@
 <div class="viewcode-block" id="LayoutHelperWriter">
 <a class="viewcode-back" href="../../../api/sphinxext.html#capsul.sphinxext.layoutdocgen.LayoutHelperWriter">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">LayoutHelperWriter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot; A basic class to create sphinx layout and associated index.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module_names</span><span class="p">,</span> <span class="n">root_module_name</span><span class="p">,</span> <span class="n">rst_extension</span><span class="o">=</span><span class="s2">&quot;.rst&quot;</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Initialize the LayoutHelperWriter class</span>
+<span class="w">    </span><span class="sd">""" A basic class to create sphinx layout and associated index.</span>
+<span class="sd">    """</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module_names</span><span class="p">,</span> <span class="n">root_module_name</span><span class="p">,</span> <span class="n">rst_extension</span><span class="o">=</span><span class="s2">".rst"</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">""" Initialize the LayoutHelperWriter class</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -138,17 +138,17 @@
 <span class="sd">        root_module_name: str (mandatory)</span>
 <span class="sd">            the name of the python package</span>
 <span class="sd">        rst_extension : string (optional)</span>
-<span class="sd">            Extension for reST files, default &#39;.rst&#39;</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">            Extension for reST files, default '.rst'</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">module_names</span> <span class="o">=</span> <span class="n">module_names</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rst_extension</span> <span class="o">=</span> <span class="n">rst_extension</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">root_module_name</span> <span class="o">=</span> <span class="n">root_module_name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">rst_section_levels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="s1">&#39;=&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;~&#39;</span><span class="p">,</span> <span class="s1">&#39;^&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rst_section_levels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'*'</span><span class="p">,</span> <span class="s1">'='</span><span class="p">,</span> <span class="s1">'-'</span><span class="p">,</span> <span class="s1">'~'</span><span class="p">,</span> <span class="s1">'^'</span><span class="p">]</span>
 
 <div class="viewcode-block" id="LayoutHelperWriter.generate_index_entry">
 <a class="viewcode-back" href="../../../api/sphinxext.html#capsul.sphinxext.layoutdocgen.LayoutHelperWriter.generate_index_entry">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">generate_index_entry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module_name</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Make autodoc documentation of pilots</span>
+<span class="w">        </span><span class="sd">""" Make autodoc documentation of pilots</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -161,31 +161,31 @@
 <span class="sd">        -------</span>
 <span class="sd">        ad : string</span>
 <span class="sd">            the reST formatted index description.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Try to get the module description</span>
-        <span class="n">full_module_name</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">.</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_module_name</span><span class="p">,</span> <span class="n">module_name</span><span class="p">)</span>
+        <span class="n">full_module_name</span> <span class="o">=</span> <span class="s2">"</span><span class="si">{0}</span><span class="s2">.</span><span class="si">{1}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_module_name</span><span class="p">,</span> <span class="n">module_name</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="nb">__import__</span><span class="p">(</span><span class="n">full_module_name</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
             <span class="n">exc_info</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exception</span><span class="p">(</span><span class="o">*</span><span class="n">exc_info</span><span class="p">)))</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exception</span><span class="p">(</span><span class="o">*</span><span class="n">exc_info</span><span class="p">)))</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="s2">&quot;Can&#39;t load module </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">full_module_name</span><span class="p">))</span>
+                <span class="s2">"Can't load module </span><span class="si">{0}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">full_module_name</span><span class="p">))</span>
         <span class="n">module</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">full_module_name</span><span class="p">]</span>
         <span class="n">description</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="vm">__doc__</span>
 
         <span class="c1"># Then reST formatting</span>
-        <span class="n">spacer</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span> <span class="o">*</span> <span class="mi">4</span>
-        <span class="n">ad</span> <span class="o">=</span> <span class="n">spacer</span> <span class="o">+</span> <span class="s2">&quot;&lt;div class=&#39;span6 box&#39;&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
-        <span class="n">ad</span> <span class="o">+=</span> <span class="n">spacer</span> <span class="o">+</span> <span class="s2">&quot;&lt;h2&gt;&lt;a href=&#39;</span><span class="si">{0}</span><span class="s2">/index.html&#39;&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span>
-        <span class="n">ad</span> <span class="o">+=</span> <span class="n">spacer</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2"> module</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span>
-        <span class="n">ad</span> <span class="o">+=</span> <span class="n">spacer</span> <span class="o">+</span> <span class="s2">&quot;&lt;/a&gt;&lt;/h2&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
-        <span class="n">ad</span> <span class="o">+=</span> <span class="n">spacer</span> <span class="o">+</span> <span class="s2">&quot;&lt;blockquote&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">spacer</span> <span class="o">=</span> <span class="s2">" "</span> <span class="o">*</span> <span class="mi">4</span>
+        <span class="n">ad</span> <span class="o">=</span> <span class="n">spacer</span> <span class="o">+</span> <span class="s2">"&lt;div class='span6 box'&gt;</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="n">ad</span> <span class="o">+=</span> <span class="n">spacer</span> <span class="o">+</span> <span class="s2">"&lt;h2&gt;&lt;a href='</span><span class="si">{0}</span><span class="s2">/index.html'&gt;</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span>
+        <span class="n">ad</span> <span class="o">+=</span> <span class="n">spacer</span> <span class="o">+</span> <span class="s2">"</span><span class="si">{0}</span><span class="s2"> module</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span>
+        <span class="n">ad</span> <span class="o">+=</span> <span class="n">spacer</span> <span class="o">+</span> <span class="s2">"&lt;/a&gt;&lt;/h2&gt;</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="n">ad</span> <span class="o">+=</span> <span class="n">spacer</span> <span class="o">+</span> <span class="s2">"&lt;blockquote&gt;</span><span class="se">\n</span><span class="s2">"</span>
         <span class="k">if</span> <span class="n">description</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">ad</span> <span class="o">+=</span> <span class="n">spacer</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="si">{0}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">((</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">spacer</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">ad</span> <span class="o">+=</span> <span class="n">spacer</span> <span class="o">+</span> <span class="s2">"</span><span class="si">{0}</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">((</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> <span class="n">spacer</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">rst2html</span><span class="p">(</span><span class="n">description</span><span class="p">)</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()))</span>
-        <span class="n">ad</span> <span class="o">+=</span> <span class="n">spacer</span> <span class="o">+</span> <span class="s2">&quot;&lt;/blockquote&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
-        <span class="n">ad</span> <span class="o">+=</span> <span class="n">spacer</span> <span class="o">+</span> <span class="s2">&quot;&lt;/div&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">ad</span> <span class="o">+=</span> <span class="n">spacer</span> <span class="o">+</span> <span class="s2">"&lt;/blockquote&gt;</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="n">ad</span> <span class="o">+=</span> <span class="n">spacer</span> <span class="o">+</span> <span class="s2">"&lt;/div&gt;</span><span class="se">\n</span><span class="s2">"</span>
 
         <span class="k">return</span> <span class="n">ad</span></div>
 
@@ -193,7 +193,7 @@
 <div class="viewcode-block" id="LayoutHelperWriter.title_for">
 <a class="viewcode-back" href="../../../api/sphinxext.html#capsul.sphinxext.layoutdocgen.LayoutHelperWriter.title_for">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">title_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Create a title from a underscore-separated string.</span>
+<span class="w">        </span><span class="sd">""" Create a title from a underscore-separated string.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -204,14 +204,14 @@
 <span class="sd">        -------</span>
 <span class="sd">        out: str</span>
 <span class="sd">            the formatted string.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">title</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span></div>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="n">title</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"_"</span><span class="p">,</span> <span class="s2">" "</span><span class="p">)</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="LayoutHelperWriter.rst2html">
 <a class="viewcode-back" href="../../../api/sphinxext.html#capsul.sphinxext.layoutdocgen.LayoutHelperWriter.rst2html">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">rst2html</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rst</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Convert a rst formatted string to an html string.</span>
+<span class="w">        </span><span class="sd">""" Convert a rst formatted string to an html string.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -222,33 +222,33 @@
 <span class="sd">        -------</span>
 <span class="sd">        out: str</span>
 <span class="sd">            the html formatted string.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">parts</span> <span class="o">=</span> <span class="n">publish_parts</span><span class="p">(</span><span class="n">rst</span><span class="p">,</span> <span class="n">writer_name</span><span class="o">=</span><span class="s2">&quot;html&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">parts</span><span class="p">[</span><span class="s2">&quot;body_pre_docinfo&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">parts</span><span class="p">[</span><span class="s2">&quot;body&quot;</span><span class="p">]</span></div>
+<span class="sd">        """</span>
+        <span class="n">parts</span> <span class="o">=</span> <span class="n">publish_parts</span><span class="p">(</span><span class="n">rst</span><span class="p">,</span> <span class="n">writer_name</span><span class="o">=</span><span class="s2">"html"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">parts</span><span class="p">[</span><span class="s2">"body_pre_docinfo"</span><span class="p">]</span> <span class="o">+</span> <span class="n">parts</span><span class="p">[</span><span class="s2">"body"</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="LayoutHelperWriter.write_layout">
 <a class="viewcode-back" href="../../../api/sphinxext.html#capsul.sphinxext.layoutdocgen.LayoutHelperWriter.write_layout">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">write_layout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outdir</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate the sphinx layout.</span>
+<span class="w">        </span><span class="sd">"""Generate the sphinx layout.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        outdir : string</span>
 <span class="sd">            Directory name in which to store files</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Check if output dir exists</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">outdir</span><span class="p">):</span>
             <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">outdir</span><span class="p">)</span>
 
         <span class="c1"># Get the layout template</span>
         <span class="n">layout_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;resources&quot;</span><span class="p">,</span> <span class="s2">&quot;layout.html&quot;</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">"resources"</span><span class="p">,</span> <span class="s2">"layout.html"</span><span class="p">)</span>
 
         <span class="c1"># Top selection panel</span>
         <span class="n">indices</span> <span class="o">=</span> <span class="p">[</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;&lt;li&gt;&lt;a href=&quot;{{{{ pathto(&#39;generated/{0}/index&#39;) }}}}&quot;&gt;&quot;&quot;&quot;</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;{1}&lt;/a&gt;&lt;/li&gt;&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">title_for</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+<span class="w">            </span><span class="sd">"""&lt;li&gt;&lt;a href="{{{{ pathto('generated/{0}/index') }}}}"&gt;"""</span>
+<span class="w">            </span><span class="sd">"""{1}&lt;/a&gt;&lt;/li&gt;"""</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">title_for</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
             <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">module_names</span><span class="p">]</span>
 
         <span class="c1"># Project description</span>
@@ -256,62 +256,62 @@
             <span class="nb">__import__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_module_name</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
             <span class="n">exc_info</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exception</span><span class="p">(</span><span class="o">*</span><span class="n">exc_info</span><span class="p">)))</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exception</span><span class="p">(</span><span class="o">*</span><span class="n">exc_info</span><span class="p">)))</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="s2">&quot;Can&#39;t load module </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_module_name</span><span class="p">))</span>
+                <span class="s2">"Can't load module </span><span class="si">{0}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_module_name</span><span class="p">))</span>
         <span class="n">module</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">root_module_name</span><span class="p">]</span>
         <span class="n">release_info</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">exec</span><span class="p">(</span><span class="nb">compile</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">module</span><span class="o">.</span><span class="n">__path__</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;info.py&quot;</span><span class="p">),</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">module</span><span class="o">.</span><span class="n">__path__</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;info.py&quot;</span><span class="p">),</span> <span class="s1">&#39;exec&#39;</span><span class="p">),</span> <span class="n">release_info</span><span class="p">)</span>
+        <span class="n">exec</span><span class="p">(</span><span class="nb">compile</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">module</span><span class="o">.</span><span class="n">__path__</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">"info.py"</span><span class="p">),</span> <span class="s2">"rb"</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">module</span><span class="o">.</span><span class="n">__path__</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">"info.py"</span><span class="p">),</span> <span class="s1">'exec'</span><span class="p">),</span> <span class="n">release_info</span><span class="p">)</span>
 
         <span class="c1"># Carousel items</span>
         <span class="n">carousel_items_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="n">module</span><span class="o">.</span><span class="n">__path__</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">os</span><span class="o">.</span><span class="n">pardir</span><span class="p">,</span> <span class="s2">&quot;doc&quot;</span><span class="p">,</span> <span class="s2">&quot;source&quot;</span><span class="p">,</span> <span class="s2">&quot;_static&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;carousel&quot;</span><span class="p">)</span>
+            <span class="n">module</span><span class="o">.</span><span class="n">__path__</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">os</span><span class="o">.</span><span class="n">pardir</span><span class="p">,</span> <span class="s2">"doc"</span><span class="p">,</span> <span class="s2">"source"</span><span class="p">,</span> <span class="s2">"_static"</span><span class="p">,</span>
+            <span class="s2">"carousel"</span><span class="p">)</span>
         <span class="n">carousel_items</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">carousel_items_path</span><span class="p">)]</span>
         <span class="n">images</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">indicators</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">cnt</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">carousel_items</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">cnt</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">indicators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="s2">&quot;&lt;li data-target=&#39;#examples_carousel&#39; data-slide-to=&#39;0&#39; &quot;</span>
-                    <span class="s2">&quot;class=&#39;active&#39;&gt;&lt;/li&gt;&quot;</span><span class="p">)</span>
+                    <span class="s2">"&lt;li data-target='#examples_carousel' data-slide-to='0' "</span>
+                    <span class="s2">"class='active'&gt;&lt;/li&gt;"</span><span class="p">)</span>
                 <span class="n">images</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="s2">&quot;&lt;div class=</span><span class="se">\&quot;</span><span class="s2">active item</span><span class="se">\&quot;</span><span class="s2">&gt;&quot;</span>
-                    <span class="s2">&quot;&lt;a href=</span><span class="se">\&quot;</span><span class="s2">{{pathto(&#39;index&#39;)}}</span><span class="se">\&quot;</span><span class="s2">&gt;&quot;</span>
-                    <span class="s2">&quot;&lt;img src=</span><span class="se">\&quot;</span><span class="s2">{{ pathto(&#39;_static/carousel/</span><span class="si">%s</span><span class="s2">&#39;, 1) }}</span><span class="se">\&quot;</span><span class="s2">&gt;&quot;</span>
-                    <span class="s2">&quot;&lt;/div&gt;&lt;/a&gt;&quot;</span> <span class="o">%</span> <span class="n">item</span><span class="p">)</span>
+                    <span class="s2">"&lt;div class=</span><span class="se">\"</span><span class="s2">active item</span><span class="se">\"</span><span class="s2">&gt;"</span>
+                    <span class="s2">"&lt;a href=</span><span class="se">\"</span><span class="s2">{{pathto('index')}}</span><span class="se">\"</span><span class="s2">&gt;"</span>
+                    <span class="s2">"&lt;img src=</span><span class="se">\"</span><span class="s2">{{ pathto('_static/carousel/</span><span class="si">%s</span><span class="s2">', 1) }}</span><span class="se">\"</span><span class="s2">&gt;"</span>
+                    <span class="s2">"&lt;/div&gt;&lt;/a&gt;"</span> <span class="o">%</span> <span class="n">item</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">indicators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="s2">&quot;&lt;li data-target=&#39;#examples_carousel&#39; data-slide-to=&#39;</span><span class="si">{0}</span><span class="s2">&#39; &quot;</span>
-                    <span class="s2">&quot;&lt;/li&gt;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cnt</span><span class="p">))</span>
+                    <span class="s2">"&lt;li data-target='#examples_carousel' data-slide-to='</span><span class="si">{0}</span><span class="s2">' "</span>
+                    <span class="s2">"&lt;/li&gt;"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cnt</span><span class="p">))</span>
                 <span class="n">images</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="s2">&quot;&lt;div class=</span><span class="se">\&quot;</span><span class="s2">item</span><span class="se">\&quot;</span><span class="s2">&gt;&lt;a href=</span><span class="se">\&quot;</span><span class="s2">{{pathto(&#39;index&#39;)}}</span><span class="se">\&quot;</span><span class="s2">&gt;&quot;</span>
-                    <span class="s2">&quot;&lt;img src=</span><span class="se">\&quot;</span><span class="s2">{{ pathto(&#39;_static/carousel/</span><span class="si">%s</span><span class="s2">&#39;, 1) }}</span><span class="se">\&quot;</span><span class="s2">&gt;&quot;</span>
-                    <span class="s2">&quot;&lt;/a&gt;&lt;/div&gt;&quot;</span> <span class="o">%</span> <span class="n">item</span><span class="p">)</span>
+                    <span class="s2">"&lt;div class=</span><span class="se">\"</span><span class="s2">item</span><span class="se">\"</span><span class="s2">&gt;&lt;a href=</span><span class="se">\"</span><span class="s2">{{pathto('index')}}</span><span class="se">\"</span><span class="s2">&gt;"</span>
+                    <span class="s2">"&lt;img src=</span><span class="se">\"</span><span class="s2">{{ pathto('_static/carousel/</span><span class="si">%s</span><span class="s2">', 1) }}</span><span class="se">\"</span><span class="s2">&gt;"</span>
+                    <span class="s2">"&lt;/a&gt;&lt;/div&gt;"</span> <span class="o">%</span> <span class="n">item</span><span class="p">)</span>
 
         <span class="c1"># Create correspondence mapping</span>
         <span class="n">layout_info</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;NAME_LOWER&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_module_name</span><span class="p">,</span>
-            <span class="s2">&quot;NAME_UPPER&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_module_name</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span>
-            <span class="s2">&quot;INDEX&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">indices</span><span class="p">),</span>
-            <span class="s2">&quot;CAROUSEL_INDICATORS&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">indicators</span><span class="p">),</span>
-            <span class="s2">&quot;CAROUSEL_IMAGES&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">images</span><span class="p">),</span>
-            <span class="s2">&quot;DESCRIPTION&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rst2html</span><span class="p">(</span><span class="n">release_info</span><span class="p">[</span><span class="s2">&quot;LONG_DESCRIPTION&quot;</span><span class="p">]),</span>
-            <span class="s2">&quot;LOGO&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_module_name</span><span class="p">,</span>
+            <span class="s2">"NAME_LOWER"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_module_name</span><span class="p">,</span>
+            <span class="s2">"NAME_UPPER"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_module_name</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span>
+            <span class="s2">"INDEX"</span><span class="p">:</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">indices</span><span class="p">),</span>
+            <span class="s2">"CAROUSEL_INDICATORS"</span><span class="p">:</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">indicators</span><span class="p">),</span>
+            <span class="s2">"CAROUSEL_IMAGES"</span><span class="p">:</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">images</span><span class="p">),</span>
+            <span class="s2">"DESCRIPTION"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rst2html</span><span class="p">(</span><span class="n">release_info</span><span class="p">[</span><span class="s2">"LONG_DESCRIPTION"</span><span class="p">]),</span>
+            <span class="s2">"LOGO"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_module_name</span><span class="p">,</span>
         <span class="p">}</span>
 
         <span class="c1"># Get full output filename path</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outdir</span><span class="p">,</span> <span class="s2">&quot;layout.html&quot;</span><span class="p">)</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outdir</span><span class="p">,</span> <span class="s2">"layout.html"</span><span class="p">)</span>
 
         <span class="c1"># Start writing the index</span>
-        <span class="n">idx</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">"wt"</span><span class="p">)</span>
         <span class="n">w</span> <span class="o">=</span> <span class="n">idx</span><span class="o">.</span><span class="n">write</span>
 
         <span class="c1"># Edit the template</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">layout_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">open_file</span><span class="p">:</span>
-            <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">open_file</span><span class="o">.</span><span class="n">readlines</span><span class="p">())</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">open_file</span><span class="o">.</span><span class="n">readlines</span><span class="p">())</span>
             <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">layout_info</span><span class="p">):</span>
-                <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;%(</span><span class="si">{0}</span><span class="s2">)s&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">),</span> <span class="n">value</span><span class="p">)</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"%(</span><span class="si">{0}</span><span class="s2">)s"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">),</span> <span class="n">value</span><span class="p">)</span>
             <span class="n">w</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
 
         <span class="c1"># Close the open file</span>
@@ -321,45 +321,45 @@
 <div class="viewcode-block" id="LayoutHelperWriter.write_installation">
 <a class="viewcode-back" href="../../../api/sphinxext.html#capsul.sphinxext.layoutdocgen.LayoutHelperWriter.write_installation">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">write_installation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outdir</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate the installation recommendations.</span>
+<span class="w">        </span><span class="sd">"""Generate the installation recommendations.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        outdir : string</span>
 <span class="sd">            Directory name in which to store files</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Check if output dir exists</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">outdir</span><span class="p">):</span>
             <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">outdir</span><span class="p">)</span>
 
         <span class="c1"># Get the layout template</span>
         <span class="n">layout_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;resources&quot;</span><span class="p">,</span> <span class="s2">&quot;installation.rst&quot;</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">"resources"</span><span class="p">,</span> <span class="s2">"installation.rst"</span><span class="p">)</span>
 
         <span class="c1"># Generate title</span>
-        <span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;Installing `</span><span class="si">{0}</span><span class="s2">`&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_module_name</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="s2">"Installing `</span><span class="si">{0}</span><span class="s2">`"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_module_name</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span>
         <span class="n">title</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">rst_section_levels</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">title</span><span class="p">),</span> <span class="n">title</span><span class="p">,</span>
                  <span class="bp">self</span><span class="o">.</span><span class="n">rst_section_levels</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">title</span><span class="p">)]</span>
 
         <span class="c1"># Create correspondence mapping</span>
         <span class="n">layout_info</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;NAME_LOWER&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_module_name</span><span class="p">,</span>
-            <span class="s2">&quot;NAME_UPPER&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_module_name</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span>
-            <span class="s2">&quot;TITLE&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">title</span><span class="p">),</span>
+            <span class="s2">"NAME_LOWER"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_module_name</span><span class="p">,</span>
+            <span class="s2">"NAME_UPPER"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_module_name</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span>
+            <span class="s2">"TITLE"</span><span class="p">:</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">title</span><span class="p">),</span>
         <span class="p">}</span>
 
         <span class="c1"># Get full output filename path</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outdir</span><span class="p">,</span> <span class="s2">&quot;installation.rst&quot;</span><span class="p">)</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outdir</span><span class="p">,</span> <span class="s2">"installation.rst"</span><span class="p">)</span>
 
         <span class="c1"># Start writing the index</span>
-        <span class="n">idx</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">"wt"</span><span class="p">)</span>
         <span class="n">w</span> <span class="o">=</span> <span class="n">idx</span><span class="o">.</span><span class="n">write</span>
 
         <span class="c1"># Edit the template</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">layout_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">open_file</span><span class="p">:</span>
-            <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">open_file</span><span class="o">.</span><span class="n">readlines</span><span class="p">())</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">open_file</span><span class="o">.</span><span class="n">readlines</span><span class="p">())</span>
             <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">layout_info</span><span class="p">):</span>
-                <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;%(</span><span class="si">{0}</span><span class="s2">)s&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">),</span> <span class="n">value</span><span class="p">)</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"%(</span><span class="si">{0}</span><span class="s2">)s"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">),</span> <span class="n">value</span><span class="p">)</span>
             <span class="n">w</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
 
         <span class="c1"># Close the open file</span>
@@ -368,8 +368,8 @@
 
 <div class="viewcode-block" id="LayoutHelperWriter.write_index">
 <a class="viewcode-back" href="../../../api/sphinxext.html#capsul.sphinxext.layoutdocgen.LayoutHelperWriter.write_index">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">write_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outdir</span><span class="p">,</span> <span class="n">froot</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="n">rst_extension</span><span class="o">=</span><span class="s2">&quot;.rst&quot;</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Make a reST API index file from python modules</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">outdir</span><span class="p">,</span> <span class="n">froot</span><span class="o">=</span><span class="s2">"index"</span><span class="p">,</span> <span class="n">rst_extension</span><span class="o">=</span><span class="s2">".rst"</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">""" Make a reST API index file from python modules</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -377,10 +377,10 @@
 <span class="sd">            Directory to which to write generated index file</span>
 <span class="sd">        froot : string (optional)</span>
 <span class="sd">            root (filename without extension) of filename to write to</span>
-<span class="sd">            Defaults to &#39;index&#39;.  We add ``rst_extension``.</span>
+<span class="sd">            Defaults to 'index'.  We add ``rst_extension``.</span>
 <span class="sd">        rst_extension : string (optional)</span>
-<span class="sd">            Extension for reST files, default &#39;.rst&#39;</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">            Extension for reST files, default '.rst'</span>
+<span class="sd">        """</span>
         <span class="c1"># Check output directory</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">outdir</span><span class="p">):</span>
             <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">outdir</span><span class="p">)</span>
@@ -389,27 +389,27 @@
         <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outdir</span><span class="p">,</span> <span class="n">froot</span> <span class="o">+</span> <span class="n">rst_extension</span><span class="p">)</span>
 
         <span class="c1"># Start writing the index</span>
-        <span class="n">idx</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">)</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">"wt"</span><span class="p">)</span>
         <span class="n">w</span> <span class="o">=</span> <span class="n">idx</span><span class="o">.</span><span class="n">write</span>
 
         <span class="c1"># Header</span>
-        <span class="n">w</span><span class="p">(</span><span class="s2">&quot;.. AUTO-GENERATED FILE -- DO NOT EDIT!</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">w</span><span class="p">(</span><span class="s2">&quot;.. raw:: html</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">w</span><span class="p">(</span><span class="s2">&quot;    &lt;div class=&#39;container-index&#39;&gt;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;Documentation of the </span><span class="si">{0}</span><span class="s2"> Pipelines</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">w</span><span class="p">(</span><span class="s2">".. AUTO-GENERATED FILE -- DO NOT EDIT!</span><span class="se">\n\n</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">w</span><span class="p">(</span><span class="s2">".. raw:: html</span><span class="se">\n\n</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">w</span><span class="p">(</span><span class="s2">"    &lt;div class='container-index'&gt;</span><span class="se">\n\n</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="s2">"Documentation of the </span><span class="si">{0}</span><span class="s2"> Pipelines</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">root_module_name</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span>
         <span class="n">w</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
-        <span class="n">w</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rst_section_levels</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">title</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">w</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rst_section_levels</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">title</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n\n</span><span class="s2">"</span><span class="p">)</span>
 
         <span class="c1"># Modules</span>
-        <span class="n">w</span><span class="p">(</span><span class="s2">&quot;.. raw:: html</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">w</span><span class="p">(</span><span class="s2">&quot;    &lt;!-- Block section --&gt;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">w</span><span class="p">(</span><span class="s2">".. raw:: html</span><span class="se">\n\n</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">w</span><span class="p">(</span><span class="s2">"    &lt;!-- Block section --&gt;</span><span class="se">\n\n</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">cnt</span><span class="p">,</span> <span class="n">module_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">module_names</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">cnt</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">w</span><span class="p">(</span><span class="s2">&quot;    &lt;div class=&#39;row-fluid&#39;&gt;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">w</span><span class="p">(</span><span class="s2">"    &lt;div class='row-fluid'&gt;</span><span class="se">\n\n</span><span class="s2">"</span><span class="p">)</span>
             <span class="n">w</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">generate_index_entry</span><span class="p">(</span><span class="n">module_name</span><span class="p">))</span>
-        <span class="n">w</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">    &lt;/div&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">w</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">    &lt;/div&gt;&quot;</span><span class="p">)</span>
+        <span class="n">w</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">    &lt;/div&gt;</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">w</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">    &lt;/div&gt;"</span><span class="p">)</span>
 
         <span class="c1"># Close the open file</span>
         <span class="n">idx</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>

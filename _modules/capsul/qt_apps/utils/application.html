@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
     
-    <script src="../../../../_static/documentation_options.js?v=b9f4bfa5"></script>
+    <script src="../../../../_static/documentation_options.js?v=727d2f68"></script>
     <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -105,14 +105,14 @@
             
   <h1>Source code for capsul.qt_apps.utils.application</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">'''</span>
 <span class="sd">Classes</span>
 <span class="sd">=======</span>
 <span class="sd">:class:`Application`</span>
 <span class="sd">--------------------</span>
 <span class="sd">:class:`EmittingStream`</span>
 <span class="sd">-----------------------</span>
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">'''</span>
 
 <span class="c1"># System import</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
@@ -127,13 +127,13 @@
 <div class="viewcode-block" id="Application">
 <a class="viewcode-back" href="../../../../api/qt_apps.html#capsul.qt_apps.utils.application.Application">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Application</span><span class="p">(</span><span class="n">QtWidgets</span><span class="o">.</span><span class="n">QApplication</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot; Base Application class.</span>
+<span class="w">    </span><span class="sd">""" Base Application class.</span>
 
 <span class="sd">    Used to set some user options</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extra_options</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to initialize the Application class.</span>
+<span class="w">        </span><span class="sd">""" Method to initialize the Application class.</span>
 
 <span class="sd">        The capsulview application can be executed with command</span>
 <span class="sd">        line options (that can also be passed to the class constructor</span>
@@ -159,7 +159,7 @@
 <span class="sd">        extra_options: list (optional)</span>
 <span class="sd">            some additional options that are not passed through the command</span>
 <span class="sd">            line.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Inheritance</span>
         <span class="n">QtWidgets</span><span class="o">.</span><span class="n">QApplication</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="p">[])</span>
 
@@ -168,34 +168,34 @@
 
         <span class="c1"># Define a mapping to the logging level</span>
         <span class="n">levels</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;debug&quot;</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span>
-            <span class="s2">&quot;info&quot;</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span>
-            <span class="s2">&quot;warning&quot;</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span>
-            <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
-            <span class="s2">&quot;critical&quot;</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">CRITICAL</span>
+            <span class="s2">"debug"</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span>
+            <span class="s2">"info"</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span>
+            <span class="s2">"warning"</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span>
+            <span class="s2">"error"</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
+            <span class="s2">"critical"</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">CRITICAL</span>
         <span class="p">}</span>
 
         <span class="c1"># Parse command line and internal options</span>
         <span class="n">parser</span> <span class="o">=</span> <span class="n">optparse</span><span class="o">.</span><span class="n">OptionParser</span><span class="p">()</span>
-        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s2">&quot;-d&quot;</span><span class="p">,</span> <span class="s2">&quot;--debug&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;debug&quot;</span><span class="p">,</span>
-                          <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Set the logging level &quot;</span>
-                               <span class="s2">&quot;(debug, info, warning, error, or critical&quot;</span><span class="p">,</span>
-                          <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;LEVEL&quot;</span><span class="p">)</span>
-        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s2">&quot;-r&quot;</span><span class="p">,</span> <span class="s2">&quot;--redirect-to-messagebox&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;redirect&quot;</span><span class="p">,</span>
-                          <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                          <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Redirect all messages to the console&quot;</span><span class="p">)</span>
-        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s2">&quot;-t&quot;</span><span class="p">,</span> <span class="s2">&quot;--test&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;test&quot;</span><span class="p">,</span>
-                          <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                          <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Add a set of test pipelines&quot;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s2">"-d"</span><span class="p">,</span> <span class="s2">"--debug"</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"debug"</span><span class="p">,</span>
+                          <span class="n">help</span><span class="o">=</span><span class="s2">"Set the logging level "</span>
+                               <span class="s2">"(debug, info, warning, error, or critical"</span><span class="p">,</span>
+                          <span class="n">metavar</span><span class="o">=</span><span class="s2">"LEVEL"</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s2">"-r"</span><span class="p">,</span> <span class="s2">"--redirect-to-messagebox"</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"redirect"</span><span class="p">,</span>
+                          <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                          <span class="n">help</span><span class="o">=</span><span class="s2">"Redirect all messages to the console"</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s2">"-t"</span><span class="p">,</span> <span class="s2">"--test"</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">"test"</span><span class="p">,</span>
+                          <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                          <span class="n">help</span><span class="o">=</span><span class="s2">"Add a set of test pipelines"</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span> <span class="ow">in</span> <span class="n">extra_options</span><span class="p">:</span>
             <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">arguments</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
 
         <span class="c1"># Logging format</span>
-        <span class="n">logging_format</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;[</span><span class="si">%(asctime)s</span><span class="s2">] &quot;</span>
-                          <span class="s2">&quot;{</span><span class="si">%(pathname)s</span><span class="s2">:</span><span class="si">%(lineno)d</span><span class="s2">} &quot;</span>
-                          <span class="s2">&quot;</span><span class="si">%(levelname)s</span><span class="s2"> - </span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">date_format</span> <span class="o">=</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span>
+        <span class="n">logging_format</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"[</span><span class="si">%(asctime)s</span><span class="s2">] "</span>
+                          <span class="s2">"{</span><span class="si">%(pathname)s</span><span class="s2">:</span><span class="si">%(lineno)d</span><span class="s2">} "</span>
+                          <span class="s2">"</span><span class="si">%(levelname)s</span><span class="s2"> - </span><span class="si">%(message)s</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">date_format</span> <span class="o">=</span> <span class="s2">"%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S"</span>
 
         <span class="c1"># If someone tried to log something before basicConfig is called,</span>
         <span class="c1"># Python creates a default handler that goes to the console and</span>
@@ -212,8 +212,8 @@
 
             <span class="c1"># If a no valid logging level is found raise an Exception</span>
             <span class="k">if</span> <span class="n">level</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Warning : unknown logging level &quot;</span>
-                                <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">debug</span><span class="p">))</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">"Warning : unknown logging level "</span>
+                                <span class="s2">"</span><span class="si">{0}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">debug</span><span class="p">))</span>
 
             <span class="c1"># Configure the logging module</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">level</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">logging_format</span><span class="p">,</span>
@@ -221,7 +221,7 @@
 
             <span class="c1"># Disable deprecation warnings if we are not in the debug mode</span>
             <span class="k">if</span> <span class="n">level</span> <span class="o">!=</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">:</span>
-                <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">)</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">"ignore"</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">)</span>
 
         <span class="c1"># Set the default logging level</span>
         <span class="k">else</span><span class="p">:</span>
@@ -229,7 +229,7 @@
                                 <span class="n">datefmt</span><span class="o">=</span><span class="n">date_format</span><span class="p">)</span>
 
             <span class="c1"># Disable deprecation warnings</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">"ignore"</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">)</span>
 
         <span class="c1"># Check if the redirection option is found: redirecect stdout and</span>
         <span class="c1"># stderr to a message box</span>
@@ -244,10 +244,10 @@
 
             <span class="c1"># Connect with text written signal</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span>
-                         <span class="n">Qt</span><span class="o">.</span><span class="n">SIGNAL</span><span class="p">(</span><span class="s1">&#39;textWritten(QString)&#39;</span><span class="p">),</span>
+                         <span class="n">Qt</span><span class="o">.</span><span class="n">SIGNAL</span><span class="p">(</span><span class="s1">'textWritten(QString)'</span><span class="p">),</span>
                          <span class="bp">self</span><span class="o">.</span><span class="n">_on_text_print</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span>
-                         <span class="n">Qt</span><span class="o">.</span><span class="n">SIGNAL</span><span class="p">(</span><span class="s1">&#39;textWritten(QString)&#39;</span><span class="p">),</span>
+                         <span class="n">Qt</span><span class="o">.</span><span class="n">SIGNAL</span><span class="p">(</span><span class="s1">'textWritten(QString)'</span><span class="p">),</span>
                          <span class="bp">self</span><span class="o">.</span><span class="n">_on_text_print</span><span class="p">)</span>
 
             <span class="c1"># Update root logger handler</span>
@@ -256,13 +256,13 @@
             <span class="n">h</span><span class="o">.</span><span class="n">stream</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_on_text_print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Append text to the QTextEdit.</span>
+<span class="w">        </span><span class="sd">"""Append text to the QTextEdit.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        text: str (mandatory)</span>
 <span class="sd">            the text to write</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">message_box</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">message_box</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 
@@ -271,8 +271,8 @@
 <div class="viewcode-block" id="EmittingStream">
 <a class="viewcode-back" href="../../../../api/qt_apps.html#capsul.qt_apps.utils.application.EmittingStream">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">EmittingStream</span><span class="p">(</span><span class="n">QtCore</span><span class="o">.</span><span class="n">QObject</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot; Logging emitting string basic handler.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">""" Logging emitting string basic handler.</span>
+<span class="sd">    """</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">textWritten</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">text</span><span class="p">))</span></div>
 

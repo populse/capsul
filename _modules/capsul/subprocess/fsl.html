@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
     
-    <script src="../../../_static/documentation_options.js?v=b9f4bfa5"></script>
+    <script src="../../../_static/documentation_options.js?v=727d2f68"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -105,7 +105,7 @@
             
   <h1>Source code for capsul.subprocess.fsl</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">'''</span>
 <span class="sd">Specific subprocess-like functions to call FSL taking into account a </span>
 <span class="sd">potential configuration done in StudyConfig. If a StudyConfig is not</span>
 <span class="sd">configured to use FSL, it may be automatically configured. Automatic</span>
@@ -118,7 +118,7 @@
 <span class="sd">For calling FSL command with this module, the first argument of</span>
 <span class="sd">command line must be the FSL executable without any path nor prefix. </span>
 <span class="sd">Prefix areused  in Neurodebian install. For instance on Ubuntu 16.04 </span>
-<span class="sd">Neurodebian FSL commands are prefixed with &quot;fsl5.0-&quot;.</span>
+<span class="sd">Neurodebian FSL commands are prefixed with "fsl5.0-".</span>
 <span class="sd">The appropriate path and eventually prefix are added from the configuration</span>
 <span class="sd">of the StudyConfig instance.</span>
 
@@ -144,7 +144,7 @@
 <span class="sd">:func:`check_output`</span>
 <span class="sd">--------------------</span>
 
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">'''</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">absolute_import</span>
 
@@ -161,53 +161,53 @@
 <div class="viewcode-block" id="fsl_command_with_environment">
 <a class="viewcode-back" href="../../../api/subprocess.html#capsul.subprocess.fsl.fsl_command_with_environment">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">fsl_command_with_environment</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Given an FSL command where first element is a command name without</span>
-<span class="sd">    any path or prefix (e.g. &quot;bet&quot;). Returns the appropriate command to</span>
+<span class="sd">    any path or prefix (e.g. "bet"). Returns the appropriate command to</span>
 <span class="sd">    call taking into account the study_config FSL configuration.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">fsl_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;FSLDIR&#39;</span><span class="p">)</span>
+<span class="sd">    '''</span>
+    <span class="n">fsl_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'FSLDIR'</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">fsl_dir</span><span class="p">:</span>
-        <span class="n">dir_prefix</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">/bin/&#39;</span> <span class="o">%</span> <span class="n">fsl_dir</span>
+        <span class="n">dir_prefix</span> <span class="o">=</span> <span class="s1">'</span><span class="si">%s</span><span class="s1">/bin/'</span> <span class="o">%</span> <span class="n">fsl_dir</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">dir_prefix</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
-    <span class="n">fsl_prefix</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="s1">&#39;fsl_prefix&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">dir_prefix</span> <span class="o">=</span> <span class="s1">''</span>
+    <span class="n">fsl_prefix</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="s1">'fsl_prefix'</span><span class="p">,</span> <span class="s1">''</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">fsl_prefix</span> <span class="ow">is</span> <span class="n">Undefined</span><span class="p">:</span>
-        <span class="n">fsl_prefix</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
-    <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="s1">&#39;fsl_config&#39;</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">)</span> <span class="ow">is</span> <span class="n">Undefined</span><span class="p">:</span>
-        <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;</span><span class="si">%s%s%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">dir_prefix</span><span class="p">,</span> 
+        <span class="n">fsl_prefix</span> <span class="o">=</span> <span class="s1">''</span>
+    <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="s1">'fsl_config'</span><span class="p">,</span> <span class="n">Undefined</span><span class="p">)</span> <span class="ow">is</span> <span class="n">Undefined</span><span class="p">:</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'</span><span class="si">%s%s%s</span><span class="s1">'</span> <span class="o">%</span> <span class="p">(</span><span class="n">dir_prefix</span><span class="p">,</span> 
                            <span class="n">fsl_prefix</span><span class="p">,</span> 
                            <span class="n">command</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span> <span class="o">+</span> <span class="n">command</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">fsldir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">study_config</span><span class="o">.</span><span class="n">fsl_config</span><span class="p">)))</span>
-        <span class="n">shell</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;SHELL&#39;</span><span class="p">,</span> <span class="s1">&#39;/bin/sh&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">shell</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;csh&#39;</span><span class="p">):</span>
-            <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="n">shell</span><span class="p">,</span> <span class="s1">&#39;-c&#39;</span><span class="p">,</span> 
-                <span class="s1">&#39;setenv FSLDIR &quot;</span><span class="si">{0}</span><span class="s1">&quot;;source </span><span class="si">{0}</span><span class="s1">/etc/fslconf/fsl.csh;exec </span><span class="si">{0}</span><span class="s1">/bin/</span><span class="si">{1}{2}</span><span class="s1"> &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fsldir</span><span class="p">,</span> <span class="n">fsl_prefix</span><span class="p">,</span> <span class="n">command</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> \
-                    <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">i</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&#39;&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">command</span><span class="p">[</span><span class="mi">1</span><span class="p">:])]</span>
+        <span class="n">shell</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'SHELL'</span><span class="p">,</span> <span class="s1">'/bin/sh'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">shell</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">'csh'</span><span class="p">):</span>
+            <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="n">shell</span><span class="p">,</span> <span class="s1">'-c'</span><span class="p">,</span> 
+                <span class="s1">'setenv FSLDIR "</span><span class="si">{0}</span><span class="s1">";source </span><span class="si">{0}</span><span class="s1">/etc/fslconf/fsl.csh;exec </span><span class="si">{0}</span><span class="s1">/bin/</span><span class="si">{1}{2}</span><span class="s1"> '</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fsldir</span><span class="p">,</span> <span class="n">fsl_prefix</span><span class="p">,</span> <span class="n">command</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> \
+                    <span class="s1">' '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">"'</span><span class="si">%s</span><span class="s2">'"</span> <span class="o">%</span> <span class="n">i</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"'"</span><span class="p">,</span> <span class="s2">"</span><span class="se">\\</span><span class="s2">'"</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">command</span><span class="p">[</span><span class="mi">1</span><span class="p">:])]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="n">shell</span><span class="p">,</span> <span class="s1">&#39;-c&#39;</span><span class="p">,</span> 
-                <span class="s1">&#39;export FSLDIR=&quot;</span><span class="si">{0}</span><span class="s1">&quot;;. </span><span class="si">{0}</span><span class="s1">/etc/fslconf/fsl.sh;exec </span><span class="si">{0}</span><span class="s1">/bin/</span><span class="si">{1}{2}</span><span class="s1"> &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fsldir</span><span class="p">,</span> <span class="n">fsl_prefix</span><span class="p">,</span> <span class="n">command</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> \
-                    <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">i</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&#39;&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">command</span><span class="p">[</span><span class="mi">1</span><span class="p">:])]</span>
+            <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="n">shell</span><span class="p">,</span> <span class="s1">'-c'</span><span class="p">,</span> 
+                <span class="s1">'export FSLDIR="</span><span class="si">{0}</span><span class="s1">";. </span><span class="si">{0}</span><span class="s1">/etc/fslconf/fsl.sh;exec </span><span class="si">{0}</span><span class="s1">/bin/</span><span class="si">{1}{2}</span><span class="s1"> '</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fsldir</span><span class="p">,</span> <span class="n">fsl_prefix</span><span class="p">,</span> <span class="n">command</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> \
+                    <span class="s1">' '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">"'</span><span class="si">%s</span><span class="s2">'"</span> <span class="o">%</span> <span class="n">i</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"'"</span><span class="p">,</span> <span class="s2">"</span><span class="se">\\</span><span class="s2">'"</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">command</span><span class="p">[</span><span class="mi">1</span><span class="p">:])]</span>
     <span class="k">return</span> <span class="n">cmd</span></div>
 
 
 <div class="viewcode-block" id="check_fsl_configuration">
 <a class="viewcode-back" href="../../../api/subprocess.html#capsul.subprocess.fsl.check_fsl_configuration">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">check_fsl_configuration</span><span class="p">(</span><span class="n">study_config</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Check thas study_config configuration is valid to call FSL commands.</span>
 <span class="sd">    If not, try to automatically configure FSL. Finally raises an</span>
 <span class="sd">    EnvironmentError if configuration is still wrong.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
 
-    <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="s1">&#39;_fsl_config_checked&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="s1">'_fsl_config_checked'</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
         <span class="c1"># Check FLS configuration only once</span>
         <span class="k">return</span>
-    <span class="k">if</span> <span class="s1">&#39;FSLConfig&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">study_config</span><span class="o">.</span><span class="n">modules</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">EnvironmentError</span><span class="p">(</span><span class="s1">&#39;FSLConfig module is missing in StudyConfig.&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">'FSLConfig'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">study_config</span><span class="o">.</span><span class="n">modules</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">EnvironmentError</span><span class="p">(</span><span class="s1">'FSLConfig module is missing in StudyConfig.'</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">study_config</span><span class="o">.</span><span class="n">use_fsl</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">EnvironmentError</span><span class="p">(</span><span class="s1">&#39;Configuration is set not to use FLS. Set use_fsl to True in order to use FSL.&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">EnvironmentError</span><span class="p">(</span><span class="s1">'Configuration is set not to use FLS. Set use_fsl to True in order to use FSL.'</span><span class="p">)</span>
     <span class="c1"># Configuration must be valid otherwise</span>
     <span class="c1"># try to update configuration and recheck is validity</span>
     <span class="k">if</span> <span class="n">check_configuration_values</span><span class="p">(</span><span class="n">study_config</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -222,45 +222,45 @@
 <div class="viewcode-block" id="check_configuration_values">
 <a class="viewcode-back" href="../../../api/subprocess.html#capsul.subprocess.fsl.check_configuration_values">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">check_configuration_values</span><span class="p">(</span><span class="n">study_config</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Check if the configuration is valid to run FLS and returns an error</span>
 <span class="sd">    message if there is an error or None if everything is good.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
 
-    <span class="n">fsl_prefix</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="s1">&#39;fsl_prefix&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="n">fsl_prefix</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="s1">'fsl_prefix'</span><span class="p">,</span> <span class="s1">''</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">fsl_prefix</span> <span class="ow">is</span> <span class="n">Undefined</span><span class="p">:</span>
-        <span class="n">fsl_prefix</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">fsl_prefix</span> <span class="o">=</span> <span class="s1">''</span>
     <span class="k">if</span> <span class="n">study_config</span><span class="o">.</span><span class="n">fsl_config</span> <span class="ow">is</span> <span class="n">Undefined</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">find_in_path</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">bet&#39;</span> <span class="o">%</span> <span class="n">fsl_prefix</span><span class="p">):</span>
-            <span class="k">return</span> <span class="s1">&#39;FSL command &quot;</span><span class="si">%s</span><span class="s1">bet&quot; cannot be found in PATH&#39;</span> <span class="o">%</span> <span class="n">fsl_prefix</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">find_in_path</span><span class="p">(</span><span class="s1">'</span><span class="si">%s</span><span class="s1">bet'</span> <span class="o">%</span> <span class="n">fsl_prefix</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s1">'FSL command "</span><span class="si">%s</span><span class="s1">bet" cannot be found in PATH'</span> <span class="o">%</span> <span class="n">fsl_prefix</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">fsl_prefix</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s1">&#39;FSL configuration must either use fsl_config or fsl_prefix but not both&#39;</span>
+            <span class="k">return</span> <span class="s1">'FSL configuration must either use fsl_config or fsl_prefix but not both'</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">study_config</span><span class="o">.</span><span class="n">fsl_config</span><span class="p">):</span>
-            <span class="k">return</span> <span class="s1">&#39;File &quot;</span><span class="si">%s</span><span class="s1">&quot; does not exist&#39;</span> <span class="o">%</span> <span class="n">study_config</span><span class="o">.</span><span class="n">fsl_config</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">study_config</span><span class="o">.</span><span class="n">fsl_config</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;fsl.sh&#39;</span><span class="p">):</span>
-            <span class="k">return</span> <span class="s1">&#39;File &quot;</span><span class="si">%s</span><span class="s1">&quot; is not a path to fsl.sh script&#39;</span> <span class="o">%</span> <span class="n">study_config</span><span class="o">.</span><span class="n">fsl_config</span>
+            <span class="k">return</span> <span class="s1">'File "</span><span class="si">%s</span><span class="s1">" does not exist'</span> <span class="o">%</span> <span class="n">study_config</span><span class="o">.</span><span class="n">fsl_config</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">study_config</span><span class="o">.</span><span class="n">fsl_config</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">'fsl.sh'</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s1">'File "</span><span class="si">%s</span><span class="s1">" is not a path to fsl.sh script'</span> <span class="o">%</span> <span class="n">study_config</span><span class="o">.</span><span class="n">fsl_config</span>
     <span class="k">return</span> <span class="kc">None</span></div>
 
 
 <div class="viewcode-block" id="auto_configuration">
 <a class="viewcode-back" href="../../../api/subprocess.html#capsul.subprocess.fsl.auto_configuration">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">auto_configuration</span><span class="p">(</span><span class="n">study_config</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Try to automatically set the study_config configuration for FSL.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">fsl_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;FSLDIR&#39;</span><span class="p">)</span>
-    <span class="n">fsl_prefix</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="s1">&#39;fsl_prefix&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="sd">    '''</span>
+    <span class="n">fsl_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'FSLDIR'</span><span class="p">)</span>
+    <span class="n">fsl_prefix</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="s1">'fsl_prefix'</span><span class="p">,</span> <span class="s1">''</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">fsl_prefix</span> <span class="ow">is</span> <span class="n">Undefined</span><span class="p">:</span>
-        <span class="n">fsl_prefix</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">fsl_prefix</span> <span class="o">=</span> <span class="s1">''</span>
     <span class="k">if</span> <span class="n">fsl_dir</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">fsl_prefix</span><span class="p">:</span>
         <span class="c1"># Try to set fsl_config from FSLDIR environment variable</span>
-        <span class="n">fsl_config</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">/etc/fslconf/fsl.sh&#39;</span> <span class="o">%</span> <span class="n">fsl_dir</span>
+        <span class="n">fsl_config</span> <span class="o">=</span> <span class="s1">'</span><span class="si">%s</span><span class="s1">/etc/fslconf/fsl.sh'</span> <span class="o">%</span> <span class="n">fsl_dir</span>
         <span class="k">if</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">fsl_config</span><span class="p">):</span>
             <span class="n">study_config</span><span class="o">.</span><span class="n">fsl_config</span> <span class="o">=</span> <span class="n">fsl_config</span>
     <span class="k">elif</span> <span class="ow">not</span> <span class="n">fsl_prefix</span><span class="p">:</span>
         <span class="c1"># Try to set fsl_prefix by searching fsl-*bet in PATH</span>
-        <span class="n">bet</span> <span class="o">=</span> <span class="n">find_in_path</span><span class="p">(</span><span class="s1">&#39;fsl*-bet&#39;</span><span class="p">)</span>
+        <span class="n">bet</span> <span class="o">=</span> <span class="n">find_in_path</span><span class="p">(</span><span class="s1">'fsl*-bet'</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">bet</span><span class="p">:</span>
             <span class="n">study_config</span><span class="o">.</span><span class="n">fsl_prefix</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">bet</span><span class="p">)[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span></div>
 
@@ -268,9 +268,9 @@
 <div class="viewcode-block" id="Popen">
 <a class="viewcode-back" href="../../../api/subprocess.html#capsul.subprocess.fsl.Popen">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Popen</span><span class="p">(</span><span class="n">soma</span><span class="o">.</span><span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Equivalent to Python subprocess.Popen for FSL commands</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">study_config</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">check_fsl_configuration</span><span class="p">(</span><span class="n">study_config</span><span class="p">)</span>
         <span class="n">cmd</span> <span class="o">=</span> <span class="n">fsl_command_with_environment</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>
@@ -280,9 +280,9 @@
 <div class="viewcode-block" id="call">
 <a class="viewcode-back" href="../../../api/subprocess.html#capsul.subprocess.fsl.call">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Equivalent to Python subprocess.call for FSL commands</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="n">check_fsl_configuration</span><span class="p">(</span><span class="n">study_config</span><span class="p">)</span>
     <span class="n">cmd</span> <span class="o">=</span> <span class="n">fsl_command_with_environment</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">soma</span><span class="o">.</span><span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
@@ -291,9 +291,9 @@
 <div class="viewcode-block" id="check_call">
 <a class="viewcode-back" href="../../../api/subprocess.html#capsul.subprocess.fsl.check_call">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">check_call</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Equivalent to Python subprocess.check_call for FSL commands</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="n">check_fsl_configuration</span><span class="p">(</span><span class="n">study_config</span><span class="p">)</span>
     <span class="n">cmd</span> <span class="o">=</span> <span class="n">fsl_command_with_environment</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">soma</span><span class="o">.</span><span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
@@ -303,9 +303,9 @@
 <div class="viewcode-block" id="check_output">
 <a class="viewcode-back" href="../../../api/subprocess.html#capsul.subprocess.fsl.check_output">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">check_output</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Equivalent to Python subprocess.check_output for FSL commands</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="n">check_fsl_configuration</span><span class="p">(</span><span class="n">study_config</span><span class="p">)</span>
     <span class="n">cmd</span> <span class="o">=</span> <span class="n">fsl_command_with_environment</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">soma</span><span class="o">.</span><span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>

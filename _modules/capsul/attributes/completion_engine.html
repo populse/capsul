@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
     
-    <script src="../../../_static/documentation_options.js?v=b9f4bfa5"></script>
+    <script src="../../../_static/documentation_options.js?v=727d2f68"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -105,7 +105,7 @@
             
   <h1>Source code for capsul.attributes.completion_engine</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">'''</span>
 <span class="sd">Completion system for Capsul</span>
 
 <span class="sd">Classes</span>
@@ -120,7 +120,7 @@
 <span class="sd">---------------------------------------</span>
 <span class="sd">:class:`PathCompletionEngineFactory`</span>
 <span class="sd">------------------------------------</span>
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">'''</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">soma.controller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Controller</span><span class="p">,</span> <span class="n">ControllerTrait</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.pipeline.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pipeline</span>
@@ -141,7 +141,7 @@
 <div class="viewcode-block" id="ProcessCompletionEngine">
 <a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.completion_engine.ProcessCompletionEngine">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ProcessCompletionEngine</span><span class="p">(</span><span class="n">traits</span><span class="o">.</span><span class="n">HasTraits</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39; Parameters completion from attributes for a process or pipeline node</span>
+<span class="w">    </span><span class="sd">''' Parameters completion from attributes for a process or pipeline node</span>
 <span class="sd">    instance, in the context of a specific data organization.</span>
 
 <span class="sd">    ProcessCompletionEngine can be used directly for a pipeline, which merely</span>
@@ -163,7 +163,7 @@
 
 <span class="sd">        attributes = completion_engine.get_attribute_values()</span>
 <span class="sd">        print(attributes.user_traits().keys())</span>
-<span class="sd">        attributes.specific_process_attribute = &#39;a value&#39;</span>
+<span class="sd">        attributes.specific_process_attribute = 'a value'</span>
 
 <span class="sd">    Once attributes are set, to process with parameters completion:</span>
 
@@ -196,7 +196,7 @@
 <span class="sd">    install_auto_completion</span>
 <span class="sd">    remove_auto_completion</span>
 
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">ProcessCompletionEngine</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
@@ -204,8 +204,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">process</span> <span class="o">=</span> <span class="n">weak_proxy</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clear_node</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">completion_ongoing</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">&#39;completion_progress&#39;</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">Float</span><span class="p">(</span><span class="mf">0.</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">&#39;completion_progress_total&#39;</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">Float</span><span class="p">(</span><span class="mf">1.</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">'completion_progress'</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">Float</span><span class="p">(</span><span class="mf">0.</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">'completion_progress_total'</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">Float</span><span class="p">(</span><span class="mf">1.</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rebuild_attributes</span> <span class="o">=</span> <span class="kc">False</span>
 
 
@@ -215,15 +215,15 @@
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_clear_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wr</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;Called when the object behind the self.process proxy is about</span>
+<span class="w">        </span><span class="sd">'''Called when the object behind the self.process proxy is about</span>
 <span class="sd">        to be deleted</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">process</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="ProcessCompletionEngine.get_attribute_values">
 <a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.completion_engine.ProcessCompletionEngine.get_attribute_values">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_attribute_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39; Get attributes Controller associated to a process or node</span>
+<span class="w">        </span><span class="sd">''' Get attributes Controller associated to a process or node</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -233,13 +233,13 @@
 <span class="sd">        single Process instance, and merges attributes from its children if</span>
 <span class="sd">        the process is a pipeline.</span>
 
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rebuild_attributes</span> \
-                <span class="ow">and</span> <span class="s1">&#39;capsul_attributes&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instance_traits</span><span class="p">():</span>
+                <span class="ow">and</span> <span class="s1">'capsul_attributes'</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instance_traits</span><span class="p">():</span>
             <span class="c1"># we have to use this private HasTraits method _instance_traits()</span>
             <span class="c1"># to know if we actually have an instance trait, because</span>
             <span class="c1"># class traits are automatically added whenever we access an</span>
-            <span class="c1"># attribute of another instance which doesn&#39;t have it (!)</span>
+            <span class="c1"># attribute of another instance which doesn't have it (!)</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">capsul_attributes</span>
 
         <span class="n">schemas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_schemas</span><span class="p">()</span>
@@ -249,20 +249,20 @@
 
         <span class="n">proc_attr_cls</span> <span class="o">=</span> <span class="n">ProcessAttributes</span>
 
-        <span class="k">if</span> <span class="s1">&#39;capsul.engine.module.attributes&#39;</span> <span class="ow">in</span> <span class="n">engine</span><span class="o">.</span><span class="n">_loaded_modules</span><span class="p">:</span>
-            <span class="n">factory</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">_modules_data</span><span class="p">[</span><span class="s1">&#39;attributes&#39;</span><span class="p">][</span><span class="s1">&#39;attributes_factory&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s1">'capsul.engine.module.attributes'</span> <span class="ow">in</span> <span class="n">engine</span><span class="o">.</span><span class="n">_loaded_modules</span><span class="p">:</span>
+            <span class="n">factory</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">_modules_data</span><span class="p">[</span><span class="s1">'attributes'</span><span class="p">][</span><span class="s1">'attributes_factory'</span><span class="p">]</span>
             <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;context_name&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="s1">'context_name'</span><span class="p">):</span>
                 <span class="n">names</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">context_name</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="n">proc_attr_cls</span> <span class="o">=</span> <span class="n">factory</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;process_attributes&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+                    <span class="n">proc_attr_cls</span> <span class="o">=</span> <span class="n">factory</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'process_attributes'</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
                     <span class="k">break</span>
                 <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                     <span class="k">pass</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;capsul_attributes&#39;</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">&#39;capsul_attributes&#39;</span><span class="p">,</span> <span class="n">ControllerTrait</span><span class="p">(</span><span class="n">Controller</span><span class="p">()))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">'capsul_attributes'</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">'capsul_attributes'</span><span class="p">,</span> <span class="n">ControllerTrait</span><span class="p">(</span><span class="n">Controller</span><span class="p">()))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">capsul_attributes</span> <span class="o">=</span> <span class="n">proc_attr_cls</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="n">schemas</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rebuild_attributes</span> <span class="o">=</span> <span class="kc">False</span>
 
@@ -274,21 +274,21 @@
             <span class="n">pipeline</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">PipelineNode</span><span class="p">):</span>
                 <span class="n">pipeline</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">process</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="s1">&#39;context_name&#39;</span><span class="p">,</span>
-                           <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;context_name&#39;</span><span class="p">,</span>
-                                   <span class="nb">getattr</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="s1">&#39;context_name&#39;</span><span class="p">,</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="s1">'context_name'</span><span class="p">,</span>
+                           <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="s1">'context_name'</span><span class="p">,</span>
+                                   <span class="nb">getattr</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="s1">'context_name'</span><span class="p">,</span>
                                            <span class="n">pipeline</span><span class="o">.</span><span class="n">name</span><span class="p">)))</span>
 
             <span class="k">for</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="k">if</span> <span class="n">node_name</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">node_name</span> <span class="o">==</span> <span class="s1">''</span><span class="p">:</span>
                     <span class="k">continue</span>
                 <span class="n">subprocess</span> <span class="o">=</span> <span class="kc">None</span>
-                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s1">&#39;process&#39;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s1">'process'</span><span class="p">):</span>
                     <span class="n">subprocess</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">process</span>
                 <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">Switch</span><span class="p">):</span>
                     <span class="n">subprocess</span> <span class="o">=</span> <span class="n">node</span>
                 <span class="k">if</span> <span class="n">subprocess</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">pname</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">name</span><span class="p">,</span> <span class="n">node_name</span><span class="p">])</span>
+                    <span class="n">pname</span> <span class="o">=</span> <span class="s1">'.'</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">name</span><span class="p">,</span> <span class="n">node_name</span><span class="p">])</span>
                     <span class="n">subprocess_compl</span> <span class="o">=</span> \
                         <span class="n">ProcessCompletionEngine</span><span class="o">.</span><span class="n">get_completion_engine</span><span class="p">(</span>
                             <span class="n">subprocess</span><span class="p">,</span> <span class="n">pname</span><span class="p">)</span>
@@ -322,10 +322,10 @@
         <span class="c1"># using links: if a linked parameter in a sub-process has</span>
         <span class="c1"># attributes, then we can get them here.</span>
         <span class="n">attributes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">capsul_attributes</span>
-        <span class="n">schema</span> <span class="o">=</span> <span class="s1">&#39;link&#39;</span>  <span class="c1"># FIXME</span>
+        <span class="n">schema</span> <span class="o">=</span> <span class="s1">'link'</span>  <span class="c1"># FIXME</span>
         <span class="n">param_attributes</span> <span class="o">=</span> <span class="n">attributes</span><span class="o">.</span><span class="n">get_parameters_attributes</span><span class="p">()</span>
-        <span class="n">forbidden_attributes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s1">&#39;generated_by_parameter&#39;</span><span class="p">,</span>
-                                    <span class="s1">&#39;generated_by_process&#39;</span><span class="p">])</span>
+        <span class="n">forbidden_attributes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s1">'generated_by_parameter'</span><span class="p">,</span>
+                                    <span class="s1">'generated_by_process'</span><span class="p">])</span>
         <span class="n">done_parameters</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
             <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">al</span> <span class="ow">in</span> <span class="n">param_attributes</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
              <span class="k">if</span> <span class="nb">len</span><span class="p">([</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">al</span> <span class="k">if</span> <span class="n">a</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">forbidden_attributes</span><span class="p">])</span>
@@ -350,7 +350,7 @@
                 <span class="n">node</span> <span class="o">=</span> <span class="n">link</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
                 <span class="n">completion_engine</span> \
                     <span class="o">=</span> <span class="n">ProcessCompletionEngine</span><span class="o">.</span><span class="n">get_completion_engine</span><span class="p">(</span>
-                        <span class="n">node</span><span class="p">,</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">name</span><span class="p">,</span> <span class="n">link</span><span class="p">[</span><span class="mi">0</span><span class="p">]]))</span>
+                        <span class="n">node</span><span class="p">,</span> <span class="s1">'.'</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">name</span><span class="p">,</span> <span class="n">link</span><span class="p">[</span><span class="mi">0</span><span class="p">]]))</span>
                 <span class="n">sub_attributes</span> <span class="o">=</span> <span class="n">completion_engine</span><span class="o">.</span><span class="n">get_attribute_values</span><span class="p">()</span>
                 <span class="n">sub_p_attribs</span> <span class="o">=</span> <span class="n">sub_attributes</span><span class="o">.</span><span class="n">get_parameters_attributes</span><span class="p">()</span>
                 <span class="k">if</span> <span class="n">link</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">sub_p_attribs</span><span class="p">:</span>
@@ -376,15 +376,15 @@
 <div class="viewcode-block" id="ProcessCompletionEngine.complete_parameters">
 <a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.completion_engine.ProcessCompletionEngine.complete_parameters">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">complete_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process_inputs</span><span class="o">=</span><span class="p">{},</span> <span class="n">complete_iterations</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39; Completes file parameters from given inputs parameters, which may</span>
-<span class="sd">        include both &quot;regular&quot; process parameters (file names) and attributes.</span>
+<span class="w">        </span><span class="sd">''' Completes file parameters from given inputs parameters, which may</span>
+<span class="sd">        include both "regular" process parameters (file names) and attributes.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        process_inputs: dict (optional)</span>
-<span class="sd">            parameters to be set on the process. It may include &quot;regular&quot;</span>
+<span class="sd">            parameters to be set on the process. It may include "regular"</span>
 <span class="sd">            process parameters, and attributes used for completion. Attributes</span>
-<span class="sd">            should be in a sub-dictionary under the key &quot;capsul_attributes&quot;.</span>
+<span class="sd">            should be in a sub-dictionary under the key "capsul_attributes".</span>
 <span class="sd">        complete_iterations: bool (optional)</span>
 <span class="sd">            if False, iteration nodes inside the pipeline will not run their</span>
 <span class="sd">            own completion. Thus parameters for the iterations will not be</span>
@@ -393,7 +393,7 @@
 <span class="sd">            completion which will anyway be done (again) when building a</span>
 <span class="sd">            workflow in</span>
 <span class="sd">            `~capsul.pipeline.pipeline_workflow.workflow_from_pipeline`.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="n">process</span> <span class="o">=</span> <span class="n">get_ref</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">completion_progress</span> <span class="o">=</span> <span class="mf">0.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">completion_progress_total</span> <span class="o">=</span> <span class="mf">1.</span>
@@ -430,11 +430,11 @@
             <span class="n">pipeline</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span>
         <span class="k">if</span> <span class="n">pipeline</span><span class="p">:</span>
             <span class="n">attrib_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_attribute_values</span><span class="p">()</span><span class="o">.</span><span class="n">export_to_dict</span><span class="p">()</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="s1">&#39;context_name&#39;</span><span class="p">,</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="s1">'context_name'</span><span class="p">,</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
             <span class="c1"># build nodes list</span>
             <span class="n">nodes_list</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-                              <span class="k">if</span> <span class="n">n</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span>
+                              <span class="k">if</span> <span class="n">n</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">''</span>
                                   <span class="ow">and</span> <span class="n">pipeline_tools</span><span class="o">.</span><span class="n">is_node_enabled</span><span class="p">(</span>
                                       <span class="n">pipeline</span><span class="p">,</span> <span class="n">n</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">n</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">use_steps</span><span class="o">=</span><span class="kc">False</span><span class="p">)])</span>
             <span class="n">init_result</span> <span class="o">=</span> <span class="kc">True</span>
@@ -450,19 +450,19 @@
                 <span class="n">node_name</span><span class="p">,</span> <span class="n">node</span> <span class="o">=</span> <span class="n">todo</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
                 <span class="n">done</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
 
-                <span class="n">pname</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">name</span><span class="p">,</span> <span class="n">node_name</span><span class="p">])</span>
+                <span class="n">pname</span> <span class="o">=</span> <span class="s1">'.'</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">name</span><span class="p">,</span> <span class="n">node_name</span><span class="p">])</span>
 
                 <span class="n">subprocess_compl</span> <span class="o">=</span> \
                     <span class="n">ProcessCompletionEngine</span><span class="o">.</span><span class="n">get_completion_engine</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">pname</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_install_subprogress_moniotoring</span><span class="p">(</span><span class="n">subprocess_compl</span><span class="p">)</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">subprocess_compl</span><span class="o">.</span><span class="n">complete_parameters</span><span class="p">(</span>
-                        <span class="p">{</span><span class="s1">&#39;capsul_attributes&#39;</span><span class="p">:</span> <span class="n">attrib_values</span><span class="p">},</span>
+                        <span class="p">{</span><span class="s1">'capsul_attributes'</span><span class="p">:</span> <span class="n">attrib_values</span><span class="p">},</span>
                         <span class="n">complete_iterations</span><span class="o">=</span><span class="n">complete_iterations</span><span class="p">)</span>
                 <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                     <span class="k">try</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">node</span><span class="p">)</span><span class="o">.</span><span class="n">complete_parameters</span><span class="p">(</span>
-                            <span class="p">{</span><span class="s1">&#39;capsul_attributes&#39;</span><span class="p">:</span> <span class="n">attrib_values</span><span class="p">},</span>
+                            <span class="p">{</span><span class="s1">'capsul_attributes'</span><span class="p">:</span> <span class="n">attrib_values</span><span class="p">},</span>
                             <span class="n">complete_iterations</span><span class="o">=</span><span class="n">complete_iterations</span><span class="p">)</span>
                     <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                         <span class="k">pass</span>
@@ -487,8 +487,8 @@
                                                     <span class="n">done</span><span class="p">):</span>
                             <span class="n">todo</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dnode</span><span class="p">))</span>
                         <span class="c1"># not needed any longer:</span>
-                        <span class="c1">## release &quot;exists&quot; property on connected traits</span>
-                        <span class="c1">#if hasattr(dnode, &#39;process&#39;):</span>
+                        <span class="c1">## release "exists" property on connected traits</span>
+                        <span class="c1">#if hasattr(dnode, 'process'):</span>
                             <span class="c1">#p = l[2].process</span>
                         <span class="c1">#else:</span>
                             <span class="c1">#p = l[2]</span>
@@ -497,8 +497,8 @@
                             <span class="c1">#relax_exists_constraint(trait)</span>
                             <span class="c1">## FIXME this very specific stuff should be</span>
                             <span class="c1">## handled another way at another place...</span>
-                            <span class="c1">#if hasattr(p, &#39;process&#39;) \</span>
-                                    <span class="c1">#and hasattr(p.process, &#39;inputs&#39;):</span>
+                            <span class="c1">#if hasattr(p, 'process') \</span>
+                                    <span class="c1">#and hasattr(p.process, 'inputs'):</span>
                                 <span class="c1">## MIA custom wrappings of nipype interfaces</span>
                                 <span class="c1">## are this way, and do not release the</span>
                                 <span class="c1">## exists constrain internally.</span>
@@ -506,9 +506,9 @@
                                     <span class="c1">#p.process.inputs.trait(l[1]))</span>
 
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">done</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">nodes_list</span><span class="p">):</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Some nodes of the pipeline could not be reached &#39;</span>
-                      <span class="s1">&#39;through dependencies. The pipeline structure is &#39;</span>
-                      <span class="s1">&#39;probably wrong:&#39;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">'Some nodes of the pipeline could not be reached '</span>
+                      <span class="s1">'through dependencies. The pipeline structure is '</span>
+                      <span class="s1">'probably wrong:'</span><span class="p">)</span>
                 <span class="nb">print</span><span class="p">([</span><span class="n">nname</span> <span class="k">for</span> <span class="n">nname</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">nodes_list</span> <span class="k">if</span> <span class="n">n</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">done</span><span class="p">])</span>
 
         <span class="n">attributes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_attribute_values</span><span class="p">()</span>
@@ -578,14 +578,14 @@
                         <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">attributes_to_path</span><span class="p">(</span><span class="n">pname</span><span class="p">,</span>
                                                         <span class="n">attributes_single</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># not in pattern: don&#39;t complete</span>
+                        <span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># not in pattern: don't complete</span>
                 <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># should None be valid ?</span>
                     <span class="nb">setattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">pname</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Exception:&#39;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;param:&#39;</span><span class="p">,</span> <span class="n">pname</span><span class="p">)</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;value:&#39;</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">'Exception:'</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">'param:'</span><span class="p">,</span> <span class="n">pname</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">'value:'</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
                     <span class="kn">import</span><span class="w"> </span><span class="nn">traceback</span>
                     <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
                 <span class="c1">#pass</span>
@@ -597,13 +597,13 @@
 <div class="viewcode-block" id="ProcessCompletionEngine.attributes_to_path">
 <a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.completion_engine.ProcessCompletionEngine.attributes_to_path">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">attributes_to_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameter</span><span class="p">,</span> <span class="n">attributes</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39; Build a path from attributes for a given parameter in a process.</span>
+<span class="w">        </span><span class="sd">''' Build a path from attributes for a given parameter in a process.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        parameter: str</span>
 <span class="sd">        attributes: ProcessAttributes instance (Controller)</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_path_completion_engine</span><span class="p">()</span> \
             <span class="o">.</span><span class="n">attributes_to_path</span><span class="p">(</span><span class="n">get_ref</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">),</span> <span class="n">parameter</span><span class="p">,</span> <span class="n">attributes</span><span class="p">)</span></div>
 
@@ -612,17 +612,17 @@
 <div class="viewcode-block" id="ProcessCompletionEngine.set_parameters">
 <a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.completion_engine.ProcessCompletionEngine.set_parameters">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process_inputs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39; Set the given parameters dict to the given process.</span>
+<span class="w">        </span><span class="sd">''' Set the given parameters dict to the given process.</span>
 <span class="sd">        process_inputs may include regular parameters of the underlying</span>
 <span class="sd">        process, and attributes (capsul_attributes: dict).</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
 
         <span class="c1"># This convenience method only differs from the Controller</span>
         <span class="c1"># import_from_dict() method in the way that capsul_attributes items</span>
         <span class="c1"># will not completely replace all the attributes values, but only set</span>
         <span class="c1"># those specified here, and leave the others in place.</span>
         <span class="n">dst_attributes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_attribute_values</span><span class="p">()</span>
-        <span class="n">attributes</span> <span class="o">=</span> <span class="n">process_inputs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;capsul_attributes&#39;</span><span class="p">)</span>
+        <span class="n">attributes</span> <span class="o">=</span> <span class="n">process_inputs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'capsul_attributes'</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">attributes</span><span class="p">:</span>
             <span class="n">avail_attrib</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">dst_attributes</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
             <span class="n">attributes</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">attributes</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
@@ -630,7 +630,7 @@
             <span class="n">dst_attributes</span><span class="o">.</span><span class="n">import_from_dict</span><span class="p">(</span><span class="n">attributes</span><span class="p">)</span>
         <span class="n">process_inputs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span>
                               <span class="ow">in</span> <span class="n">process_inputs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-                              <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s1">&#39;capsul_attributes&#39;</span><span class="p">)</span>
+                              <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s1">'capsul_attributes'</span><span class="p">)</span>
         <span class="n">process</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">ProcessNode</span><span class="p">):</span>
             <span class="n">process</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">process</span>
@@ -641,7 +641,7 @@
 <div class="viewcode-block" id="ProcessCompletionEngine.attributes_changed">
 <a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.completion_engine.ProcessCompletionEngine.attributes_changed">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">attributes_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">old</span><span class="p">,</span> <span class="n">new</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39; Traits changed callback which triggers parameters update.</span>
+<span class="w">        </span><span class="sd">''' Traits changed callback which triggers parameters update.</span>
 
 <span class="sd">        This method basically calls complete_parameters() (after some checks).</span>
 
@@ -649,12 +649,12 @@
 <span class="sd">        when install_auto_completion() has been called.</span>
 
 <span class="sd">        See :py:meth:`install_auto_completion`</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">if</span> <span class="n">name</span> <span class="o">!=</span> <span class="s1">&#39;trait_added&#39;</span> <span class="ow">and</span> <span class="n">name</span> <span class="o">!=</span> <span class="s1">&#39;user_traits_changed&#39;</span> \
+<span class="sd">        '''</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="o">!=</span> <span class="s1">'trait_added'</span> <span class="ow">and</span> <span class="n">name</span> <span class="o">!=</span> <span class="s1">'user_traits_changed'</span> \
                 <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">completion_ongoing</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
             <span class="c1">#setattr(self.capsul_attributes, name, new)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">completion_ongoing</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">complete_parameters</span><span class="p">({</span><span class="s1">&#39;capsul_attributes&#39;</span><span class="p">:</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">new</span><span class="p">}})</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">complete_parameters</span><span class="p">({</span><span class="s1">'capsul_attributes'</span><span class="p">:</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">new</span><span class="p">}})</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">completion_ongoing</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 
@@ -662,7 +662,7 @@
 <div class="viewcode-block" id="ProcessCompletionEngine.nodes_selection_changed">
 <a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.completion_engine.ProcessCompletionEngine.nodes_selection_changed">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">nodes_selection_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">old</span><span class="p">,</span> <span class="n">new</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39; Traits changed callback which triggers parameters update.</span>
+<span class="w">        </span><span class="sd">''' Traits changed callback which triggers parameters update.</span>
 
 <span class="sd">        This method basically calls complete_parameters() (after some checks).</span>
 
@@ -670,7 +670,7 @@
 <span class="sd">        when install_auto_completion() has been called.</span>
 
 <span class="sd">        See :py:meth:`install_auto_completion`</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">completion_ongoing</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">completion_ongoing</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_rebuild_attributes</span> <span class="o">=</span> <span class="kc">True</span>
@@ -682,11 +682,11 @@
 <div class="viewcode-block" id="ProcessCompletionEngine.install_auto_completion">
 <a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.completion_engine.ProcessCompletionEngine.install_auto_completion">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">install_auto_completion</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39; Monitor attributes changes and switches changes (which may</span>
+<span class="w">        </span><span class="sd">''' Monitor attributes changes and switches changes (which may</span>
 <span class="sd">        influence attributes) and recompute parameters completion when needed.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">get_attribute_values</span><span class="p">()</span><span class="o">.</span><span class="n">on_trait_change</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">attributes_changed</span><span class="p">,</span> <span class="s1">&#39;anytrait&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">attributes_changed</span><span class="p">,</span> <span class="s1">'anytrait'</span><span class="p">)</span>
 
         <span class="n">process</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">ProcessNode</span><span class="p">):</span>
@@ -697,24 +697,24 @@
                     <span class="c1"># a switch may change attributes dynamically</span>
                     <span class="c1"># so we must be notified if this happens.</span>
                     <span class="n">node</span><span class="o">.</span><span class="n">on_trait_change</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes_selection_changed</span><span class="p">,</span>
-                                         <span class="s1">&#39;switch&#39;</span><span class="p">)</span></div>
+                                         <span class="s1">'switch'</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="ProcessCompletionEngine.remove_auto_completion">
 <a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.completion_engine.ProcessCompletionEngine.remove_auto_completion">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">remove_auto_completion</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39; Remove attributes monitoring and auto-recomputing of parameters.</span>
+<span class="w">        </span><span class="sd">''' Remove attributes monitoring and auto-recomputing of parameters.</span>
 
 <span class="sd">        Reverts install_auto_completion()</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">av</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">completion_engine</span>
             <span class="k">except</span> <span class="p">(</span><span class="ne">ReferenceError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
                 <span class="k">return</span>
             <span class="n">av</span><span class="o">.</span><span class="n">on_trait_change</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">attributes_changed</span><span class="p">,</span> <span class="s1">&#39;anytrait&#39;</span><span class="p">,</span> <span class="n">remove</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">attributes_changed</span><span class="p">,</span> <span class="s1">'anytrait'</span><span class="p">,</span> <span class="n">remove</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
             <span class="n">process</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">PipelineNode</span><span class="p">):</span>
@@ -725,27 +725,27 @@
                         <span class="c1"># a switch may change attributes dynamically</span>
                         <span class="c1"># so we must be notified if this happens.</span>
                         <span class="n">node</span><span class="o">.</span><span class="n">on_trait_change</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes_selection_changed</span><span class="p">,</span>
-                                            <span class="s1">&#39;switch&#39;</span><span class="p">,</span> <span class="n">remove</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+                                            <span class="s1">'switch'</span><span class="p">,</span> <span class="n">remove</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="ProcessCompletionEngine.get_path_completion_engine">
 <a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.completion_engine.ProcessCompletionEngine.get_path_completion_engine">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_path_completion_engine</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39; Get a PathCompletionEngine object for the given process.</span>
+<span class="w">        </span><span class="sd">''' Get a PathCompletionEngine object for the given process.</span>
 <span class="sd">        The default implementation queries PathCompletionEngineFactory,</span>
 <span class="sd">        but some specific ProcessCompletionEngine implementations may override</span>
 <span class="sd">        it for path completion at the process level (FOMs for instance).</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="n">study_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">get_study_config</span><span class="p">()</span>
         <span class="n">engine</span> <span class="o">=</span> <span class="n">study_config</span><span class="o">.</span><span class="n">engine</span>
         <span class="n">engine_factory</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="s1">&#39;capsul.engine.module.attributes&#39;</span> <span class="ow">in</span> <span class="n">engine</span><span class="o">.</span><span class="n">_loaded_modules</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">'capsul.engine.module.attributes'</span> <span class="ow">in</span> <span class="n">engine</span><span class="o">.</span><span class="n">_loaded_modules</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">engine_factory</span> \
-                    <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">_modules_data</span><span class="p">[</span><span class="s1">&#39;attributes&#39;</span><span class="p">]</span> \
-                        <span class="p">[</span><span class="s1">&#39;attributes_factory&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-                            <span class="s1">&#39;path_completion&#39;</span><span class="p">,</span> <span class="n">study_config</span><span class="o">.</span><span class="n">path_completion</span><span class="p">)</span>
+                    <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">_modules_data</span><span class="p">[</span><span class="s1">'attributes'</span><span class="p">]</span> \
+                        <span class="p">[</span><span class="s1">'attributes_factory'</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                            <span class="s1">'path_completion'</span><span class="p">,</span> <span class="n">study_config</span><span class="o">.</span><span class="n">path_completion</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                 <span class="k">pass</span> <span class="c1"># not found</span>
         <span class="k">if</span> <span class="n">engine_factory</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -758,11 +758,11 @@
 <a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.completion_engine.ProcessCompletionEngine.get_completion_engine">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_completion_engine</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39; Get a ProcessCompletionEngine instance for a given process/node</span>
+<span class="w">        </span><span class="sd">''' Get a ProcessCompletionEngine instance for a given process/node</span>
 <span class="sd">        within the framework of its StudyConfig factory function.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="n">process</span> <span class="o">=</span> <span class="n">get_ref</span><span class="p">(</span><span class="n">process</span><span class="p">)</span>
-        <span class="n">completion_engine</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;completion_engine&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">completion_engine</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">'completion_engine'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">completion_engine</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">completion_engine</span>
 
@@ -770,16 +770,16 @@
         <span class="c1">#ce_calls += 1</span>
         <span class="n">engine_factory</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">study_config</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;get_study_config&#39;</span><span class="p">):</span>
-            <span class="c1"># switches don&#39;t have a study_config at the moment.</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">'get_study_config'</span><span class="p">):</span>
+            <span class="c1"># switches don't have a study_config at the moment.</span>
             <span class="n">study_config</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">get_study_config</span><span class="p">()</span>
             <span class="n">engine</span> <span class="o">=</span> <span class="n">study_config</span><span class="o">.</span><span class="n">engine</span>
-            <span class="k">if</span> <span class="s1">&#39;capsul.engine.module.attributes&#39;</span> <span class="ow">in</span> <span class="n">engine</span><span class="o">.</span><span class="n">_loaded_modules</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">'capsul.engine.module.attributes'</span> <span class="ow">in</span> <span class="n">engine</span><span class="o">.</span><span class="n">_loaded_modules</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">engine_factory</span> \
-                        <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">_modules_data</span><span class="p">[</span><span class="s1">&#39;attributes&#39;</span><span class="p">]</span> \
-                            <span class="p">[</span><span class="s1">&#39;attributes_factory&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-                                <span class="s1">&#39;process_completion&#39;</span><span class="p">,</span>
+                        <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">_modules_data</span><span class="p">[</span><span class="s1">'attributes'</span><span class="p">]</span> \
+                            <span class="p">[</span><span class="s1">'attributes_factory'</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                                <span class="s1">'process_completion'</span><span class="p">,</span>
                                 <span class="n">study_config</span><span class="o">.</span><span class="n">process_completion</span><span class="p">)</span>
                 <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                     <span class="k">pass</span> <span class="c1"># not found</span>
@@ -793,11 +793,11 @@
         <span class="c1"># changes in StudyConfig, the completion engine may change also,</span>
         <span class="c1"># and caching it will make use of an obsolete one.</span>
         <span class="c1"># The other option is to remove the caches when the FOM config changes,</span>
-        <span class="c1"># but this needs to setup many callbacks that we don&#39;t know easily</span>
+        <span class="c1"># but this needs to setup many callbacks that we don't know easily</span>
         <span class="c1"># when to clear (process deletion etc)</span>
         <span class="c1">## set the completion engine into the process</span>
         <span class="k">if</span> <span class="n">completion_engine</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> \
-                <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;completion_engine&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> \
+                <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">'completion_engine'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> \
                     <span class="ow">is</span> <span class="ow">not</span> <span class="n">completion_engine</span><span class="p">:</span>
             <span class="n">process</span><span class="o">.</span><span class="n">completion_engine</span> <span class="o">=</span> <span class="n">completion_engine</span>
             <span class="n">process</span><span class="o">.</span><span class="n">_has_studyconfig_callback</span> <span class="o">=</span> <span class="kc">True</span>
@@ -807,7 +807,7 @@
                     <span class="n">nclass</span> <span class="o">=</span> <span class="n">Process</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">nclass</span> <span class="o">=</span> <span class="n">Node</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">nclass</span><span class="p">,</span> <span class="s1">&#39;_reset_completion_engine&#39;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">nclass</span><span class="p">,</span> <span class="s1">'_reset_completion_engine'</span><span class="p">):</span>
                     <span class="n">nclass</span><span class="o">.</span><span class="n">_reset_completion_engine</span> \
                         <span class="o">=</span> <span class="n">ProcessCompletionEngine</span><span class="o">.</span><span class="n">_reset_completion_engine</span>
                     <span class="n">nclass</span><span class="o">.</span><span class="fm">__del__</span> \
@@ -817,37 +817,37 @@
                         <span class="c1"># remove former callback, if any</span>
                         <span class="n">study_config</span><span class="o">.</span><span class="n">on_trait_change</span><span class="p">(</span>
                         <span class="n">process</span><span class="o">.</span><span class="n">_reset_completion_engine</span><span class="p">,</span>
-                        <span class="s1">&#39;use_fom,input_fom,output_fom,shared_fom&#39;</span><span class="p">,</span> <span class="n">remove</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                        <span class="s1">'use_fom,input_fom,output_fom,shared_fom'</span><span class="p">,</span> <span class="n">remove</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                     <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                         <span class="k">pass</span>
                 <span class="n">study_config</span><span class="o">.</span><span class="n">on_trait_change</span><span class="p">(</span>
                     <span class="n">process</span><span class="o">.</span><span class="n">_reset_completion_engine</span><span class="p">,</span>
-                    <span class="s1">&#39;use_fom,input_fom,output_fom,shared_fom&#39;</span><span class="p">)</span>
+                    <span class="s1">'use_fom,input_fom,output_fom,shared_fom'</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">completion_engine</span></div>
 
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_reset_completion_engine</span><span class="p">(</span><span class="n">process</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;completion_engine&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">'completion_engine'</span><span class="p">):</span>
             <span class="n">process</span><span class="o">.</span><span class="n">completion_engine</span><span class="o">.</span><span class="n">_rebuild_attributes</span> <span class="o">=</span> <span class="kc">True</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_del_process_callback</span><span class="p">(</span><span class="n">process</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;study_config&#39;</span><span class="p">)</span> \
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">'study_config'</span><span class="p">)</span> \
                 <span class="ow">and</span> <span class="n">process</span><span class="o">.</span><span class="n">study_config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> \
-                <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;_has_studyconfig_callback&#39;</span><span class="p">):</span>
+                <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">'_has_studyconfig_callback'</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">process</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">on_trait_change</span><span class="p">(</span>
                     <span class="n">process</span><span class="o">.</span><span class="n">_reset_completion_engine</span><span class="p">,</span>
-                    <span class="s1">&#39;use_fom,input_fom,output_fom,shared_fom&#39;</span><span class="p">,</span> <span class="n">remove</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="s1">'use_fom,input_fom,output_fom,shared_fom'</span><span class="p">,</span> <span class="n">remove</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
                 <span class="c1"># python shutting down</span>
                 <span class="k">pass</span>
             <span class="k">del</span> <span class="n">process</span><span class="o">.</span><span class="n">_has_studyconfig_callback</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_schemas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39; Get schemas dictionary from process and its StudyConfig</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">''' Get schemas dictionary from process and its StudyConfig</span>
+<span class="sd">        '''</span>
         <span class="n">schemas</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">study_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">get_study_config</span><span class="p">()</span>
@@ -855,36 +855,36 @@
         <span class="k">except</span> <span class="ne">ReferenceError</span><span class="p">:</span>
             <span class="c1"># process is deleted</span>
             <span class="k">return</span> <span class="n">schemas</span>
-        <span class="n">factory</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="s1">&#39;_modules_data&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-            <span class="s1">&#39;attributes&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;attributes_factory&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">factory</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="s1">'_modules_data'</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s1">'attributes'</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'attributes_factory'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">factory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">dir_name</span><span class="p">,</span> <span class="n">schema_name</span> \
                     <span class="ow">in</span> <span class="n">study_config</span><span class="o">.</span><span class="n">attributes_schemas</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="n">schemas</span><span class="p">[</span><span class="n">dir_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">factory</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;schema&#39;</span><span class="p">,</span> <span class="n">schema_name</span><span class="p">)</span>
+                <span class="n">schemas</span><span class="p">[</span><span class="n">dir_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">factory</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'schema'</span><span class="p">,</span> <span class="n">schema_name</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">schemas</span>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_install_subprogress_moniotoring</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subprocess_compl</span><span class="p">):</span>
         <span class="n">monitor_subprocess_progress</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;monitor_subprocess_progress&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="s1">'monitor_subprocess_progress'</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">monitor_subprocess_progress</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_old_monitor_sub</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span>
-                <span class="n">subprocess_compl</span><span class="p">,</span> <span class="s1">&#39;monitor_subprocess_progress&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+                <span class="n">subprocess_compl</span><span class="p">,</span> <span class="s1">'monitor_subprocess_progress'</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
             <span class="n">subprocess_compl</span><span class="o">.</span><span class="n">monitor_subprocess_progress</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_current_progress</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">completion_progress</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_monitoring_callback</span> <span class="o">=</span> <span class="n">SomaPartial</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">_substep_completion_progress</span><span class="p">,</span> <span class="n">weak_proxy</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
                 <span class="n">subprocess_compl</span><span class="p">)</span>
             <span class="n">subprocess_compl</span><span class="o">.</span><span class="n">on_trait_change</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_monitoring_callback</span><span class="p">,</span> <span class="s1">&#39;completion_progress&#39;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_monitoring_callback</span><span class="p">,</span> <span class="s1">'completion_progress'</span><span class="p">)</span>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_remove_subprogress_moniotoring</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subprocess_compl</span><span class="p">):</span>
         <span class="n">monitor_subprocess_progress</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;monitor_subprocess_progress&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="s1">'monitor_subprocess_progress'</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">monitor_subprocess_progress</span><span class="p">:</span>
             <span class="n">subprocess_compl</span><span class="o">.</span><span class="n">on_trait_change</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_monitoring_callback</span><span class="p">,</span> <span class="s1">&#39;completion_progress&#39;</span><span class="p">,</span> <span class="n">remove</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_monitoring_callback</span><span class="p">,</span> <span class="s1">'completion_progress'</span><span class="p">,</span> <span class="n">remove</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_progress</span>
             <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_monitoring_callback</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_old_monitor_sub</span><span class="p">:</span>
@@ -905,20 +905,20 @@
 <div class="viewcode-block" id="ProcessCompletionEngine.remove_attributes">
 <a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.completion_engine.ProcessCompletionEngine.remove_attributes">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">remove_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;Clear attributes controller cache, to allow rebuilding it after</span>
+<span class="w">        </span><span class="sd">'''Clear attributes controller cache, to allow rebuilding it after</span>
 <span class="sd">        a change. This is generally a callback attached to switches changes.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">if</span> <span class="s1">&#39;capsul_attributes&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instance_traits</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">remove_trait</span><span class="p">(</span><span class="s1">&#39;capsul_attributes&#39;</span><span class="p">)</span></div>
+<span class="sd">        '''</span>
+        <span class="k">if</span> <span class="s1">'capsul_attributes'</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instance_traits</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">remove_trait</span><span class="p">(</span><span class="s1">'capsul_attributes'</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="ProcessCompletionEngine.remove_switch_observers">
 <a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.completion_engine.ProcessCompletionEngine.remove_switch_observers">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">remove_switch_observers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;Remove notification callbacks previously set to listen switches</span>
+<span class="w">        </span><span class="sd">'''Remove notification callbacks previously set to listen switches</span>
 <span class="sd">        state changes.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">process</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">PipelineNode</span><span class="p">):</span>
@@ -926,7 +926,7 @@
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">Pipeline</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">process</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">Switch</span><span class="p">)</span> \
-                            <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s1">&#39;completion_engine&#39;</span><span class="p">):</span>
+                            <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s1">'completion_engine'</span><span class="p">):</span>
                         <span class="n">completion_engine</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">completion_engine</span>
                         <span class="n">completion_engine</span><span class="o">.</span><span class="n">remove_switch_observer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">ReferenceError</span><span class="p">:</span>
@@ -939,11 +939,11 @@
 <div class="viewcode-block" id="SwitchCompletionEngine">
 <a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.completion_engine.SwitchCompletionEngine">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SwitchCompletionEngine</span><span class="p">(</span><span class="n">ProcessCompletionEngine</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39; Completion engine specislization for a switch. The switch will</span>
+<span class="w">    </span><span class="sd">''' Completion engine specislization for a switch. The switch will</span>
 <span class="sd">    propagate attributes from its selected inputs to corresponding outputs,</span>
 <span class="sd">    if they can be retrieved from parameters links. Otherwise the countrary</span>
 <span class="sd">    will be tried (propagated from outputs to inputs).</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">remove_switch_observer</span><span class="p">()</span>
@@ -951,26 +951,26 @@
 <div class="viewcode-block" id="SwitchCompletionEngine.get_attribute_values">
 <a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.completion_engine.SwitchCompletionEngine.get_attribute_values">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_attribute_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="s1">&#39;capsul_attributes&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instance_traits</span><span class="p">():</span>
+        <span class="k">if</span> <span class="s1">'capsul_attributes'</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instance_traits</span><span class="p">():</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">capsul_attributes</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">&#39;capsul_attributes&#39;</span><span class="p">,</span> <span class="n">ControllerTrait</span><span class="p">(</span><span class="n">Controller</span><span class="p">()))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">'capsul_attributes'</span><span class="p">,</span> <span class="n">ControllerTrait</span><span class="p">(</span><span class="n">Controller</span><span class="p">()))</span>
         <span class="n">capsul_attributes</span> <span class="o">=</span> <span class="n">ProcessAttributes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="p">{})</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">capsul_attributes</span> <span class="o">=</span> <span class="n">capsul_attributes</span>
         <span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">_outputs</span>
-        <span class="n">schema</span> <span class="o">=</span> <span class="s1">&#39;switch&#39;</span>  <span class="c1"># FIXME</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;context_name&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-        <span class="n">pipeline_name</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-        <span class="k">if</span> <span class="n">pipeline_name</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+        <span class="n">schema</span> <span class="o">=</span> <span class="s1">'switch'</span>  <span class="c1"># FIXME</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="s1">'context_name'</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">pipeline_name</span> <span class="o">=</span> <span class="s1">'.'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'.'</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">pipeline_name</span> <span class="o">==</span> <span class="s1">''</span><span class="p">:</span>
             <span class="n">pipeline_name</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">pipeline_name</span> <span class="o">=</span> <span class="p">[</span><span class="n">pipeline_name</span><span class="p">]</span>
-        <span class="n">forbidden_attributes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s1">&#39;generated_by_parameter&#39;</span><span class="p">,</span>
-                                    <span class="s1">&#39;generated_by_process&#39;</span><span class="p">])</span>
+        <span class="n">forbidden_attributes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s1">'generated_by_parameter'</span><span class="p">,</span>
+                                    <span class="s1">'generated_by_process'</span><span class="p">])</span>
         <span class="n">traits_types</span> <span class="o">=</span> <span class="p">{</span><span class="nb">str</span><span class="p">:</span> <span class="n">traits</span><span class="o">.</span><span class="n">Str</span><span class="p">,</span> <span class="nb">int</span><span class="p">:</span> <span class="n">traits</span><span class="o">.</span><span class="n">Int</span><span class="p">,</span>
                         <span class="nb">float</span><span class="p">:</span> <span class="n">traits</span><span class="o">.</span><span class="n">Float</span><span class="p">,</span> <span class="nb">list</span><span class="p">:</span> <span class="n">traits</span><span class="o">.</span><span class="n">List</span><span class="p">}</span>
         <span class="k">for</span> <span class="n">out_name</span> <span class="ow">in</span> <span class="n">outputs</span><span class="p">:</span>
-            <span class="n">in_name</span> <span class="o">=</span> <span class="s1">&#39;_switch_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">switch</span><span class="p">,</span> <span class="n">out_name</span><span class="p">))</span>
+            <span class="n">in_name</span> <span class="o">=</span> <span class="s1">'_switch_'</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">switch</span><span class="p">,</span> <span class="n">out_name</span><span class="p">))</span>
             <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="k">for</span> <span class="n">output</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">((</span><span class="kc">False</span><span class="p">,</span> <span class="n">in_name</span><span class="p">),</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">out_name</span><span class="p">)):</span>
                 <span class="n">plug</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">plugs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
@@ -985,13 +985,13 @@
                     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">Switch</span><span class="p">):</span>
                         <span class="c1"># FIXME: just for now</span>
                         <span class="k">continue</span>
-                    <span class="k">if</span> <span class="n">link</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
-                        <span class="c1"># link to the parent pipeline: don&#39;t call it to avoid</span>
+                    <span class="k">if</span> <span class="n">link</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">''</span><span class="p">:</span>
+                        <span class="c1"># link to the parent pipeline: don't call it to avoid</span>
                         <span class="c1"># an infinite loop.</span>
                         <span class="c1"># Either it will provide attributes by its own, either</span>
                         <span class="c1"># we must not take them into account, so skip it.</span>
                         <span class="k">continue</span>
-                    <span class="n">proc_name</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pipeline_name</span> <span class="o">+</span> <span class="p">[</span><span class="n">link</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+                    <span class="n">proc_name</span> <span class="o">=</span> <span class="s1">'.'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pipeline_name</span> <span class="o">+</span> <span class="p">[</span><span class="n">link</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
                     <span class="n">completion_engine</span> \
                         <span class="o">=</span> <span class="n">ProcessCompletionEngine</span><span class="o">.</span><span class="n">get_completion_engine</span><span class="p">(</span>
                             <span class="n">node</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">proc_name</span><span class="p">)</span>
@@ -1048,7 +1048,7 @@
 <div class="viewcode-block" id="SwitchCompletionEngine.install_switch_observer">
 <a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.completion_engine.SwitchCompletionEngine.install_switch_observer">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">install_switch_observer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;Setup a switch change observation, to remove parameters attributes</span>
+<span class="w">        </span><span class="sd">'''Setup a switch change observation, to remove parameters attributes</span>
 <span class="sd">        when the switch state changes.</span>
 
 <span class="sd">        Parameters</span>
@@ -1058,22 +1058,22 @@
 <span class="sd">            If not specified, the observer is the switch completion engine</span>
 <span class="sd">            (self).</span>
 <span class="sd">            Notification will call the observer remove_attributes() method.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">if</span> <span class="n">observer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">observer</span> <span class="o">=</span> <span class="bp">self</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">on_trait_change</span><span class="p">(</span><span class="n">observer</span><span class="o">.</span><span class="n">remove_attributes</span><span class="p">,</span> <span class="s1">&#39;switch&#39;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">on_trait_change</span><span class="p">(</span><span class="n">observer</span><span class="o">.</span><span class="n">remove_attributes</span><span class="p">,</span> <span class="s1">'switch'</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="SwitchCompletionEngine.remove_switch_observer">
 <a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.completion_engine.SwitchCompletionEngine.remove_switch_observer">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">remove_switch_observer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">observer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;Remove notification previously set by install_switch_observer()</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''Remove notification previously set by install_switch_observer()</span>
+<span class="sd">        '''</span>
         <span class="k">if</span> <span class="n">observer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">observer</span> <span class="o">=</span> <span class="bp">self</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">on_trait_change</span><span class="p">(</span><span class="n">observer</span><span class="o">.</span><span class="n">remove_attributes</span><span class="p">,</span> <span class="s1">&#39;switch&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">on_trait_change</span><span class="p">(</span><span class="n">observer</span><span class="o">.</span><span class="n">remove_attributes</span><span class="p">,</span> <span class="s1">'switch'</span><span class="p">,</span>
                                          <span class="n">remove</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="k">pass</span>  <span class="c1"># probably already deleted object</span></div>
@@ -1085,13 +1085,13 @@
 <div class="viewcode-block" id="PathCompletionEngine">
 <a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.completion_engine.PathCompletionEngine">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">PathCompletionEngine</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39; Implements building of a single path from a set of attributes for a</span>
+<span class="w">    </span><span class="sd">''' Implements building of a single path from a set of attributes for a</span>
 <span class="sd">    specific process / parameter</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
 <div class="viewcode-block" id="PathCompletionEngine.attributes_to_path">
 <a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.completion_engine.PathCompletionEngine.attributes_to_path">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">attributes_to_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">parameter</span><span class="p">,</span> <span class="n">attributes</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39; Build a path from attributes for a given parameter in a process.</span>
+<span class="w">        </span><span class="sd">''' Build a path from attributes for a given parameter in a process.</span>
 
 <span class="sd">        This method has to be specialized. The default implementation returns</span>
 <span class="sd">        None.</span>
@@ -1101,23 +1101,23 @@
 <span class="sd">        process: Node or Process instance</span>
 <span class="sd">        parameter: str</span>
 <span class="sd">        attributes: ProcessAttributes instance (Controller)</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="k">return</span> <span class="kc">None</span></div>
 
 
 <div class="viewcode-block" id="PathCompletionEngine.allowed_formats">
 <a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.completion_engine.PathCompletionEngine.allowed_formats">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">allowed_formats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">parameter</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39; List of possible formats names associated with a parameter</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">''' List of possible formats names associated with a parameter</span>
+<span class="sd">        '''</span>
         <span class="k">return</span> <span class="p">[]</span></div>
 
 
 <div class="viewcode-block" id="PathCompletionEngine.allowed_extensions">
 <a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.completion_engine.PathCompletionEngine.allowed_extensions">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">allowed_extensions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">parameter</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39; List of possible file extensions associated with a parameter</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">''' List of possible file extensions associated with a parameter</span>
+<span class="sd">        '''</span>
         <span class="k">return</span> <span class="p">[]</span></div>
 </div>
 
@@ -1126,15 +1126,15 @@
 <div class="viewcode-block" id="ProcessCompletionEngineFactory">
 <a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.completion_engine.ProcessCompletionEngineFactory">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ProcessCompletionEngineFactory</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Get a :class:`ProcessCompletionEngine` instance</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">factory_id</span> <span class="o">=</span> <span class="s1">&#39;basic&#39;</span>
+<span class="sd">    '''</span>
+    <span class="n">factory_id</span> <span class="o">=</span> <span class="s1">'basic'</span>
 
 <div class="viewcode-block" id="ProcessCompletionEngineFactory.get_completion_engine">
 <a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.completion_engine.ProcessCompletionEngineFactory.get_completion_engine">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_completion_engine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Factory for ProcessCompletionEngine: get an ProcessCompletionEngine</span>
 <span class="sd">        instance for a process in the context of a given StudyConfig.</span>
 
@@ -1146,8 +1146,8 @@
 
 <span class="sd">        The base class implementation returns a base ProcessCompletionEngine</span>
 <span class="sd">        instance, which is quite incomplete.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;completion_engine&#39;</span><span class="p">):</span>
+<span class="sd">        '''</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">'completion_engine'</span><span class="p">):</span>
             <span class="n">ce</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">completion_engine</span>
             <span class="c1"># just in case the process has been changed in the CE</span>
             <span class="k">if</span> <span class="n">ce</span> <span class="ow">and</span> <span class="n">ce</span><span class="o">.</span><span class="n">process</span> <span class="o">!=</span> <span class="n">process</span><span class="p">:</span>
@@ -1164,15 +1164,15 @@
 <div class="viewcode-block" id="PathCompletionEngineFactory">
 <a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.completion_engine.PathCompletionEngineFactory">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">PathCompletionEngineFactory</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Get a :class:`PathCompletionEngine` instance</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
 
-    <span class="n">factory_id</span> <span class="o">=</span> <span class="s1">&#39;null&#39;</span>
+    <span class="n">factory_id</span> <span class="o">=</span> <span class="s1">'null'</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_path_completion_engine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;PathCompletionEngineFactory is pure virtual. &#39;</span>
-                           <span class="s1">&#39;It must be derived to do actual work.&#39;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">'PathCompletionEngineFactory is pure virtual. '</span>
+                           <span class="s1">'It must be derived to do actual work.'</span><span class="p">)</span></div>
 
 </pre></div>
 

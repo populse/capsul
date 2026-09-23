@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
     
-    <script src="../../../_static/documentation_options.js?v=b9f4bfa5"></script>
+    <script src="../../../_static/documentation_options.js?v=727d2f68"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -105,14 +105,14 @@
             
   <h1>Source code for capsul.pipeline.topological_sort</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">'''</span>
 <span class="sd">Build graph with dependencies from a pipeline</span>
 
 <span class="sd">Classes</span>
 <span class="sd">=======</span>
 <span class="sd">:class:`GraphNode`</span>
 <span class="sd">------------------</span>
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">'''</span>
 
 <span class="c1"># System import</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">absolute_import</span>
@@ -127,7 +127,7 @@
 <div class="viewcode-block" id="GraphNode">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.topological_sort.GraphNode">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">GraphNode</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot; Simple Graph Node Structure</span>
+<span class="w">    </span><span class="sd">""" Simple Graph Node Structure</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
@@ -150,10 +150,10 @@
 <span class="sd">    remove_link_to</span>
 <span class="sd">    add_link_from</span>
 <span class="sd">    remove_link_from</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">meta</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Create a Graph Node</span>
+<span class="w">        </span><span class="sd">""" Create a Graph Node</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -162,7 +162,7 @@
 
 <span class="sd">        meta: object</span>
 <span class="sd">        an python object to store in the node</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">meta</span> <span class="o">=</span> <span class="n">meta</span>
         <span class="c1"># variables to store the graph edges</span>
@@ -175,13 +175,13 @@
 <div class="viewcode-block" id="GraphNode.add_link_to">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.topological_sort.GraphNode.add_link_to">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_link_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to add a Successor</span>
+<span class="w">        </span><span class="sd">""" Method to add a Successor</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        node: GraphNode (mandatory)</span>
 <span class="sd">        the successor node</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">node</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">links_to</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">links_to</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">links_to_degree</span> <span class="o">+=</span> <span class="mi">1</span></div>
@@ -190,13 +190,13 @@
 <div class="viewcode-block" id="GraphNode.remove_link_to">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.topological_sort.GraphNode.remove_link_to">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">remove_link_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to remove a Successor</span>
+<span class="w">        </span><span class="sd">""" Method to remove a Successor</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        node: GraphNode (mandatory)</span>
 <span class="sd">        the successor node</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">links_to</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">links_to</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">links_to_degree</span> <span class="o">-=</span> <span class="mi">1</span></div>
@@ -205,13 +205,13 @@
 <div class="viewcode-block" id="GraphNode.add_link_from">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.topological_sort.GraphNode.add_link_from">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_link_from</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to add a Predecessor</span>
+<span class="w">        </span><span class="sd">""" Method to add a Predecessor</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        node: GraphNode (mandatory)</span>
 <span class="sd">        the predecessor node</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">node</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">links_from</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">links_from</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">links_from_degree</span> <span class="o">+=</span> <span class="mi">1</span></div>
@@ -220,13 +220,13 @@
 <div class="viewcode-block" id="GraphNode.remove_link_from">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.topological_sort.GraphNode.remove_link_from">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">remove_link_from</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to remove a Predecessor</span>
+<span class="w">        </span><span class="sd">""" Method to remove a Predecessor</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        node: GraphNode (mandatory)</span>
 <span class="sd">        the predecessor node</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">links_from</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">links_from</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">links_from_degree</span> <span class="o">-=</span> <span class="mi">1</span></div>
@@ -237,7 +237,7 @@
 <div class="viewcode-block" id="Graph">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.topological_sort.Graph">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Graph</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot; Simple Graph Structure on which we want to perform a</span>
+<span class="w">    </span><span class="sd">""" Simple Graph Structure on which we want to perform a</span>
 <span class="sd">    topological tree (no cycle).</span>
 
 <span class="sd">    The algorithm is based on the R.E. Tarjanlinear linear</span>
@@ -256,43 +256,43 @@
 <span class="sd">    find_node</span>
 <span class="sd">    add_link</span>
 <span class="sd">    topological_sort</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Create a Graph</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">""" Create a Graph</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_links</span> <span class="o">=</span> <span class="p">[]</span>
 
 <div class="viewcode-block" id="Graph.add_node">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.topological_sort.Graph.add_node">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to add a GraphNode in the Graph</span>
+<span class="w">        </span><span class="sd">""" Method to add a GraphNode in the Graph</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        node: GraphNode (mandatory)</span>
 <span class="sd">        the node to insert</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;node: </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+<span class="sd">        """</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"node: </span><span class="si">{0}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">GraphNode</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Expect a GraphNode, got </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">node</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">"Expect a GraphNode, got </span><span class="si">{0}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">node</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Expect a GraphNode with a unique name, &quot;</span>
-                            <span class="s2">&quot;got </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">node</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">"Expect a GraphNode with a unique name, "</span>
+                            <span class="s2">"got </span><span class="si">{0}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">node</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span><span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">node</span></div>
 
 
 <div class="viewcode-block" id="Graph.find_node">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.topological_sort.Graph.find_node">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">find_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_name</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to find a GraphNode in the Graph</span>
+<span class="w">        </span><span class="sd">""" Method to find a GraphNode in the Graph</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        node_name: str (mandatory)</span>
 <span class="sd">        the name of the desired node</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">node_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span><span class="p">[</span><span class="n">node_name</span><span class="p">]</span>
         <span class="k">return</span> <span class="kc">None</span></div>
@@ -301,7 +301,7 @@
 <div class="viewcode-block" id="Graph.add_link">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.topological_sort.Graph.add_link">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_node</span><span class="p">,</span> <span class="n">to_node</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to add an edge between two GraphNodes of the Graph</span>
+<span class="w">        </span><span class="sd">""" Method to add an edge between two GraphNodes of the Graph</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -309,14 +309,14 @@
 <span class="sd">        a node in the graph</span>
 <span class="sd">        to_node: GraphNode (mandatory)</span>
 <span class="sd">        the successor node</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;link: </span><span class="si">{0}</span><span class="s2">-&gt;</span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">from_node</span><span class="p">,</span> <span class="n">to_node</span><span class="p">))</span>
+<span class="sd">        """</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"link: </span><span class="si">{0}</span><span class="s2">-&gt;</span><span class="si">{1}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">from_node</span><span class="p">,</span> <span class="n">to_node</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">from_node</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Node </span><span class="si">{0}</span><span class="s2"> is not defined in the Graph.&quot;</span>
-                   <span class="s2">&quot;Use add_node() method&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">from_node</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">"Node </span><span class="si">{0}</span><span class="s2"> is not defined in the Graph."</span>
+                   <span class="s2">"Use add_node() method"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">from_node</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">to_node</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Node </span><span class="si">{0}</span><span class="s2"> is not defined in the Graph.&quot;</span>
-                   <span class="s2">&quot;Use add_node() method&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">to_node</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">"Node </span><span class="si">{0}</span><span class="s2"> is not defined in the Graph."</span>
+                   <span class="s2">"Use add_node() method"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">to_node</span><span class="p">))</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">from_node</span><span class="p">,</span> <span class="n">to_node</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_links</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span><span class="p">[</span><span class="n">to_node</span><span class="p">]</span><span class="o">.</span><span class="n">add_link_from</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span><span class="p">[</span><span class="n">from_node</span><span class="p">])</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span><span class="p">[</span><span class="n">from_node</span><span class="p">]</span><span class="o">.</span><span class="n">add_link_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span><span class="p">[</span><span class="n">to_node</span><span class="p">])</span>
@@ -326,7 +326,7 @@
 <div class="viewcode-block" id="Graph.topological_sort">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.topological_sort.Graph.topological_sort">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">topological_sort</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Perform the topological sort: find an order in which all the</span>
+<span class="w">        </span><span class="sd">""" Perform the topological sort: find an order in which all the</span>
 <span class="sd">        nodes can be taken.</span>
 <span class="sd">        Step 1: Identify nodes that have no incoming link (nnil).</span>
 <span class="sd">        Step 2: Loop until there are nnil</span>
@@ -341,7 +341,7 @@
 <span class="sd">        output: list of tuple</span>
 <span class="sd">            a list of ordered nodes with a tuple element containing the node</span>
 <span class="sd">            name and the node meta element.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">ordered_nodes</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="c1"># Step 1</span>
@@ -367,31 +367,31 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ordered_nodes</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_nodes</span><span class="p">):</span>
             <span class="k">return</span> <span class="p">[(</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">meta</span><span class="p">)</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">ordered_nodes</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;There is loop in the Graph.&quot;</span>
-                            <span class="s2">&quot;Please inverstigate&quot;</span><span class="p">)</span></div>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">"There is loop in the Graph."</span>
+                            <span class="s2">"Please inverstigate"</span><span class="p">)</span></div>
 </div>
 
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">'__main__'</span><span class="p">:</span>
 
-<span class="w">    </span><span class="sd">&quot;&quot;&quot; A toy example:</span>
+<span class="w">    </span><span class="sd">""" A toy example:</span>
 <span class="sd">    slip -&gt; chaussettes -&gt; chemise -&gt; veste -&gt; pantalon -&gt; ceinture -&gt;</span>
 <span class="sd">    chaussures -&gt; cravate</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="n">objects</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;chaussures&quot;</span><span class="p">,</span> <span class="s2">&quot;chaussettes&quot;</span><span class="p">,</span> <span class="s2">&quot;slip&quot;</span><span class="p">,</span> <span class="s2">&quot;pantalon&quot;</span><span class="p">,</span> <span class="s2">&quot;ceinture&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;chemise&quot;</span><span class="p">,</span> <span class="s2">&quot;veste&quot;</span><span class="p">,</span> <span class="s2">&quot;cravate&quot;</span><span class="p">]</span>
+    <span class="n">objects</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"chaussures"</span><span class="p">,</span> <span class="s2">"chaussettes"</span><span class="p">,</span> <span class="s2">"slip"</span><span class="p">,</span> <span class="s2">"pantalon"</span><span class="p">,</span> <span class="s2">"ceinture"</span><span class="p">,</span>
+        <span class="s2">"chemise"</span><span class="p">,</span> <span class="s2">"veste"</span><span class="p">,</span> <span class="s2">"cravate"</span><span class="p">]</span>
 
     <span class="n">dependencies</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="p">(</span><span class="s2">&quot;slip&quot;</span><span class="p">,</span> <span class="s2">&quot;pantalon&quot;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">&quot;chemise&quot;</span><span class="p">,</span> <span class="s2">&quot;cravate&quot;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">&quot;chemise&quot;</span><span class="p">,</span> <span class="s2">&quot;pantalon&quot;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">&quot;pantalon&quot;</span><span class="p">,</span> <span class="s2">&quot;ceinture&quot;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">&quot;chaussettes&quot;</span><span class="p">,</span> <span class="s2">&quot;chaussures&quot;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">&quot;pantalon&quot;</span><span class="p">,</span> <span class="s2">&quot;chaussures&quot;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">&quot;ceinture&quot;</span><span class="p">,</span> <span class="s2">&quot;chaussures&quot;</span><span class="p">),</span>
-        <span class="p">(</span><span class="s2">&quot;chemise&quot;</span><span class="p">,</span> <span class="s2">&quot;veste&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"slip"</span><span class="p">,</span> <span class="s2">"pantalon"</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"chemise"</span><span class="p">,</span> <span class="s2">"cravate"</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"chemise"</span><span class="p">,</span> <span class="s2">"pantalon"</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"pantalon"</span><span class="p">,</span> <span class="s2">"ceinture"</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"chaussettes"</span><span class="p">,</span> <span class="s2">"chaussures"</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"pantalon"</span><span class="p">,</span> <span class="s2">"chaussures"</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"ceinture"</span><span class="p">,</span> <span class="s2">"chaussures"</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"chemise"</span><span class="p">,</span> <span class="s2">"veste"</span><span class="p">),</span>
         <span class="p">]</span>
 
     <span class="n">g</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">()</span>
@@ -404,7 +404,7 @@
 
     <span class="n">r</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">topological_sort</span><span class="p">()</span>
     <span class="n">r</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">r</span><span class="p">]</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; -&gt; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">r</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">" -&gt; "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">r</span><span class="p">))</span>
 </pre></div>
 
             <div class="clearer"></div>

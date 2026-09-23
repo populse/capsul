@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
     
-    <script src="../../../../_static/documentation_options.js?v=b9f4bfa5"></script>
+    <script src="../../../../_static/documentation_options.js?v=727d2f68"></script>
     <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -105,14 +105,14 @@
             
   <h1>Source code for capsul.study_config.config_modules.nipype_config</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">'''</span>
 <span class="sd">NiPype configuration module</span>
 
 <span class="sd">Classes</span>
 <span class="sd">=======</span>
 <span class="sd">:class:`NipypeConfig`</span>
 <span class="sd">---------------------</span>
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">'''</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">absolute_import</span>
 
@@ -138,39 +138,39 @@
 <div class="viewcode-block" id="NipypeConfig">
 <a class="viewcode-back" href="../../../../api/study_config.html#capsul.study_config.config_modules.nipype_config.NipypeConfig">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">NipypeConfig</span><span class="p">(</span><span class="n">StudyConfigModule</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot; Nipype configuration.</span>
+<span class="w">    </span><span class="sd">""" Nipype configuration.</span>
 
 <span class="sd">    In order to use nipype spm, fsl and freesurfer interfaces, we need to</span>
 <span class="sd">    configure the nipype module.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">dependencies</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">study_config</span><span class="p">,</span> <span class="n">configuration</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Initialize the NipypeConfig class.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">""" Initialize the NipypeConfig class.</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">NipypeConfig</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="n">configuration</span><span class="p">)</span>
-        <span class="n">study_config</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s2">&quot;use_nipype&quot;</span><span class="p">,</span> <span class="n">Bool</span><span class="p">(</span>
+        <span class="n">study_config</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s2">"use_nipype"</span><span class="p">,</span> <span class="n">Bool</span><span class="p">(</span>
             <span class="n">Undefined</span><span class="p">,</span>
-            <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;If True, Nipype configuration is set up on startup.&quot;</span><span class="p">,</span>
-            <span class="n">groups</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;nipype&#39;</span><span class="p">]))</span>
-        <span class="n">study_config</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s2">&quot;add_to_default_matlab_path&quot;</span><span class="p">,</span> <span class="n">List</span><span class="p">(</span>
+            <span class="n">desc</span><span class="o">=</span><span class="s2">"If True, Nipype configuration is set up on startup."</span><span class="p">,</span>
+            <span class="n">groups</span><span class="o">=</span><span class="p">[</span><span class="s1">'nipype'</span><span class="p">]))</span>
+        <span class="n">study_config</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s2">"add_to_default_matlab_path"</span><span class="p">,</span> <span class="n">List</span><span class="p">(</span>
             <span class="n">Directory</span><span class="p">,</span>
             <span class="n">default</span><span class="o">=</span><span class="p">[],</span>
-            <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Paths that are added to Matlab default path.&quot;</span><span class="p">,</span>
-            <span class="n">groups</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;nipype&#39;</span><span class="p">]))</span>
+            <span class="n">desc</span><span class="o">=</span><span class="s2">"Paths that are added to Matlab default path."</span><span class="p">,</span>
+            <span class="n">groups</span><span class="o">=</span><span class="p">[</span><span class="s1">'nipype'</span><span class="p">]))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">has_nipype</span> <span class="o">=</span> <span class="n">has_nipype</span>
 
 <div class="viewcode-block" id="NipypeConfig.initialize_module">
 <a class="viewcode-back" href="../../../../api/study_config.html#capsul.study_config.config_modules.nipype_config.NipypeConfig.initialize_module">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">initialize_module</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Set up Nipype environment variables according to current</span>
+<span class="w">        </span><span class="sd">""" Set up Nipype environment variables according to current</span>
 <span class="sd">        configuration.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="s1">&#39;capsul.engine.module.nipype&#39;</span> \
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="s1">'capsul.engine.module.nipype'</span> \
                 <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">_loaded_modules</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">load_module</span><span class="p">(</span>
-                <span class="s1">&#39;capsul.engine.module.nipype&#39;</span><span class="p">)</span>
+                <span class="s1">'capsul.engine.module.nipype'</span><span class="p">)</span>
         <span class="n">ce_nipype</span><span class="o">.</span><span class="n">ensure_config_exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">engine</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_nipype</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">use_nipype</span> <span class="o">=</span> <span class="kc">False</span>
@@ -191,7 +191,7 @@
         <span class="c1"># Configure matlab for nipype</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">use_matlab</span><span class="p">:</span>
             <span class="n">matlab</span><span class="o">.</span><span class="n">MatlabCommand</span><span class="o">.</span><span class="n">set_default_matlab_cmd</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">matlab_exec</span> <span class="o">+</span> <span class="s2">&quot; -nodesktop -nosplash&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">matlab_exec</span> <span class="o">+</span> <span class="s2">" -nodesktop -nosplash"</span><span class="p">)</span>
 
         <span class="c1"># Configure spm for nipype</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">use_spm</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
@@ -199,17 +199,17 @@
             <span class="c1"># Standalone spm version</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">spm_standalone</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
                 <span class="n">spm</span><span class="o">.</span><span class="n">SPMCommand</span><span class="o">.</span><span class="n">set_mlab_paths</span><span class="p">(</span>
-                    <span class="n">matlab_cmd</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">spm_exec</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> \
+                    <span class="n">matlab_cmd</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">spm_exec</span> <span class="o">+</span> <span class="s2">" "</span> \
                         <span class="o">+</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                            <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">spm_directory</span><span class="p">,</span> <span class="s1">&#39;mcr&#39;</span><span class="p">,</span> <span class="s1">&#39;v*&#39;</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span> \
-                        <span class="o">+</span> <span class="s2">&quot; script&quot;</span><span class="p">,</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">spm_directory</span><span class="p">,</span> <span class="s1">'mcr'</span><span class="p">,</span> <span class="s1">'v*'</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span> \
+                        <span class="o">+</span> <span class="s2">" script"</span><span class="p">,</span>
                     <span class="n">use_mcr</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="c1"># Matlab spm version</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">matlab</span><span class="o">.</span><span class="n">MatlabCommand</span><span class="o">.</span><span class="n">set_default_paths</span><span class="p">(</span>
                     <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">spm_directory</span><span class="p">]</span> <span class="o">+</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">add_to_default_matlab_path</span><span class="p">)</span>
-                <span class="n">spm</span><span class="o">.</span><span class="n">SPMCommand</span><span class="o">.</span><span class="n">set_mlab_paths</span><span class="p">(</span><span class="n">matlab_cmd</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">use_mcr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  
+                <span class="n">spm</span><span class="o">.</span><span class="n">SPMCommand</span><span class="o">.</span><span class="n">set_mlab_paths</span><span class="p">(</span><span class="n">matlab_cmd</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span> <span class="n">use_mcr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  
 
         <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">use_nipype</span> <span class="o">=</span> <span class="kc">True</span></div>
 
@@ -217,10 +217,10 @@
 <div class="viewcode-block" id="NipypeConfig.initialize_callbacks">
 <a class="viewcode-back" href="../../../../api/study_config.html#capsul.study_config.config_modules.nipype_config.NipypeConfig.initialize_callbacks">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">initialize_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; When the &#39;use_nipype&#39; trait changes, configure nipype with the new</span>
+<span class="w">        </span><span class="sd">""" When the 'use_nipype' trait changes, configure nipype with the new</span>
 <span class="sd">        setting.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">on_trait_change</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initialize_module</span><span class="p">,</span> <span class="s2">&quot;use_nipype&quot;</span><span class="p">)</span></div>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">on_trait_change</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initialize_module</span><span class="p">,</span> <span class="s2">"use_nipype"</span><span class="p">)</span></div>
 </div>
 
 </pre></div>

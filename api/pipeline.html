@@ -17,7 +17,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
     
-    <script src="../_static/documentation_options.js?v=b9f4bfa5"></script>
+    <script src="../_static/documentation_options.js?v=727d2f68"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -151,13 +151,13 @@ method is overloaded to define its nodes and links.
 <span class="k">class</span><span class="w"> </span><span class="nc">MyPipeline</span><span class="p">(</span><span class="n">Pipeline</span><span class="p">):</span>
 
   <span class="k">def</span><span class="w"> </span><span class="nf">pipeline_definition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s1">&#39;proc1&#39;</span><span class="p">,</span> <span class="s1">&#39;my_toolbox.my_process1&#39;</span><span class="p">)</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s1">&#39;proc2&#39;</span><span class="p">,</span> <span class="s1">&#39;my_toolbox.my_process2&#39;</span><span class="p">)</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">add_switch</span><span class="p">(</span><span class="s1">&#39;main_switch&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;in1&#39;</span><span class="p">,</span> <span class="s1">&#39;in2&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;out1&#39;</span><span class="p">,</span> <span class="s1">&#39;out2&#39;</span><span class="p">])</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">add_link</span><span class="p">(</span><span class="s1">&#39;proc1.out1-&gt;main_switch.in1_switch_out1&#39;</span><span class="p">)</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">add_link</span><span class="p">(</span><span class="s1">&#39;proc1.out2-&gt;main_switch.in1_switch_out2&#39;</span><span class="p">)</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">add_link</span><span class="p">(</span><span class="s1">&#39;proc2.out1-&gt;main_switch.in2_switch_out1&#39;</span><span class="p">)</span>
-      <span class="bp">self</span><span class="o">.</span><span class="n">add_link</span><span class="p">(</span><span class="s1">&#39;proc2.out1-&gt;main_switch.in2_switch_out2&#39;</span><span class="p">)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s1">'proc1'</span><span class="p">,</span> <span class="s1">'my_toolbox.my_process1'</span><span class="p">)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s1">'proc2'</span><span class="p">,</span> <span class="s1">'my_toolbox.my_process2'</span><span class="p">)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">add_switch</span><span class="p">(</span><span class="s1">'main_switch'</span><span class="p">,</span> <span class="p">[</span><span class="s1">'in1'</span><span class="p">,</span> <span class="s1">'in2'</span><span class="p">],</span> <span class="p">[</span><span class="s1">'out1'</span><span class="p">,</span> <span class="s1">'out2'</span><span class="p">])</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">add_link</span><span class="p">(</span><span class="s1">'proc1.out1-&gt;main_switch.in1_switch_out1'</span><span class="p">)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">add_link</span><span class="p">(</span><span class="s1">'proc1.out2-&gt;main_switch.in1_switch_out2'</span><span class="p">)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">add_link</span><span class="p">(</span><span class="s1">'proc2.out1-&gt;main_switch.in2_switch_out1'</span><span class="p">)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">add_link</span><span class="p">(</span><span class="s1">'proc2.out1-&gt;main_switch.in2_switch_out2'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>After execution of <a class="reference internal" href="#capsul.pipeline.pipeline.Pipeline.pipeline_definition" title="capsul.pipeline.pipeline.Pipeline.pipeline_definition"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pipeline_definition()</span></code></a>, the inner nodes
@@ -388,8 +388,8 @@ output, in the shape “input_switch_output”.</p></li>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pipeline</span><span class="o">.</span><span class="n">add_optional_output_switch</span><span class="p">(</span><span class="s1">&#39;out1&#39;</span><span class="p">,</span> <span class="s1">&#39;in1&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">pipeline</span><span class="o">.</span><span class="n">add_link</span><span class="p">(</span><span class="s1">&#39;node1.output-&gt;out1.in1_switch_out1&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pipeline</span><span class="o">.</span><span class="n">add_optional_output_switch</span><span class="p">(</span><span class="s1">'out1'</span><span class="p">,</span> <span class="s1">'in1'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pipeline</span><span class="o">.</span><span class="n">add_link</span><span class="p">(</span><span class="s1">'node1.output-&gt;out1.in1_switch_out1'</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="admonition seealso">
@@ -441,17 +441,17 @@ the switch inputs should be restricted to actually available nodes. The
 recommended method is to check that nodes have actually been added in
 the pipeline. Then links can be made normally as if the nodes were all
 present:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s1">&#39;method1&#39;</span><span class="p">,</span> <span class="s1">&#39;module1.Module1&#39;</span><span class="p">,</span> <span class="n">skip_invalid</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s1">&#39;method2&#39;</span><span class="p">,</span> <span class="s1">&#39;module2.Module2&#39;</span><span class="p">,</span> <span class="n">skip_invalid</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s1">&#39;method3&#39;</span><span class="p">,</span> <span class="s1">&#39;module3.Module3&#39;</span><span class="p">,</span> <span class="n">skip_invalid</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s1">'method1'</span><span class="p">,</span> <span class="s1">'module1.Module1'</span><span class="p">,</span> <span class="n">skip_invalid</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s1">'method2'</span><span class="p">,</span> <span class="s1">'module2.Module2'</span><span class="p">,</span> <span class="n">skip_invalid</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">add_process</span><span class="p">(</span><span class="s1">'method3'</span><span class="p">,</span> <span class="s1">'module3.Module3'</span><span class="p">,</span> <span class="n">skip_invalid</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-<span class="n">input_params</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;method1&#39;</span><span class="p">,</span> <span class="s1">&#39;method2&#39;</span><span class="p">,</span> <span class="s1">&#39;method3&#39;</span><span class="p">]</span>
+<span class="n">input_params</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'method1'</span><span class="p">,</span> <span class="s1">'method2'</span><span class="p">,</span> <span class="s1">'method3'</span><span class="p">]</span>
                 <span class="k">if</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">]</span>
-<span class="bp">self</span><span class="o">.</span><span class="n">add_switch</span><span class="p">(</span><span class="s1">&#39;select_method&#39;</span><span class="p">,</span> <span class="n">input_params</span><span class="p">,</span> <span class="s1">&#39;output&#39;</span><span class="p">)</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">add_switch</span><span class="p">(</span><span class="s1">'select_method'</span><span class="p">,</span> <span class="n">input_params</span><span class="p">,</span> <span class="s1">'output'</span><span class="p">)</span>
 
-<span class="bp">self</span><span class="o">.</span><span class="n">add_link</span><span class="p">(</span><span class="s1">&#39;method1.input-&gt;select_method.method1_switch_output&#39;</span><span class="p">)</span>
-<span class="bp">self</span><span class="o">.</span><span class="n">add_link</span><span class="p">(</span><span class="s1">&#39;method2.input-&gt;select_method.method2_switch_output&#39;</span><span class="p">)</span>
-<span class="bp">self</span><span class="o">.</span><span class="n">add_link</span><span class="p">(</span><span class="s1">&#39;method3.input-&gt;select_method.method3_switch_output&#39;</span><span class="p">)</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">add_link</span><span class="p">(</span><span class="s1">'method1.input-&gt;select_method.method1_switch_output'</span><span class="p">)</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">add_link</span><span class="p">(</span><span class="s1">'method2.input-&gt;select_method.method2_switch_output'</span><span class="p">)</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">add_link</span><span class="p">(</span><span class="s1">'method3.input-&gt;select_method.method3_switch_output'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>A last note about invalid nodes:</p>
@@ -538,8 +538,8 @@ directly node names).</p></li>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pipeline</span><span class="o">.</span><span class="n">add_switch</span><span class="p">(</span><span class="s1">&#39;group_switch&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;in1&#39;</span><span class="p">,</span> <span class="s1">&#39;in2&#39;</span><span class="p">],</span>
-<span class="go">                        [&#39;out1&#39;, &#39;out2&#39;])</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pipeline</span><span class="o">.</span><span class="n">add_switch</span><span class="p">(</span><span class="s1">'group_switch'</span><span class="p">,</span> <span class="p">[</span><span class="s1">'in1'</span><span class="p">,</span> <span class="s1">'in2'</span><span class="p">],</span>
+<span class="go">                        ['out1', 'out2'])</span>
 </pre></div>
 </div>
 <p>will create a switch with 4 inputs and 2 outputs:
@@ -675,13 +675,13 @@ or disabled on a runtime basis (when building workflows).</p>
 “step” trait, which has one boolean property for each step:</p>
 <p>Ex:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">steps</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
-<span class="n">steps</span><span class="p">[</span><span class="s1">&#39;preprocessings&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s1">&#39;normalization&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;bias_correction&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;histo_analysis&#39;</span><span class="p">]</span>
-<span class="n">steps</span><span class="p">[</span><span class="s1">&#39;brain_extraction&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s1">&#39;brain_segmentation&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;hemispheres_split&#39;</span><span class="p">]</span>
+<span class="n">steps</span><span class="p">[</span><span class="s1">'preprocessings'</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">'normalization'</span><span class="p">,</span>
+    <span class="s1">'bias_correction'</span><span class="p">,</span>
+    <span class="s1">'histo_analysis'</span><span class="p">]</span>
+<span class="n">steps</span><span class="p">[</span><span class="s1">'brain_extraction'</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">'brain_segmentation'</span><span class="p">,</span>
+    <span class="s1">'hemispheres_split'</span><span class="p">]</span>
 <span class="n">pipeline</span><span class="o">.</span><span class="n">define_pipeline_steps</span><span class="p">(</span><span class="n">steps</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -840,15 +840,15 @@ pipeline full name</p></li>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Pipeline</span><span class="o">.</span><span class="n">parse_link</span><span class="p">(</span><span class="s2">&quot;node1.plug1-&gt;node2.plug2&quot;</span><span class="p">)</span>
-<span class="go">&quot;node1&quot;, &quot;plug1&quot;, &lt;instance node1&gt;, &lt;instance plug1&gt;,</span>
-<span class="go">&quot;node2&quot;, &quot;plug2&quot;, &lt;instance node2&gt;, &lt;instance plug2&gt;</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Pipeline</span><span class="o">.</span><span class="n">parse_link</span><span class="p">(</span><span class="s2">"node1.plug1-&gt;node2.plug2"</span><span class="p">)</span>
+<span class="go">"node1", "plug1", &lt;instance node1&gt;, &lt;instance plug1&gt;,</span>
+<span class="go">"node2", "plug2", &lt;instance node2&gt;, &lt;instance plug2&gt;</span>
 </pre></div>
 </div>
 <p>For a pipeline node:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Pipeline</span><span class="o">.</span><span class="n">parse_link</span><span class="p">(</span><span class="s2">&quot;plug1-&gt;node2.plug2&quot;</span><span class="p">)</span>
-<span class="go">&quot;&quot;, &quot;plug1&quot;, &lt;instance pipeline&gt;, &lt;instance plug1&gt;,</span>
-<span class="go">&quot;node2&quot;, &quot;plug2&quot;, &lt;instance node2&gt;, &lt;instance plug2&gt;</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Pipeline</span><span class="o">.</span><span class="n">parse_link</span><span class="p">(</span><span class="s2">"plug1-&gt;node2.plug2"</span><span class="p">)</span>
+<span class="go">"", "plug1", &lt;instance pipeline&gt;, &lt;instance plug1&gt;,</span>
+<span class="go">"node2", "plug2", &lt;instance node2&gt;, &lt;instance plug2&gt;</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -1524,7 +1524,7 @@ config/settings modules and values are requests for them.</p>
 <p>The default implementation returns an empty dict (no requirements), and
 should be overloaded by processes which actually have requirements.</p>
 <p>Ex:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;spm&#39;</span><span class="p">:</span> <span class="s1">&#39;version &gt;= &quot;12&quot; and standalone == &quot;True&quot;&#39;</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">'spm'</span><span class="p">:</span> <span class="s1">'version &gt;= "12" and standalone == "True"'</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>

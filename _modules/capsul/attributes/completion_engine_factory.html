@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
     
-    <script src="../../../_static/documentation_options.js?v=b9f4bfa5"></script>
+    <script src="../../../_static/documentation_options.js?v=727d2f68"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -105,14 +105,14 @@
             
   <h1>Source code for capsul.attributes.completion_engine_factory</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">'''</span>
 <span class="sd">Instantiate a default :class:`~capsul.attributes.completion_engine.ProcessCompletionEngine`</span>
 
 <span class="sd">Classes</span>
 <span class="sd">=======</span>
 <span class="sd">:class:`BuiltinProcessCompletionEngineFactory`</span>
 <span class="sd">----------------------------------------------</span>
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">'''</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">absolute_import</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.attributes.completion_engine</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessCompletionEngine</span><span class="p">,</span> \
@@ -130,14 +130,14 @@
 <div class="viewcode-block" id="BuiltinProcessCompletionEngineFactory">
 <a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.completion_engine_factory.BuiltinProcessCompletionEngineFactory">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BuiltinProcessCompletionEngineFactory</span><span class="p">(</span><span class="n">ProcessCompletionEngineFactory</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">factory_id</span> <span class="o">=</span> <span class="s1">&#39;builtin&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
+<span class="sd">    '''</span>
+    <span class="n">factory_id</span> <span class="o">=</span> <span class="s1">'builtin'</span>
 
 <div class="viewcode-block" id="BuiltinProcessCompletionEngineFactory.get_completion_engine">
 <a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.completion_engine_factory.BuiltinProcessCompletionEngineFactory.get_completion_engine">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_completion_engine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Factory for ProcessCompletionEngine: get an ProcessCompletionEngine</span>
 <span class="sd">        instance for a node or process in the context of a given StudyConfig.</span>
 
@@ -146,8 +146,8 @@
 <span class="sd">        If nothing is configured, a ProcessCompletionEngine base instance will</span>
 <span class="sd">        be returned. It will not be able to perform completion at all, but will</span>
 <span class="sd">        conform to the API.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;completion_engine&#39;</span><span class="p">):</span>
+<span class="sd">        '''</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="s1">'completion_engine'</span><span class="p">):</span>
             <span class="n">ce</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">completion_engine</span>
             <span class="c1"># just in case the process has been changed in the CE</span>
             <span class="k">if</span> <span class="n">ce</span> <span class="ow">and</span> <span class="n">ce</span><span class="o">.</span><span class="n">process</span> <span class="o">!=</span> <span class="n">process</span><span class="p">:</span>
@@ -157,7 +157,7 @@
         <span class="n">study_config</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">get_study_config</span><span class="p">()</span>
 
         <span class="c1"># FOM</span>
-        <span class="k">if</span> <span class="s1">&#39;FomConfig&#39;</span> <span class="ow">in</span> <span class="n">study_config</span><span class="o">.</span><span class="n">modules</span> <span class="ow">and</span> <span class="n">study_config</span><span class="o">.</span><span class="n">use_fom</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">'FomConfig'</span> <span class="ow">in</span> <span class="n">study_config</span><span class="o">.</span><span class="n">modules</span> <span class="ow">and</span> <span class="n">study_config</span><span class="o">.</span><span class="n">use_fom</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">pfom</span> <span class="o">=</span> <span class="n">FomProcessCompletionEngine</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">pfom</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>

@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
     
-    <script src="../../../../_static/documentation_options.js?v=b9f4bfa5"></script>
+    <script src="../../../../_static/documentation_options.js?v=727d2f68"></script>
     <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -105,14 +105,14 @@
             
   <h1>Source code for capsul.qt_gui.widgets.viewer_widget</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">'''</span>
 <span class="sd">Result viewer</span>
 
 <span class="sd">Classes</span>
 <span class="sd">=======</span>
 <span class="sd">:class:`ViewerWidget`</span>
 <span class="sd">---------------------</span>
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">'''</span>
 
 <span class="c1"># System import</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">absolute_import</span>
@@ -136,11 +136,11 @@
 <div class="viewcode-block" id="ViewerWidget">
 <a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.viewer_widget.ViewerWidget">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ViewerWidget</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QWidget</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot; View result class</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">""" View result class</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">viewer_node_name</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span> <span class="n">study_config</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Method to initialize a ViewerWidget class.</span>
+<span class="w">        </span><span class="sd">""" Method to initialize a ViewerWidget class.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -149,7 +149,7 @@
 <span class="sd">        pipeline: str</span>
 <span class="sd">            the full pipeline in order to get the viewer input trait values</span>
 <span class="sd">            since the viewer node is unactivated</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Inheritance</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">ViewerWidget</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
@@ -163,7 +163,7 @@
         <span class="n">button</span><span class="o">.</span><span class="n">setSizePolicy</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Expanding</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QSizePolicy</span><span class="o">.</span><span class="n">Expanding</span><span class="p">)</span>
         <span class="n">button</span><span class="o">.</span><span class="n">setMinimumHeight</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
         <span class="n">icon</span> <span class="o">=</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QIcon</span><span class="p">()</span>
-        <span class="n">icon</span><span class="o">.</span><span class="n">addPixmap</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QPixmap</span><span class="p">(</span><span class="n">_fromUtf8</span><span class="p">(</span><span class="s2">&quot;:/icones/view_result&quot;</span><span class="p">)),</span>
+        <span class="n">icon</span><span class="o">.</span><span class="n">addPixmap</span><span class="p">(</span><span class="n">QtGui</span><span class="o">.</span><span class="n">QPixmap</span><span class="p">(</span><span class="n">_fromUtf8</span><span class="p">(</span><span class="s2">":/icones/view_result"</span><span class="p">)),</span>
                        <span class="n">QtGui</span><span class="o">.</span><span class="n">QIcon</span><span class="o">.</span><span class="n">Normal</span><span class="p">,</span> <span class="n">QtGui</span><span class="o">.</span><span class="n">QIcon</span><span class="o">.</span><span class="n">Off</span><span class="p">)</span>
         <span class="n">button</span><span class="o">.</span><span class="n">setIcon</span><span class="p">(</span><span class="n">icon</span><span class="p">)</span>
         <span class="n">button</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">onCreateViewerClicked</span><span class="p">)</span>
@@ -171,8 +171,8 @@
 <div class="viewcode-block" id="ViewerWidget.onCreateViewerClicked">
 <a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.viewer_widget.ViewerWidget.onCreateViewerClicked">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">onCreateViewerClicked</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Event to create the viewer</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">""" Event to create the viewer</span>
+<span class="sd">        """</span>
         <span class="c1"># Get the viewer node and process</span>
         <span class="n">viewer_node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">viewer_node_name</span><span class="p">]</span>
         <span class="n">viewer_process</span> <span class="o">=</span> <span class="n">viewer_node</span><span class="o">.</span><span class="n">process</span>
@@ -183,7 +183,7 @@
         <span class="n">is_viewer_active</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">for</span> <span class="n">plug_name</span><span class="p">,</span> <span class="n">plug</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">viewer_node</span><span class="o">.</span><span class="n">plugs</span><span class="p">):</span>
 
-            <span class="k">if</span> <span class="n">plug_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;nodes_activation&quot;</span><span class="p">,</span> <span class="s2">&quot;selection_changed&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">plug_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"nodes_activation"</span><span class="p">,</span> <span class="s2">"selection_changed"</span><span class="p">]:</span>
                 <span class="k">continue</span>
 
             <span class="c1"># Since it is a viewer node we normally have only inputs</span>
@@ -203,7 +203,7 @@
                 <span class="c1"># 2) if the plug is a file, the file exists</span>
                 <span class="n">str_description</span> <span class="o">=</span> <span class="n">trait_ids</span><span class="p">(</span><span class="n">source_trait</span><span class="p">)</span>
                 <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">str_description</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span>
-                   <span class="n">str_description</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;File&quot;</span> <span class="ow">and</span>
+                   <span class="n">str_description</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"File"</span> <span class="ow">and</span>
                    <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">source_plug_value</span><span class="p">)):</span>
 
                     <span class="n">is_viewer_active</span> <span class="o">=</span> <span class="kc">False</span>
@@ -222,9 +222,9 @@
             <span class="n">soma</span><span class="o">.</span><span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">viewer_process</span><span class="o">.</span><span class="n">get_commandline</span><span class="p">())</span>
             <span class="c1"># self.study_config.run(viewer_process)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;The viewer is not active yet, maybe &quot;</span>
-                          <span class="s2">&quot;because the processings steps have not run or are &quot;</span>
-                          <span class="s2">&quot;not finished.&quot;</span><span class="p">)</span></div>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"The viewer is not active yet, maybe "</span>
+                          <span class="s2">"because the processings steps have not run or are "</span>
+                          <span class="s2">"not finished."</span><span class="p">)</span></div>
 </div>
 
 </pre></div>

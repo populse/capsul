@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
     
-    <script src="../../../_static/documentation_options.js?v=b9f4bfa5"></script>
+    <script src="../../../_static/documentation_options.js?v=727d2f68"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -107,12 +107,12 @@
   <h1>Source code for capsul.engine.run</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
 
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">'''</span>
 <span class="sd">Implementation of :class:`~capsul.engine.CapsulEngine` processing methods.</span>
 <span class="sd">They have been moved to this file for clarity.</span>
 
 <span class="sd">Running is always using `Soma-Workflow &lt;https://github.com/populse/soma-workflow/&gt;`_.</span>
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">'''</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">absolute_import</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">print_function</span>
 
@@ -128,19 +128,19 @@
 <div class="viewcode-block" id="WorkflowExecutionError">
 <a class="viewcode-back" href="../../../api/engine.html#capsul.engine.run.WorkflowExecutionError">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">WorkflowExecutionError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Exception class raised when a workflow execution fails.</span>
 <span class="sd">    It holds references to the</span>
 <span class="sd">    :class:`~soma_workflow.client.WorkflowController` and the workflow id</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">controller</span><span class="p">,</span> <span class="n">workflow_id</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">workflow_kept</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="n">wk</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
-        <span class="n">wc</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
-        <span class="n">precisions</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">wk</span> <span class="o">=</span> <span class="s1">''</span>
+        <span class="n">wc</span> <span class="o">=</span> <span class="s1">''</span>
+        <span class="n">precisions</span> <span class="o">=</span> <span class="s1">''</span>
         <span class="k">if</span> <span class="n">workflow_kept</span><span class="p">:</span>
-            <span class="n">wk</span> <span class="o">=</span> <span class="s1">&#39;not &#39;</span>
-            <span class="n">wc</span> <span class="o">=</span> <span class="s1">&#39; from soma_workflow and must be deleted manually&#39;</span>
+            <span class="n">wk</span> <span class="o">=</span> <span class="s1">'not '</span>
+            <span class="n">wc</span> <span class="o">=</span> <span class="s1">' from soma_workflow and must be deleted manually'</span>
         <span class="k">if</span> <span class="n">workflow_kept</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">controller</span> <span class="o">=</span> <span class="n">controller</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">workflow_id</span> <span class="o">=</span> <span class="n">workflow_id</span>
@@ -149,7 +149,7 @@
 
             <span class="n">failed_jobs</span> <span class="o">=</span> <span class="n">swclient</span><span class="o">.</span><span class="n">Helper</span><span class="o">.</span><span class="n">list_failed_jobs</span><span class="p">(</span>
                 <span class="n">workflow_id</span><span class="p">,</span> <span class="n">controller</span><span class="p">)</span>
-            <span class="n">precisions_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Failed jobs: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">repr</span><span class="p">(</span><span class="n">failed_jobs</span><span class="p">)]</span>
+            <span class="n">precisions_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'</span><span class="se">\n</span><span class="s1">Failed jobs: </span><span class="si">%s</span><span class="s1">'</span> <span class="o">%</span> <span class="nb">repr</span><span class="p">(</span><span class="n">failed_jobs</span><span class="p">)]</span>
             <span class="kn">from</span><span class="w"> </span><span class="nn">soma_workflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">constants</span> <span class="k">as</span> <span class="n">swc</span>
             <span class="n">aborted_statuses</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
                 <span class="p">[</span><span class="n">swc</span><span class="o">.</span><span class="n">EXIT_UNDETERMINED</span><span class="p">,</span>
@@ -161,10 +161,10 @@
                 <span class="n">workflow_id</span><span class="p">,</span> <span class="n">controller</span><span class="p">,</span> <span class="n">include_statuses</span><span class="o">=</span><span class="n">aborted_statuses</span><span class="p">)</span>
             <span class="n">aborted_jobs</span> <span class="o">=</span> <span class="p">[</span><span class="n">job</span> <span class="k">for</span> <span class="n">job</span> <span class="ow">in</span> <span class="n">aborted_jobs</span>
                             <span class="k">if</span> <span class="n">job</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">failed_jobs</span><span class="p">]</span>
-            <span class="n">precisions_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Aborted/killed jobs: </span><span class="si">%s</span><span class="s1">&#39;</span>
+            <span class="n">precisions_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">'Aborted/killed jobs: </span><span class="si">%s</span><span class="s1">'</span>
                                    <span class="o">%</span> <span class="nb">repr</span><span class="p">(</span><span class="n">aborted_jobs</span><span class="p">))</span>
-            <span class="n">tmp1</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkstemp</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;capsul_swf_job_stdout&#39;</span><span class="p">)</span>
-            <span class="n">tmp2</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkstemp</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;capsul_swf_job_stderr&#39;</span><span class="p">)</span>
+            <span class="n">tmp1</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkstemp</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s1">'capsul_swf_job_stdout'</span><span class="p">)</span>
+            <span class="n">tmp2</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkstemp</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s1">'capsul_swf_job_stderr'</span><span class="p">)</span>
             <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">tmp1</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
             <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">tmp2</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
             <span class="n">fileio</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
@@ -190,23 +190,23 @@
                     <span class="c1">#full_job = [j for j in workflow.jobs</span>
                                 <span class="c1">#if workflow.job_mapping[j].job_id == job_id][0]</span>
                     <span class="c1">#precisions_list += [</span>
-                        <span class="c1">#&#39;============================================&#39;,</span>
-                        <span class="c1">#&#39;---- failed job info ---&#39;,</span>
-                        <span class="c1">#&#39;* job: %d: %s&#39; % (job_id, jinfo[0]),</span>
-                        <span class="c1">#&#39;* exit status: %s&#39; % status[0],</span>
-                        <span class="c1">#&#39;* commandline:&#39;,</span>
+                        <span class="c1">#'============================================',</span>
+                        <span class="c1">#'---- failed job info ---',</span>
+                        <span class="c1">#'* job: %d: %s' % (job_id, jinfo[0]),</span>
+                        <span class="c1">#'* exit status: %s' % status[0],</span>
+                        <span class="c1">#'* commandline:',</span>
                         <span class="c1">#jinfo[1],</span>
-                        <span class="c1">#&#39;* exit value: %s&#39; % str(status[1]),</span>
-                        <span class="c1">#&#39;* term signal: %s&#39; % str(status[2]),</span>
-                        <span class="c1">#&#39;---- env ----&#39;,</span>
+                        <span class="c1">#'* exit value: %s' % str(status[1]),</span>
+                        <span class="c1">#'* term signal: %s' % str(status[2]),</span>
+                        <span class="c1">#'---- env ----',</span>
                         <span class="c1">#repr(full_job.env),</span>
-                        <span class="c1">#&#39;---- configuration ----&#39;,</span>
+                        <span class="c1">#'---- configuration ----',</span>
                         <span class="c1">#repr(full_job.configuration),</span>
-                        <span class="c1">#&#39;---- stdout ----&#39;,</span>
+                        <span class="c1">#'---- stdout ----',</span>
                         <span class="c1">#stdout,</span>
-                        <span class="c1">#&#39;---- stderr ----&#39;,</span>
+                        <span class="c1">#'---- stderr ----',</span>
                         <span class="c1">#stderr,</span>
-                        <span class="c1">##&#39;---- full host env ----&#39;,</span>
+                        <span class="c1">##'---- full host env ----',</span>
                         <span class="c1">##repr(os.environ)</span>
                     <span class="c1">#]</span>
             <span class="k">finally</span><span class="p">:</span>
@@ -214,11 +214,11 @@
                     <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">tmp1</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
                 <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">tmp2</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
                     <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">tmp2</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-            <span class="n">precisions</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">precisions_list</span><span class="p">)</span>
+            <span class="n">precisions</span> <span class="o">=</span> <span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">precisions_list</span><span class="p">)</span>
 
-        <span class="nb">super</span><span class="p">(</span><span class="n">WorkflowExecutionError</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s1">&#39;Error during &#39;</span>
-            <span class="s1">&#39;workflow execution. Status=</span><span class="si">%s</span><span class="s1">.</span><span class="se">\n</span><span class="s1">&#39;</span>
-            <span class="s1">&#39;The workflow has </span><span class="si">%s</span><span class="s1">been removed</span><span class="si">%s</span><span class="s1">. </span><span class="si">%s</span><span class="s1">&#39;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">WorkflowExecutionError</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s1">'Error during '</span>
+            <span class="s1">'workflow execution. Status=</span><span class="si">%s</span><span class="s1">.</span><span class="se">\n</span><span class="s1">'</span>
+            <span class="s1">'The workflow has </span><span class="si">%s</span><span class="s1">been removed</span><span class="si">%s</span><span class="s1">. </span><span class="si">%s</span><span class="s1">'</span>
             <span class="o">%</span> <span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">wk</span><span class="p">,</span> <span class="n">wc</span><span class="p">,</span> <span class="n">precisions</span><span class="p">))</span></div>
 
 
@@ -226,7 +226,7 @@
 <div class="viewcode-block" id="start">
 <a class="viewcode-back" href="../../../api/engine.html#capsul.engine.run.start">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">start</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">workflow</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">history</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">get_pipeline</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Asynchronously start the execution of a process or pipeline in the</span>
 <span class="sd">    connected computing environment. Returns an identifier of</span>
 <span class="sd">    the process execution and can be used to get the status of the</span>
@@ -249,7 +249,7 @@
 <span class="sd">    get_pipeline: bool (optional)</span>
 <span class="sd">        if True, start() will return a tuple (execution_id, pipeline). The</span>
 <span class="sd">        pipeline is normally the input pipeline (process) if it is actually</span>
-<span class="sd">        a pipeline. But if the input process is a &quot;single process&quot;, it will</span>
+<span class="sd">        a pipeline. But if the input process is a "single process", it will</span>
 <span class="sd">        be inserted into a small pipeline for execution. This pipeline will</span>
 <span class="sd">        be the one actually run, and may be passed to :meth:`wait` to set</span>
 <span class="sd">        output parameters.</span>
@@ -260,7 +260,7 @@
 <span class="sd">        execution identifier (actually a soma-workflow id)</span>
 <span class="sd">    pipeline: Pipeline instance (optional)</span>
 <span class="sd">        only returned if get_pipeline is True.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
 
     <span class="c1"># set parameters values</span>
     <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">kwargs</span><span class="p">):</span>
@@ -268,12 +268,12 @@
 
     <span class="n">missing</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">get_missing_mandatory_parameters</span><span class="p">()</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">ptype</span> <span class="o">=</span> <span class="s1">&#39;process&#39;</span>
+        <span class="n">ptype</span> <span class="o">=</span> <span class="s1">'process'</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">Pipeline</span><span class="p">):</span>
-            <span class="n">ptype</span> <span class="o">=</span> <span class="s1">&#39;pipeline&#39;</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;In </span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1">: missing mandatory parameters: </span><span class="si">%s</span><span class="s1">&#39;</span>
+            <span class="n">ptype</span> <span class="o">=</span> <span class="s1">'pipeline'</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'In </span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1">: missing mandatory parameters: </span><span class="si">%s</span><span class="s1">'</span>
                           <span class="o">%</span> <span class="p">(</span><span class="n">ptype</span><span class="p">,</span> <span class="n">process</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-                            <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">missing</span><span class="p">)))</span>
+                            <span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">missing</span><span class="p">)))</span>
 
     <span class="c1"># Use soma workflow to execute the pipeline or process in parallel</span>
     <span class="c1"># on the local machine</span>
@@ -282,32 +282,32 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.pipeline.pipeline_workflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">workflow_from_pipeline</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">soma_workflow.client</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">swclient</span>
 
-    <span class="n">swm</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s1">&#39;SomaWorkflowConfig&#39;</span><span class="p">]</span>
+    <span class="n">swm</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s1">'SomaWorkflowConfig'</span><span class="p">]</span>
     <span class="n">swm</span><span class="o">.</span><span class="n">connect_resource</span><span class="p">(</span><span class="n">engine</span><span class="o">.</span><span class="n">connected_to</span><span class="p">())</span>
     <span class="n">controller</span> <span class="o">=</span> <span class="n">swm</span><span class="o">.</span><span class="n">get_workflow_controller</span><span class="p">()</span>
     <span class="n">resource_id</span> <span class="o">=</span> <span class="n">swm</span><span class="o">.</span><span class="n">get_resource_id</span><span class="p">()</span>
 
-    <span class="n">query</span> <span class="o">=</span> <span class="s1">&#39;config_id==&quot;somaworkflow&quot;&#39;</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="s1">'config_id=="somaworkflow"'</span>
     <span class="k">if</span> <span class="n">resource_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;computing_resource == &quot;</span><span class="si">{</span><span class="n">resource_id</span><span class="si">}</span><span class="s1">&quot;&#39;</span>
+        <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'computing_resource == "</span><span class="si">{</span><span class="n">resource_id</span><span class="si">}</span><span class="s1">"'</span>
     <span class="n">resource_config_d</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">select_configurations</span><span class="p">(</span>
-        <span class="s1">&#39;global&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;somaworkflow&#39;</span><span class="p">:</span> <span class="n">query</span><span class="p">})</span>
+        <span class="s1">'global'</span><span class="p">,</span> <span class="p">{</span><span class="s1">'somaworkflow'</span><span class="p">:</span> <span class="n">query</span><span class="p">})</span>
     <span class="n">resource_config</span> <span class="o">=</span> <span class="n">resource_config_d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-        <span class="s1">&#39;capsul.engine.module.somaworkflow&#39;</span><span class="p">,</span> <span class="p">{})</span>
-    <span class="n">has_resource_config</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;capsul.engine.module.somaworkflow&#39;</span>
+        <span class="s1">'capsul.engine.module.somaworkflow'</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="n">has_resource_config</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'capsul.engine.module.somaworkflow'</span>
         <span class="ow">in</span> <span class="n">resource_config_d</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">has_resource_config</span><span class="p">:</span>
         <span class="n">environment</span> <span class="o">=</span> <span class="n">resource_id</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">environment</span> <span class="o">=</span> <span class="s1">&#39;global&#39;</span>
+        <span class="n">environment</span> <span class="o">=</span> <span class="s1">'global'</span>
 
     <span class="k">if</span> <span class="n">workflow</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">workflow</span> <span class="o">=</span> <span class="n">workflow_from_pipeline</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">environment</span><span class="o">=</span><span class="n">environment</span><span class="p">)</span>
 
-    <span class="n">queue</span> <span class="o">=</span> <span class="n">resource_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;queue&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="n">max_running_jobs</span> <span class="o">=</span> <span class="n">resource_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;max_running_jobs&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="n">max_queued_jobs</span> <span class="o">=</span> <span class="n">resource_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;max_queued_jobs&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">queue</span> <span class="o">=</span> <span class="n">resource_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'queue'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">max_running_jobs</span> <span class="o">=</span> <span class="n">resource_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'max_running_jobs'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">max_queued_jobs</span> <span class="o">=</span> <span class="n">resource_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'max_queued_jobs'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
     <span class="c1">#if hasattr(engine.study_config.somaworkflow_computing_resources_config,</span>
                <span class="c1">#resource_id):</span>
         <span class="c1">#res_conf = getattr(</span>
@@ -321,7 +321,7 @@
         <span class="k">if</span> <span class="n">controller</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">is_local_resource</span><span class="p">(</span>
                 <span class="n">controller</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">_config_parser</span><span class="p">,</span> <span class="n">resource_id</span><span class="p">)</span> \
                 <span class="ow">and</span> <span class="n">controller</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_scheduler_type</span><span class="p">()</span> \
-                <span class="o">==</span> <span class="s1">&#39;local_basic&#39;</span><span class="p">:</span>
+                <span class="o">==</span> <span class="s1">'local_basic'</span><span class="p">:</span>
             <span class="n">controller</span><span class="o">.</span><span class="n">scheduler_config</span><span class="o">.</span><span class="n">set_max_proc_nb</span><span class="p">(</span><span class="n">max_running_jobs</span><span class="p">)</span>
             <span class="n">controller</span><span class="o">.</span><span class="n">scheduler_config</span><span class="o">.</span><span class="n">set_proc_nb</span><span class="p">(</span><span class="n">max_running_jobs</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">max_queued_jobs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -329,7 +329,7 @@
         <span class="k">if</span> <span class="n">controller</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">is_local_resource</span><span class="p">(</span>
                 <span class="n">controller</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">_config_parser</span><span class="p">,</span> <span class="n">resource_id</span><span class="p">)</span> \
                 <span class="ow">and</span> <span class="n">controller</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_scheduler_type</span><span class="p">()</span> \
-                <span class="o">==</span> <span class="s1">&#39;local_basic&#39;</span><span class="p">:</span>
+                <span class="o">==</span> <span class="s1">'local_basic'</span><span class="p">:</span>
             <span class="n">controller</span><span class="o">.</span><span class="n">scheduler_config</span><span class="o">.</span><span class="n">set_proc_nb</span><span class="p">(</span><span class="n">max_queued_jobs</span><span class="p">)</span>
     <span class="n">workflow_name</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">name</span>
     <span class="n">wf_id</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="n">submit_workflow</span><span class="p">(</span><span class="n">workflow</span><span class="o">=</span><span class="n">workflow</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">workflow_name</span><span class="p">,</span>
@@ -346,14 +346,14 @@
 <div class="viewcode-block" id="wait">
 <a class="viewcode-back" href="../../../api/engine.html#capsul.engine.run.wait">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">wait</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">execution_id</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">pipeline</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Wait for the end of a process execution (either normal termination,</span>
 <span class="sd">    interruption or error).</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">soma_workflow.client</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">swclient</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">soma_workflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">constants</span>
 
-    <span class="n">swm</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s1">&#39;SomaWorkflowConfig&#39;</span><span class="p">]</span>
+    <span class="n">swm</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s1">'SomaWorkflowConfig'</span><span class="p">]</span>
     <span class="n">swm</span><span class="o">.</span><span class="n">connect_resource</span><span class="p">(</span><span class="n">engine</span><span class="o">.</span><span class="n">connected_to</span><span class="p">())</span>
     <span class="n">controller</span> <span class="o">=</span> <span class="n">swm</span><span class="o">.</span><span class="n">get_workflow_controller</span><span class="p">()</span>
     <span class="n">wf_id</span> <span class="o">=</span> <span class="n">execution_id</span>
@@ -393,8 +393,8 @@
                     <span class="k">try</span><span class="p">:</span>
                         <span class="n">process</span><span class="o">.</span><span class="n">import_from_dict</span><span class="p">(</span><span class="n">out_params</span><span class="p">)</span>
                     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;error while importing outputs in&#39;</span><span class="p">,</span> <span class="n">process</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-                        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;outputs:&#39;</span><span class="p">,</span> <span class="n">out_params</span><span class="p">)</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s1">'error while importing outputs in'</span><span class="p">,</span> <span class="n">process</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s1">'outputs:'</span><span class="p">,</span> <span class="n">out_params</span><span class="p">)</span>
                         <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
 
     <span class="c1"># TODO: should we transfer if the WF fails ?</span>
@@ -406,11 +406,11 @@
 <div class="viewcode-block" id="interrupt">
 <a class="viewcode-back" href="../../../api/engine.html#capsul.engine.run.interrupt">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">interrupt</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">execution_id</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Try to stop the execution of a process. Does not wait for the process</span>
 <span class="sd">    to be terminated.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">swm</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s1">&#39;SomaWorkflowConfig&#39;</span><span class="p">]</span>
+<span class="sd">    '''</span>
+    <span class="n">swm</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s1">'SomaWorkflowConfig'</span><span class="p">]</span>
     <span class="n">swm</span><span class="o">.</span><span class="n">connect_resource</span><span class="p">(</span><span class="n">engine</span><span class="o">.</span><span class="n">connected_to</span><span class="p">())</span>
     <span class="n">controller</span> <span class="o">=</span> <span class="n">swm</span><span class="o">.</span><span class="n">get_workflow_controller</span><span class="p">()</span>
     <span class="n">controller</span><span class="o">.</span><span class="n">stop_workflow</span><span class="p">(</span><span class="n">execution_id</span><span class="p">)</span></div>
@@ -420,13 +420,13 @@
 <div class="viewcode-block" id="status">
 <a class="viewcode-back" href="../../../api/engine.html#capsul.engine.run.status">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">status</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">execution_id</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Return a simple value with the status of an execution (queued,</span>
 <span class="sd">    running, terminated, error, etc.)</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">soma_workflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">constants</span>
 
-    <span class="n">swm</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s1">&#39;SomaWorkflowConfig&#39;</span><span class="p">]</span>
+    <span class="n">swm</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s1">'SomaWorkflowConfig'</span><span class="p">]</span>
     <span class="n">swm</span><span class="o">.</span><span class="n">connect_resource</span><span class="p">(</span><span class="n">engine</span><span class="o">.</span><span class="n">connected_to</span><span class="p">())</span>
     <span class="n">controller</span> <span class="o">=</span> <span class="n">swm</span><span class="o">.</span><span class="n">get_workflow_controller</span><span class="p">()</span>
     <span class="n">workflow_status</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="n">workflow_status</span><span class="p">(</span><span class="n">execution_id</span><span class="p">)</span>
@@ -440,7 +440,7 @@
                             <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="n">constants</span><span class="o">.</span><span class="n">FINISHED_REGULARLY</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
                             <span class="ow">or</span> <span class="n">element</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">))]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">failed_jobs</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">workflow_status</span> <span class="o">=</span> <span class="s1">&#39;workflow_failed&#39;</span>
+            <span class="n">workflow_status</span> <span class="o">=</span> <span class="s1">'workflow_failed'</span>
 
     <span class="k">return</span> <span class="n">workflow_status</span></div>
 
@@ -449,11 +449,11 @@
 <div class="viewcode-block" id="detailed_information">
 <a class="viewcode-back" href="../../../api/engine.html#capsul.engine.run.detailed_information">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">detailed_information</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">execution_id</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Return complete (and possibly big) information about a process</span>
 <span class="sd">    execution.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">swm</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s1">&#39;SomaWorkflowConfig&#39;</span><span class="p">]</span>
+<span class="sd">    '''</span>
+    <span class="n">swm</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s1">'SomaWorkflowConfig'</span><span class="p">]</span>
     <span class="n">swm</span><span class="o">.</span><span class="n">connect_resource</span><span class="p">(</span><span class="n">engine</span><span class="o">.</span><span class="n">connected_to</span><span class="p">())</span>
     <span class="n">controller</span> <span class="o">=</span> <span class="n">swm</span><span class="o">.</span><span class="n">get_workflow_controller</span><span class="p">()</span>
     <span class="n">elements_status</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="n">workflow_elements_status</span><span class="p">(</span><span class="n">execution_id</span><span class="p">)</span>
@@ -465,14 +465,14 @@
 <div class="viewcode-block" id="dispose">
 <a class="viewcode-back" href="../../../api/engine.html#capsul.engine.run.dispose">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">dispose</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">execution_id</span><span class="p">,</span> <span class="n">conditional</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Update the database with the current state of a process execution and</span>
 <span class="sd">    free the resources used in the computing resource (i.e. remove the</span>
 <span class="sd">    workflow from SomaWorkflow).</span>
 
 <span class="sd">    If ``conditional`` is set to True, then dispose is only done if the</span>
 <span class="sd">    configuration does not specify to keep succeeded / failed workflows.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="n">keep</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="k">if</span> <span class="n">conditional</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">engine</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">somaworkflow_keep_succeeded_workflows</span><span class="p">:</span>
@@ -487,7 +487,7 @@
                 <span class="k">if</span> <span class="n">status</span> <span class="o">!=</span> <span class="n">constants</span><span class="o">.</span><span class="n">WORKFLOW_DONE</span><span class="p">:</span>
                     <span class="n">keep</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">keep</span><span class="p">:</span>
-        <span class="n">swm</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s1">&#39;SomaWorkflowConfig&#39;</span><span class="p">]</span>
+        <span class="n">swm</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s1">'SomaWorkflowConfig'</span><span class="p">]</span>
         <span class="n">swm</span><span class="o">.</span><span class="n">connect_resource</span><span class="p">(</span><span class="n">engine</span><span class="o">.</span><span class="n">connected_to</span><span class="p">())</span>
         <span class="n">controller</span> <span class="o">=</span> <span class="n">swm</span><span class="o">.</span><span class="n">get_workflow_controller</span><span class="p">()</span>
         <span class="n">controller</span><span class="o">.</span><span class="n">delete_workflow</span><span class="p">(</span><span class="n">execution_id</span><span class="p">)</span></div>
@@ -516,13 +516,13 @@
 <div class="viewcode-block" id="raise_for_status">
 <a class="viewcode-back" href="../../../api/engine.html#capsul.engine.run.raise_for_status">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">raise_for_status</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">execution_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Raise an exception if a process execution failed</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">soma_workflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">constants</span>
 
     <span class="k">if</span> <span class="n">status</span> <span class="o">!=</span> <span class="n">constants</span><span class="o">.</span><span class="n">WORKFLOW_DONE</span><span class="p">:</span>
-        <span class="n">swm</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s1">&#39;SomaWorkflowConfig&#39;</span><span class="p">]</span>
+        <span class="n">swm</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">study_config</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s1">'SomaWorkflowConfig'</span><span class="p">]</span>
         <span class="n">swm</span><span class="o">.</span><span class="n">connect_resource</span><span class="p">(</span><span class="n">engine</span><span class="o">.</span><span class="n">connected_to</span><span class="p">())</span>
         <span class="n">controller</span> <span class="o">=</span> <span class="n">swm</span><span class="o">.</span><span class="n">get_workflow_controller</span><span class="p">()</span>
         <span class="k">raise</span> <span class="n">WorkflowExecutionError</span><span class="p">(</span>

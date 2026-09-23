@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
     
-    <script src="../../../../_static/documentation_options.js?v=b9f4bfa5"></script>
+    <script src="../../../../_static/documentation_options.js?v=727d2f68"></script>
     <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -105,14 +105,14 @@
             
   <h1>Source code for capsul.study_config.config_modules.smartcaching_config</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">'''</span>
 <span class="sd">Process execution cache configuration module</span>
 
 <span class="sd">Classes</span>
 <span class="sd">=======</span>
 <span class="sd">:class:`SmartCachingConfig`</span>
 <span class="sd">---------------------------</span>
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">'''</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">absolute_import</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">traits.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">Undefined</span>
@@ -122,18 +122,18 @@
 <div class="viewcode-block" id="SmartCachingConfig">
 <a class="viewcode-back" href="../../../../api/study_config.html#capsul.study_config.config_modules.smartcaching_config.SmartCachingConfig">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SmartCachingConfig</span><span class="p">(</span><span class="n">StudyConfigModule</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
+<span class="sd">    '''</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">study_config</span><span class="p">,</span> <span class="n">configuration</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">SmartCachingConfig</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">study_config</span><span class="p">,</span> <span class="n">configuration</span><span class="p">)</span>
-        <span class="n">study_config</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">&#39;use_smart_caching&#39;</span><span class="p">,</span> <span class="n">Bool</span><span class="p">(</span>
+        <span class="n">study_config</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">'use_smart_caching'</span><span class="p">,</span> <span class="n">Bool</span><span class="p">(</span>
             <span class="kc">False</span><span class="p">,</span>
             <span class="n">output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;Use smart-caching during the execution&#39;</span><span class="p">,</span>
-            <span class="n">groups</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;smartcaching&#39;</span><span class="p">]))</span>
+            <span class="n">desc</span><span class="o">=</span><span class="s1">'Use smart-caching during the execution'</span><span class="p">,</span>
+            <span class="n">groups</span><span class="o">=</span><span class="p">[</span><span class="s1">'smartcaching'</span><span class="p">]))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">study_config</span> <span class="o">=</span> <span class="n">study_config</span></div>
 
-        <span class="c1"># self.study_config.on_trait_change(self._use_smart_caching_changed, &#39;use_smart_caching&#39;)</span>
+        <span class="c1"># self.study_config.on_trait_change(self._use_smart_caching_changed, 'use_smart_caching')</span>
 </pre></div>
 
             <div class="clearer"></div>

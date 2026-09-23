@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
     
-    <script src="../../../_static/documentation_options.js?v=b9f4bfa5"></script>
+    <script src="../../../_static/documentation_options.js?v=727d2f68"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -105,7 +105,7 @@
             
   <h1>Source code for capsul.attributes.completion_engine_iteration</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">'''</span>
 <span class="sd">:class:`~capsul.attributes.completion_engine.ProcessCompletionEngine` dealing with process iterations.</span>
 <span class="sd">This is an internal machinery.</span>
 
@@ -113,7 +113,7 @@
 <span class="sd">=======</span>
 <span class="sd">:class:`ProcessCompletionEngineIteration`</span>
 <span class="sd">-----------------------------------------</span>
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">'''</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.attributes.completion_engine</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessCompletionEngine</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.pipeline.pipeline_nodes</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessNode</span>
@@ -127,26 +127,26 @@
 <div class="viewcode-block" id="ProcessCompletionEngineIteration">
 <a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.completion_engine_iteration.ProcessCompletionEngineIteration">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ProcessCompletionEngineIteration</span><span class="p">(</span><span class="n">ProcessCompletionEngine</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    :class:`~capsul.attributes.completion_engine.ProcessCompletionEngine`</span>
 <span class="sd">    specialization for iterative process.</span>
 
 <span class="sd">    Iterated attributes are given by get_iterated_attributes().</span>
 <span class="sd">    Completion performs a single iteration step, stored in</span>
 <span class="sd">    self.capsul_iteration_step</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">process</span><span class="o">=</span><span class="n">process</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
-        <span class="c1"># self.add_trait(&#39;capsul_iteration_step&#39;, traits.Int(0))</span>
+        <span class="c1"># self.add_trait('capsul_iteration_step', traits.Int(0))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">capsul_iteration_step</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="c1"># self.iterated_attributes = self.get_iterated_attributes()</span>
 
 <div class="viewcode-block" id="ProcessCompletionEngineIteration.get_iterated_attributes">
 <a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.completion_engine_iteration.ProcessCompletionEngineIteration.get_iterated_attributes">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_iterated_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="w">        </span><span class="sd">'''</span>
+<span class="sd">        '''</span>
         <span class="n">process</span> <span class="o">=</span> <span class="n">get_ref</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">ProcessNode</span><span class="p">):</span>
             <span class="n">process</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">process</span>
@@ -171,17 +171,17 @@
 <div class="viewcode-block" id="ProcessCompletionEngineIteration.get_induced_iterative_parameters">
 <a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.completion_engine_iteration.ProcessCompletionEngineIteration.get_induced_iterative_parameters">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_induced_iterative_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;Iterating over some parameters, and triggering completion through</span>
+<span class="w">        </span><span class="sd">'''Iterating over some parameters, and triggering completion through</span>
 <span class="sd">        attributes, imply that some other parameters will also vary with the</span>
 <span class="sd">        iteration.</span>
-<span class="sd">        Ex: process A has 2 parameters, &quot;input&quot; and &quot;output&quot;, which are linked</span>
+<span class="sd">        Ex: process A has 2 parameters, "input" and "output", which are linked</span>
 <span class="sd">        by the completion system. If we iterate on A.input, then A.output will</span>
-<span class="sd">        also change with the iteration: parameter &quot;output&quot; should thus be</span>
+<span class="sd">        also change with the iteration: parameter "output" should thus be</span>
 <span class="sd">        included in iterative parameters: it is induced by the iteration over</span>
-<span class="sd">        &quot;input&quot;.</span>
+<span class="sd">        "input".</span>
 
 <span class="sd">        This method gives the induced iterative parameters.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="c1"># 1st get iterated attributes</span>
         <span class="n">attributes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_iterated_attributes</span><span class="p">()</span>
         <span class="c1"># now look on which parameters they are acting</span>
@@ -207,13 +207,13 @@
 <div class="viewcode-block" id="ProcessCompletionEngineIteration.get_attribute_values">
 <a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.completion_engine_iteration.ProcessCompletionEngineIteration.get_attribute_values">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_attribute_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39; Get attributes Controller associated to a process</span>
+<span class="w">        </span><span class="sd">''' Get attributes Controller associated to a process</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        attributes: Controller</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">if</span> <span class="s1">&#39;capsul_attributes&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instance_traits</span><span class="p">():</span>
+<span class="sd">        '''</span>
+        <span class="k">if</span> <span class="s1">'capsul_attributes'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_instance_traits</span><span class="p">():</span>
             <span class="n">process</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">ProcessNode</span><span class="p">):</span>
                 <span class="n">process</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">process</span>
@@ -228,7 +228,7 @@
             <span class="n">schemas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_schemas</span><span class="p">()</span>
             <span class="n">attributes</span> <span class="o">=</span> <span class="n">ProcessAttributes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="n">schemas</span><span class="p">)</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">&#39;capsul_attributes&#39;</span><span class="p">,</span> <span class="n">ControllerTrait</span><span class="p">(</span><span class="n">Controller</span><span class="p">()))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">'capsul_attributes'</span><span class="p">,</span> <span class="n">ControllerTrait</span><span class="p">(</span><span class="n">Controller</span><span class="p">()))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">capsul_attributes</span> <span class="o">=</span> <span class="n">attributes</span>
             <span class="n">iter_attrib</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_iterated_attributes</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">attrib</span><span class="p">,</span> <span class="n">trait</span> <span class="ow">in</span> <span class="n">pattributes</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -322,7 +322,7 @@
             <span class="n">parameters</span><span class="p">[</span><span class="n">parameter</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">parameter</span><span class="p">)</span>
 
         <span class="c1"># complete each step to get iterated parameters.</span>
-        <span class="c1"># This is generally &quot;too much&quot; but it&#39;s difficult to perform a partial</span>
+        <span class="c1"># This is generally "too much" but it's difficult to perform a partial</span>
         <span class="c1"># completion only on iterated parameters</span>
 
         <span class="n">iterative_parameters</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
@@ -331,9 +331,9 @@
         <span class="c1"># propagate forbid_completion</span>
         <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">trait</span> <span class="ow">in</span> <span class="n">process</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">trait</span><span class="o">.</span><span class="n">forbid_completion</span><span class="p">:</span>
-                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;propagate_metadata&#39;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="s1">'propagate_metadata'</span><span class="p">):</span>
                     <span class="n">process</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">propagate_metadata</span><span class="p">(</span>
-                        <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;forbid_completion&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+                        <span class="s1">''</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="p">{</span><span class="s1">'forbid_completion'</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">process</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">param</span><span class="p">)</span><span class="o">.</span><span class="n">forbid_completion</span> <span class="o">=</span> <span class="kc">True</span>
 
@@ -359,7 +359,7 @@
             <span class="k">try</span><span class="p">:</span>
                 <span class="nb">setattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">parameter</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;assign iteration parameter&#39;</span><span class="p">,</span> <span class="n">parameter</span><span class="p">,</span> <span class="s1">&#39;:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">'assign iteration parameter'</span><span class="p">,</span> <span class="n">parameter</span><span class="p">,</span> <span class="s1">':</span><span class="se">\n</span><span class="s1">'</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span>
                       <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">parameter</span> <span class="ow">in</span> <span class="n">iterative_parameters</span><span class="p">:</span>
@@ -368,16 +368,16 @@
                 <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="n">parameter</span><span class="p">)</span>
                 <span class="nb">setattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">parameter</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;assign parameter&#39;</span><span class="p">,</span> <span class="n">parameter</span><span class="p">,</span> <span class="s1">&#39;:</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">'assign parameter'</span><span class="p">,</span> <span class="n">parameter</span><span class="p">,</span> <span class="s1">':</span><span class="se">\n</span><span class="s1">'</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span>
                       <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ProcessCompletionEngineIteration.complete_iteration_step">
 <a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.completion_engine_iteration.ProcessCompletionEngineIteration.complete_iteration_step">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">complete_iteration_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&#39;&#39;&#39; Complete the parameters on the iterated process for a given</span>
+<span class="w">        </span><span class="sd">''' Complete the parameters on the iterated process for a given</span>
 <span class="sd">        iteration step.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        '''</span>
         <span class="n">process</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">ProcessNode</span><span class="p">):</span>
             <span class="n">process</span> <span class="o">=</span> <span class="n">process</span><span class="o">.</span><span class="n">process</span>
@@ -385,9 +385,9 @@
         <span class="c1"># propagate forbid_completion</span>
         <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">trait</span> <span class="ow">in</span> <span class="n">process</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">trait</span><span class="o">.</span><span class="n">forbid_completion</span><span class="p">:</span>
-                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="s1">&#39;propagate_metadata&#39;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="s1">'propagate_metadata'</span><span class="p">):</span>
                     <span class="n">process</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">propagate_metadata</span><span class="p">(</span>
-                        <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;forbid_completion&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+                        <span class="s1">''</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="p">{</span><span class="s1">'forbid_completion'</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">process</span><span class="o">.</span><span class="n">process</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">param</span><span class="p">)</span><span class="o">.</span><span class="n">forbid_completion</span> <span class="o">=</span> <span class="kc">True</span>
 

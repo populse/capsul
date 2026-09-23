@@ -17,7 +17,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
     
-    <script src="../_static/documentation_options.js?v=b9f4bfa5"></script>
+    <script src="../_static/documentation_options.js?v=727d2f68"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -261,7 +261,7 @@ or if the process must be executed interactively in the user environment
 <p>NipypeProcess is normally not instantiated directly, but through the
 CapsulEngine factory, using a nipype interface name:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ce</span> <span class="o">=</span> <span class="n">capsul_engine</span><span class="p">()</span>
-<span class="n">npproc</span> <span class="o">=</span> <span class="n">ce</span><span class="o">.</span><span class="n">get_process_instance</span><span class="p">(</span><span class="s1">&#39;nipype.interfaces.spm.Smooth&#39;</span><span class="p">)</span>
+<span class="n">npproc</span> <span class="o">=</span> <span class="n">ce</span><span class="o">.</span><span class="n">get_process_instance</span><span class="p">(</span><span class="s1">'nipype.interfaces.spm.Smooth'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>However, it is now still possible to instantiate it directly, using a
@@ -296,8 +296,8 @@ first time).</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Smooth</span><span class="p">(</span><span class="n">NipypeProcess</span><span class="p">):</span>
     <span class="n">_nipype_class_type</span> <span class="o">=</span> <span class="n">spm</span><span class="o">.</span><span class="n">Smooth</span>
     <span class="n">_nipype_trait_mapping</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">&#39;smoothed_files&#39;</span><span class="p">:</span> <span class="s1">&#39;smoothed_files&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;_spm_script_file&#39;</span><span class="p">:</span> <span class="s1">&#39;spm_script_file&#39;</span><span class="p">}</span>
+        <span class="s1">'smoothed_files'</span><span class="p">:</span> <span class="s1">'smoothed_files'</span><span class="p">,</span>
+        <span class="s1">'_spm_script_file'</span><span class="p">:</span> <span class="s1">'spm_script_file'</span><span class="p">}</span>
 
 <span class="n">smooth</span> <span class="o">=</span> <span class="n">Smooth</span><span class="p">()</span>
 </pre></div>
@@ -377,7 +377,7 @@ otherwise display it on the console.</p></li>
 <p>The default implementation returns an empty dict (no requirements), and
 should be overloaded by processes which actually have requirements.</p>
 <p>Ex:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;spm&#39;</span><span class="p">:</span> <span class="s1">&#39;version &gt;= &quot;12&quot; and standalone == &quot;True&quot;&#39;</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">'spm'</span><span class="p">:</span> <span class="s1">'version &gt;= "12" and standalone == "True"'</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -432,22 +432,22 @@ are in the process instance variables:</p>
 <span class="k">class</span><span class="w"> </span><span class="nc">MyProcess</span><span class="p">(</span><span class="n">Process</span><span class="p">):</span>
 
     <span class="c1"># a class trait</span>
-    <span class="n">param1</span> <span class="o">=</span> <span class="n">traits</span><span class="o">.</span><span class="n">Str</span><span class="p">(</span><span class="s1">&#39;def_param1&#39;</span><span class="p">)</span>
+    <span class="n">param1</span> <span class="o">=</span> <span class="n">traits</span><span class="o">.</span><span class="n">Str</span><span class="p">(</span><span class="s1">'def_param1'</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">MyProcess</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="c1"># declare an input param</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">&#39;param2&#39;</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">Int</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">'param2'</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">Int</span><span class="p">())</span>
         <span class="c1"># declare an output param</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">&#39;out_param&#39;</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">'out_param'</span><span class="p">,</span> <span class="n">traits</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_run_process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_param</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;param1:&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">param1</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">f</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;param2:&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">param2</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_param</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">'param1:'</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">param1</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">f</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">'param2:'</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">param2</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">f</span><span class="p">)</span>
 
 <span class="c1"># run it with parameters</span>
-<span class="n">MyProcess</span><span class="p">()(</span><span class="n">param2</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">out_param</span><span class="o">=</span><span class="s1">&#39;/tmp/log.txt&#39;</span><span class="p">)</span>
+<span class="n">MyProcess</span><span class="p">()(</span><span class="n">param2</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">out_param</span><span class="o">=</span><span class="s1">'/tmp/log.txt'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p><strong>Note about the File and Directory traits</strong></p>
@@ -465,7 +465,7 @@ it should write the file, and tells as an output where it did.</p></li>
 <a class="reference external" href="https://docs.enthought.com/traits/traits_api_reference/trait_types.html#traits.trait_types.File" title="(in traits v7.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">File</span></code></a> or <a class="reference external" href="https://docs.enthought.com/traits/traits_api_reference/trait_types.html#traits.trait_types.Directory" title="(in traits v7.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Directory</span></code></a>
 trait a property <code class="docutils literal notranslate"><span class="pre">input_filename</span></code> which is True when the filename is an
 input, and False when the filename is an output:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">&#39;out_file&#39;</span><span class="p">,</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">'out_file'</span><span class="p">,</span>
                <span class="n">traits</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">input_filename</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
 </pre></div>
 </div>
@@ -747,11 +747,11 @@ Basically it concatenates arguments, but it also takes care of keeping
 track of temporary file objects (if any), and converts non-string
 arguments to strings (using repr()).</p>
 <p>Ex:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">process</span><span class="o">.</span><span class="n">make_commandline_argument</span><span class="p">(</span><span class="s1">&#39;param=&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">process</span><span class="o">.</span><span class="n">make_commandline_argument</span><span class="p">(</span><span class="s1">'param='</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>will return the same as:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="s1">&#39;param=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="s1">'param='</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span>
 </pre></div>
 </div>
 <p>if self.param is a string (file name) or a temporary path.</p>
@@ -782,19 +782,19 @@ process identifier (module/class as in
 <a class="reference internal" href="engine.html#capsul.engine.CapsulEngine.get_process_instance" title="capsul.engine.CapsulEngine.get_process_instance"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_process_instance()</span></code></a>). The
 location of the JSON file will be passed to the job execution
 through an environment variable <cite>SOMAWF_INPUT_PARAMS</cite>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">return</span> <span class="p">[</span><span class="s1">&#39;capsul_job&#39;</span><span class="p">,</span> <span class="s1">&#39;morphologist.capsul.morphologist&#39;</span><span class="p">]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">return</span> <span class="p">[</span><span class="s1">'capsul_job'</span><span class="p">,</span> <span class="s1">'morphologist.capsul.morphologist'</span><span class="p">]</span>
 </pre></div>
 </div>
 </dd>
 <dt><cite>format_string</cite>: free commandline with replacements for parameters</dt><dd><p>Command arguments can be, or contain, format strings in the shape
 <cite>‘%(param)s’</cite>, where <cite>param</cite> is a parameter of the process. This
 way we can map values correctly, and call a foreign command:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">return</span> <span class="p">[</span><span class="s1">&#39;format_string&#39;</span><span class="p">,</span> <span class="s1">&#39;ls&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">%(input_dir)s</span><span class="s1">&#39;</span><span class="p">]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">return</span> <span class="p">[</span><span class="s1">'format_string'</span><span class="p">,</span> <span class="s1">'ls'</span><span class="p">,</span> <span class="s1">'</span><span class="si">%(input_dir)s</span><span class="s1">'</span><span class="p">]</span>
 </pre></div>
 </div>
 </dd>
 <dt><cite>json_job</cite>: free commandline with JSON file for input parameters</dt><dd><p>A bit like <cite>capsul_job</cite> but without the automatic wrapper:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">return</span> <span class="p">[</span><span class="s1">&#39;json_job&#39;</span><span class="p">,</span> <span class="s1">&#39;python&#39;</span><span class="p">,</span> <span class="s1">&#39;-m&#39;</span><span class="p">,</span> <span class="s1">&#39;my_module&#39;</span><span class="p">]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">return</span> <span class="p">[</span><span class="s1">'json_job'</span><span class="p">,</span> <span class="s1">'python'</span><span class="p">,</span> <span class="s1">'-m'</span><span class="p">,</span> <span class="s1">'my_module'</span><span class="p">]</span>
 </pre></div>
 </div>
 </dd>
@@ -816,7 +816,7 @@ way we can map values correctly, and call a foreign command:</p>
 <p>The default implementation returns an empty dict (no requirements), and
 should be overloaded by processes which actually have requirements.</p>
 <p>Ex:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">&#39;spm&#39;</span><span class="p">:</span> <span class="s1">&#39;version &gt;= &quot;12&quot; and standalone == &quot;True&quot;&#39;</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">'spm'</span><span class="p">:</span> <span class="s1">'version &gt;= "12" and standalone == "True"'</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>

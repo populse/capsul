@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
     
-    <script src="../../../../_static/documentation_options.js?v=b9f4bfa5"></script>
+    <script src="../../../../_static/documentation_options.js?v=727d2f68"></script>
     <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -106,13 +106,13 @@
             
   <h1>Source code for capsul.engine.module.python</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
-<span class="sd">&#39;&#39;&#39; Python configuration module for CAPSUL</span>
+<span class="sd">''' Python configuration module for CAPSUL</span>
 
 <span class="sd">This config module allows the customization of python executable and python path in process execution. It can (as every config module) assign specific config values for different environments (computing resources, typically).</span>
 
 <span class="sd">Python configuration is slightly different from other config modules in the way that it cannot be handled during execution inside a python library: python executable and modules path have to be setup before starting python and loading modules. So the config here sometimes has to be prepared from client side and hard-coded in the job to run.</span>
 
-<span class="sd">For this reason, what we call here &quot;python jobs&quot; have a special handling. &quot;python jobs&quot; are :class:`~capsul.process.process.Process` classes defining a :meth:`~capsul.process.process.Process._run_process` method, and not :meth:`~capsul.process.process.Process.get_commandline`. Processing are thus python functions or methods, and need the capsul library to run.</span>
+<span class="sd">For this reason, what we call here "python jobs" have a special handling. "python jobs" are :class:`~capsul.process.process.Process` classes defining a :meth:`~capsul.process.process.Process._run_process` method, and not :meth:`~capsul.process.process.Process.get_commandline`. Processing are thus python functions or methods, and need the capsul library to run.</span>
 
 <span class="sd">Python jobs are handled in workflow building (:mod:`capsul.pipeline.pipeline_workflow`), and jobs on engine side should not have to bother about it.</span>
 
@@ -121,7 +121,7 @@
 <span class="sd">The python config module is used optionally (if there is a config, it is used, otherwise no error is produced), and automatically for all jobs: no need to declare it in jobs :meth:`~capsul.process.process.Process.requirements` method.</span>
 
 <span class="sd">Inside process execution, the module is otherwise handled like any other.</span>
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">'''</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">absolute_import</span>
 
@@ -132,25 +132,25 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">init_settings</span><span class="p">(</span><span class="n">capsul_engine</span><span class="p">):</span>
     <span class="k">with</span> <span class="n">capsul_engine</span><span class="o">.</span><span class="n">settings</span> <span class="k">as</span> <span class="n">settings</span><span class="p">:</span>
-        <span class="n">settings</span><span class="o">.</span><span class="n">ensure_module_fields</span><span class="p">(</span><span class="s1">&#39;python&#39;</span><span class="p">,</span>
-        <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;executable&#39;</span><span class="p">,</span>
-              <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;str&#39;</span><span class="p">,</span>
-              <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Full path of the python executable&#39;</span><span class="p">),</span>
-        <span class="nb">dict</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;path&#39;</span><span class="p">,</span>
-              <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;list[str]&#39;</span><span class="p">,</span>
-              <span class="n">description</span><span class="o">=</span><span class="s1">&#39;paths to prepend to sys.path&#39;</span><span class="p">),</span>
+        <span class="n">settings</span><span class="o">.</span><span class="n">ensure_module_fields</span><span class="p">(</span><span class="s1">'python'</span><span class="p">,</span>
+        <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'executable'</span><span class="p">,</span>
+              <span class="nb">type</span><span class="o">=</span><span class="s1">'str'</span><span class="p">,</span>
+              <span class="n">description</span><span class="o">=</span><span class="s1">'Full path of the python executable'</span><span class="p">),</span>
+        <span class="nb">dict</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">'path'</span><span class="p">,</span>
+              <span class="nb">type</span><span class="o">=</span><span class="s1">'list[str]'</span><span class="p">,</span>
+              <span class="n">description</span><span class="o">=</span><span class="s1">'paths to prepend to sys.path'</span><span class="p">),</span>
          <span class="p">])</span>
 
 
 <div class="viewcode-block" id="activate_configurations">
 <a class="viewcode-back" href="../../../../api/engine.html#capsul.engine.module.python.activate_configurations">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">activate_configurations</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Activate the python module from the global configurations</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">py_conf</span> <span class="o">=</span> <span class="n">capsul</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">configurations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;capsul.engine.module.python&#39;</span><span class="p">)</span>
+<span class="sd">    '''</span>
+    <span class="n">py_conf</span> <span class="o">=</span> <span class="n">capsul</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">configurations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'capsul.engine.module.python'</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">py_conf</span><span class="p">:</span>
-        <span class="n">py_path</span> <span class="o">=</span> <span class="n">py_conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">)</span>
+        <span class="n">py_path</span> <span class="o">=</span> <span class="n">py_conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'path'</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">py_path</span><span class="p">:</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">py_path</span> <span class="o">+</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span> <span class="k">if</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">py_path</span><span class="p">]</span></div>
 
@@ -158,16 +158,16 @@
 <div class="viewcode-block" id="check_notably_invalid_config">
 <a class="viewcode-back" href="../../../../api/engine.html#capsul.engine.module.python.check_notably_invalid_config">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">check_notably_invalid_config</span><span class="p">(</span><span class="n">conf</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Checks if the given module config is obviously invalid, for instance if a mandatory path is not filled</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    invalid: list</span>
 <span class="sd">        list of invalid config keys</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="n">invalid</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;executable&#39;</span><span class="p">,</span> <span class="p">):</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'executable'</span><span class="p">,</span> <span class="p">):</span>
         <span class="k">if</span> <span class="n">conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">invalid</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">invalid</span></div>
@@ -176,10 +176,10 @@
 
 <div class="viewcode-block" id="edition_widget">
 <a class="viewcode-back" href="../../../../api/engine.html#capsul.engine.module.python.edition_widget">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">edition_widget</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">environment</span><span class="p">,</span> <span class="n">config_id</span><span class="o">=</span><span class="s1">&#39;python&#39;</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39; Edition GUI for python config - see</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">edition_widget</span><span class="p">(</span><span class="n">engine</span><span class="p">,</span> <span class="n">environment</span><span class="p">,</span> <span class="n">config_id</span><span class="o">=</span><span class="s1">'python'</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">''' Edition GUI for python config - see</span>
 <span class="sd">    :class:`~capsul.qt_gui.widgets.settings_editor.SettingsEditor`</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">soma.qt_gui.qt_backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">Qt</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">soma.qt_gui.controller_widget</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScrollControllerWidget</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">soma.controller</span><span class="w"> </span><span class="kn">import</span> <span class="n">Controller</span>
@@ -191,34 +191,34 @@
         <span class="n">controller</span> <span class="o">=</span> <span class="n">widget</span><span class="o">.</span><span class="n">controller_widget</span><span class="o">.</span><span class="n">controller</span>
         <span class="k">with</span> <span class="n">widget</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">settings</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
             <span class="n">conf</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="n">config_id</span><span class="p">,</span> <span class="n">widget</span><span class="o">.</span><span class="n">environment</span><span class="p">)</span>
-            <span class="n">values</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;config_id&#39;</span><span class="p">:</span> <span class="n">config_id</span><span class="p">,</span>
-                      <span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">controller</span><span class="o">.</span><span class="n">path</span><span class="p">}</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'config_id'</span><span class="p">:</span> <span class="n">config_id</span><span class="p">,</span>
+                      <span class="s1">'path'</span><span class="p">:</span> <span class="n">controller</span><span class="o">.</span><span class="n">path</span><span class="p">}</span>
             <span class="k">if</span> <span class="n">controller</span><span class="o">.</span><span class="n">executable</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span>
-                                                <span class="n">traits</span><span class="o">.</span><span class="n">Undefined</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">):</span>
-                <span class="n">values</span><span class="p">[</span><span class="s1">&#39;executable&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+                                                <span class="n">traits</span><span class="o">.</span><span class="n">Undefined</span><span class="p">,</span> <span class="s1">''</span><span class="p">):</span>
+                <span class="n">values</span><span class="p">[</span><span class="s1">'executable'</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">values</span><span class="p">[</span><span class="s1">&#39;executable&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="n">executable</span>
+                <span class="n">values</span><span class="p">[</span><span class="s1">'executable'</span><span class="p">]</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="n">executable</span>
             <span class="k">if</span> <span class="n">conf</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">session</span><span class="o">.</span><span class="n">new_config</span><span class="p">(</span><span class="n">config_id</span><span class="p">,</span> <span class="n">widget</span><span class="o">.</span><span class="n">environment</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">,</span> <span class="s1">&#39;executable&#39;</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'path'</span><span class="p">,</span> <span class="s1">'executable'</span><span class="p">):</span>
                     <span class="nb">setattr</span><span class="p">(</span><span class="n">conf</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">values</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
 
     <span class="n">controller</span> <span class="o">=</span> <span class="n">Controller</span><span class="p">()</span>
-    <span class="n">controller</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">&#39;executable&#39;</span><span class="p">,</span>
-                         <span class="n">traits</span><span class="o">.</span><span class="n">Str</span><span class="p">(</span><span class="n">desc</span><span class="o">=</span><span class="s1">&#39;Full path of the python executable&#39;</span><span class="p">))</span>
-    <span class="n">controller</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">,</span>
+    <span class="n">controller</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">'executable'</span><span class="p">,</span>
+                         <span class="n">traits</span><span class="o">.</span><span class="n">Str</span><span class="p">(</span><span class="n">desc</span><span class="o">=</span><span class="s1">'Full path of the python executable'</span><span class="p">))</span>
+    <span class="n">controller</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="s1">'path'</span><span class="p">,</span>
                          <span class="n">traits</span><span class="o">.</span><span class="n">List</span><span class="p">(</span><span class="n">traits</span><span class="o">.</span><span class="n">Directory</span><span class="p">(),</span> <span class="p">[],</span>
-                                     <span class="n">desc</span><span class="o">=</span><span class="s1">&#39;paths to prepend to sys.path&#39;</span><span class="p">))</span>
+                                     <span class="n">desc</span><span class="o">=</span><span class="s1">'paths to prepend to sys.path'</span><span class="p">))</span>
 
     <span class="n">conf</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">select_configurations</span><span class="p">(</span>
-        <span class="n">environment</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;python&#39;</span><span class="p">:</span> <span class="s1">&#39;any&#39;</span><span class="p">})</span>
+        <span class="n">environment</span><span class="p">,</span> <span class="p">{</span><span class="s1">'python'</span><span class="p">:</span> <span class="s1">'any'</span><span class="p">})</span>
     <span class="k">if</span> <span class="n">conf</span><span class="p">:</span>
         <span class="n">controller</span><span class="o">.</span><span class="n">executable</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-            <span class="s1">&#39;capsul.engine.module.python&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;executable&#39;</span><span class="p">,</span>
+            <span class="s1">'capsul.engine.module.python'</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'executable'</span><span class="p">,</span>
                                                    <span class="n">traits</span><span class="o">.</span><span class="n">Undefined</span><span class="p">)</span>
         <span class="n">controller</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-            <span class="s1">&#39;capsul.engine.module.python&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="s1">'capsul.engine.module.python'</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'path'</span><span class="p">,</span> <span class="p">[])</span>
 
     <span class="n">widget</span> <span class="o">=</span> <span class="n">ScrollControllerWidget</span><span class="p">(</span><span class="n">controller</span><span class="p">,</span> <span class="n">live</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">widget</span><span class="o">.</span><span class="n">engine</span> <span class="o">=</span> <span class="n">engine</span>

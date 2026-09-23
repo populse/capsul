@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
     
-    <script src="../../../_static/documentation_options.js?v=b9f4bfa5"></script>
+    <script src="../../../_static/documentation_options.js?v=727d2f68"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -123,7 +123,7 @@
 <div class="viewcode-block" id="load_pilots">
 <a class="viewcode-back" href="../../../api/sphinxext.html#capsul.sphinxext.load_pilots.load_pilots">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">load_pilots</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">root_module_name</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot; Load all the pilot functions.</span>
+<span class="w">    </span><span class="sd">""" Load all the pilot functions.</span>
 
 <span class="sd">    Path is recursively scanned for ``__init__.py`` files.</span>
 <span class="sd">    Any function declared inside whose name start with ``pilot_`` will be</span>
@@ -143,7 +143,7 @@
 <span class="sd">    pilots: dict</span>
 <span class="sd">        a dict with module name as keys referencing to function module</span>
 <span class="sd">        used for unitest.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># List the module path</span>
     <span class="n">items</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 
@@ -157,14 +157,14 @@
             <span class="n">pilots</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">sub_pilots</span><span class="p">)</span>
 
     <span class="c1"># Check if we are in a valid python module</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">([</span><span class="n">x</span> <span class="ow">in</span> <span class="n">items</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;__init__.py&quot;</span><span class="p">]]):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">([</span><span class="n">x</span> <span class="ow">in</span> <span class="n">items</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"__init__.py"</span><span class="p">]]):</span>
         <span class="k">return</span> <span class="n">pilots</span>
 
     <span class="c1"># Go through all python files</span>
     <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
         <span class="c1"># Check if the file is a python file</span>
-        <span class="k">if</span> <span class="n">fname</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.py&quot;</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">fname</span> <span class="o">==</span> <span class="s1">&#39;__main__.py&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">fname</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">".py"</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">fname</span> <span class="o">==</span> <span class="s1">'__main__.py'</span><span class="p">:</span>
                 <span class="c1"># skip main</span>
                 <span class="k">continue</span>
             <span class="c1"># Construct the module name</span>
@@ -172,7 +172,7 @@
                 <span class="p">[</span><span class="n">root_module_name</span><span class="p">]</span> <span class="o">+</span>
                 <span class="n">path</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">root</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">sep</span><span class="p">)</span> <span class="o">+</span>
                 <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">fname</span><span class="p">)[</span><span class="mi">0</span><span class="p">]])</span>
-            <span class="n">module_name</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">module_name</span> <span class="k">if</span> <span class="n">x</span><span class="p">])</span>
+            <span class="n">module_name</span> <span class="o">=</span> <span class="s2">"."</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">module_name</span> <span class="k">if</span> <span class="n">x</span><span class="p">])</span>
 
             <span class="c1"># Try to load the module from its string description</span>
             <span class="k">try</span><span class="p">:</span>
@@ -181,14 +181,14 @@
 
                 <span class="c1"># Try to find the pilots</span>
                 <span class="k">for</span> <span class="n">function</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">module</span><span class="p">):</span>
-                    <span class="k">if</span> <span class="n">function</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;pilot_&quot;</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">function</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"pilot_"</span><span class="p">):</span>
                         <span class="n">pilots</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">module_name</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                             <span class="nb">getattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">function</span><span class="p">))</span>
 
             <span class="c1"># An api exists, but it cannot be imported</span>
             <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="s2">&quot;Could not import </span><span class="si">{0}</span><span class="s2">: </span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">module_name</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span>
+                    <span class="s2">"Could not import </span><span class="si">{0}</span><span class="s2">: </span><span class="si">{1}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">module_name</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span>
                 <span class="k">raise</span>
 
     <span class="k">return</span> <span class="n">pilots</span></div>

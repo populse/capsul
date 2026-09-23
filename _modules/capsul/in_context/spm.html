@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=f0b81668" />
     <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
     
-    <script src="../../../_static/documentation_options.js?v=b9f4bfa5"></script>
+    <script src="../../../_static/documentation_options.js?v=727d2f68"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -105,7 +105,7 @@
             
   <h1>Source code for capsul.in_context.spm</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">'''</span>
 <span class="sd">Specific subprocess-like functions to call SPM taking into account</span>
 <span class="sd">configuration stored in ExecutionContext. To functions and class in</span>
 <span class="sd">this module it is mandatory to activate an ExecutionContext (using a</span>
@@ -120,7 +120,7 @@
 
 <span class="sd">For calling SPM command with this module, the first argument of</span>
 <span class="sd">command line must be the SPM batch file to execute with Matlab.</span>
-<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">'''</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">print_function</span>
 
@@ -132,45 +132,45 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">spm_command</span><span class="p">(</span><span class="n">spm_batch_filename</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;SPM_STANDALONE&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;yes&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'SPM_STANDALONE'</span><span class="p">)</span> <span class="o">==</span> <span class="s1">'yes'</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">spm_batch_filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># Check that batch file exists and raise appropriate error if</span>
             <span class="c1"># not</span>
             <span class="nb">open</span><span class="p">(</span><span class="n">spm_batch_filename</span><span class="p">)</span>
-        <span class="n">spm_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;SPM_DIRECTORY&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">spm_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'SPM_DIRECTORY'</span><span class="p">,</span> <span class="s1">''</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">spm_directory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">spm_directory</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">expandvars</span><span class="p">(</span><span class="n">spm_directory</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
-        <span class="n">mcr_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;MCR_HOME&#39;</span><span class="p">)</span>
+        <span class="n">mcr_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'MCR_HOME'</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">mcr_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">mcr_dir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">expandvars</span><span class="p">(</span><span class="n">mcr_dir</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
         <span class="k">if</span> <span class="n">mcr_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">mcr_glob</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">spm_directory</span><span class="p">,</span> <span class="s1">&#39;mcr&#39;</span><span class="p">,</span> <span class="s1">&#39;v*&#39;</span><span class="p">)</span>
+            <span class="n">mcr_glob</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">spm_directory</span><span class="p">,</span> <span class="s1">'mcr'</span><span class="p">,</span> <span class="s1">'v*'</span><span class="p">)</span>
             <span class="n">mcr_dir</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">mcr_glob</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">mcr_dir</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Cannot find Matlab MCR dir: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">mcr_glob</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Cannot find Matlab MCR dir: </span><span class="si">%s</span><span class="s1">'</span> <span class="o">%</span> <span class="n">mcr_glob</span><span class="p">)</span>
             <span class="n">mcr_dir</span> <span class="o">=</span> <span class="n">mcr_dir</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">spm_batch_filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;---- BATCH SMP ----&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">'---- BATCH SMP ----'</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">spm_batch_filename</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-------------------&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">'-------------------'</span><span class="p">)</span>
         <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">spm_directory</span><span class="p">,</span>
-                        <span class="s1">&#39;run_spm</span><span class="si">%s</span><span class="s1">.sh&#39;</span> <span class="o">%</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;SPM_VERSION&#39;</span><span class="p">,</span>
-                                                        <span class="s1">&#39;&#39;</span><span class="p">)),</span>
+                        <span class="s1">'run_spm</span><span class="si">%s</span><span class="s1">.sh'</span> <span class="o">%</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'SPM_VERSION'</span><span class="p">,</span>
+                                                        <span class="s1">''</span><span class="p">)),</span>
                <span class="n">mcr_dir</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">spm_batch_filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">cmd</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;batch&#39;</span><span class="p">,</span> <span class="n">spm_batch_filename</span><span class="p">]</span>
+            <span class="n">cmd</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">'batch'</span><span class="p">,</span> <span class="n">spm_batch_filename</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Running SPM with matlab is not &#39;</span>
-                                  <span class="s1">&#39;implemented yet&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">'Running SPM with matlab is not '</span>
+                                  <span class="s1">'implemented yet'</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">cmd</span>
 
 
 <div class="viewcode-block" id="SPMPopen">
 <a class="viewcode-back" href="../../../api/in_context.html#capsul.in_context.spm.SPMPopen">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SPMPopen</span><span class="p">(</span><span class="n">soma</span><span class="o">.</span><span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Equivalent to Python subprocess.Popen for SPM batch</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spm_batch_filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">cmd</span> <span class="o">=</span> <span class="n">spm_command</span><span class="p">(</span><span class="n">spm_batch_filename</span><span class="p">)</span>
@@ -181,9 +181,9 @@
 <div class="viewcode-block" id="spm_call">
 <a class="viewcode-back" href="../../../api/in_context.html#capsul.in_context.spm.spm_call">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">spm_call</span><span class="p">(</span><span class="n">spm_batch_filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Equivalent to Python subprocess.call for SPM batch</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="n">cmd</span> <span class="o">=</span> <span class="n">spm_command</span><span class="p">(</span><span class="n">spm_batch_filename</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">soma</span><span class="o">.</span><span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
@@ -192,9 +192,9 @@
 <div class="viewcode-block" id="spm_check_call">
 <a class="viewcode-back" href="../../../api/in_context.html#capsul.in_context.spm.spm_check_call">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">spm_check_call</span><span class="p">(</span><span class="n">spm_batch_filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Equivalent to Python subprocess.check_call for SPM batch</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="n">cmd</span> <span class="o">=</span> <span class="n">spm_command</span><span class="p">(</span><span class="n">spm_batch_filename</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">soma</span><span class="o">.</span><span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
@@ -203,23 +203,23 @@
 <div class="viewcode-block" id="spm_check_output">
 <a class="viewcode-back" href="../../../api/in_context.html#capsul.in_context.spm.spm_check_output">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">spm_check_output</span><span class="p">(</span><span class="n">spm_batch_filename</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="w">    </span><span class="sd">'''</span>
 <span class="sd">    Equivalent to Python subprocess.check_output for SPM batch</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    '''</span>
     <span class="n">cmd</span> <span class="o">=</span> <span class="n">spm_command</span><span class="p">(</span><span class="n">spm_batch_filename</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">soma</span><span class="o">.</span><span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">'__main__'</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">capsul.api</span><span class="w"> </span><span class="kn">import</span> <span class="n">capsul_engine</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
 
     <span class="n">ce</span> <span class="o">=</span> <span class="n">capsul_engine</span><span class="p">()</span>
-    <span class="n">ce</span><span class="o">.</span><span class="n">global_config</span><span class="o">.</span><span class="n">spm</span><span class="o">.</span><span class="n">directory</span> <span class="o">=</span> <span class="s1">&#39;/casa/spm12_standalone&#39;</span>
+    <span class="n">ce</span><span class="o">.</span><span class="n">global_config</span><span class="o">.</span><span class="n">spm</span><span class="o">.</span><span class="n">directory</span> <span class="o">=</span> <span class="s1">'/casa/spm12_standalone'</span>
     <span class="k">with</span> <span class="n">ce</span><span class="p">:</span>
-        <span class="n">batch</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="n">suffix</span><span class="o">=</span><span class="s1">&#39;.m&#39;</span><span class="p">)</span>
-        <span class="n">batch</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;fprintf(1, &#39;</span><span class="si">%s</span><span class="s2">&#39;, spm(&#39;dir&#39;));&quot;</span><span class="p">)</span>
+        <span class="n">batch</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="n">suffix</span><span class="o">=</span><span class="s1">'.m'</span><span class="p">)</span>
+        <span class="n">batch</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"fprintf(1, '</span><span class="si">%s</span><span class="s2">', spm('dir'));"</span><span class="p">)</span>
         <span class="n">batch</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
         <span class="n">spm_call</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 </pre></div>
