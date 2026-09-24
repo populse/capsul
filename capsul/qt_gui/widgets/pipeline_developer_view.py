@@ -4289,10 +4289,10 @@ class PipelineDeveloperView(QGraphicsView):
             node_name = str(switch_name_gui.name_line.text()).strip()
             inputs = str(switch_name_gui.inputs_line.text()).split()
             outputs = str(switch_name_gui.outputs_line.text()).split()
+            self.scene.pos[node_name] = self.mapToScene(
+                self.mapFromGlobal(self.click_pos))
             pipeline.add_switch(node_name, inputs, outputs)
             # add_switch triggers an update
-            gnode = self.scene.gnodes[node_name]
-            gnode.setPos(self.mapToScene(self.mapFromGlobal(self.click_pos)))
 
     def add_optional_output_switch(self):
         '''
@@ -4334,11 +4334,11 @@ class PipelineDeveloperView(QGraphicsView):
                 output = node_name
             elif output != '' and node_name == '':
                 node_name = output
+            self.scene.pos[node_name] = self.mapToScene(
+                self.mapFromGlobal(self.click_pos))
             pipeline.add_optional_output_switch(node_name, input, output)
             # add_optional_output_switch does *not* trigger an update
             self._reset_pipeline()
-            gnode = self.scene.gnodes[node_name]
-            gnode.setPos(self.mapToScene(self.mapFromGlobal(self.click_pos)))
 
     def _plug_clicked(self, name):
         if self.is_logical_view() or not self.edition_enabled():
