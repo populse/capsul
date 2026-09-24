@@ -4630,11 +4630,11 @@
             <span class="n">node_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">switch_name_gui</span><span class="o">.</span><span class="n">name_line</span><span class="o">.</span><span class="n">text</span><span class="p">())</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
             <span class="n">inputs</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">switch_name_gui</span><span class="o">.</span><span class="n">inputs_line</span><span class="o">.</span><span class="n">text</span><span class="p">())</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
             <span class="n">outputs</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">switch_name_gui</span><span class="o">.</span><span class="n">outputs_line</span><span class="o">.</span><span class="n">text</span><span class="p">())</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
-            <span class="n">pipeline</span><span class="o">.</span><span class="n">add_switch</span><span class="p">(</span><span class="n">node_name</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">)</span>
-            <span class="c1"># add_switch triggers an update</span>
-            <span class="n">gnode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">gnodes</span><span class="p">[</span><span class="n">node_name</span><span class="p">]</span>
-            <span class="n">gnode</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mapToScene</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mapFromGlobal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">click_pos</span><span class="p">)))</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">node_name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapToScene</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mapFromGlobal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">click_pos</span><span class="p">))</span>
+            <span class="n">pipeline</span><span class="o">.</span><span class="n">add_switch</span><span class="p">(</span><span class="n">node_name</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">)</span></div>
 
+            <span class="c1"># add_switch triggers an update</span>
 
 <div class="viewcode-block" id="PipelineDeveloperView.add_optional_output_switch">
 <a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.add_optional_output_switch">[docs]</a>
@@ -4678,11 +4678,11 @@
                 <span class="n">output</span> <span class="o">=</span> <span class="n">node_name</span>
             <span class="k">elif</span> <span class="n">output</span> <span class="o">!=</span> <span class="s1">''</span> <span class="ow">and</span> <span class="n">node_name</span> <span class="o">==</span> <span class="s1">''</span><span class="p">:</span>
                 <span class="n">node_name</span> <span class="o">=</span> <span class="n">output</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="n">node_name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapToScene</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mapFromGlobal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">click_pos</span><span class="p">))</span>
             <span class="n">pipeline</span><span class="o">.</span><span class="n">add_optional_output_switch</span><span class="p">(</span><span class="n">node_name</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
             <span class="c1"># add_optional_output_switch does *not* trigger an update</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_reset_pipeline</span><span class="p">()</span>
-            <span class="n">gnode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">gnodes</span><span class="p">[</span><span class="n">node_name</span><span class="p">]</span>
-            <span class="n">gnode</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mapToScene</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mapFromGlobal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">click_pos</span><span class="p">)))</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_reset_pipeline</span><span class="p">()</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_plug_clicked</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
