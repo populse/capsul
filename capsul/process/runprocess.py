@@ -131,7 +131,13 @@ def set_process_param_from_str(process, k, arg):
         evaluate = None
     if evaluate:
         arg = evaluate(arg)
-    setattr(process, k, arg)
+    try:
+        setattr(process, k, arg)
+    except traits.TraitError as e:
+        try:
+            setattr(process, k, str(arg))
+        except traits.TraitError:
+            raise e
     process.trait(k).forbid_completion = True
     if isinstance(process, Pipeline):
         try:
