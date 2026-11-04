@@ -242,7 +242,13 @@
         <span class="n">evaluate</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="n">evaluate</span><span class="p">:</span>
         <span class="n">arg</span> <span class="o">=</span> <span class="n">evaluate</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
-    <span class="nb">setattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">traits</span><span class="o">.</span><span class="n">TraitError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">arg</span><span class="p">))</span>
+        <span class="k">except</span> <span class="n">traits</span><span class="o">.</span><span class="n">TraitError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">e</span>
     <span class="n">process</span><span class="o">.</span><span class="n">trait</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="o">.</span><span class="n">forbid_completion</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">Pipeline</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
