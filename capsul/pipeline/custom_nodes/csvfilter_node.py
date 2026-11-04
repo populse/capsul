@@ -14,8 +14,8 @@ class CSVFilterNode(filter_node.FilterNode):
 
     The main ``input`` is CSV filename.
 
-    ``columpn`` is the header title of the column (ex:: ``patient_id``.
-    Results may be modified by a filter, and the ``ouputs`` is a list of
+    ``column`` is the header title of the column (ex:: ``patient_id``.
+    Results may be modified by a filter, and the ``outputs`` is a list of
     results.
 
     As in other custom nodes, the input/output link is done when the input is

@@ -272,7 +272,7 @@ class FomProcessCompletionEngine(ProcessCompletionEngine):
                 setattr(study_config, '%s_fom' % schema, fom_type)
                 fom_modified = True
 
-            # the shema is found, no need to look into others.
+            # the schema is found, no need to look into others.
             break
 
         if not found:

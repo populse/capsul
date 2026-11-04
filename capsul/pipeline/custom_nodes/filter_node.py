@@ -14,11 +14,11 @@ class FilterNode(pipeline_nodes.Node):
     work, since the :meth:`update_callback`` method is not implemented and
     should be implemented in different ways depending on the data source
     (``input`` type). There are specializatons for ``glob.glob()`` expressions,
-    CSV file reading, and it is esy to write more specialized nodes, such as
+    CSV file reading, and it is easy to write more specialized nodes, such as
     SQL database querying.
 
     The main ``input`` is the glob expression (ex: ``*/*.nii.gz``). The input
-    results may be modified by a filter, and the ``ouputs`` is a list of
+    results may be modified by a filter, and the ``outputs`` is a list of
     results.
 
     As in other custom nodes, the input/output link is done when the input is
@@ -51,7 +51,7 @@ class FilterNode(pipeline_nodes.Node):
             node name
         out_type: str
             type of indiviidual outputs in the list "outputs". By default it is
-            File, but iy may be chnaged to Directory or Str (especially if a
+            File, but iy may be changed to Directory or Str (especially if a
             filter is used)
 
         '''
@@ -76,11 +76,14 @@ class FilterNode(pipeline_nodes.Node):
     def run_filter(self, req_result):
         conv_types = {'File': str, 'Str': str, 'Directory': str,
                       'Float': float, 'Int': int}
-        ot = self.trait('outputs').inner_traits[0]
-        if hasattr(ot, 'handler') and hasattr(ot.handler, 'aType'):
-            ct = ot.handler.oType
+        output_trait = self.trait('outputs').inner_traits[0]
+        if (
+            hasattr(output_trait, 'handler')
+            and hasattr(output_trait.handler, 'aType')
+        ):
+            ct = output_trait.handler.oType
         else:
-            dv = ot.default_value
+            dv = output_trait.default_value
             if hasattr(dv, '__call__'):
                 ct = dv()[1]
             else:

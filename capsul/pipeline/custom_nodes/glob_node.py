@@ -14,7 +14,7 @@ class GlobNode(filter_node.FilterNode):
     expression (pattern matching on the filesystem).
 
     The main ``input`` is the glob expression (ex: ``*/*.nii.gz``). The input
-    results may be modified by a filter, and the ``ouputs`` is a list of
+    results may be modified by a filter, and the ``outputs`` is a list of
     results.
 
     As in other custom nodes, the input/output link is done when the input is
@@ -43,7 +43,7 @@ class GlobNode(filter_node.FilterNode):
             node name
         out_type: str
             type of indiviidual outputs in the list "outputs". By default it is
-            File, but iy may be chnaged to Directory or Str (especially if a
+            File, but iy may be changed to Directory or Str (especially if a
             filter is used)
 
         '''
