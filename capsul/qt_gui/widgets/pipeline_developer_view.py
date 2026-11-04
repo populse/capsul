@@ -33,6 +33,7 @@ Classes
 
 # System import
 import os
+import re
 from pprint import pprint
 import weakref
 import tempfile
@@ -4540,7 +4541,6 @@ class PipelineDeveloperView(QGraphicsView):
                 print('\n{}\n\nThe process documentation cannot be '
                      'displayed ...'.format(e))
                 return None
-        self._use_webengine = use_webengine
 
         class DocBrowser(QWebEngineView):
             def __init__(self, pview, *args, **kwargs):
@@ -4554,6 +4554,9 @@ class PipelineDeveloperView(QGraphicsView):
                 super(DocBrowser, self).closeEvent(event)
 
         doc_browser = DocBrowser(pv) # QWebEngineView()
+        doc_browser.use_webengine = use_webengine
+        doc_browser.setMinimumSize(700, 500)
+        doc_browser.resize(900, 700)
         pv.doc_browser = doc_browser
         doc_browser.show()
 
@@ -4618,26 +4621,120 @@ class PipelineDeveloperView(QGraphicsView):
         doc_browser = self.get_doc_browser(create=True)
         self.show_node_doc(node)
 
+    def _format_help_content(self, msg):
+        """Convert help content (HTML, RST or plain text) to HTML."""
+
+        msg = msg.strip()
+
+        if not msg:
+            return ''
+
+        # HTML document or fragment
+        if re.search(
+                r'<(?:!doctype\s+html|html|body|div|p|h[1-6]|ul|ol|pre|table'
+                r'|a|span|br|strong|em)\b',
+                msg,
+                re.IGNORECASE):
+            return msg
+
+        # Detect common RST constructs
+        rst_patterns = (
+            r'(?<!\w)\*[^*]+\*',                  # *emphasis*
+            r'(?<!\w)\*\*[^*]+\*\*',              # **strong**
+            r'`[^`]+`_',                          # `reference`_
+            r'`[^`]+`__',                         # `reference`__
+            r'`[^`]+<https?://[^>]+>`_',          # RST hyperlink
+            r'^\s*\.\.\s+\w+::',                  # RST directive
+            r'^\s*[-=~^"`:#*+]{3,}\s*$',          # RST title underline
+            r'^\s*[-*+]\s+',                      # RST bullet list
+            r'^\s*\d+[.)]\s+',                    # RST numbered list
+        )
+
+        is_rst = any(
+            re.search(pattern, msg, re.MULTILINE)
+            for pattern in rst_patterns
+        )
+
+        if is_rst:
+            try:
+                from docutils.core import publish_parts
+
+                return publish_parts(
+                    source=msg,
+                    writer_name='html5',
+                    settings_overrides={
+                        'report_level': 5,
+                        'halt_level': 6,
+                        'raw_enabled': False,
+                        'file_insertion_enabled': False,
+                    },
+                )['html_body']
+
+            except Exception:
+                # Fall back to plain text if RST conversion fails
+                pass
+
+        # Plain text
+        return '<pre>%s</pre>' % html.escape(msg)
+
     def show_node_doc(self, node):
         doc_browser = self.get_doc_browser()
-        if doc_browser:
-            doc_path = self.get_node_html_doc(node)
-            if doc_path:
-                if not doc_path.startswith('http://') \
-                        and not doc_path.startswith('https://') \
-                        and not doc_path.startswith('file://'):
-                    doc_path = 'file://%s' % os.path.abspath(doc_path)
-                doc_browser.setUrl(Qt.QUrl(doc_path))
+
+        if not doc_browser:
+            print('No doc browser available, cannot show documentation!')
+            return
+
+        doc_path = self.get_node_html_doc(node)
+        if doc_path:
+            if not doc_path.startswith(('http://', 'https://', 'file://')):
+                doc_path = 'file://%s' % os.path.abspath(doc_path)
+            doc_browser.setUrl(Qt.QUrl(doc_path))
+        else:
+            gethelp = getattr(node, 'get_help', None)
+            msg = gethelp(returnhelp=True) if gethelp else None
+            if not msg:
+                msg = getattr(node, '__doc__', None)
+            if msg:
+                html_body = self._format_help_content(msg)
+                html_content = (
+                    '<html>'
+                    '<head>'
+                    '<meta charset="utf-8">'
+                    '<style>'
+                    'body {'
+                    'font-family: sans-serif;'
+                    'font-size: 14px;'
+                    'margin: 20px;'
+                    'line-height: 1.5;'
+                    '}'
+                    'a { color: #2878b5; }'
+                    'pre { white-space: pre-wrap; }'
+                    '</style>'
+                    '</head>'
+                    '<body>'
+                    + html_body +
+                    '</body>'
+                    '</html>'
+                )
+                content = Qt.QByteArray(html_content.encode('utf-8'))
+                if doc_browser.use_webengine:
+                    doc_browser.page().setContent(content, 'text/html')
+                else:
+                    doc_browser.setContent(content, 'text/html')
             else:
-                gethelp = getattr(node, 'get_help')
-                msg = None
-                if gethelp:
-                    msg = node.get_help(returnhelp=True)
-                if not msg:
-                    msg = node.getattr(node, '__doc__', None)
-                if msg:
-                    doc_browser.setContent(Qt.QByteArray(msg.encode('utf-8')),
-                                           'text/plain')
+                doc_browser.setHtml(
+                    '<html><body style="'
+                    'margin: 0;'
+                    'height: 100vh;'
+                    'display: flex;'
+                    'justify-content: center;'
+                    'align-items: center;'
+                    '">'
+                    '<h1>No documentation available!</h1>'
+                    '</body></html>'
+                )
+        doc_browser.raise_()
+        doc_browser.activateWindow()
 
     def _node_clicked_ctrl(self, name, process):
 
