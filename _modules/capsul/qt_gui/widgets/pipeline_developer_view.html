@@ -139,6 +139,7 @@
 
 <span class="c1"># System import</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pprint</span><span class="w"> </span><span class="kn">import</span> <span class="n">pprint</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">weakref</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
@@ -4885,7 +4886,6 @@
                 <span class="nb">print</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="si">{}</span><span class="se">\n\n</span><span class="s1">The process documentation cannot be '</span>
                      <span class="s1">'displayed ...'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
                 <span class="k">return</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_use_webengine</span> <span class="o">=</span> <span class="n">use_webengine</span>
 
         <span class="k">class</span><span class="w"> </span><span class="nc">DocBrowser</span><span class="p">(</span><span class="n">QWebEngineView</span><span class="p">):</span>
             <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pview</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -4899,6 +4899,9 @@
                 <span class="nb">super</span><span class="p">(</span><span class="n">DocBrowser</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">closeEvent</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
 
         <span class="n">doc_browser</span> <span class="o">=</span> <span class="n">DocBrowser</span><span class="p">(</span><span class="n">pv</span><span class="p">)</span> <span class="c1"># QWebEngineView()</span>
+        <span class="n">doc_browser</span><span class="o">.</span><span class="n">use_webengine</span> <span class="o">=</span> <span class="n">use_webengine</span>
+        <span class="n">doc_browser</span><span class="o">.</span><span class="n">setMinimumSize</span><span class="p">(</span><span class="mi">700</span><span class="p">,</span> <span class="mi">500</span><span class="p">)</span>
+        <span class="n">doc_browser</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="mi">900</span><span class="p">,</span> <span class="mi">700</span><span class="p">)</span>
         <span class="n">pv</span><span class="o">.</span><span class="n">doc_browser</span> <span class="o">=</span> <span class="n">doc_browser</span>
         <span class="n">doc_browser</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 
@@ -4963,26 +4966,120 @@
         <span class="n">doc_browser</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_doc_browser</span><span class="p">(</span><span class="n">create</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">show_node_doc</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">_format_help_content</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Convert help content (HTML, RST or plain text) to HTML."""</span>
+
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">msg</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">''</span>
+
+        <span class="c1"># HTML document or fragment</span>
+        <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
+                <span class="sa">r</span><span class="s1">'&lt;(?:!doctype\s+html|html|body|div|p|h[1-6]|ul|ol|pre|table'</span>
+                <span class="sa">r</span><span class="s1">'|a|span|br|strong|em)\b'</span><span class="p">,</span>
+                <span class="n">msg</span><span class="p">,</span>
+                <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">msg</span>
+
+        <span class="c1"># Detect common RST constructs</span>
+        <span class="n">rst_patterns</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">r</span><span class="s1">'(?&lt;!\w)\*[^*]+\*'</span><span class="p">,</span>                  <span class="c1"># *emphasis*</span>
+            <span class="sa">r</span><span class="s1">'(?&lt;!\w)\*\*[^*]+\*\*'</span><span class="p">,</span>              <span class="c1"># **strong**</span>
+            <span class="sa">r</span><span class="s1">'`[^`]+`_'</span><span class="p">,</span>                          <span class="c1"># `reference`_</span>
+            <span class="sa">r</span><span class="s1">'`[^`]+`__'</span><span class="p">,</span>                         <span class="c1"># `reference`__</span>
+            <span class="sa">r</span><span class="s1">'`[^`]+&lt;https?://[^&gt;]+&gt;`_'</span><span class="p">,</span>          <span class="c1"># RST hyperlink</span>
+            <span class="sa">r</span><span class="s1">'^\s*\.\.\s+\w+::'</span><span class="p">,</span>                  <span class="c1"># RST directive</span>
+            <span class="sa">r</span><span class="s1">'^\s*[-=~^"`:#*+]{3,}\s*$'</span><span class="p">,</span>          <span class="c1"># RST title underline</span>
+            <span class="sa">r</span><span class="s1">'^\s*[-*+]\s+'</span><span class="p">,</span>                      <span class="c1"># RST bullet list</span>
+            <span class="sa">r</span><span class="s1">'^\s*\d+[.)]\s+'</span><span class="p">,</span>                    <span class="c1"># RST numbered list</span>
+        <span class="p">)</span>
+
+        <span class="n">is_rst</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span>
+            <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">rst_patterns</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">is_rst</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="kn">from</span><span class="w"> </span><span class="nn">docutils.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">publish_parts</span>
+
+                <span class="k">return</span> <span class="n">publish_parts</span><span class="p">(</span>
+                    <span class="n">source</span><span class="o">=</span><span class="n">msg</span><span class="p">,</span>
+                    <span class="n">writer_name</span><span class="o">=</span><span class="s1">'html5'</span><span class="p">,</span>
+                    <span class="n">settings_overrides</span><span class="o">=</span><span class="p">{</span>
+                        <span class="s1">'report_level'</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+                        <span class="s1">'halt_level'</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
+                        <span class="s1">'raw_enabled'</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                        <span class="s1">'file_insertion_enabled'</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                    <span class="p">},</span>
+                <span class="p">)[</span><span class="s1">'html_body'</span><span class="p">]</span>
+
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="c1"># Fall back to plain text if RST conversion fails</span>
+                <span class="k">pass</span>
+
+        <span class="c1"># Plain text</span>
+        <span class="k">return</span> <span class="s1">'&lt;pre&gt;</span><span class="si">%s</span><span class="s1">&lt;/pre&gt;'</span> <span class="o">%</span> <span class="n">html</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
     <span class="k">def</span><span class="w"> </span><span class="nf">show_node_doc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
         <span class="n">doc_browser</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_doc_browser</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">doc_browser</span><span class="p">:</span>
-            <span class="n">doc_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_node_html_doc</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">doc_path</span><span class="p">:</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">doc_path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">'http://'</span><span class="p">)</span> \
-                        <span class="ow">and</span> <span class="ow">not</span> <span class="n">doc_path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">'https://'</span><span class="p">)</span> \
-                        <span class="ow">and</span> <span class="ow">not</span> <span class="n">doc_path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">'file://'</span><span class="p">):</span>
-                    <span class="n">doc_path</span> <span class="o">=</span> <span class="s1">'file://</span><span class="si">%s</span><span class="s1">'</span> <span class="o">%</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">doc_path</span><span class="p">)</span>
-                <span class="n">doc_browser</span><span class="o">.</span><span class="n">setUrl</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">QUrl</span><span class="p">(</span><span class="n">doc_path</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">doc_browser</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">'No doc browser available, cannot show documentation!'</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">doc_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_node_html_doc</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">doc_path</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">doc_path</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="s1">'http://'</span><span class="p">,</span> <span class="s1">'https://'</span><span class="p">,</span> <span class="s1">'file://'</span><span class="p">)):</span>
+                <span class="n">doc_path</span> <span class="o">=</span> <span class="s1">'file://</span><span class="si">%s</span><span class="s1">'</span> <span class="o">%</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">doc_path</span><span class="p">)</span>
+            <span class="n">doc_browser</span><span class="o">.</span><span class="n">setUrl</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">QUrl</span><span class="p">(</span><span class="n">doc_path</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">gethelp</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s1">'get_help'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="n">gethelp</span><span class="p">(</span><span class="n">returnhelp</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">if</span> <span class="n">gethelp</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">msg</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s1">'__doc__'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">msg</span><span class="p">:</span>
+                <span class="n">html_body</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_help_content</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                <span class="n">html_content</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="s1">'&lt;html&gt;'</span>
+                    <span class="s1">'&lt;head&gt;'</span>
+                    <span class="s1">'&lt;meta charset="utf-8"&gt;'</span>
+                    <span class="s1">'&lt;style&gt;'</span>
+                    <span class="s1">'body {'</span>
+                    <span class="s1">'font-family: sans-serif;'</span>
+                    <span class="s1">'font-size: 14px;'</span>
+                    <span class="s1">'margin: 20px;'</span>
+                    <span class="s1">'line-height: 1.5;'</span>
+                    <span class="s1">'}'</span>
+                    <span class="s1">'a { color: #2878b5; }'</span>
+                    <span class="s1">'pre { white-space: pre-wrap; }'</span>
+                    <span class="s1">'&lt;/style&gt;'</span>
+                    <span class="s1">'&lt;/head&gt;'</span>
+                    <span class="s1">'&lt;body&gt;'</span>
+                    <span class="o">+</span> <span class="n">html_body</span> <span class="o">+</span>
+                    <span class="s1">'&lt;/body&gt;'</span>
+                    <span class="s1">'&lt;/html&gt;'</span>
+                <span class="p">)</span>
+                <span class="n">content</span> <span class="o">=</span> <span class="n">Qt</span><span class="o">.</span><span class="n">QByteArray</span><span class="p">(</span><span class="n">html_content</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">'utf-8'</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">doc_browser</span><span class="o">.</span><span class="n">use_webengine</span><span class="p">:</span>
+                    <span class="n">doc_browser</span><span class="o">.</span><span class="n">page</span><span class="p">()</span><span class="o">.</span><span class="n">setContent</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="s1">'text/html'</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">doc_browser</span><span class="o">.</span><span class="n">setContent</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="s1">'text/html'</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">gethelp</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s1">'get_help'</span><span class="p">)</span>
-                <span class="n">msg</span> <span class="o">=</span> <span class="kc">None</span>
-                <span class="k">if</span> <span class="n">gethelp</span><span class="p">:</span>
-                    <span class="n">msg</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">get_help</span><span class="p">(</span><span class="n">returnhelp</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">msg</span><span class="p">:</span>
-                    <span class="n">msg</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">getattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s1">'__doc__'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">msg</span><span class="p">:</span>
-                    <span class="n">doc_browser</span><span class="o">.</span><span class="n">setContent</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">QByteArray</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">'utf-8'</span><span class="p">)),</span>
-                                           <span class="s1">'text/plain'</span><span class="p">)</span>
+                <span class="n">doc_browser</span><span class="o">.</span><span class="n">setHtml</span><span class="p">(</span>
+                    <span class="s1">'&lt;html&gt;&lt;body style="'</span>
+                    <span class="s1">'margin: 0;'</span>
+                    <span class="s1">'height: 100vh;'</span>
+                    <span class="s1">'display: flex;'</span>
+                    <span class="s1">'justify-content: center;'</span>
+                    <span class="s1">'align-items: center;'</span>
+                    <span class="s1">'"&gt;'</span>
+                    <span class="s1">'&lt;h1&gt;No documentation available!&lt;/h1&gt;'</span>
+                    <span class="s1">'&lt;/body&gt;&lt;/html&gt;'</span>
+                <span class="p">)</span>
+        <span class="n">doc_browser</span><span class="o">.</span><span class="n">raise_</span><span class="p">()</span>
+        <span class="n">doc_browser</span><span class="o">.</span><span class="n">activateWindow</span><span class="p">()</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_node_clicked_ctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">process</span><span class="p">):</span>
 
