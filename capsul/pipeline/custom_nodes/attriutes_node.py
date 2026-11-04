@@ -6,7 +6,7 @@ from soma.utils.weak_proxy import get_ref
 
 
 class AttributesNode(Node):
-    ''' Thsi special node allows to input completion attributes for a given
+    ''' This special node allows to input completion attributes for a given
     process.
 
     Use it this way:
@@ -16,7 +16,7 @@ class AttributesNode(Node):
       completion system (FOM for instance). The completion attributes of the
       linked process will then be exposed as inputs in the AttributesNode.
     - whenever an attribute value changes on the node, then the completion
-      system of the linked processs is triggered with the updated attribute
+      system of the linked process is triggered with the updated attribute
         values.
 
     It is possible to link attributes to upstream nodes which will provide
