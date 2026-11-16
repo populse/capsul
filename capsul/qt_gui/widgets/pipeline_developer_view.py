@@ -4563,7 +4563,7 @@ class PipelineDeveloperView(QGraphicsView):
         return doc_browser
 
     def _node_clicked(self, name, node):
-        self.show_node_doc(node)
+        # self.show_node_doc(node)
         if isinstance(node, Process):
             self.process_clicked.emit(name, node)
         else:
