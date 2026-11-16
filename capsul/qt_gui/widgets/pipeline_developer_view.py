@@ -4563,7 +4563,7 @@ class PipelineDeveloperView(QGraphicsView):
         return doc_browser
 
     def _node_clicked(self, name, node):
-        # self.show_node_doc(node)
+        self.show_node_doc(node)
         if isinstance(node, Process):
             self.process_clicked.emit(name, node)
         else:
@@ -4681,7 +4681,7 @@ class PipelineDeveloperView(QGraphicsView):
         doc_browser = self.get_doc_browser()
 
         if not doc_browser:
-            print('No doc browser available, cannot show documentation!')
+            # print('No doc browser available, cannot show documentation!')
             return
 
         doc_path = self.get_node_html_doc(node)
