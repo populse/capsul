@@ -1,115 +1,115 @@
 <map id="inheritancee57cfe7fbf" name="inheritancee57cfe7fbf">
-<area shape="rect" id="node1" href="qt_gui.html#capsul.qt_gui.widgets.activation_inspector.ActivationInspector" target="_top" title="A Widget to display the pipeline activation process step by step." alt="" coords="653,843,740,858"/>
-<area shape="rect" id="node2" title="QWidget(parent: Optional[QWidget] = None, flags: Union[Qt.WindowFlags, Qt.WindowType] = Qt.WindowFlags())" alt="" coords="527,958,573,973"/>
-<area shape="rect" id="node6" href="qt_gui.html#capsul.qt_gui.widgets.attributed_process_widget.AttributedProcessWidget" target="_top" title="Process interface with attributes completion handling" alt="" coords="643,872,750,887"/>
-<area shape="rect" id="node13" href="qt_gui.html#capsul.qt_gui.board_widget.BoardWidget" target="_top" title="Class that create a widget to visualize the controller status." alt="" coords="665,901,728,915"/>
-<area shape="rect" id="node20" href="qt_gui.html#capsul.qt_gui.widgets.links_debugger.CapsulLinkDebuggerView" target="_top" title="A Widget to display the links propagation when values are set in a" alt="" coords="642,930,752,944"/>
-<area shape="rect" id="node83" href="qt_gui.html#capsul.qt_gui.widgets.pipeline_user_view.PipelineUserView" target="_top" title="A widget to visualize a pipeline as a simple workflow." alt="" coords="657,958,737,973"/>
-<area shape="rect" id="node94" title="QFrame(parent: Optional[QWidget] = None, flags: Union[Qt.WindowFlags, Qt.WindowType] = Qt.WindowFlags())" alt="" coords="675,987,718,1002"/>
-<area shape="rect" id="node114" href="qt_gui.html#capsul.qt_gui.widgets.viewer_widget.ViewerWidget" target="_top" title="View result class" alt="" coords="664,1016,730,1031"/>
-<area shape="rect" id="node3" href="qt_gui.html#capsul.qt_gui.widgets.activation_inspector.ActivationInspectorApp" target="_top" title="ActivationInspector Application." alt="" coords="1143,1074,1245,1089"/>
-<area shape="rect" id="node4" href="qt_apps.html#capsul.qt_apps.utils.application.Application" target="_top" title="Base Application class." alt="" coords="1007,1074,1062,1089"/>
-<area shape="rect" id="node5" title="QApplication(argv: List[str])" alt="" coords="822,1074,884,1089"/>
-<area shape="rect" id="node7" href="study_config.html#capsul.study_config.config_modules.attributes_config.AttributesConfig" target="_top" title="Attributes&#45;based completion configuration module for StudyConfig" alt="" coords="216,755,291,770"/>
-<area shape="rect" id="node8" href="study_config.html#capsul.study_config.study_config.StudyConfigModule" target="_top" title=":class:`StudyConfig` module base class (abstract)" alt="" coords="30,885,117,900"/>
-<area shape="rect" id="node14" href="study_config.html#capsul.study_config.config_modules.brainvisa_config.BrainVISAConfig" target="_top" title="Configuration module allowing to use `BrainVISA / Axon &lt;http://brainvisa.info/axon/user_doc&gt;`_ shared data in Capsul processes." alt="" coords="216,784,291,799"/>
-<area shape="rect" id="node37" href="study_config.html#capsul.study_config.config_modules.fsl_config.FSLConfig" target="_top" title="`FSL &lt;https://fsl.fmrib.ox.ac.uk/fsl/fslwiki&gt;`_ configuration module" alt="" coords="228,813,279,828"/>
-<area shape="rect" id="node40" href="study_config.html#capsul.study_config.config_modules.fom_config.FomConfig" target="_top" title="FOM (File Organization Model) configuration module for StudyConfig" alt="" coords="227,842,280,857"/>
-<area shape="rect" id="node47" href="study_config.html#capsul.study_config.config_modules.freesurfer_config.FreeSurferConfig" target="_top" title="Class to set up freesurfer configuration." alt="" coords="215,871,292,886"/>
-<area shape="rect" id="node61" href="study_config.html#capsul.study_config.config_modules.matlab_config.MatlabConfig" target="_top" title="Matlab path configuration" alt="" coords="222,900,285,915"/>
-<area shape="rect" id="node66" href="study_config.html#capsul.study_config.config_modules.nipype_config.NipypeConfig" target="_top" title="Nipype configuration." alt="" coords="221,929,286,944"/>
-<area shape="rect" id="node105" href="study_config.html#capsul.study_config.config_modules.spm_config.SPMConfig" target="_top" title="SPM configuration." alt="" coords="227,958,280,973"/>
-<area shape="rect" id="node106" href="study_config.html#capsul.study_config.config_modules.smartcaching_config.SmartCachingConfig" target="_top" title="SmartCachingConfig" alt="" coords="208,987,299,1002"/>
-<area shape="rect" id="node107" href="study_config.html#capsul.study_config.config_modules.somaworkflow_config.SomaWorkflowConfig" target="_top" title="Configuration module for :somaworkflow:`Soma&#45;Workflow &lt;index.html&gt;`" alt="" coords="207,1016,300,1030"/>
-<area shape="rect" id="node9" href="attributes.html#capsul.attributes.attributes_factory.AttributesFactory" target="_top" title="AttributesFactory holds an attributes schema" alt="" coords="214,726,293,741"/>
-<area shape="rect" id="node10" href="https://populse.github.io/soma-base/api.html#soma.factory.ClassFactory" target="_top" title="*ClassFactory* is the base class for creating factories that can look" alt="" coords="43,726,104,741"/>
-<area shape="rect" id="node11" href="attributes.html#capsul.attributes.attributes_schema.AttributesSchema" target="_top" title="An AttributesSchema has a name, which is used as an identifier to specify completion." alt="" coords="32,697,114,712"/>
-<area shape="rect" id="node12" href="engine.html#capsul.engine.AutoDeleteFileName" target="_top" title="A temporary file name that automatically deletes the file when `cleanup()`" alt="" coords="27,668,119,683"/>
-<area shape="rect" id="node15" href="attributes.html#capsul.attributes.completion_engine_factory.BuiltinProcessCompletionEngineFactory" target="_top" title="BuiltinProcessCompletionEngineFactory" alt="" coords="171,639,336,654"/>
-<area shape="rect" id="node16" href="attributes.html#capsul.attributes.completion_engine.ProcessCompletionEngineFactory" target="_top" title="Get a :class:`ProcessCompletionEngine` instance" alt="" coords="3,639,143,654"/>
-<area shape="rect" id="node17" href="https://docs.enthought.com/traits/traits_api_reference/ctraits.html#traits.ctraits.CHasTraits" target="_top" title="Base class for HasTraits." alt="" coords="385,1415,438,1430"/>
-<area shape="rect" id="node28" href="https://docs.enthought.com/traits/traits_api_reference/has_traits.html#traits.has_traits.HasTraits" target="_top" title="Enables any Python class derived from it to have trait attributes." alt="" coords="526,1415,574,1430"/>
-<area shape="rect" id="node18" href="engine.html#capsul.engine.CapsulEngine" target="_top" title="A CapsulEngine is the mandatory entry point of all software using Capsul." alt="" coords="821,1249,886,1264"/>
-<area shape="rect" id="node19" href="https://populse.github.io/soma-base/api.html#soma.controller.controller.Controller" target="_top" title="A Controller contains some traits: attributes typing and observer" alt="" coords="671,1350,722,1365"/>
-<area shape="rect" id="node30" href="pipeline.html#capsul.pipeline.pipeline_nodes.Node" target="_top" title="Basic Node structure of the pipeline that need to be tuned." alt="" coords="832,1278,874,1293"/>
-<area shape="rect" id="node32" href="attributes.html#capsul.attributes.attributes_schema.EditableAttributes" target="_top" title="A set of attributes (group) used to define process parameters" alt="" coords="813,1321,894,1336"/>
-<area shape="rect" id="node39" href="process.html#capsul.process.process.Process" target="_top" title="A process is an atomic component that contains a processing." alt="" coords="832,1350,874,1365"/>
-<area shape="rect" id="node84" href="qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.Plug" target="_top" title="Overload of the traits in order to keep the pipeline memory." alt="" coords="832,1220,874,1235"/>
-<area shape="rect" id="node87" href="attributes.html#capsul.attributes.attributes_schema.ProcessAttributes" target="_top" title="This is the base class for managing attributes for a process." alt="" coords="813,1379,893,1394"/>
-<area shape="rect" id="node104" href="study_config.html#capsul.study_config.config_modules.somaworkflow_config.ResourceController" target="_top" title="Configuration options for one Soma&#45;Workflow computing resource" alt="" coords="810,1408,896,1422"/>
-<area shape="rect" id="node109" href="study_config.html#capsul.study_config.study_config.StudyConfig" target="_top" title="Class to store the study parameters and processing options." alt="" coords="824,1437,883,1451"/>
-<area shape="rect" id="node21" href="study_config.html#capsul.study_config.memory.CapsulResultDecoder" target="_top" title="Deal with ProcessResult in json." alt="" coords="206,610,301,625"/>
-<area shape="rect" id="node22" title="Simple JSON &lt;https://json.org&gt; decoder" alt="" coords="41,610,105,625"/>
-<area shape="rect" id="node23" href="study_config.html#capsul.study_config.memory.CapsulResultEncoder" target="_top" title="Deal with ProcessResult in json." alt="" coords="207,581,300,596"/>
-<area shape="rect" id="node24" title="Extensible JSON &lt;https://json.org&gt; encoder for Python data structures." alt="" coords="42,581,104,596"/>
-<area shape="rect" id="node26" href="pipeline.html#capsul.pipeline.pipeline_construction.ConstructedPipeline" target="_top" title="Base class of all pipelines created with PipelineConstructor. It redefines" alt="" coords="1149,1343,1239,1358"/>
-<area shape="rect" id="node27" href="pipeline.html#capsul.pipeline.pipeline.Pipeline" target="_top" title="Pipeline containing Process nodes, and links between node parameters." alt="" coords="1012,1343,1056,1358"/>
-<area shape="rect" id="node44" href="attributes.html#capsul.attributes.completion_engine.ProcessCompletionEngine" target="_top" title="Parameters completion from attributes for a process or pipeline node" alt="" coords="641,1480,753,1494"/>
-<area shape="rect" id="node29" href="pipeline.html#capsul.pipeline.custom_nodes.cv_node.CrossValidationFoldNode" target="_top" title="This &quot;inert&quot; node filters a list to separate it into (typically) learn and" alt="" coords="980,1140,1088,1155"/>
-<area shape="rect" id="node57" href="pipeline.html#capsul.pipeline.custom_nodes.loo_node.LeaveOneOutNode" target="_top" title="This &quot;inert&quot; node excludes one input from the list of inputs, to allow" alt="" coords="992,1169,1077,1184"/>
-<area shape="rect" id="node60" href="pipeline.html#capsul.pipeline.custom_nodes.map_node.MapNode" target="_top" title="This node converts lists into series of single items. Typically an" alt="" coords="1010,1198,1059,1213"/>
-<area shape="rect" id="node71" href="pipeline.html#capsul.pipeline.pipeline_nodes.Switch" target="_top" title="Switch node to select a specific Process." alt="" coords="1013,1227,1056,1242"/>
-<area shape="rect" id="node80" href="pipeline.html#capsul.pipeline.pipeline_nodes.ProcessNode" target="_top" title="Process node." alt="" coords="1003,1256,1066,1271"/>
-<area shape="rect" id="node103" href="pipeline.html#capsul.pipeline.custom_nodes.reduce_node.ReduceNode" target="_top" title="Reduce node: converts series of inputs into lists. Typically a series of" alt="" coords="1004,1285,1065,1300"/>
-<area shape="rect" id="node108" href="pipeline.html#capsul.pipeline.custom_nodes.strcat_node.StrCatNode" target="_top" title="This &quot;inert&quot; node concatenates its inputs (as strings) and generates the" alt="" coords="1006,1314,1063,1329"/>
-<area shape="rect" id="node31" href="engine.html#capsul.engine.database.DatabaseEngine" target="_top" title="A :py:class:`DatabaseEngine` is the base class for all engines " alt="" coords="36,523,111,538"/>
-<area shape="rect" id="node55" href="engine.html#capsul.engine.database_json.JSONDBEngine" target="_top" title="A JSON dictionary implementation of :py:class:`capsul.engine.database.DatabaseEngine`" alt="" coords="219,523,288,538"/>
-<area shape="rect" id="node86" href="engine.html#capsul.engine.database_populse.PopulseDBEngine" target="_top" title="PopulseDBEngine" alt="" coords="214,552,293,567"/>
-<area shape="rect" id="node33" href="qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.EmbeddedSubPipelineItem" target="_top" title="QGraphicsItem containing a sub&#45;pipeline view" alt="" coords="976,1104,1092,1119"/>
-<area shape="rect" id="node34" title="QGraphicsProxyWidget(parent: Optional[QGraphicsItem] = None, flags: Union[Qt.WindowFlags, Qt.WindowType] = Qt.WindowFlags())" alt="" coords="803,1104,904,1119"/>
-<area shape="rect" id="node35" href="qt_apps.html#capsul.qt_apps.utils.application.EmittingStream" target="_top" title="Logging emitting string basic handler." alt="" coords="514,1016,586,1030"/>
-<area shape="rect" id="node36" title="QObject(parent: Optional[QObject] = None)" alt="" coords="390,1059,433,1074"/>
-<area shape="rect" id="node82" title="QGraphicsScene(parent: Optional[QObject] = None)" alt="" coords="513,1045,588,1059"/>
-<area shape="rect" id="node96" title="QCoreApplication(argv: List[str])" alt="" coords="511,1074,590,1088"/>
-<area shape="rect" id="node99" title="QGraphicsObject(parent: Optional[QGraphicsItem] = None)" alt="" coords="512,1133,588,1148"/>
-<area shape="rect" id="node38" href="process.html#capsul.process.process.FileCopyProcess" target="_top" title="A specific process that copies all the input files." alt="" coords="997,1372,1072,1386"/>
-<area shape="rect" id="node67" href="process.html#capsul.process.process.NipypeProcess" target="_top" title="Base class used to wrap nipype interfaces." alt="" coords="1159,1372,1229,1386"/>
-<area shape="rect" id="node54" href="process.html#capsul.process.process.InteractiveProcess" target="_top" title="Base class for interactive processes. The value of the is_interactive " alt="" coords="993,1401,1076,1415"/>
-<area shape="rect" id="node88" href="pipeline.html#capsul.pipeline.process_iteration.ProcessIteration" target="_top" title=".. note::" alt="" coords="997,1430,1072,1444"/>
-<area shape="rect" id="node115" href="process.html#capsul.process.xml.XMLProcess" target="_top" title="Base class of all generated classes for processes defined as a Python" alt="" coords="1005,1458,1064,1473"/>
-<area shape="rect" id="node41" href="attributes.html#capsul.attributes.fom_completion_engine.FomPathCompletionEngine" target="_top" title="FomPathCompletionEngine" alt="" coords="196,495,311,509"/>
-<area shape="rect" id="node42" href="attributes.html#capsul.attributes.completion_engine.PathCompletionEngine" target="_top" title="Implements building of a single path from a set of attributes for a" alt="" coords="23,495,123,509"/>
-<area shape="rect" id="node43" href="attributes.html#capsul.attributes.fom_completion_engine.FomProcessCompletionEngine" target="_top" title="FOM (File Organization Model) implementation of completion engine." alt="" coords="789,1466,917,1480"/>
-<area shape="rect" id="node46" href="attributes.html#capsul.attributes.completion_engine_iteration.ProcessCompletionEngineIteration" target="_top" title=":class:`~capsul.attributes.completion_engine.ProcessCompletionEngine`" alt="" coords="781,1494,926,1509"/>
-<area shape="rect" id="node110" href="attributes.html#capsul.attributes.completion_engine.SwitchCompletionEngine" target="_top" title="Completion engine specislization for a switch. The switch will" alt="" coords="799,1523,907,1538"/>
-<area shape="rect" id="node45" href="attributes.html#capsul.attributes.fom_completion_engine.FomProcessCompletionEngineIteration" target="_top" title="FomProcessCompletionEngineIteration" alt="" coords="954,1494,1115,1509"/>
-<area shape="rect" id="node48" href="in_context.html#capsul.in_context.fsl.FslPopen" target="_top" title="Equivalent to Python subprocess.Popen for FSL commands" alt="" coords="230,466,277,480"/>
-<area shape="rect" id="node49" href="https://docs.python.org/3.10/library/subprocess.html#subprocess.Popen" target="_top" title="Execute a child program in a new process." alt="" coords="52,466,94,480"/>
-<area shape="rect" id="node50" href="pipeline.html#capsul.pipeline.topological_sort.Graph" target="_top" title="Simple Graph Structure on which we want to perform a" alt="" coords="52,408,94,423"/>
-<area shape="rect" id="node51" href="pipeline.html#capsul.pipeline.topological_sort.GraphNode" target="_top" title="Simple Graph Node Structure" alt="" coords="45,379,101,394"/>
-<area shape="rect" id="node52" href="qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.HandleItem" target="_top" title="A handle that can be moved by the mouse" alt="" coords="824,1133,882,1148"/>
-<area shape="rect" id="node53" title="QGraphicsRectItem(parent: Optional[QGraphicsItem] = None)" alt="" coords="653,1162,740,1177"/>
-<area shape="rect" id="node116" href="qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.boxItem" target="_top" title="boxItem" alt="" coords="831,1162,876,1177"/>
-<area shape="rect" id="node56" href="sphinxext.html#capsul.sphinxext.layoutdocgen.LayoutHelperWriter" target="_top" title="A basic class to create sphinx layout and associated index." alt="" coords="29,351,117,365"/>
-<area shape="rect" id="node58" href="qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.Link" target="_top" title="Link" alt="" coords="832,1191,874,1206"/>
-<area shape="rect" id="node59" title="QGraphicsPathItem(parent: Optional[QGraphicsItem] = None)" alt="" coords="654,1191,740,1206"/>
-<area shape="rect" id="node62" href="study_config.html#capsul.study_config.memory.MemorizedProcess" target="_top" title="Callable object decorating a capsul process for caching its return" alt="" coords="31,322,116,336"/>
-<area shape="rect" id="node63" href="study_config.html#capsul.study_config.memory.Memory" target="_top" title="Memory context to provide caching for processes." alt="" coords="51,293,95,308"/>
-<area shape="rect" id="node64" href="https://docs.enthought.com/traits/traits_api_reference/has_traits.html#traits.has_traits.MetaHasTraits" target="_top" title="Controls the creation of HasTraits classes." alt="" coords="40,264,107,279"/>
-<area shape="rect" id="node89" href="process.html#capsul.process.process.ProcessMeta" target="_top" title="Class used to complete a process docstring" alt="" coords="223,264,284,279"/>
-<area shape="rect" id="node65" href="qt_apps.html#capsul.qt_apps.utils.window.MyQUiLoader" target="_top" title="Base window class based on ui file description." alt="" coords="41,235,106,250"/>
-<area shape="rect" id="node68" href="qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.NodeGWidget" target="_top" title="NodeGWidget" alt="" coords="517,1162,583,1177"/>
-<area shape="rect" id="node69" title="QGraphicsItem(parent: Optional[QGraphicsItem] = None)" alt="" coords="377,1147,446,1162"/>
-<area shape="rect" id="node92" title="QAbstractGraphicsShapeItem(parent: Optional[QGraphicsItem] = None)" alt="" coords="487,1191,613,1206"/>
-<area shape="rect" id="node70" href="pipeline.html#capsul.pipeline.pipeline_nodes.OptionalOutputSwitch" target="_top" title="A switch which activates or disables its input/output link according" alt="" coords="1146,1227,1242,1242"/>
-<area shape="rect" id="node72" href="attributes.html#capsul.attributes.completion_engine.PathCompletionEngineFactory" target="_top" title="Get a :class:`PathCompletionEngine` instance" alt="" coords="10,206,137,221"/>
-<area shape="rect" id="node73" href="pipeline.html#capsul.pipeline.pipeline_construction.PipelineConstructor" target="_top" title="A PipelineConstructor is used to build a new Pipeline class and dynamically" alt="" coords="29,177,117,192"/>
-<area shape="rect" id="node74" href="qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView" target="_top" title="Pipeline representation as a graph, using boxes and arrows." alt="" coords="1143,1002,1245,1017"/>
-<area shape="rect" id="node75" title="QGraphicsView(parent: Optional[QWidget] = None)" alt="" coords="999,1002,1070,1017"/>
-<area shape="rect" id="node76" href="qt_gui.html#capsul.qt_gui.widgets.pipeline_file_warning_widget.PipelineFileWarningWidget" target="_top" title="This class is a GUI for pipeline file inputs/outputs checking." alt="" coords="977,973,1092,988"/>
-<area shape="rect" id="node77" title="QSplitter(parent: Optional[QWidget] = None)" alt="" coords="830,973,876,988"/>
-<area shape="rect" id="node78" href="sphinxext.html#capsul.sphinxext.pipelinedocgen.PipelineHelpWriter" target="_top" title="Class for automatic generation of pipeline API documentations" alt="" coords="31,148,115,163"/>
-<area shape="rect" id="node79" href="pipeline.html#capsul.pipeline.pipeline_nodes.PipelineNode" target="_top" title="A special node to store the pipeline user&#45;parameters" alt="" coords="1162,1256,1226,1271"/>
-<area shape="rect" id="node81" href="qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineScene" target="_top" title="PipelineScene" alt="" coords="664,1045,730,1060"/>
-<area shape="rect" id="node85" title="QGraphicsPolygonItem(parent: Optional[QGraphicsItem] = None)" alt="" coords="647,1220,747,1235"/>
-<area shape="rect" id="node90" href="process.html#capsul.process.runprocess.ProcessParamError" target="_top" title="Exception used in the ``runprocess`` module" alt="" coords="31,119,115,134"/>
-<area shape="rect" id="node91" href="process.html#capsul.process.process.ProcessResult" target="_top" title="Object that contains running information a particular Process." alt="" coords="40,90,106,105"/>
-<area shape="rect" id="node93" title="QAbstractScrollArea(parent: Optional[QWidget] = None)" alt="" coords="809,1002,898,1017"/>
-<area shape="rect" id="node95" title="QGuiApplication(argv: List[str])" alt="" coords="660,1074,734,1089"/>
-<area shape="rect" id="node98" title="QGraphicsLayoutItem(parent: Optional[QGraphicsLayoutItem] = None, isLayout: bool = False)" alt="" coords="364,1096,459,1111"/>
-<area shape="rect" id="node100" title="QGraphicsWidget(parent: Optional[QGraphicsItem] = None, flags: Union[Qt.WindowFlags, Qt.WindowType] = Qt.WindowFlags())" alt="" coords="657,1104,736,1119"/>
-<area shape="rect" id="node101" title="QPaintDevice()" alt="" coords="221,1045,286,1059"/>
-<area shape="rect" id="node111" href="pipeline.html#capsul.pipeline.pipeline_workflow.TempFile" target="_top" title="TempFile" alt="" coords="50,61,97,76"/>
-<area shape="rect" id="node112" href="study_config.html#capsul.study_config.memory.UnMemorizedProcess" target="_top" title="This class replaces MemorizedProcess when there is no cache." alt="" coords="25,32,121,47"/>
-<area shape="rect" id="node113" href="sphinxext.html#capsul.sphinxext.usecasesdocgen.UseCasesHelperWriter" target="_top" title="A basic class to convert the pilot codes to rst use cases" alt="" coords="23,3,123,18"/>
+<area shape="rect" id="node1" href="qt_gui.html#capsul.qt_gui.widgets.activation_inspector.ActivationInspector" target="_top" title="A Widget to display the pipeline activation process step by step." alt="" coords="654,888,740,904"/>
+<area shape="rect" id="node2" title="QWidget(parent: Optional[QWidget] = None, flags: Union[Qt.WindowFlags, Qt.WindowType] = Qt.WindowFlags())" alt="" coords="528,1010,573,1027"/>
+<area shape="rect" id="node6" href="qt_gui.html#capsul.qt_gui.widgets.attributed_process_widget.AttributedProcessWidget" target="_top" title="Process interface with attributes completion handling" alt="" coords="643,919,751,935"/>
+<area shape="rect" id="node13" href="qt_gui.html#capsul.qt_gui.board_widget.BoardWidget" target="_top" title="Class that create a widget to visualize the controller status." alt="" coords="666,949,728,966"/>
+<area shape="rect" id="node20" href="qt_gui.html#capsul.qt_gui.widgets.links_debugger.CapsulLinkDebuggerView" target="_top" title="A Widget to display the links propagation when values are set in a" alt="" coords="642,980,752,996"/>
+<area shape="rect" id="node83" href="qt_gui.html#capsul.qt_gui.widgets.pipeline_user_view.PipelineUserView" target="_top" title="A widget to visualize a pipeline as a simple workflow." alt="" coords="657,1010,737,1027"/>
+<area shape="rect" id="node94" title="QFrame(parent: Optional[QWidget] = None, flags: Union[Qt.WindowFlags, Qt.WindowType] = Qt.WindowFlags())" alt="" coords="676,1041,718,1057"/>
+<area shape="rect" id="node114" href="qt_gui.html#capsul.qt_gui.widgets.viewer_widget.ViewerWidget" target="_top" title="View result class" alt="" coords="664,1072,730,1088"/>
+<area shape="rect" id="node3" href="qt_gui.html#capsul.qt_gui.widgets.activation_inspector.ActivationInspectorApp" target="_top" title="ActivationInspector Application." alt="" coords="1143,1133,1245,1149"/>
+<area shape="rect" id="node4" href="qt_apps.html#capsul.qt_apps.utils.application.Application" target="_top" title="Base Application class." alt="" coords="1007,1133,1062,1149"/>
+<area shape="rect" id="node5" title="QApplication(argv: List[str])" alt="" coords="823,1133,884,1149"/>
+<area shape="rect" id="node7" href="study_config.html#capsul.study_config.config_modules.attributes_config.AttributesConfig" target="_top" title="Attributes&#45;based completion configuration module for StudyConfig" alt="" coords="216,797,291,813"/>
+<area shape="rect" id="node8" href="study_config.html#capsul.study_config.study_config.StudyConfigModule" target="_top" title=":class:`StudyConfig` module base class (abstract)" alt="" coords="30,934,116,951"/>
+<area shape="rect" id="node14" href="study_config.html#capsul.study_config.config_modules.brainvisa_config.BrainVISAConfig" target="_top" title="Configuration module allowing to use `BrainVISA / Axon &lt;http://brainvisa.info/axon/user_doc&gt;`_ shared data in Capsul processes." alt="" coords="216,828,291,844"/>
+<area shape="rect" id="node37" href="study_config.html#capsul.study_config.config_modules.fsl_config.FSLConfig" target="_top" title="`FSL &lt;https://fsl.fmrib.ox.ac.uk/fsl/fslwiki&gt;`_ configuration module" alt="" coords="229,858,278,874"/>
+<area shape="rect" id="node40" href="study_config.html#capsul.study_config.config_modules.fom_config.FomConfig" target="_top" title="FOM (File Organization Model) configuration module for StudyConfig" alt="" coords="227,889,280,905"/>
+<area shape="rect" id="node47" href="study_config.html#capsul.study_config.config_modules.freesurfer_config.FreeSurferConfig" target="_top" title="Class to set up freesurfer configuration." alt="" coords="215,919,291,936"/>
+<area shape="rect" id="node61" href="study_config.html#capsul.study_config.config_modules.matlab_config.MatlabConfig" target="_top" title="Matlab path configuration" alt="" coords="222,950,285,966"/>
+<area shape="rect" id="node66" href="study_config.html#capsul.study_config.config_modules.nipype_config.NipypeConfig" target="_top" title="Nipype configuration." alt="" coords="222,981,285,997"/>
+<area shape="rect" id="node105" href="study_config.html#capsul.study_config.config_modules.spm_config.SPMConfig" target="_top" title="SPM configuration." alt="" coords="227,1011,280,1028"/>
+<area shape="rect" id="node106" href="study_config.html#capsul.study_config.config_modules.smartcaching_config.SmartCachingConfig" target="_top" title="SmartCachingConfig" alt="" coords="208,1042,299,1058"/>
+<area shape="rect" id="node107" href="study_config.html#capsul.study_config.config_modules.somaworkflow_config.SomaWorkflowConfig" target="_top" title="Configuration module for :somaworkflow:`Soma&#45;Workflow &lt;index.html&gt;`" alt="" coords="206,1073,300,1089"/>
+<area shape="rect" id="node9" href="attributes.html#capsul.attributes.attributes_factory.AttributesFactory" target="_top" title="AttributesFactory holds an attributes schema" alt="" coords="214,766,292,783"/>
+<area shape="rect" id="node10" href="https://populse.github.io/soma-base/api.html#soma.factory.ClassFactory" target="_top" title="*ClassFactory* is the base class for creating factories that can look" alt="" coords="43,766,103,783"/>
+<area shape="rect" id="node11" href="attributes.html#capsul.attributes.attributes_schema.AttributesSchema" target="_top" title="An AttributesSchema has a name, which is used as an identifier to specify completion." alt="" coords="33,736,113,752"/>
+<area shape="rect" id="node12" href="engine.html#capsul.engine.AutoDeleteFileName" target="_top" title="A temporary file name that automatically deletes the file when `cleanup()`" alt="" coords="27,705,119,721"/>
+<area shape="rect" id="node15" href="attributes.html#capsul.attributes.completion_engine_factory.BuiltinProcessCompletionEngineFactory" target="_top" title="BuiltinProcessCompletionEngineFactory" alt="" coords="171,674,336,691"/>
+<area shape="rect" id="node16" href="attributes.html#capsul.attributes.completion_engine.ProcessCompletionEngineFactory" target="_top" title="Get a :class:`ProcessCompletionEngine` instance" alt="" coords="3,674,143,691"/>
+<area shape="rect" id="node17" href="https://docs.enthought.com/traits/traits_api_reference/ctraits.html#traits.ctraits.CHasTraits" target="_top" title="Base class for HasTraits." alt="" coords="385,1507,438,1523"/>
+<area shape="rect" id="node28" href="https://docs.enthought.com/traits/traits_api_reference/has_traits.html#traits.has_traits.HasTraits" target="_top" title="Enables any Python class derived from it to have trait attributes." alt="" coords="526,1507,574,1523"/>
+<area shape="rect" id="node18" href="engine.html#capsul.engine.CapsulEngine" target="_top" title="A CapsulEngine is the mandatory entry point of all software using Capsul." alt="" coords="821,1317,886,1333"/>
+<area shape="rect" id="node19" href="https://populse.github.io/soma-base/api.html#soma.controller.controller.Controller" target="_top" title="A Controller contains some traits: attributes typing and observer" alt="" coords="672,1438,722,1455"/>
+<area shape="rect" id="node30" href="pipeline.html#capsul.pipeline.pipeline_nodes.Node" target="_top" title="Basic Node structure of the pipeline that need to be tuned." alt="" coords="832,1347,875,1364"/>
+<area shape="rect" id="node32" href="attributes.html#capsul.attributes.attributes_schema.EditableAttributes" target="_top" title="A set of attributes (group) used to define process parameters" alt="" coords="813,1408,894,1424"/>
+<area shape="rect" id="node39" href="process.html#capsul.process.process.Process" target="_top" title="A process is an atomic component that contains a processing." alt="" coords="832,1438,875,1455"/>
+<area shape="rect" id="node84" href="qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.Plug" target="_top" title="Overload of the traits in order to keep the pipeline memory." alt="" coords="832,1286,875,1302"/>
+<area shape="rect" id="node87" href="attributes.html#capsul.attributes.attributes_schema.ProcessAttributes" target="_top" title="This is the base class for managing attributes for a process." alt="" coords="814,1469,894,1485"/>
+<area shape="rect" id="node104" href="study_config.html#capsul.study_config.config_modules.somaworkflow_config.ResourceController" target="_top" title="Configuration options for one Soma&#45;Workflow computing resource" alt="" coords="811,1500,896,1516"/>
+<area shape="rect" id="node109" href="study_config.html#capsul.study_config.study_config.StudyConfig" target="_top" title="Class to store the study parameters and processing options." alt="" coords="824,1530,883,1547"/>
+<area shape="rect" id="node21" href="study_config.html#capsul.study_config.memory.CapsulResultDecoder" target="_top" title="Deal with ProcessResult in json." alt="" coords="206,644,301,660"/>
+<area shape="rect" id="node22" title="Simple JSON &lt;https://json.org&gt; decoder" alt="" coords="41,644,105,660"/>
+<area shape="rect" id="node23" href="study_config.html#capsul.study_config.memory.CapsulResultEncoder" target="_top" title="Deal with ProcessResult in json." alt="" coords="207,613,300,629"/>
+<area shape="rect" id="node24" title="Extensible JSON &lt;https://json.org&gt; encoder for Python data structures." alt="" coords="42,613,104,629"/>
+<area shape="rect" id="node26" href="pipeline.html#capsul.pipeline.pipeline_construction.ConstructedPipeline" target="_top" title="Base class of all pipelines created with PipelineConstructor. It redefines" alt="" coords="1150,1423,1239,1440"/>
+<area shape="rect" id="node27" href="pipeline.html#capsul.pipeline.pipeline.Pipeline" target="_top" title="Pipeline containing Process nodes, and links between node parameters." alt="" coords="1013,1423,1056,1440"/>
+<area shape="rect" id="node44" href="attributes.html#capsul.attributes.completion_engine.ProcessCompletionEngine" target="_top" title="Parameters completion from attributes for a process or pipeline node" alt="" coords="641,1576,753,1592"/>
+<area shape="rect" id="node29" href="pipeline.html#capsul.pipeline.custom_nodes.cv_node.CrossValidationFoldNode" target="_top" title="This &quot;inert&quot; node filters a list to separate it into (typically) learn and" alt="" coords="981,1209,1089,1225"/>
+<area shape="rect" id="node57" href="pipeline.html#capsul.pipeline.custom_nodes.loo_node.LeaveOneOutNode" target="_top" title="This &quot;inert&quot; node excludes one input from the list of inputs, to allow" alt="" coords="992,1240,1077,1256"/>
+<area shape="rect" id="node60" href="pipeline.html#capsul.pipeline.custom_nodes.map_node.MapNode" target="_top" title="This node converts lists into series of single items. Typically an" alt="" coords="1010,1270,1059,1287"/>
+<area shape="rect" id="node71" href="pipeline.html#capsul.pipeline.pipeline_nodes.Switch" target="_top" title="Switch node to select a specific Process." alt="" coords="1013,1301,1056,1317"/>
+<area shape="rect" id="node80" href="pipeline.html#capsul.pipeline.pipeline_nodes.ProcessNode" target="_top" title="Process node." alt="" coords="1004,1332,1066,1348"/>
+<area shape="rect" id="node103" href="pipeline.html#capsul.pipeline.custom_nodes.reduce_node.ReduceNode" target="_top" title="Reduce node: converts series of inputs into lists. Typically a series of" alt="" coords="1004,1362,1065,1379"/>
+<area shape="rect" id="node108" href="pipeline.html#capsul.pipeline.custom_nodes.strcat_node.StrCatNode" target="_top" title="This &quot;inert&quot; node concatenates its inputs (as strings) and generates the" alt="" coords="1007,1393,1063,1409"/>
+<area shape="rect" id="node31" href="engine.html#capsul.engine.database.DatabaseEngine" target="_top" title="A :py:class:`DatabaseEngine` is the base class for all engines " alt="" coords="36,552,111,568"/>
+<area shape="rect" id="node55" href="engine.html#capsul.engine.database_json.JSONDBEngine" target="_top" title="A JSON dictionary implementation of :py:class:`capsul.engine.database.DatabaseEngine`" alt="" coords="219,552,288,568"/>
+<area shape="rect" id="node86" href="engine.html#capsul.engine.database_populse.PopulseDBEngine" target="_top" title="PopulseDBEngine" alt="" coords="214,583,293,599"/>
+<area shape="rect" id="node33" href="qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.EmbeddedSubPipelineItem" target="_top" title="QGraphicsItem containing a sub&#45;pipeline view" alt="" coords="977,1164,1092,1180"/>
+<area shape="rect" id="node34" title="QGraphicsProxyWidget(parent: Optional[QGraphicsItem] = None, flags: Union[Qt.WindowFlags, Qt.WindowType] = Qt.WindowFlags())" alt="" coords="803,1164,904,1180"/>
+<area shape="rect" id="node35" href="qt_apps.html#capsul.qt_apps.utils.application.EmittingStream" target="_top" title="Logging emitting string basic handler." alt="" coords="514,1072,587,1088"/>
+<area shape="rect" id="node36" title="QObject(parent: Optional[QObject] = None)" alt="" coords="390,1110,433,1126"/>
+<area shape="rect" id="node82" title="QGraphicsScene(parent: Optional[QObject] = None)" alt="" coords="513,1102,588,1119"/>
+<area shape="rect" id="node96" title="QCoreApplication(argv: List[str])" alt="" coords="511,1133,590,1149"/>
+<area shape="rect" id="node99" title="QGraphicsObject(parent: Optional[QGraphicsItem] = None)" alt="" coords="512,1193,589,1209"/>
+<area shape="rect" id="node38" href="process.html#capsul.process.process.FileCopyProcess" target="_top" title="A specific process that copies all the input files." alt="" coords="997,1454,1072,1470"/>
+<area shape="rect" id="node67" href="process.html#capsul.process.process.NipypeProcess" target="_top" title="Base class used to wrap nipype interfaces." alt="" coords="1160,1454,1229,1470"/>
+<area shape="rect" id="node54" href="process.html#capsul.process.process.InteractiveProcess" target="_top" title="Base class for interactive processes. The value of the is_interactive " alt="" coords="993,1485,1076,1501"/>
+<area shape="rect" id="node88" href="pipeline.html#capsul.pipeline.process_iteration.ProcessIteration" target="_top" title=".. note::" alt="" coords="997,1515,1072,1532"/>
+<area shape="rect" id="node115" href="process.html#capsul.process.xml.XMLProcess" target="_top" title="Base class of all generated classes for processes defined as a Python" alt="" coords="1005,1546,1064,1562"/>
+<area shape="rect" id="node41" href="attributes.html#capsul.attributes.fom_completion_engine.FomPathCompletionEngine" target="_top" title="FomPathCompletionEngine" alt="" coords="196,521,311,538"/>
+<area shape="rect" id="node42" href="attributes.html#capsul.attributes.completion_engine.PathCompletionEngine" target="_top" title="Implements building of a single path from a set of attributes for a" alt="" coords="23,521,123,538"/>
+<area shape="rect" id="node43" href="attributes.html#capsul.attributes.fom_completion_engine.FomProcessCompletionEngine" target="_top" title="FOM (File Organization Model) implementation of completion engine." alt="" coords="789,1561,918,1577"/>
+<area shape="rect" id="node46" href="attributes.html#capsul.attributes.completion_engine_iteration.ProcessCompletionEngineIteration" target="_top" title=":class:`~capsul.attributes.completion_engine.ProcessCompletionEngine`" alt="" coords="781,1592,926,1608"/>
+<area shape="rect" id="node110" href="attributes.html#capsul.attributes.completion_engine.SwitchCompletionEngine" target="_top" title="Completion engine specislization for a switch. The switch will" alt="" coords="800,1622,908,1638"/>
+<area shape="rect" id="node45" href="attributes.html#capsul.attributes.fom_completion_engine.FomProcessCompletionEngineIteration" target="_top" title="FomProcessCompletionEngineIteration" alt="" coords="954,1592,1115,1608"/>
+<area shape="rect" id="node48" href="in_context.html#capsul.in_context.fsl.FslPopen" target="_top" title="Equivalent to Python subprocess.Popen for FSL commands" alt="" coords="230,491,277,507"/>
+<area shape="rect" id="node49" href="https://docs.python.org/3.10/library/subprocess.html#subprocess.Popen" target="_top" title="Execute a child program in a new process." alt="" coords="52,491,94,507"/>
+<area shape="rect" id="node50" href="pipeline.html#capsul.pipeline.topological_sort.Graph" target="_top" title="Simple Graph Structure on which we want to perform a" alt="" coords="52,432,94,448"/>
+<area shape="rect" id="node51" href="pipeline.html#capsul.pipeline.topological_sort.GraphNode" target="_top" title="Simple Graph Node Structure" alt="" coords="45,401,101,418"/>
+<area shape="rect" id="node52" href="qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.HandleItem" target="_top" title="A handle that can be moved by the mouse" alt="" coords="825,1194,882,1211"/>
+<area shape="rect" id="node53" title="QGraphicsRectItem(parent: Optional[QGraphicsItem] = None)" alt="" coords="654,1225,740,1241"/>
+<area shape="rect" id="node116" href="qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.boxItem" target="_top" title="boxItem" alt="" coords="831,1225,876,1241"/>
+<area shape="rect" id="node56" href="sphinxext.html#capsul.sphinxext.layoutdocgen.LayoutHelperWriter" target="_top" title="A basic class to create sphinx layout and associated index." alt="" coords="29,371,117,387"/>
+<area shape="rect" id="node58" href="qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.Link" target="_top" title="Link" alt="" coords="832,1255,875,1272"/>
+<area shape="rect" id="node59" title="QGraphicsPathItem(parent: Optional[QGraphicsItem] = None)" alt="" coords="654,1255,740,1272"/>
+<area shape="rect" id="node62" href="study_config.html#capsul.study_config.memory.MemorizedProcess" target="_top" title="Callable object decorating a capsul process for caching its return" alt="" coords="31,340,116,356"/>
+<area shape="rect" id="node63" href="study_config.html#capsul.study_config.memory.Memory" target="_top" title="Memory context to provide caching for processes." alt="" coords="51,309,95,326"/>
+<area shape="rect" id="node64" href="https://docs.enthought.com/traits/traits_api_reference/has_traits.html#traits.has_traits.MetaHasTraits" target="_top" title="Controls the creation of HasTraits classes." alt="" coords="39,279,107,295"/>
+<area shape="rect" id="node89" href="process.html#capsul.process.process.ProcessMeta" target="_top" title="Class used to complete a process docstring" alt="" coords="223,279,284,295"/>
+<area shape="rect" id="node65" href="qt_apps.html#capsul.qt_apps.utils.window.MyQUiLoader" target="_top" title="Base window class based on ui file description." alt="" coords="41,248,105,264"/>
+<area shape="rect" id="node68" href="qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.NodeGWidget" target="_top" title="NodeGWidget" alt="" coords="518,1223,583,1240"/>
+<area shape="rect" id="node69" title="QGraphicsItem(parent: Optional[QGraphicsItem] = None)" alt="" coords="377,1201,447,1218"/>
+<area shape="rect" id="node92" title="QAbstractGraphicsShapeItem(parent: Optional[QGraphicsItem] = None)" alt="" coords="488,1255,613,1271"/>
+<area shape="rect" id="node70" href="pipeline.html#capsul.pipeline.pipeline_nodes.OptionalOutputSwitch" target="_top" title="A switch which activates or disables its input/output link according" alt="" coords="1146,1301,1242,1317"/>
+<area shape="rect" id="node72" href="attributes.html#capsul.attributes.completion_engine.PathCompletionEngineFactory" target="_top" title="Get a :class:`PathCompletionEngine` instance" alt="" coords="10,217,136,234"/>
+<area shape="rect" id="node73" href="pipeline.html#capsul.pipeline.pipeline_construction.PipelineConstructor" target="_top" title="A PipelineConstructor is used to build a new Pipeline class and dynamically" alt="" coords="29,187,117,203"/>
+<area shape="rect" id="node74" href="qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView" target="_top" title="Pipeline representation as a graph, using boxes and arrows." alt="" coords="1143,1057,1245,1073"/>
+<area shape="rect" id="node75" title="QGraphicsView(parent: Optional[QWidget] = None)" alt="" coords="999,1057,1070,1073"/>
+<area shape="rect" id="node76" href="qt_gui.html#capsul.qt_gui.widgets.pipeline_file_warning_widget.PipelineFileWarningWidget" target="_top" title="This class is a GUI for pipeline file inputs/outputs checking." alt="" coords="977,1026,1092,1042"/>
+<area shape="rect" id="node77" title="QSplitter(parent: Optional[QWidget] = None)" alt="" coords="831,1026,877,1042"/>
+<area shape="rect" id="node78" href="sphinxext.html#capsul.sphinxext.pipelinedocgen.PipelineHelpWriter" target="_top" title="Class for automatic generation of pipeline API documentations" alt="" coords="31,156,115,173"/>
+<area shape="rect" id="node79" href="pipeline.html#capsul.pipeline.pipeline_nodes.PipelineNode" target="_top" title="A special node to store the pipeline user&#45;parameters" alt="" coords="1163,1332,1226,1348"/>
+<area shape="rect" id="node81" href="qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineScene" target="_top" title="PipelineScene" alt="" coords="664,1102,730,1119"/>
+<area shape="rect" id="node85" title="QGraphicsPolygonItem(parent: Optional[QGraphicsItem] = None)" alt="" coords="647,1286,747,1302"/>
+<area shape="rect" id="node90" href="process.html#capsul.process.runprocess.ProcessParamError" target="_top" title="Exception used in the ``runprocess`` module" alt="" coords="31,126,115,142"/>
+<area shape="rect" id="node91" href="process.html#capsul.process.process.ProcessResult" target="_top" title="Object that contains running information a particular Process." alt="" coords="40,95,106,111"/>
+<area shape="rect" id="node93" title="QAbstractScrollArea(parent: Optional[QWidget] = None)" alt="" coords="809,1057,898,1073"/>
+<area shape="rect" id="node95" title="QGuiApplication(argv: List[str])" alt="" coords="660,1133,734,1149"/>
+<area shape="rect" id="node98" title="QGraphicsLayoutItem(parent: Optional[QGraphicsLayoutItem] = None, isLayout: bool = False)" alt="" coords="364,1156,460,1172"/>
+<area shape="rect" id="node100" title="QGraphicsWidget(parent: Optional[QGraphicsItem] = None, flags: Union[Qt.WindowFlags, Qt.WindowType] = Qt.WindowFlags())" alt="" coords="658,1164,737,1180"/>
+<area shape="rect" id="node101" title="QPaintDevice()" alt="" coords="222,1103,285,1119"/>
+<area shape="rect" id="node111" href="pipeline.html#capsul.pipeline.pipeline_workflow.TempFile" target="_top" title="TempFile" alt="" coords="50,64,96,81"/>
+<area shape="rect" id="node112" href="study_config.html#capsul.study_config.memory.UnMemorizedProcess" target="_top" title="This class replaces MemorizedProcess when there is no cache." alt="" coords="25,34,121,50"/>
+<area shape="rect" id="node113" href="sphinxext.html#capsul.sphinxext.usecasesdocgen.UseCasesHelperWriter" target="_top" title="A basic class to convert the pilot codes to rst use cases" alt="" coords="23,3,123,19"/>
 </map>
