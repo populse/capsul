@@ -8,7 +8,6 @@ Classes
 ------------------
 """
 
-from __future__ import absolute_import
 import os
 import six
 import traits.api as traits
