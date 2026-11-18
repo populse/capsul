@@ -33,7 +33,7 @@ repos:
 #            # args: [--fix] # fear of automatically fix
 
     - repo: https://github.com/PyCQA/flake8
-      rev: 7.4.1
+      rev: 7.5.0
       hooks:
         - id: flake8
           name: flake8 under python3
