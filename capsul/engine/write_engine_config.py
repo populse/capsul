@@ -47,4 +47,3 @@ class WriteEngineConfig(Process):
 
         with open(self.output_config_file, 'w') as f:
             json.dump(config, f)
-

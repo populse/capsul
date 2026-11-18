@@ -99,7 +99,7 @@ class NipypeConfig(StudyConfigModule):
                 matlab.MatlabCommand.set_default_paths(
                     [self.study_config.spm_directory] +
                     self.study_config.add_to_default_matlab_path)
-                spm.SPMCommand.set_mlab_paths(matlab_cmd="", use_mcr=False)  
+                spm.SPMCommand.set_mlab_paths(matlab_cmd="", use_mcr=False)
 
         self.study_config.use_nipype = True
 

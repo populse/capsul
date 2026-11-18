@@ -58,7 +58,7 @@ def to_warp_func(parameter1, parameter2, parameter3):
 @xml_process('''
 <process>
     <input name="input_image" type="file" doc="Path of a NIFTI-1 image file."/>
-    <input name="method" type="enum" values="['gt', 'ge', 'lt', 'le']" 
+    <input name="method" type="enum" values="['gt', 'ge', 'lt', 'le']"
      doc="Method for thresolding."/>
     <input name="threshold" type="float" doc="Threshold value."/>
     <return name="output_image" type="file" doc="Name of the output image."/>
@@ -145,7 +145,7 @@ def divides_dict(a, b):
         'quotients': [int(i / j) for i, j in zip(a, b)],
         'remainders': [i % j for i, j in zip(a, b)],
     }
- 
+
 @xml_process('''
 <process capsul_xml="2.0">
     <input name="a" type="list_int" doc="An integers list"/>
@@ -159,8 +159,8 @@ def divides_dict(a, b):
 def divides_list(a, b):
      return [[int(i / j) for i, j in zip(a, b)],
              [i % j for i, j in zip(a, b)]]
- 
- 
+
+
 @xml_process('''
 <process capsul_xml="2.0">
     <input name="a" type="list_int" doc="An integers list"/>
@@ -261,7 +261,7 @@ class TestLoadFromDescription(unittest.TestCase):
         self.assertEqual(process.values, "a_b_c")
         process(value1="", value2="v", value3="")
         self.assertEqual(process.values, "v")
-        
+
     def test_return_list(self):
         process = get_process_instance(
             "capsul.process.test.test_load_from_description.join")
@@ -281,12 +281,12 @@ class TestLoadFromDescription(unittest.TestCase):
         process(a=42, b=3)
         self.assertEqual(process.quotient, 14)
         self.assertEqual(process.remainder, 0)
-        
+
         a = list(range(40, 50))
         b = list(range(10, 21))
         quotients = [int(i / j) for i, j in zip(list(range(40, 50)), list(range(10, 21)))]
         remainders = [i % j for i, j in zip(list(range(40, 50)), list(range(10, 21)))]
-        
+
         process = get_process_instance(
             "capsul.process.test.test_load_from_description.divides_dict")
         process(a=a, b=b)
@@ -297,7 +297,7 @@ class TestLoadFromDescription(unittest.TestCase):
         process(a=a, b=b)
         self.assertEqual(process.quotients, quotients)
         self.assertEqual(process.remainders, remainders)
-        
+
         process = get_process_instance(
             "capsul.process.test.test_load_from_description.divides_single_dict")
         process(a=a, b=b)
@@ -306,7 +306,7 @@ class TestLoadFromDescription(unittest.TestCase):
             "capsul.process.test.test_load_from_description.divides_single_list")
         process(a=a, b=b)
         self.assertEqual(process.quotients, quotients)
-        
+
 class TestProcessWrap(unittest.TestCase):
     """ Class to test the function used to wrap a function to a process
     """

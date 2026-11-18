@@ -86,7 +86,7 @@ class SomaWorkflowConfig(StudyConfigModule):
     connect_resource
     disconnect_resource
     '''
-    
+
     def __init__(self, study_config, configuration):
 
         super(SomaWorkflowConfig, self).__init__(study_config, configuration)

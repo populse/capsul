@@ -93,8 +93,8 @@ class StudyConfig(Controller):
         running a process
     process_output_directory : bool (default False)
         Create a process specific output_directory by appending a
-        subdirectory to output_directory. This subdirectory is named 
-        '<count>-<name>' where <count> if self.process_counter and <name> 
+        subdirectory to output_directory. This subdirectory is named
+        '<count>-<name>' where <count> if self.process_counter and <name>
         is the name of the process.
 
     Methods
@@ -776,7 +776,7 @@ def default_study_config():
         _default_study_config = StudyConfig()
     return _default_study_config
 
-    
+
 
 class StudyConfigModule(object):
     '''

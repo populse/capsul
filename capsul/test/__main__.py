@@ -20,14 +20,14 @@ def load_tests(loader, standard_tests, pattern):
     :return: A test suite
     """
     suite = unittest.TestSuite()
-    
+
     base = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
     for root, dirs, files in os.walk(base):
         if '__init__.py' not in files:
             continue
         for f in files:
             if f.startswith('test_') and f.endswith('.py'):
-                module_name = 'capsul.%s' % (root[len(base)+1:].replace(os.path.sep, '.') + '.' + f[:-3])   
+                module_name = 'capsul.%s' % (root[len(base)+1:].replace(os.path.sep, '.') + '.' + f[:-3])
                 try:
                     module = import_module(module_name)
                     import_error = None

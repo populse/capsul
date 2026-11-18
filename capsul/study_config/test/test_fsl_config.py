@@ -13,15 +13,15 @@ from traits.api import File, Undefined
 
 from capsul.study_config.study_config import StudyConfig, Process
 from capsul.subprocess import fsl
-    
+
 class Bet(Process):
     input_image = File(optional=False, output=False)
     output_image = File(optional=False, output=True)
-    
+
 
     def _run_process(self):
         fsl.check_call(self.study_config, ['bet', self.input_image, self.output_image])
-    
+
 
 class TestFSL(unittest.TestCase):
 

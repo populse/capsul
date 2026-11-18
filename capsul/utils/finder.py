@@ -30,7 +30,7 @@ def find_processes(module_name, ignore_import_error=True):
     importlib.import_module(module_name)
     module = sys.modules[module_name]
     module_names  = [module_name]
-    for i, m, p in pkgutil.walk_packages(module.__path__, 
+    for i, m, p in pkgutil.walk_packages(module.__path__,
                                          prefix='%s.' % module_name):
         module_names.append(m)
 

@@ -73,11 +73,11 @@ class BoardWidget(QtGui.QWidget):
         self._fill_trees()
 
     ###########################################################################
-    # Methods   
+    # Methods
     ###########################################################################
 
     def create_output_widget(self):
-        """ Method to create the output controller widget built 
+        """ Method to create the output controller widget built
         from the class controller output traits
         """
         self.output_controller_widget = ControllerWidget(
@@ -114,7 +114,7 @@ class BoardWidget(QtGui.QWidget):
         self.board_tree.headerItem().setText(4, "Logs")
 
     ###########################################################################
-    # Private methods   
+    # Private methods
     ###########################################################################
 
     def _title_for(self, title):
@@ -141,7 +141,7 @@ class BoardWidget(QtGui.QWidget):
         # status - metainforamtion
         viewers_struct = {}
         processings_struct = []
-    
+
         # Go through all the controller (pipeline) nodes.
         for node_name, node in six.iteritems(self.controller.nodes):
 
@@ -243,7 +243,7 @@ class BoardWidget(QtGui.QWidget):
         if not isinstance(node, Switch):
 
             # Browse recursively pipeline nodes
-            if (isinstance(node.process, Pipeline) and 
+            if (isinstance(node.process, Pipeline) and
                 node.node_type != "view_node"):
 
                 pipeline = node.process
@@ -257,5 +257,3 @@ class BoardWidget(QtGui.QWidget):
                     view_nodes.append((node, parent_pipeline))
                 else:
                     process_nodes.append(node)
-
-        

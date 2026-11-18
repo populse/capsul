@@ -33,9 +33,9 @@ class AttributesSchema(object):
 
     def __init__(self):
         # Instantiate EditableAttributes classes that are defined in schema
-        sets = dict((k, getattr(self.__class__, k)()) for k in 
+        sets = dict((k, getattr(self.__class__, k)()) for k in
                     dir(self.__class__)
-                    if isinstance(getattr(self.__class__, k), type) and 
+                    if isinstance(getattr(self.__class__, k), type) and
                        issubclass(getattr(self.__class__, k), EditableAttributes))
         self.attribute_sets = sets
 
@@ -51,7 +51,7 @@ class EditableAttributes(Controller):
 
 def set_attribute(object, name, value):
     '''
-    
+
     '''
     setattr(object, name, value)
 
@@ -74,7 +74,7 @@ class ProcessAttributes(Controller):
 
     See Capsul :ref:`advanced usage doc <completion>` for details.
     '''
-    
+
     def __init__(self, process, schema_dict):
         super(ProcessAttributes, self).__init__()
         self._process = process

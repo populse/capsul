@@ -24,7 +24,7 @@ from six.moves import range
 class WriteOutput(Process):
     input_image = File()
     output_image = File(output=True)
-    
+
     def _run_process(self):
         # Copy input_image in output_image
         with open(self.input_image,'rb') as i:
@@ -37,12 +37,12 @@ class ProcessSlice(Process):
     slice_number = Int()
     output_image_dependency = File()
     output_image = File(output=True)
-    
+
     def _run_process(self):
         file_size = os.stat(self.output_image).st_size
         if self.slice_number >= int(file_size/2):
             raise ValueError('Due to output file size, slice_number cannot '
-                'be more than %d but %d was given' % (int(file_size/2), 
+                'be more than %d but %d was given' % (int(file_size/2),
                 self.slice_number))
         with open(self.output_image, 'r+b') as f:
             f.seek(self.slice_number*2, 0)
@@ -51,35 +51,35 @@ class ProcessSlice(Process):
 class MyPipeline(Pipeline):
     """ Simple Pipeline to test the iterative Node
     """
-    
+
     def __init__(self):
         super(MyPipeline, self).__init__()
         self.on_trait_change(self.input_image_changed, 'input_image')
-        
+
     def input_image_changed(self):
         if isinstance(self.input_image, six.string_types) and \
                 osp.exists(self.input_image):
             self.slices = list(range(int(os.stat(self.input_image).st_size/2)))
         else:
             self.slices = []
-        
+
     def pipeline_definition(self):
         """ Define the pipeline.
         """
         self.add_process('write_output', WriteOutput)
         self.export_parameter('write_output', 'input_image')
         self.export_parameter('write_output', 'output_image')
-        
+
         # Create an iterative processe
         self.add_process(
             'process_slices', ProcessIteration( ProcessSlice,
                 iterative_parameters = ['slice_number']))
-        
+
         self.export_parameter('process_slices', 'slice_number', 'slices')
         self.add_link('write_output.output_image->process_slices.output_image_dependency')
         self.add_link('input_image->process_slices.input_image')
         self.add_link('process_slices.output_image->output_image')
-        
+
         self.node_position = {'inputs': (-166.0, 78.18130000000002),
                               'outputs': (440.07785249999995, 23.68130000000002),
                               'process_slices': (193.47765249999998, 78.86126000000002),

@@ -31,7 +31,7 @@ from traits.api import Undefined
 def create_xml_pipeline(module, name, xml_file):
     """
     Create a pipeline class given its Capsul XML 2.0 representation.
-    
+
     Parameters
     ----------
     module: str (mandatory)
@@ -41,7 +41,7 @@ def create_xml_pipeline(module, name, xml_file):
         name of the new pipeline class
     xml_file: str (mandatory)
         name of file containing the XML description or XML string.
-    
+
     """
     if hasattr(xml_file, 'read') or os.path.exists(xml_file):
         xml_pipeline = ET.parse(xml_file).getroot()

@@ -595,8 +595,8 @@ class NodeGWidget(QtGui.QGraphicsItem):
         self.sizer.hmin = h
         self.changeSize(w, h + margin)
         self.sizer.setPos(w, h + margin)
-        
-        
+
+
 
     def _colored_text_item(self, label, text=None, margin=2):
         labelc = self._get_label(label, False)
@@ -1108,25 +1108,25 @@ class NodeGWidget(QtGui.QGraphicsItem):
         #         rect.setWidth(brect.width())
         #         self.box_title.setRect(rect)
         #         self.box.setRect(self.boundingRect())
-        
+
         ################a dd by Irmage OM #############################################
         try :
             dim = self.scene().dim.get(self.box.name)
             if isinstance(dim, Qt.QPointF):
                 dim=(dim.x(),dim.y())
-            
+
             self.updateSize(dim[0],dim[1])
-#             self.scene().dim[self.box.name] = (dim[0],dim[1]) 
+#             self.scene().dim[self.box.name] = (dim[0],dim[1])
 #             print("update_node : self.scene().dim ",dim)
 
         except Exception:
             dim = (self.box.boundingRect().size().width(), self.box.boundingRect().size().height())
             self.updateSize(dim[0],dim[1])
-#             self.scene().dim[self.box.name] = (dim[0],dim[1]) 
+#             self.scene().dim[self.box.name] = (dim[0],dim[1])
 #             print("update_node : boundingRect()")
         ##############################################################################
 
-        
+
     def contentsRect(self):
         brect = QtCore.QRectF(0, 0, 0, 0)
         first = True
@@ -1595,11 +1595,11 @@ class PipelineScene(QtGui.QGraphicsScene):
             if not isinstance(pos, Qt.QPointF):
                 pos = Qt.QPointF(pos[0], pos[1])
             gnode.setPos(pos)
-        
+
         self.gnodes[name] = gnode
 #         gnode.update_node()
-        
-        
+
+
          #repositioning 'inputs' node
         if name == 'inputs':
             pos_left_most=(0,0)
@@ -1610,8 +1610,8 @@ class PipelineScene(QtGui.QGraphicsScene):
             xl = pos_left_most[0]-(2*self.gnodes[name].boundingRect().size().width())
             yl = pos_left_most[1]
             self.gnodes[name].setPos(xl,yl)
-#             gnode.update_node()    
-             
+#             gnode.update_node()
+
         #repositioning 'outputs' node
         if name == 'outputs':
             pos_right_most=(0,0)
@@ -2748,7 +2748,7 @@ class PipelineDeveloperView(QGraphicsView):
                     pos[i] = j
                 else:
                     pos[i] = QtCore.QPointF(*j)
-        
+
         ############### add by Irmage OM #######################
         if hasattr(pipeline, 'node_dimension'):
             for i, j in six.iteritems(pipeline.node_dimension):
@@ -2756,9 +2756,9 @@ class PipelineDeveloperView(QGraphicsView):
                     dim[i] = (j.x(), j.y())
                 else:
                     dim[i] = j
-                    
+
 #         print("_set_pipeline : ",pos," ; ",dim)
-        #######################################################            
+        #######################################################
         self.release_pipeline()
         self.scene.set_pipeline(pipeline)
         self.scene.pos = pos
@@ -2771,11 +2771,11 @@ class PipelineDeveloperView(QGraphicsView):
                     pipeline.scene_scale_factor, pipeline.scene_scale_factor)
 
             self.reset_initial_nodes_positions()
-        
+
         ################" add by Irmage #############################################
         self.fitInView(self.sceneRect(), QtCore.Qt.KeepAspectRatio)
         #############################################################################
-        
+
 
     def set_pipeline(self, pipeline):
         '''
@@ -2792,7 +2792,7 @@ class PipelineDeveloperView(QGraphicsView):
             if hasattr(pipeline, 'pipeline_steps'):
                 pipeline.pipeline_steps.on_trait_change(
                     self._reset_pipeline, dispatch='ui')
-                
+
     def closeEvent(self, event):
         """Ensure pipeline is released before the widget is closed."""
         self.release_pipeline()
@@ -2836,7 +2836,7 @@ class PipelineDeveloperView(QGraphicsView):
             if sip.isdeleted(self):
                 # prevent 'C++ object has been deleted' error
                 return
-        
+
             self.setScene(None)
 
             if hasattr(self, 'scene') and self.scene:
@@ -2845,10 +2845,10 @@ class PipelineDeveloperView(QGraphicsView):
                 # still exists
                 try:
                     self.scene._release()
-    
+
                 except Exception:
                     pass
-            
+
                 # the scene is not deleted after all refs are released, even
                 # after self.setScene(None). This is probably a bug in PyQt:
                 # the C++ layer keeps ownership of the scene, whereas it should
@@ -3770,7 +3770,7 @@ class PipelineDeveloperView(QGraphicsView):
             return
 
 #         ############## add by Irmage OM ###################
-#         dim = getattr(scene.pipeline, 'node_dimension') 
+#         dim = getattr(scene.pipeline, 'node_dimension')
 #         if dim is not None:
 #             scene.dim = dim
 #             print()
@@ -5133,10 +5133,10 @@ class PipelineDeveloperView(QGraphicsView):
         """
 
         def hinted_tuple_hook(obj):
-            
+
             if '__tuple__' in obj:
                 return tuple(obj['items'])
-            
+
             else:
                 return obj
 
@@ -5154,13 +5154,13 @@ class PipelineDeveloperView(QGraphicsView):
                 raise KeyError('No "pipeline_parameters" key found in {0}.'.format(filename))
 
             for trait_name, trait_value in dic["pipeline_parameters"].items():
-                
+
                 if trait_name not in list(self.scene.pipeline.user_traits().keys()):
                     print('No "{0}" parameter in pipeline.'.format(trait_name))
-                    
+
                 try:
                     setattr(self.scene.pipeline, trait_name, trait_value)
-                    
+
                 except traits.TraitError:
                     print("Error for the plug {0}".format(trait_name))
 

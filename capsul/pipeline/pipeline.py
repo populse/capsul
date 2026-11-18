@@ -199,12 +199,12 @@ class Pipeline(Process):
     _doc_path = 'api/pipeline.html#pipeline'
 
     selection_changed = Event()
-    
+
     # The default value for do_autoexport_nodes_parameters is stored in the
     # pipeline class. This makes it possible to change this default value
     # in derived classes (for instance in DynamicPipeline).
     do_autoexport_nodes_parameters = True
-    
+
     # By default nodes_activation trait is hidden in user interface. Changing
     # this value to False will make it visible.
     hide_nodes_activation = True
@@ -238,17 +238,17 @@ class Pipeline(Process):
             self.node_position = node_position.copy()
         else:
             self.node_position = {}
-        
-        
-        ###############add by Irmage OM ######################### 
+
+
+        ###############add by Irmage OM #########################
         node_dimension = getattr(self,'node_dimension', None)
         if node_dimension:
             self.node_dimension = node_dimension.copy()
         else:
             self.node_dimension = {}
         #########################################################
-            
-            
+
+
         self.pipeline_node = PipelineNode(self, '', self)
         self.nodes[''] = self.pipeline_node
         self.do_not_export = set()
@@ -360,7 +360,7 @@ class Pipeline(Process):
                 for link in plug.links_from:
                     src = '%s.%s' % (link[0], link[1])
                     links_to_remove.append('%s->%s' % (src, name))
-                for link in links_to_remove:    
+                for link in links_to_remove:
                     self.remove_link(link)
                 del self.pipeline_node.plugs[name]
 
@@ -491,7 +491,7 @@ class Pipeline(Process):
             raise ValueError("Pipeline cannot have two nodes with the "
                              "same name : {0}".format(name))
 
-        # It is necessary not to import study_config.process_instance at 
+        # It is necessary not to import study_config.process_instance at
         # the module level because there are circular dependencies between
         # modules. For instance, Pipeline class needs get_process_instance
         # which needs create_xml_pipeline which needs Pipeline class.
@@ -655,7 +655,7 @@ class Pipeline(Process):
         """
         return getattr(self.nodes[process_name].process, method)(*args,
                                                                  **kwargs)
-    
+
     def add_switch(self, name, inputs, outputs, export_switch=True,
                    make_optional=(), output_types=None, switch_value=None,
                    opt_nodes=None):
@@ -2147,7 +2147,7 @@ class Pipeline(Process):
             (e.g. 'node "my_process" is missing')
         """
         result = []
-        
+
         def compare_dict(ref_dict, other_dict):
             for ref_key, ref_value in six.iteritems(ref_dict):
                 if ref_key not in other_dict:
@@ -2213,11 +2213,11 @@ class Pipeline(Process):
                                 result.append('in plug "%s:%s": link to %s is'
                                               '%sweak' % (node_name, plug_name,
                                                           link_name, (' not'
-                                                          if weak_link else 
+                                                          if weak_link else
                                                           '')))
                     for link_name, weak_link in six.iteritems(links_to_dict):
                         result.append('in plug "%s:%s": %slink to %s is new' %
-                            (node_name,plug_name, (' weak' if weak_link else 
+                            (node_name,plug_name, (' weak' if weak_link else
                             ''),link_name))
                     for nn, pn, n, p, weak_link in plug.links_from:
                         link_name = '%s:%s' % (n.full_name, pn)
@@ -2229,7 +2229,7 @@ class Pipeline(Process):
                             other_weak_link = links_from_dict.pop(link_name)
                             if weak_link != other_weak_link:
                                 result.append('in plug "%s:%s": link from %s '
-                                              'is%sweak' % (node_name, 
+                                              'is%sweak' % (node_name,
                                                             plug_name,
                                                             link_name,(' not'
                                                             if weak_link else
@@ -2400,7 +2400,7 @@ class Pipeline(Process):
         streams. They are different from pipelines in that steps are purely
         virtual groups, they do not have parameters.
 
-        Disabling a step acts differently as the pipeline node activation: 
+        Disabling a step acts differently as the pipeline node activation:
         other nodes are not inactivated according to their dependencies.
         Instead, those steps are not run.
 
@@ -2476,7 +2476,7 @@ class Pipeline(Process):
         for group, processes in \
                 six.iteritems(self.processes_selection[selection_name]):
             enabled = (group == selection_group)
-            for node_name in processes: 
+            for node_name in processes:
                 self.nodes[node_name].enabled = enabled
         self.restore_update_nodes_and_plugs_activation()
 

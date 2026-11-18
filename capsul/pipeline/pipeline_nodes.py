@@ -212,12 +212,12 @@ class Node(Controller):
             raise ReferenceError(
                 'The process underlying node %s, %s has been destroyed '
                 'before the node that contains it.' % (self, self.name))
-    
+
     @process.setter
     def process(self, value):
         self._process = value
-    
-    
+
+
     @property
     def full_name(self):
         if self.pipeline.parent_pipeline:

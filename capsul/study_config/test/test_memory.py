@@ -64,7 +64,7 @@ class TestMemory(unittest.TestCase):
         # Create the memory object
         self.cachedir = tempfile.mkdtemp()
         self.mem = Memory(self.cachedir)
-    
+
         # Call the test
         self.proxy_process()
 
@@ -77,7 +77,7 @@ class TestMemory(unittest.TestCase):
         # Create the memory object
         self.cachedir = None
         self.mem = Memory(self.cachedir)
-    
+
         # Call the test
         self.proxy_process()
 
@@ -87,7 +87,7 @@ class TestMemory(unittest.TestCase):
         # Create the memory object
         self.cachedir = None
         self.mem = Memory(self.cachedir)
-    
+
         # Call the test
         self.proxy_process_copy()
 

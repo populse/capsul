@@ -17,7 +17,7 @@ try:
 except ImportError:
     raise ImportError('Skipping tests because no Qt GUI module can be imported')
 
-# Capsul import involving GUI    
+# Capsul import involving GUI
 from capsul.qt_gui.board_widget import BoardWidget
 
 class DummyProcess(Process):

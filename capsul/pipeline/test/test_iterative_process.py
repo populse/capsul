@@ -242,7 +242,7 @@ class TestPipeline(unittest.TestCase):
         self.assertIn("tutu-5.0-1.0",
                         [os.path.basename(f)
                         for f in self.pipeline.output_image])
-        self.assertEqual(self.pipeline.other_output, 
+        self.assertEqual(self.pipeline.other_output,
                          [self.pipeline.other_input,
                           self.pipeline.other_input])
 

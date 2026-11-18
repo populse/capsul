@@ -33,7 +33,7 @@ class FreeSurferConfig(StudyConfigModule):
         Parameters
         ----------
         study_config: StudyConfig object
-            the study configuration we want to update in order to deal with 
+            the study configuration we want to update in order to deal with
             freesurfer functions.
         """
         super(FreeSurferConfig, self).__init__(study_config, configuration)

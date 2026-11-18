@@ -242,7 +242,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
             self.default_values[k] = v
 
     def __getstate__(self):
-        """ Remove the _weakref attribute eventually set by 
+        """ Remove the _weakref attribute eventually set by
         soma.utils.weak_proxy because it prevents Process instance
         from being used with pickle.
         """
@@ -252,7 +252,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         state.pop('__doc__', None)
         state.pop('study_config', None)
         return state
-    
+
     def add_trait(self, name, trait):
         """Ensure that trait.output and trait.optional are set to a
         boolean value before calling parent class add_trait.
@@ -266,7 +266,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
             trait.output = bool(trait.output)
             trait.optional = bool(trait.optional)
         super(Process, self).add_trait(name, trait)
-        
+
     def __call__(self, **kwargs):
         """ Method to execute the Process.
 
@@ -312,7 +312,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         '''
         return self.__call__(**kwargs)
 
-    
+
     ####################################################################
     # Private methods
     ####################################################################
@@ -354,7 +354,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
                 "Either get_commandline() or _run_process() should be "
                 "redefined in process ({0})".format(
                     self.__class__.__name__))
-    
+
     def _before_run_process(self):
         """This method is called by StudyConfig.run() before calling
         _run_process(). By default, it does nothing but can be overridden
@@ -369,7 +369,7 @@ class Process(six.with_metaclass(ProcessMeta, Controller)):
         in derived classes.
         """
         return run_process_result
-        
+
 
     def _get_log(self, exec_info):
         """ Method that generate the logging structure from the execution
@@ -1999,7 +1999,7 @@ class NipypeProcess(FileCopyProcess):
 
 class InteractiveProcess(Process):
     '''
-    Base class for interactive processes. The value of the is_interactive 
+    Base class for interactive processes. The value of the is_interactive
     parameter determine if either the process can be run in background
     (eventually remotely) as a standard process (is_interactive = False)
     or if the process must be executed interactively in the user environment

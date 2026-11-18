@@ -19,7 +19,7 @@
 
     "processes" : {
         "Morphologist" : {
-            "t1mri": 
+            "t1mri":
                 [["input:{acquisition}/<subject>", "images"],
                 # ["input:{acquisition}/normalized_<normalization>_<subject>", "images"]
                 ],
@@ -103,10 +103,10 @@
 
             #Bias Correction
             "BiasCorrection_field": [ ["output:{analysis}/biasfield_<subject>","images"] ],
-            "BiasCorrection_hfiltered": [ ["output:{analysis}/hfiltered_<subject>",  "images"] ], 
-            "BiasCorrection_white_ridges": [ ["output:{analysis}/whiteridge_<subject>", "images"] ], 
-            "BiasCorrection_variance": [ ["output:{analysis}/variance_<subject>","images"] ], 
-            "BiasCorrection_edges": [ ["output:{analysis}/edges_<subject>","images"] ], 
+            "BiasCorrection_hfiltered": [ ["output:{analysis}/hfiltered_<subject>",  "images"] ],
+            "BiasCorrection_white_ridges": [ ["output:{analysis}/whiteridge_<subject>", "images"] ],
+            "BiasCorrection_variance": [ ["output:{analysis}/variance_<subject>","images"] ],
+            "BiasCorrection_edges": [ ["output:{analysis}/edges_<subject>","images"] ],
             "BiasCorrection_meancurvature": [ ["output:{analysis}/mean_curvature_<subject>", "images" ] ],
 
             #Histogram Analysis

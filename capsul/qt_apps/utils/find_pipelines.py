@@ -45,7 +45,7 @@ def find_pipelines_from_description(module_name, url=None):
         each key is a sub module of the module. Leafs contain a list with
         the url to the documentation.
     pipelines: list
-        a list a pipeline string descriptions.        
+        a list a pipeline string descriptions.
     """
     # Try to import the module
     try:

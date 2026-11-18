@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''
-Specific subprocess-like functions to call FSL taking into account 
+Specific subprocess-like functions to call FSL taking into account
 configuration stored in ExecutionContext. To functions and class in
 this module it is mandatory to activate an ExecutionContext (using a
 with statement). For instance::
@@ -13,8 +13,8 @@ with statement). For instance::
        fsl_check_call(['bet', '/somewhere/myimage.nii'])
 
 For calling FSL command with this module, the first argument of
-command line must be the FSL executable without any path nor prefix. 
-Prefix are used in Neurodebian install. For instance on Ubuntu 16.04 
+command line must be the FSL executable without any path nor prefix.
+Prefix are used in Neurodebian install. For instance on Ubuntu 16.04
 Neurodebian FSL commands are prefixed with "fsl5.0-".
 The appropriate path and eventually prefix are added from the configuration
 of the ExecutionContext.
@@ -72,18 +72,18 @@ def fsl_command_with_environment(command, use_prefix=True,
         fsldir = osp.dirname(osp.dirname(osp.dirname(fsl_config)))
         shell = os.environ.get('SHELL', '/bin/sh')
         if shell.endswith('csh'):
-            cmd = [shell, '-c', 
+            cmd = [shell, '-c',
                 'setenv FSLDIR "{0}"; setenv PATH "{0}/bin:$PATH"; source {0}/etc/fslconf/fsl.csh;exec {1}{2} '.format(
                     fsldir, fsl_prefix, command[0]) + \
                     ' '.join("'%s'" % i.replace("'", "\\'") for i in command[1:])]
         else:
-            cmd = [shell, '-c', 
+            cmd = [shell, '-c',
                 'export FSLDIR="{0}"; export PATH="{0}/bin:$PATH"; . {0}/etc/fslconf/fsl.sh;exec {1}{2} '.format(
                     fsldir, fsl_prefix, command[0]) + \
                     ' '.join("'%s'" % i.replace("'", "\\'") for i in command[1:])]
     else:
         cmd = ['%s%s%s' % (dir_prefix,
-                           fsl_prefix, 
+                           fsl_prefix,
                            command[0])] + command[1:]
     return cmd
 

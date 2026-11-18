@@ -385,7 +385,7 @@ class MemorizedProcess(object):
         duration = time.time() - start_time
 
         # Save the result in json format
-        cache = {'parameters': dict((i, getattr(self.process, i)) 
+        cache = {'parameters': dict((i, getattr(self.process, i))
                                     for i in self.process.user_traits()),
                  'result': result}
         json_data = json.dumps(cache, sort_keys=True,

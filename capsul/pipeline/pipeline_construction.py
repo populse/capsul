@@ -29,20 +29,20 @@ class PipelineConstructor(object):
     wants to create a pipeline from an external source (i.e. a source that is
     not an installed Python module). For instance, the creation of a pipeline
     from an XML representation uses a PipelineConstructor.
-    
+
     Attributes
     ----------
     `pipeline`: ConstructedPipeline derived class
         the constructed Pipeline class
     """
-    
+
     def __init__(self, module, name):
         """
         Initialize a new empty ConstructedPipeline class that is ready to be
         customized by calling methods of the PipelineConstructor. When pipeline
         creation is done, the pipeline class can be accessed with the
         `pipeline` attribute.
-        
+
         Parameters
         ----------
         module: str (mandatory)
@@ -57,30 +57,30 @@ class PipelineConstructor(object):
             'node_position': {}
         }
         self.pipeline = type(name, (ConstructedPipeline,), class_kwargs)
-        # self.__calls is simply a shortcut to 
+        # self.__calls is simply a shortcut to
         # self.pipeline._pipeline_definition_calls
         self._calls = self.pipeline._pipeline_definition_calls
-    
+
 
     def add_process(self, *args, **kwargs):
         """Adds a new process to the pipeline.
         """
         self._calls.append(('add_process', args, kwargs))
-    
-    
+
+
     def add_iterative_process(self, *args, **kwargs):
         """Adds a new iterative process to the pipeline.
         """
         self._calls.append(('add_iterative_process', args, kwargs))
-    
-    
+
+
     def call_process_method(self, *args, **kwargs):
         """ Call a method of a process previously added
         with add_process or add_itConstructedPipelineerative_process.
         """
         self._calls.append(('call_process_method', args, kwargs))
 
-        
+
     def add_link(self, *args, **kwargs):
         """Add a link between pipeline processes.
         """
@@ -116,8 +116,8 @@ class PipelineConstructor(object):
         """ Set a pipeline node position.
         """
         self.pipeline.node_position[node_name] = (x, y)
-    
-    
+
+
     def set_scene_scale_factor(self, scale):
         """ Set global nodes view scale factor.
         """
@@ -172,7 +172,7 @@ class ConstructedPipeline(Pipeline):
     """
     def pipeline_definition(self):
         """
-        Executes on `self`, all method calls recorded in 
+        Executes on `self`, all method calls recorded in
         self._pipeline_definition_calls.
         """
         for method_name, args, kwargs in self._pipeline_definition_calls:

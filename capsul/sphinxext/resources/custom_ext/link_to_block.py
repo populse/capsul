@@ -41,7 +41,7 @@ class LinkToBlock(BaseAdmonition):
 
 # Add html writer
 def visit_ltb_html(self, node):
-    """ Visit link to block"""   
+    """ Visit link to block"""
     # Generate the html div
     position = node.get("right-side", True)
     self.body.append("<div class='{0}'>".format(

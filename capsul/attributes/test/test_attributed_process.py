@@ -207,13 +207,13 @@ class TestCompletion(unittest.TestCase):
         atts.subject = ['kermit', 'piggy', 'stalter', 'waldorf']
         cm.complete_parameters()
         self.assertEqual([os.path.normpath(p) for p in pipeline.truc],
-                         [os.path.normpath(p) for p in 
+                         [os.path.normpath(p) for p in
                             ['/tmp/in/DummyProcess_truc_muppets_kermit',
                              '/tmp/in/DummyProcess_truc_muppets_piggy',
                              '/tmp/in/DummyProcess_truc_muppets_stalter',
                              '/tmp/in/DummyProcess_truc_muppets_waldorf']])
         self.assertEqual([os.path.normpath(p) for p in pipeline.bidule],
-                         [os.path.normpath(p) for p in 
+                         [os.path.normpath(p) for p in
                             ['/tmp/out/DummyProcess_bidule_muppets_kermit',
                              '/tmp/out/DummyProcess_bidule_muppets_piggy',
                              '/tmp/out/DummyProcess_bidule_muppets_stalter',

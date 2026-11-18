@@ -42,7 +42,7 @@ tests_no_files = [
         'SPMConfig', 'SmartCachingConfig', 'SomaWorkflowConfig'],
     None,
     None]],
- 
+
 # Test StudyConfig('my_study')
 [[('my_study',), {}],[
     {
@@ -61,7 +61,7 @@ tests_no_files = [
         'SPMConfig', 'SmartCachingConfig', 'SomaWorkflowConfig'],
     None,
     None]],
-        
+
 # Test StudyConfig('other_study')
 [[('other_study',), {}],[
     {
@@ -87,7 +87,7 @@ tests_no_files = [
 #        "generate_logging": False,
 #    },
 #    [], None, None]],
-    
+
 # Test StudyConfig(modules=['SomaWorkflowConfig'])
 [[(),dict(modules=['SomaWorkflowConfig'])], [
     {
@@ -102,7 +102,7 @@ tests_no_files = [
     },
     ['SomaWorkflowConfig'], None, None]],
 
-    
+
 [[(),dict(init_config={}, modules=StudyConfig.default_modules + ['FSLConfig',
                                   'FreeSurferConfig', 'BrainVISAConfig'])],[
     {
@@ -128,7 +128,7 @@ tests_no_files = [
 ]
 
 
-# StudyConfig instantiation tests and expected results using configuration 
+# StudyConfig instantiation tests and expected results using configuration
 # files in user directory (a temporary directory is used instead of the user
 # directory for this test).
 tests_standard_files = [
@@ -151,10 +151,10 @@ tests_standard_files = [
         'SPMConfig', 'SmartCachingConfig', 'SomaWorkflowConfig'],
     'config.json',
      None]],
- 
+
 # Test StudyConfig('my_study')
 [[('my_study',), {}],[
-    {   'use_fom': True, 
+    {   'use_fom': True,
         'auto_fom': True,
         'shared_fom': "",
         'input_fom': "",
@@ -209,7 +209,7 @@ tests_standard_files = [
     [],
     None,
     None]],
-    
+
 # Test StudyConfig(modules=['SomaWorkflowConfig'])
 [[(),dict(modules=['SomaWorkflowConfig'])], [
     {
@@ -227,7 +227,7 @@ tests_standard_files = [
     None]],
 ]
 
-# StudyConfig instantiation tests and expected results using configuration 
+# StudyConfig instantiation tests and expected results using configuration
 # files defined in CAPSUL_CONFIG.
 tests_custom_files = [
 
@@ -249,10 +249,10 @@ tests_custom_files = [
         'SPMConfig', 'SmartCachingConfig', 'SomaWorkflowConfig'],
     os.path.join('somewhere', 'config.json'),
      None]],
- 
+
 # Test StudyConfig('my_study')
 [[('my_study',), {}],[
-    {   'use_fom': True, 
+    {   'use_fom': True,
         'auto_fom': True,
         'shared_fom': "",
         'input_fom': "",
@@ -307,7 +307,7 @@ tests_custom_files = [
     [],
     None,
     None]],
-    
+
 # Test StudyConfig(modules=['SomaWorkflowConfig'])
 [[(),dict(modules=['SomaWorkflowConfig'])], [
     {
@@ -355,13 +355,13 @@ class TestStudyConfigConfiguration(unittest.TestCase):
                 sargs += ', '.join('%s=%s' % (repr(i),repr(j)) for i,j
                                    in six.iteritems(kwargs))
             sc = StudyConfig(*args, **kwargs)
-            (expected_config, expected_modules, global_config_file, 
+            (expected_config, expected_modules, global_config_file,
             study_config_file) = results
             if global_config_file:
-                global_config_file = os.path.join(user_config_directory, 
+                global_config_file = os.path.join(user_config_directory,
                                                 global_config_file)
             if study_config_file:
-                study_config_file = os.path.join(user_config_directory, 
+                study_config_file = os.path.join(user_config_directory,
                                                 study_config_file)
             config = sc.get_configuration_dict()
             modules = sorted(sc.modules.keys())
@@ -374,16 +374,16 @@ class TestStudyConfigConfiguration(unittest.TestCase):
                                 repr(getattr(sc, name))))
                 self.assertEqual(modules, expected_modules,
                     'StudyConfig(%s) %s modules are %s but expected value is '
-                    '%s' % (sargs, test_description, repr(modules), 
+                    '%s' % (sargs, test_description, repr(modules),
                             repr(expected_modules)))
                 self.assertEqual(sc.global_config_file, global_config_file,
                     'StudyConfig(%s) %s global_config_file should be %s but '
-                    'is %s' % (sargs,test_description, 
-                                repr(global_config_file), 
+                    'is %s' % (sargs,test_description,
+                                repr(global_config_file),
                                 repr(sc.global_config_file)))
                 self.assertEqual(sc.study_config_file, study_config_file,
                     'StudyConfig(%s) %s study_config_file should be %s but is '
-                    '%s' % (sargs, test_description, repr(study_config_file), 
+                    '%s' % (sargs, test_description, repr(study_config_file),
                             repr(sc.study_config_file)))
             except Exception as e:
                 raise EnvironmentError('When testing StudyConfig(*{0}, **{1}), got the following error: {2}'.format(args, kwargs, e))
@@ -393,14 +393,14 @@ class TestStudyConfigConfiguration(unittest.TestCase):
         try:
             # Run tests without any configuration file
             StudyConfig._user_config_directory = user_config_directory
-            self.run_study_config_instanciation(tests_no_files, 
+            self.run_study_config_instanciation(tests_no_files,
                 'without configuration files', user_config_directory)
 
             # Check wrong value in CAPSUL_CONFIG environment variable
             os.environ['CAPSUL_CONFIG'] = \
                 os.path.join(user_config_directory,'i_do_not_exists.json')
             #try:
-            self.run_study_config_instanciation(tests_no_files, 
+            self.run_study_config_instanciation(tests_no_files,
                 'with wrong CAPSUL_CONFIG environment variable',
                 user_config_directory)
             #except IOError, e:
@@ -432,12 +432,12 @@ class TestStudyConfigConfiguration(unittest.TestCase):
             with open(other_study_config_file,'w') as f:
                 json.dump(other_study_config, f)
 
-            self.run_study_config_instanciation(tests_standard_files, 
+            self.run_study_config_instanciation(tests_standard_files,
                 'with standard configuration files',
                 user_config_directory)
 
             os.environ['CAPSUL_CONFIG'] = other_config_file
-            self.run_study_config_instanciation(tests_custom_files, 
+            self.run_study_config_instanciation(tests_custom_files,
                 'with CAPSUL_CONFIG configuration files',
                 user_config_directory)
         finally:

@@ -43,7 +43,7 @@ _known_values = {
     'Undefined': Undefined,
     'None': Undefined
 }
-    
+
 def string_to_value(string):
     """ Converts a string into a Python value without executing code.
     """
@@ -58,7 +58,7 @@ def string_to_value(string):
 class XMLProcess(Process):
     """ Base class of all generated classes for processes defined as a Python
     function decorated with an XML string.
-    """    
+    """
     def _run_process(self):
         """ Execute the XMLProcess. Runs the function and check its result
         to set the output attributes values accordingly.
@@ -77,7 +77,7 @@ class XMLProcess(Process):
                 # their declaration order
                 if len(result) > len(self._function_outputs):
                     raise ValueError('Too many values (%d instead of %d) '
-                                     'returned by process %s' % 
+                                     'returned by process %s' %
                                      (len(result), len(self._function_outputs),
                                       self.id))
                 for i in range(len(self._function_outputs)):
@@ -167,13 +167,13 @@ def create_xml_process(module, name, function, xml):
         created process class.
     """
     xml_process = ET.fromstring(xml)
-    
+
     class_kwargs = {
         "__module__": module,
     }
     if function.__doc__:
         class_kwargs['__doc__'] = function.__doc__
-    
+
     args, varargs, varkw, defaults = getArgumentsSpecification(function)
     if defaults:
         default_values = dict((args[-1-i], defaults[-1-i]) for i in range(len(defaults)))
@@ -183,11 +183,11 @@ def create_xml_process(module, name, function, xml):
     version = xml_process.get('capsul_xml')
     if version and version != '2.0':
         raise ValueError('Only Capsul XML 2.0 is supported, not %s' % version)
-    
+
     role = xml_process.get('role')
     if role:
         class_kwargs['role'] = role
-    
+
     function_inputs = []
     function_outputs = []
     function_return = None
@@ -222,7 +222,7 @@ def create_xml_process(module, name, function, xml):
     class_kwargs['_function_inputs'] = function_inputs
     class_kwargs['_function_outputs'] = function_outputs
     class_kwargs['_function_return'] = function_return
-    
+
     # Get the process instance associated to the function
     process_class = type(str(name), (XMLProcess, ), class_kwargs)
     return process_class
@@ -230,7 +230,7 @@ def create_xml_process(module, name, function, xml):
 
 def xml_process(xml):
     """ Decorator used to associate a Python function to its Process XML
-    representation.    
+    representation.
     """
     def set_capsul_xml(function):
         function.capsul_xml = xml

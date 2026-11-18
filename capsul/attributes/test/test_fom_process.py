@@ -103,7 +103,7 @@ class TestCompletion(unittest.TestCase):
                 },
             }
         }
-        
+
         with open(os.path.join(tmp_fom, 'custom_fom.json'), 'w') as f:
             json.dump(fom, f)
 

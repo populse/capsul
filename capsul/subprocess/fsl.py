@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 '''
-Specific subprocess-like functions to call FSL taking into account a 
+Specific subprocess-like functions to call FSL taking into account a
 potential configuration done in StudyConfig. If a StudyConfig is not
 configured to use FSL, it may be automatically configured. Automatic
 configuration had been tested in the two following cases:
 
-- FSL was installed from the FMRIB site and, at least, FSLDIR 
+- FSL was installed from the FMRIB site and, at least, FSLDIR
   environment variable is set (fsl.sh can be sourced or not)
 - FSL was installed from Neurodebian packages
 
 For calling FSL command with this module, the first argument of
-command line must be the FSL executable without any path nor prefix. 
-Prefix areused  in Neurodebian install. For instance on Ubuntu 16.04 
+command line must be the FSL executable without any path nor prefix.
+Prefix areused  in Neurodebian install. For instance on Ubuntu 16.04
 Neurodebian FSL commands are prefixed with "fsl5.0-".
 The appropriate path and eventually prefix are added from the configuration
 of the StudyConfig instance.
@@ -67,18 +67,18 @@ def fsl_command_with_environment(study_config, command):
     if fsl_prefix is Undefined:
         fsl_prefix = ''
     if getattr(study_config, 'fsl_config', Undefined) is Undefined:
-        cmd = ['%s%s%s' % (dir_prefix, 
-                           fsl_prefix, 
+        cmd = ['%s%s%s' % (dir_prefix,
+                           fsl_prefix,
                            command[0])] + command[1:]
     else:
         fsldir = osp.dirname(osp.dirname(osp.dirname(study_config.fsl_config)))
         shell = os.environ.get('SHELL', '/bin/sh')
         if shell.endswith('csh'):
-            cmd = [shell, '-c', 
+            cmd = [shell, '-c',
                 'setenv FSLDIR "{0}";source {0}/etc/fslconf/fsl.csh;exec {0}/bin/{1}{2} '.format(fsldir, fsl_prefix, command[0]) + \
                     ' '.join("'%s'" % i.replace("'", "\\'") for i in command[1:])]
         else:
-            cmd = [shell, '-c', 
+            cmd = [shell, '-c',
                 'export FSLDIR="{0}";. {0}/etc/fslconf/fsl.sh;exec {0}/bin/{1}{2} '.format(fsldir, fsl_prefix, command[0]) + \
                     ' '.join("'%s'" % i.replace("'", "\\'") for i in command[1:])]
     return cmd
@@ -106,7 +106,7 @@ def check_fsl_configuration(study_config):
             raise EnvironmentError(error_message)
     study_config.use_fsl = True
     study_config._fsl_config_checked = True
-    
+
 def check_configuration_values(study_config):
     '''
     Check if the configuration is valid to run FLS and returns an error
@@ -155,7 +155,7 @@ class Popen(soma.subprocess.Popen):
         check_fsl_configuration(study_config)
         cmd = fsl_command_with_environment(study_config, command)
         super(Popen, self).__init__(cmd, **kwargs)
-        
+
 def call(study_config, command, **kwargs):
     '''
     Equivalent to Python subprocess.call for FSL commands

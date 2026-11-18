@@ -24,6 +24,6 @@
         <position name="p1" x="200" y="200"/>
         <position name="p2" x="400" y="-200"/>
         <position name="outputs" x="600" y="0"/>
-        <zoom level="1"/> 
+        <zoom level="1"/>
     </gui>
 </pipeline>

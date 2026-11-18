@@ -1,38 +1,44 @@
+minimum_pre_commit_version: "4.6.2" # last version with Python >=3.10
+
 repos:
--   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v6.0.0  # DO NOT UPDATE: last version to be compatible with Python 3.6
-    # rev: v6.0.0  # OK! we do not update !
-    hooks:
-    -   id: check-added-large-files
-    -   id: check-case-conflict
-    -   id: check-executables-have-shebangs
-    -   id: check-merge-conflict
-    -   id: check-shebang-scripts-are-executable
-    -   id: check-symlinks
-    -   id: check-xml
-    -   id: check-yaml
-        # FOMs have a .json extension but they are parsed as YAML
-        types_or: [yaml, json]
-    -   id: debug-statements
-    -   id: destroyed-symlinks
-    # -   id: end-of-file-fixer
-    -   id: fix-byte-order-marker
-    -   id: fix-encoding-pragma  # to remove from rev > v5.0.0
-    #-   id: trailing-whitespace  # not ready yet
+    # General-purpose checks
+    - repo: https://github.com/pre-commit/pre-commit-hooks
+      rev: v6.0.0
+      hooks:
+          - id: check-added-large-files
+          - id: check-case-conflict
+          - id: check-executables-have-shebangs
+          - id: check-merge-conflict
+          - id: check-shebang-scripts-are-executable
+          - id: check-symlinks
+          - id: check-xml
+          - id: check-yaml
+            # FOM files have a .json extension but are YAML.
+            types_or: [yaml, json]
+          - id: debug-statements
+          - id: destroyed-symlinks
+          - id: end-of-file-fixer
+          - id: fix-byte-order-marker
+          - id: trailing-whitespace
 
--   repo: https://github.com/PyCQA/flake8
-    rev: 7.4.1
-    hooks:
-    -   id: flake8
-        name: flake8 under python3
-        language_version: python3
-        exclude: ^(doc/source|capsul)/sphinxext/
+# Currently (18/11/2026 ruf Found 2935 errors ...
+# 1466 fixable with `--fix` and 1143 unsafe fixes available with `--fix --unsafe-fixes`.
+# No time to correct it by hand right now... We'll stick with flake8 for now.
+# Uncomment ruf once the errors have been corrected and remove flake8.
+#    # Python linting and formatting
+#    - repo: https://github.com/astral-sh/ruff-pre-commit
+#      rev: v0.17.5
+#      hooks:
+#          - id: ruff-check
+#            # args: [--fix] # fear of automatically fix
 
-# -   repo: https://github.com/asottile/pyupgrade  # to add when rev > v5.0.0
-#     rev: v3.20.0
-#     hooks:
-#    - id: pyupgrade
-#      args: ["--py39-plus"]  # Ensures compatibility with Python 3.9+
+    - repo: https://github.com/PyCQA/flake8
+      rev: 7.4.1
+      hooks:
+        - id: flake8
+          name: flake8 under python3
+          language_version: python3
+          exclude: '^(doc/|capsul/sphinxext/)'
 
-ci:  # configuration for https://pre-commit.ci/
-    autoupdate_schedule: quarterly  # prevent too frequent PRs
+# ci:  # configuration for https://pre-commit.ci/
+#    autoupdate_schedule: quarterly  # prevent too frequent PRs

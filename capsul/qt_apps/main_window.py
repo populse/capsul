@@ -150,7 +150,7 @@ class CapsulMainWindow(MyQUiLoader):
                         type(self.ui), control_name))
 
     ###########################################################################
-    # Slots   
+    # Slots
     ###########################################################################
 
     def onRunClicked(self):

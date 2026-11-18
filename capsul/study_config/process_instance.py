@@ -241,11 +241,11 @@ def _get_process_instance(process_or_id, study_config=None, **kwargs):
                     xml = match.group(0)
         if xml:
             result = create_xml_process(process_or_id.__module__,
-                                        process_or_id.__name__, 
+                                        process_or_id.__name__,
                                         process_or_id, xml)()
         else:
             raise ValueError('Cannot find XML description to make function {0} a process'.format(process_or_id))
-        
+
     # If the function 'process_or_id' parameter is a class string
     # description
     elif isinstance(process_or_id, six.string_types) \

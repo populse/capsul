@@ -1,6 +1,6 @@
 include AUTHOR LICENSE MANIFEST.in setup.py README.txt ez_setup.py
 # documentation
-include doc/Makefile 
+include doc/Makefile
 recursive-include doc/source *
 recursive-exclude doc/source *.*~
 prune doc/source/*/generated
