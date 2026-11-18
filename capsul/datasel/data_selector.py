@@ -8,6 +8,28 @@ import os.path as osp
 
 
 class DataSelector:
+    ''' Data selector, base class.
+    The data selection mechanism allows to parse, store, query and filter data.
+    The base class is abstract and should not be instantiated.
+
+    Use :meth:`get_data_selector` instead to build the appropriate data
+    selector.
+
+    The use the :meth:`get_data` method to parse/query data.
+
+    Ex::
+
+        parser = get_data_selector(
+            '/home/albert/dataset',
+            database_sqlite='/home/albert/dataset/capsul-2.6.sqlite')
+        data = parser.get_data(
+            data_types=[
+                'morphologist.capsul.morphologist.t1mri',
+                'morphologist.capsul.morphologist.Report_report_json'],
+            data_filters={'.*': {'center': 'subjects'},
+                          'B': {'file_status': 'ok'}},
+            type_labels=['A', 'B'])
+    '''
 
     class statuses:
         UNDEFINED = -1
@@ -85,6 +107,31 @@ class DataSelector:
                 self.fom = config.input_fom
 
     def get_data(self, **kwargs):
+        ''' The main method of the DataSelector class. Performs parsing /
+        querying / filtering and returns data found.
+
+        The keyword arguments allow to specify selection parameters. The base
+        ones are listed here, but specialized selectors may support more
+        parameters. Some of them may be given upon construction (see :func:`get_data_selector`), and might be overriden here.
+
+        database: str
+            database directory to query
+        fom: str
+            the FOM model to apply (ex: 'morphologist-bids-2.0', 'morphologist-auto-1.0', 'raw-bids-1.0'...)
+        data_types: (mandatory), list of str
+            each element is a process + parameter name in capsul which determines a data type to look for. Ex::
+
+                ['morphologist.capsul.morphologist.t1mri',
+                 'morphologist.capsul.morphologist.Report_report_json']
+
+        data_filters: list, dict, or str
+            if specified as str, will be evaluated as a python expression to
+            form a list or a dict.
+        type_labels: list
+            assigns a label to each data type, to provide shorter names in
+            data_filters.
+
+        '''
         self.set_parameters(**kwargs)
         self.check_parameters()
         t0 = time.time()
@@ -137,6 +184,10 @@ class DataSelector:
 def get_data_selector(database, engine=None, fom=None, data_types=None,
                       data_filters=None, database_sqlite=None,
                       type_labels=None, index_status=None):
+    ''' Factory function to build a data selector corresponding to the given
+    criterions. Mainly, if ``database_sqlite`` provides a SQLite filename, then
+    a SQLite data selector will be returned.
+    '''
     if database_sqlite is not None:
         from .sqlite_dataselector import SQLiteDataSelector
         return SQLiteDataSelector(

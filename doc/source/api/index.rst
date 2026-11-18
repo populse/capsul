@@ -142,6 +142,12 @@ Classes
 * :class:`~attributes_schema.EditableAttributes`
 
 
+:mod:`capsul.datasel` data files selection and parsing
+======================================================
+
+.. currentmodule:: capsul.datasel
+
+
 Running external software
 =========================
 
@@ -261,3 +267,4 @@ Complete modules list
     qt_gui
     qt_apps
     sphinxext
+    datasel

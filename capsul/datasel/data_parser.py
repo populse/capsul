@@ -11,6 +11,9 @@ import time
 
 
 class DataParser(DataSelector):
+    ''' Data selector which will parse existing files on a filesystem based on
+the FOM description system.
+    '''
 
     def __init__(self, database, **kwargs):
         super().__init__(database,
