@@ -112,23 +112,23 @@
 <a class="viewcode-back" href="../../../api/engine.html#capsul.engine.database.DatabaseEngine">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">DatabaseEngine</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">'''</span>
-<span class="sd">    A :py:class:`DatabaseEngine` is the base class for all engines </span>
+<span class="sd">    A :py:class:`DatabaseEngine` is the base class for all engines</span>
 <span class="sd">    allowing to store, retrieve and search metadata associated with</span>
 <span class="sd">    a key that can be either a string or a path (i.e. a file or directory</span>
 <span class="sd">    name).</span>
-<span class="sd">    </span>
-<span class="sd">    To instantiate a :py:class:`DatabaseEngine` one must use the factory </span>
+
+<span class="sd">    To instantiate a :py:class:`DatabaseEngine` one must use the factory</span>
 <span class="sd">    To date, two concrete :py:class:`DatabaseEngine` implementations exist:</span>
 
 <span class="sd">    - :py:class:`capsul.engine.database_json.JSONDBEngine`</span>
 <span class="sd">    - :py:class:`capsul.engine.database_populse.PopulseDBEngine`</span>
-<span class="sd">    </span>
+
 <span class="sd">    '''</span>
-    
+
     <span class="k">def</span><span class="w"> </span><span class="nf">check_path_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">named_directory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">named_directory</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'named_directory'</span><span class="p">)</span>
         <span class="n">named_directory</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_path</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">named_directory</span><span class="p">)</span>
-        
+
         <span class="n">doc</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">doc</span><span class="p">[</span><span class="s1">'path'</span><span class="p">]</span> <span class="o">=</span> <span class="n">path</span>
         <span class="n">doc</span><span class="p">[</span><span class="s1">'named_directory'</span><span class="p">]</span> <span class="o">=</span> <span class="n">named_directory</span>
@@ -140,13 +140,13 @@
 <span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Find a pair (named_directory, path) given a path and eventually a</span>
 <span class="sd">        named_directory.</span>
-<span class="sd">        </span>
-<span class="sd">        If named_directory is not given, path must be absolute or a </span>
-<span class="sd">        ValueError is raised. Then, either the corresponding named </span>
+
+<span class="sd">        If named_directory is not given, path must be absolute or a</span>
+<span class="sd">        ValueError is raised. Then, either the corresponding named</span>
 <span class="sd">        directory is found or 'absolute' is used.</span>
-<span class="sd">        </span>
+
 <span class="sd">        If name_directory is given, the path must be relative (unless</span>
-<span class="sd">        named_directory == 'absolute') or begin with the path of the </span>
+<span class="sd">        named_directory == 'absolute') or begin with the path of the</span>
 <span class="sd">        named directory.</span>
 <span class="sd">        '''</span>
         <span class="k">if</span> <span class="n">named_directory</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -175,15 +175,15 @@
                     <span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">base_path</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">named_directory</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span></div>
 
-    
-    
+
+
 <div class="viewcode-block" id="DatabaseEngine.set_json_value">
 <a class="viewcode-back" href="../../../api/engine.html#capsul.engine.database.DatabaseEngine.set_json_value">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_json_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">json_value</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Store a json value and associate it with a key given in "name".</span>
 <span class="sd">        The value can be retrieved with method json_value().</span>
-<span class="sd">        </span>
+
 <span class="sd">        @param name: unique key used to identify and retrieve the value</span>
 <span class="sd">        @type name: C{string}</span>
 <span class="sd">        @param json_value: a value to store in the database</span>
@@ -200,21 +200,21 @@
 <span class="sd">        '''</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
-        
-    
+
+
 <div class="viewcode-block" id="DatabaseEngine.set_named_directory">
 <a class="viewcode-back" href="../../../api/engine.html#capsul.engine.database.DatabaseEngine.set_named_directory">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_named_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">'''</span>
 <span class="sd">        Associate an absolute path to a generic name. This allow to always</span>
 <span class="sd">        use a location independent name for a directory such as 'spm_template'</span>
-<span class="sd">        and to customize the real absolute path in the configuration. These </span>
-<span class="sd">        named directories are used when setting/retrieving path metadata with </span>
+<span class="sd">        and to customize the real absolute path in the configuration. These</span>
+<span class="sd">        named directories are used when setting/retrieving path metadata with</span>
 <span class="sd">        set_path_metadata() and path_metadata().</span>
 <span class="sd">        '''</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
-    
+
 <div class="viewcode-block" id="DatabaseEngine.named_directory">
 <a class="viewcode-back" href="../../../api/engine.html#capsul.engine.database.DatabaseEngine.named_directory">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">named_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
@@ -223,7 +223,7 @@
 <span class="sd">        '''</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
-    
+
 <div class="viewcode-block" id="DatabaseEngine.named_directories">
 <a class="viewcode-back" href="../../../api/engine.html#capsul.engine.database.DatabaseEngine.named_directories">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">named_directories</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -233,8 +233,8 @@
 <span class="sd">        '''</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
-    
-    
+
+
 <div class="viewcode-block" id="DatabaseEngine.set_path_metadata">
 <a class="viewcode-back" href="../../../api/engine.html#capsul.engine.database.DatabaseEngine.set_path_metadata">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_path_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">named_directory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -245,7 +245,7 @@
 <span class="sd">        '''</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span></div>
 
-    
+
 <div class="viewcode-block" id="DatabaseEngine.path_metadata">
 <a class="viewcode-back" href="../../../api/engine.html#capsul.engine.database.DatabaseEngine.path_metadata">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">path_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">named_directory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>

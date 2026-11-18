@@ -52,7 +52,7 @@
 <area shape="rect" id="node80" href="pipeline.html#capsul.pipeline.pipeline_nodes.ProcessNode" target="_top" title="Process node." alt="" coords="1004,1332,1066,1348"/>
 <area shape="rect" id="node103" href="pipeline.html#capsul.pipeline.custom_nodes.reduce_node.ReduceNode" target="_top" title="Reduce node: converts series of inputs into lists. Typically a series of" alt="" coords="1004,1362,1065,1379"/>
 <area shape="rect" id="node108" href="pipeline.html#capsul.pipeline.custom_nodes.strcat_node.StrCatNode" target="_top" title="This &quot;inert&quot; node concatenates its inputs (as strings) and generates the" alt="" coords="1007,1393,1063,1409"/>
-<area shape="rect" id="node31" href="engine.html#capsul.engine.database.DatabaseEngine" target="_top" title="A :py:class:`DatabaseEngine` is the base class for all engines " alt="" coords="36,552,111,568"/>
+<area shape="rect" id="node31" href="engine.html#capsul.engine.database.DatabaseEngine" target="_top" title="A :py:class:`DatabaseEngine` is the base class for all engines" alt="" coords="36,552,111,568"/>
 <area shape="rect" id="node55" href="engine.html#capsul.engine.database_json.JSONDBEngine" target="_top" title="A JSON dictionary implementation of :py:class:`capsul.engine.database.DatabaseEngine`" alt="" coords="219,552,288,568"/>
 <area shape="rect" id="node86" href="engine.html#capsul.engine.database_populse.PopulseDBEngine" target="_top" title="PopulseDBEngine" alt="" coords="214,583,293,599"/>
 <area shape="rect" id="node33" href="qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.EmbeddedSubPipelineItem" target="_top" title="QGraphicsItem containing a sub&#45;pipeline view" alt="" coords="977,1164,1092,1180"/>
@@ -64,7 +64,7 @@
 <area shape="rect" id="node99" title="QGraphicsObject(parent: Optional[QGraphicsItem] = None)" alt="" coords="512,1193,589,1209"/>
 <area shape="rect" id="node38" href="process.html#capsul.process.process.FileCopyProcess" target="_top" title="A specific process that copies all the input files." alt="" coords="997,1454,1072,1470"/>
 <area shape="rect" id="node67" href="process.html#capsul.process.process.NipypeProcess" target="_top" title="Base class used to wrap nipype interfaces." alt="" coords="1160,1454,1229,1470"/>
-<area shape="rect" id="node54" href="process.html#capsul.process.process.InteractiveProcess" target="_top" title="Base class for interactive processes. The value of the is_interactive " alt="" coords="993,1485,1076,1501"/>
+<area shape="rect" id="node54" href="process.html#capsul.process.process.InteractiveProcess" target="_top" title="Base class for interactive processes. The value of the is_interactive" alt="" coords="993,1485,1076,1501"/>
 <area shape="rect" id="node88" href="pipeline.html#capsul.pipeline.process_iteration.ProcessIteration" target="_top" title=".. note::" alt="" coords="997,1515,1072,1532"/>
 <area shape="rect" id="node115" href="process.html#capsul.process.xml.XMLProcess" target="_top" title="Base class of all generated classes for processes defined as a Python" alt="" coords="1005,1546,1064,1562"/>
 <area shape="rect" id="node41" href="attributes.html#capsul.attributes.fom_completion_engine.FomPathCompletionEngine" target="_top" title="FomPathCompletionEngine" alt="" coords="196,521,311,538"/>

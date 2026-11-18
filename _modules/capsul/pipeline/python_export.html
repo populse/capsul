@@ -535,8 +535,8 @@
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="s2">"scene_scale_factor"</span><span class="p">):</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">'        self.scene_scale_factor = </span><span class="si">%s</span><span class="s1">'</span>
                   <span class="o">%</span> <span class="nb">repr</span><span class="p">(</span><span class="n">pipeline</span><span class="o">.</span><span class="n">scene_scale_factor</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">pyf</span><span class="p">)</span>
-            
-    <span class="c1">########### add by Irmage OM #########################       </span>
+
+    <span class="c1">########### add by Irmage OM #########################</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_write_nodes_dimensions</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">pyf</span><span class="p">):</span>
         <span class="n">node_dimension</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="s2">"node_dimension"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">node_dimension</span><span class="p">:</span>
@@ -548,7 +548,7 @@
                 <span class="nb">print</span><span class="p">(</span><span class="s1">'            "</span><span class="si">%s</span><span class="s1">": </span><span class="si">%s</span><span class="s1">,'</span> <span class="o">%</span> <span class="p">(</span><span class="n">node_name</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">dim</span><span class="p">)),</span>
                       <span class="n">file</span><span class="o">=</span><span class="n">pyf</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="s1">'        }'</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">pyf</span><span class="p">)</span>
-    <span class="c1">######################################################  </span>
+    <span class="c1">######################################################</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_write_doc</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">pyf</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="s2">"__doc__"</span><span class="p">):</span>

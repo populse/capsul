@@ -106,7 +106,7 @@
   <h1>Source code for capsul.in_context.fsl</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
 <span class="sd">'''</span>
-<span class="sd">Specific subprocess-like functions to call FSL taking into account </span>
+<span class="sd">Specific subprocess-like functions to call FSL taking into account</span>
 <span class="sd">configuration stored in ExecutionContext. To functions and class in</span>
 <span class="sd">this module it is mandatory to activate an ExecutionContext (using a</span>
 <span class="sd">with statement). For instance::</span>
@@ -119,8 +119,8 @@
 <span class="sd">       fsl_check_call(['bet', '/somewhere/myimage.nii'])</span>
 
 <span class="sd">For calling FSL command with this module, the first argument of</span>
-<span class="sd">command line must be the FSL executable without any path nor prefix. </span>
-<span class="sd">Prefix are used in Neurodebian install. For instance on Ubuntu 16.04 </span>
+<span class="sd">command line must be the FSL executable without any path nor prefix.</span>
+<span class="sd">Prefix are used in Neurodebian install. For instance on Ubuntu 16.04</span>
 <span class="sd">Neurodebian FSL commands are prefixed with "fsl5.0-".</span>
 <span class="sd">The appropriate path and eventually prefix are added from the configuration</span>
 <span class="sd">of the ExecutionContext.</span>
@@ -180,18 +180,18 @@
         <span class="n">fsldir</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">fsl_config</span><span class="p">)))</span>
         <span class="n">shell</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'SHELL'</span><span class="p">,</span> <span class="s1">'/bin/sh'</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">shell</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">'csh'</span><span class="p">):</span>
-            <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="n">shell</span><span class="p">,</span> <span class="s1">'-c'</span><span class="p">,</span> 
+            <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="n">shell</span><span class="p">,</span> <span class="s1">'-c'</span><span class="p">,</span>
                 <span class="s1">'setenv FSLDIR "</span><span class="si">{0}</span><span class="s1">"; setenv PATH "</span><span class="si">{0}</span><span class="s1">/bin:$PATH"; source </span><span class="si">{0}</span><span class="s1">/etc/fslconf/fsl.csh;exec </span><span class="si">{1}{2}</span><span class="s1"> '</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                     <span class="n">fsldir</span><span class="p">,</span> <span class="n">fsl_prefix</span><span class="p">,</span> <span class="n">command</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> \
                     <span class="s1">' '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">"'</span><span class="si">%s</span><span class="s2">'"</span> <span class="o">%</span> <span class="n">i</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"'"</span><span class="p">,</span> <span class="s2">"</span><span class="se">\\</span><span class="s2">'"</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">command</span><span class="p">[</span><span class="mi">1</span><span class="p">:])]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="n">shell</span><span class="p">,</span> <span class="s1">'-c'</span><span class="p">,</span> 
+            <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="n">shell</span><span class="p">,</span> <span class="s1">'-c'</span><span class="p">,</span>
                 <span class="s1">'export FSLDIR="</span><span class="si">{0}</span><span class="s1">"; export PATH="</span><span class="si">{0}</span><span class="s1">/bin:$PATH"; . </span><span class="si">{0}</span><span class="s1">/etc/fslconf/fsl.sh;exec </span><span class="si">{1}{2}</span><span class="s1"> '</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                     <span class="n">fsldir</span><span class="p">,</span> <span class="n">fsl_prefix</span><span class="p">,</span> <span class="n">command</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> \
                     <span class="s1">' '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">"'</span><span class="si">%s</span><span class="s2">'"</span> <span class="o">%</span> <span class="n">i</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"'"</span><span class="p">,</span> <span class="s2">"</span><span class="se">\\</span><span class="s2">'"</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">command</span><span class="p">[</span><span class="mi">1</span><span class="p">:])]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'</span><span class="si">%s%s%s</span><span class="s1">'</span> <span class="o">%</span> <span class="p">(</span><span class="n">dir_prefix</span><span class="p">,</span>
-                           <span class="n">fsl_prefix</span><span class="p">,</span> 
+                           <span class="n">fsl_prefix</span><span class="p">,</span>
                            <span class="n">command</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span> <span class="o">+</span> <span class="n">command</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
     <span class="k">return</span> <span class="n">cmd</span></div>
 

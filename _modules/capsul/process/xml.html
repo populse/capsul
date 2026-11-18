@@ -149,7 +149,7 @@
     <span class="s1">'Undefined'</span><span class="p">:</span> <span class="n">Undefined</span><span class="p">,</span>
     <span class="s1">'None'</span><span class="p">:</span> <span class="n">Undefined</span>
 <span class="p">}</span>
-    
+
 <div class="viewcode-block" id="string_to_value">
 <a class="viewcode-back" href="../../../api/process.html#capsul.process.xml.string_to_value">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">string_to_value</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
@@ -169,7 +169,7 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">XMLProcess</span><span class="p">(</span><span class="n">Process</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">""" Base class of all generated classes for processes defined as a Python</span>
 <span class="sd">    function decorated with an XML string.</span>
-<span class="sd">    """</span>    
+<span class="sd">    """</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_run_process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">""" Execute the XMLProcess. Runs the function and check its result</span>
 <span class="sd">        to set the output attributes values accordingly.</span>
@@ -188,7 +188,7 @@
                 <span class="c1"># their declaration order</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_function_outputs</span><span class="p">):</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Too many values (</span><span class="si">%d</span><span class="s1"> instead of </span><span class="si">%d</span><span class="s1">) '</span>
-                                     <span class="s1">'returned by process </span><span class="si">%s</span><span class="s1">'</span> <span class="o">%</span> 
+                                     <span class="s1">'returned by process </span><span class="si">%s</span><span class="s1">'</span> <span class="o">%</span>
                                      <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_function_outputs</span><span class="p">),</span>
                                       <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">))</span>
                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_function_outputs</span><span class="p">)):</span>
@@ -284,13 +284,13 @@
 <span class="sd">        created process class.</span>
 <span class="sd">    """</span>
     <span class="n">xml_process</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">xml</span><span class="p">)</span>
-    
+
     <span class="n">class_kwargs</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">"__module__"</span><span class="p">:</span> <span class="n">module</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="k">if</span> <span class="n">function</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">:</span>
         <span class="n">class_kwargs</span><span class="p">[</span><span class="s1">'__doc__'</span><span class="p">]</span> <span class="o">=</span> <span class="n">function</span><span class="o">.</span><span class="vm">__doc__</span>
-    
+
     <span class="n">args</span><span class="p">,</span> <span class="n">varargs</span><span class="p">,</span> <span class="n">varkw</span><span class="p">,</span> <span class="n">defaults</span> <span class="o">=</span> <span class="n">getArgumentsSpecification</span><span class="p">(</span><span class="n">function</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">defaults</span><span class="p">:</span>
         <span class="n">default_values</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">args</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="o">-</span><span class="n">i</span><span class="p">],</span> <span class="n">defaults</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="o">-</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">defaults</span><span class="p">)))</span>
@@ -300,11 +300,11 @@
     <span class="n">version</span> <span class="o">=</span> <span class="n">xml_process</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'capsul_xml'</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">version</span> <span class="ow">and</span> <span class="n">version</span> <span class="o">!=</span> <span class="s1">'2.0'</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Only Capsul XML 2.0 is supported, not </span><span class="si">%s</span><span class="s1">'</span> <span class="o">%</span> <span class="n">version</span><span class="p">)</span>
-    
+
     <span class="n">role</span> <span class="o">=</span> <span class="n">xml_process</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'role'</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">role</span><span class="p">:</span>
         <span class="n">class_kwargs</span><span class="p">[</span><span class="s1">'role'</span><span class="p">]</span> <span class="o">=</span> <span class="n">role</span>
-    
+
     <span class="n">function_inputs</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">function_outputs</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">function_return</span> <span class="o">=</span> <span class="kc">None</span>
@@ -339,7 +339,7 @@
     <span class="n">class_kwargs</span><span class="p">[</span><span class="s1">'_function_inputs'</span><span class="p">]</span> <span class="o">=</span> <span class="n">function_inputs</span>
     <span class="n">class_kwargs</span><span class="p">[</span><span class="s1">'_function_outputs'</span><span class="p">]</span> <span class="o">=</span> <span class="n">function_outputs</span>
     <span class="n">class_kwargs</span><span class="p">[</span><span class="s1">'_function_return'</span><span class="p">]</span> <span class="o">=</span> <span class="n">function_return</span>
-    
+
     <span class="c1"># Get the process instance associated to the function</span>
     <span class="n">process_class</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">),</span> <span class="p">(</span><span class="n">XMLProcess</span><span class="p">,</span> <span class="p">),</span> <span class="n">class_kwargs</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">process_class</span></div>
@@ -350,7 +350,7 @@
 <a class="viewcode-back" href="../../../api/process.html#capsul.process.xml.xml_process">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">xml_process</span><span class="p">(</span><span class="n">xml</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">""" Decorator used to associate a Python function to its Process XML</span>
-<span class="sd">    representation.    </span>
+<span class="sd">    representation.</span>
 <span class="sd">    """</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_capsul_xml</span><span class="p">(</span><span class="n">function</span><span class="p">):</span>
         <span class="n">function</span><span class="o">.</span><span class="n">capsul_xml</span> <span class="o">=</span> <span class="n">xml</span>

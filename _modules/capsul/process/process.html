@@ -356,7 +356,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">default_values</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">""" Remove the _weakref attribute eventually set by </span>
+<span class="w">        </span><span class="sd">""" Remove the _weakref attribute eventually set by</span>
 <span class="sd">        soma.utils.weak_proxy because it prevents Process instance</span>
 <span class="sd">        from being used with pickle.</span>
 <span class="sd">        """</span>
@@ -366,7 +366,7 @@
         <span class="n">state</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">'__doc__'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">state</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">'study_config'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">state</span>
-    
+
 <div class="viewcode-block" id="Process.add_trait">
 <a class="viewcode-back" href="../../../api/process.html#capsul.process.process.Process.add_trait">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_trait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">trait</span><span class="p">):</span>
@@ -383,7 +383,7 @@
             <span class="n">trait</span><span class="o">.</span><span class="n">optional</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">trait</span><span class="o">.</span><span class="n">optional</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Process</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">add_trait</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">trait</span><span class="p">)</span></div>
 
-        
+
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">""" Method to execute the Process.</span>
 
@@ -432,7 +432,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
-    
+
     <span class="c1">####################################################################</span>
     <span class="c1"># Private methods</span>
     <span class="c1">####################################################################</span>
@@ -474,7 +474,7 @@
                 <span class="s2">"Either get_commandline() or _run_process() should be "</span>
                 <span class="s2">"redefined in process (</span><span class="si">{0}</span><span class="s2">)"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span>
-    
+
     <span class="k">def</span><span class="w"> </span><span class="nf">_before_run_process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""This method is called by StudyConfig.run() before calling</span>
 <span class="sd">        _run_process(). By default, it does nothing but can be overridden</span>
@@ -489,7 +489,7 @@
 <span class="sd">        in derived classes.</span>
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="n">run_process_result</span>
-        
+
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exec_info</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">""" Method that generate the logging structure from the execution</span>
@@ -2212,7 +2212,7 @@
 <a class="viewcode-back" href="../../../api/process.html#capsul.process.process.InteractiveProcess">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">InteractiveProcess</span><span class="p">(</span><span class="n">Process</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">'''</span>
-<span class="sd">    Base class for interactive processes. The value of the is_interactive </span>
+<span class="sd">    Base class for interactive processes. The value of the is_interactive</span>
 <span class="sd">    parameter determine if either the process can be run in background</span>
 <span class="sd">    (eventually remotely) as a standard process (is_interactive = False)</span>
 <span class="sd">    or if the process must be executed interactively in the user environment</span>

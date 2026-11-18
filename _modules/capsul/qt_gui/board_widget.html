@@ -181,13 +181,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_fill_trees</span><span class="p">()</span>
 
     <span class="c1">###########################################################################</span>
-    <span class="c1"># Methods   </span>
+    <span class="c1"># Methods</span>
     <span class="c1">###########################################################################</span>
 
 <div class="viewcode-block" id="BoardWidget.create_output_widget">
 <a class="viewcode-back" href="../../../api/qt_gui.html#capsul.qt_gui.board_widget.BoardWidget.create_output_widget">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">create_output_widget</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">""" Method to create the output controller widget built </span>
+<span class="w">        </span><span class="sd">""" Method to create the output controller widget built</span>
 <span class="sd">        from the class controller output traits</span>
 <span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">output_controller_widget</span> <span class="o">=</span> <span class="n">ControllerWidget</span><span class="p">(</span>
@@ -231,7 +231,7 @@
 
 
     <span class="c1">###########################################################################</span>
-    <span class="c1"># Private methods   </span>
+    <span class="c1"># Private methods</span>
     <span class="c1">###########################################################################</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_title_for</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">):</span>
@@ -258,7 +258,7 @@
         <span class="c1"># status - metainforamtion</span>
         <span class="n">viewers_struct</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">processings_struct</span> <span class="o">=</span> <span class="p">[]</span>
-    
+
         <span class="c1"># Go through all the controller (pipeline) nodes.</span>
         <span class="k">for</span> <span class="n">node_name</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">controller</span><span class="o">.</span><span class="n">nodes</span><span class="p">):</span>
 
@@ -362,7 +362,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">Switch</span><span class="p">):</span>
 
             <span class="c1"># Browse recursively pipeline nodes</span>
-            <span class="k">if</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="n">Pipeline</span><span class="p">)</span> <span class="ow">and</span> 
+            <span class="k">if</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="n">Pipeline</span><span class="p">)</span> <span class="ow">and</span>
                 <span class="n">node</span><span class="o">.</span><span class="n">node_type</span> <span class="o">!=</span> <span class="s2">"view_node"</span><span class="p">):</span>
 
                 <span class="n">pipeline</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">process</span>
@@ -378,8 +378,6 @@
                     <span class="n">process_nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">)</span></div>
 </div>
 
-
-        
 </pre></div>
 
             <div class="clearer"></div>

@@ -40,26 +40,26 @@ To run it, the following must be done:
 
 .. Building processes
 .. ##################
-.. 
-.. 
+..
+..
 .. Building pipelines
 .. ##################
-.. 
+..
 .. Python API
 .. ==========
-.. .. 
+.. ..
 .. Graphical display and edition
 .. =============================
-.. 
-.. 
+..
+..
 .. Configuration
 .. #############
-.. 
+..
 .. StudyConfig object, options, modules
 .. ====================================
-.. 
+..
 .. Data paths
-.. 
+..
 .. Execution options: Soma-Workflow
 
 
@@ -131,13 +131,13 @@ The config may be imported from BrainVisa/Axon config using the process ``capsul
 
 .. Simple, sequential execution
 .. ============================
-.. 
+..
 .. Distributed execution
 .. =====================
-.. 
+..
 .. Running on-the-fly using StudyConfig
 .. ------------------------------------
-.. 
+..
 .. Generating and saving workflows
 .. -------------------------------
 

@@ -307,12 +307,12 @@
     <span class="n">_doc_path</span> <span class="o">=</span> <span class="s1">'api/pipeline.html#pipeline'</span>
 
     <span class="n">selection_changed</span> <span class="o">=</span> <span class="n">Event</span><span class="p">()</span>
-    
+
     <span class="c1"># The default value for do_autoexport_nodes_parameters is stored in the</span>
     <span class="c1"># pipeline class. This makes it possible to change this default value</span>
     <span class="c1"># in derived classes (for instance in DynamicPipeline).</span>
     <span class="n">do_autoexport_nodes_parameters</span> <span class="o">=</span> <span class="kc">True</span>
-    
+
     <span class="c1"># By default nodes_activation trait is hidden in user interface. Changing</span>
     <span class="c1"># this value to False will make it visible.</span>
     <span class="n">hide_nodes_activation</span> <span class="o">=</span> <span class="kc">True</span>
@@ -346,17 +346,17 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">node_position</span> <span class="o">=</span> <span class="n">node_position</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">node_position</span> <span class="o">=</span> <span class="p">{}</span>
-        
-        
-        <span class="c1">###############add by Irmage OM ######################### </span>
+
+
+        <span class="c1">###############add by Irmage OM #########################</span>
         <span class="n">node_dimension</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s1">'node_dimension'</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">node_dimension</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">node_dimension</span> <span class="o">=</span> <span class="n">node_dimension</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">node_dimension</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="c1">#########################################################</span>
-            
-            
+
+
         <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_node</span> <span class="o">=</span> <span class="n">PipelineNode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">''</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="s1">''</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_node</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">do_not_export</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
@@ -479,7 +479,7 @@
                 <span class="k">for</span> <span class="n">link</span> <span class="ow">in</span> <span class="n">plug</span><span class="o">.</span><span class="n">links_from</span><span class="p">:</span>
                     <span class="n">src</span> <span class="o">=</span> <span class="s1">'</span><span class="si">%s</span><span class="s1">.</span><span class="si">%s</span><span class="s1">'</span> <span class="o">%</span> <span class="p">(</span><span class="n">link</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">link</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
                     <span class="n">links_to_remove</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">'</span><span class="si">%s</span><span class="s1">-&gt;</span><span class="si">%s</span><span class="s1">'</span> <span class="o">%</span> <span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
-                <span class="k">for</span> <span class="n">link</span> <span class="ow">in</span> <span class="n">links_to_remove</span><span class="p">:</span>    
+                <span class="k">for</span> <span class="n">link</span> <span class="ow">in</span> <span class="n">links_to_remove</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">remove_link</span><span class="p">(</span><span class="n">link</span><span class="p">)</span>
                 <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_node</span><span class="o">.</span><span class="n">plugs</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
 
@@ -616,7 +616,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Pipeline cannot have two nodes with the "</span>
                              <span class="s2">"same name : </span><span class="si">{0}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
 
-        <span class="c1"># It is necessary not to import study_config.process_instance at </span>
+        <span class="c1"># It is necessary not to import study_config.process_instance at</span>
         <span class="c1"># the module level because there are circular dependencies between</span>
         <span class="c1"># modules. For instance, Pipeline class needs get_process_instance</span>
         <span class="c1"># which needs create_xml_pipeline which needs Pipeline class.</span>
@@ -790,7 +790,7 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">process_name</span><span class="p">]</span><span class="o">.</span><span class="n">process</span><span class="p">,</span> <span class="n">method</span><span class="p">)(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span>
                                                                  <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
-    
+
 <div class="viewcode-block" id="Pipeline.add_switch">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline.Pipeline.add_switch">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_switch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="p">,</span> <span class="n">export_switch</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -2332,7 +2332,7 @@
 <span class="sd">            (e.g. 'node "my_process" is missing')</span>
 <span class="sd">        """</span>
         <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
-        
+
         <span class="k">def</span><span class="w"> </span><span class="nf">compare_dict</span><span class="p">(</span><span class="n">ref_dict</span><span class="p">,</span> <span class="n">other_dict</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">ref_key</span><span class="p">,</span> <span class="n">ref_value</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">ref_dict</span><span class="p">):</span>
                 <span class="k">if</span> <span class="n">ref_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">other_dict</span><span class="p">:</span>
@@ -2398,11 +2398,11 @@
                                 <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">'in plug "</span><span class="si">%s</span><span class="s1">:</span><span class="si">%s</span><span class="s1">": link to </span><span class="si">%s</span><span class="s1"> is'</span>
                                               <span class="s1">'</span><span class="si">%s</span><span class="s1">weak'</span> <span class="o">%</span> <span class="p">(</span><span class="n">node_name</span><span class="p">,</span> <span class="n">plug_name</span><span class="p">,</span>
                                                           <span class="n">link_name</span><span class="p">,</span> <span class="p">(</span><span class="s1">' not'</span>
-                                                          <span class="k">if</span> <span class="n">weak_link</span> <span class="k">else</span> 
+                                                          <span class="k">if</span> <span class="n">weak_link</span> <span class="k">else</span>
                                                           <span class="s1">''</span><span class="p">)))</span>
                     <span class="k">for</span> <span class="n">link_name</span><span class="p">,</span> <span class="n">weak_link</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">links_to_dict</span><span class="p">):</span>
                         <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">'in plug "</span><span class="si">%s</span><span class="s1">:</span><span class="si">%s</span><span class="s1">": </span><span class="si">%s</span><span class="s1">link to </span><span class="si">%s</span><span class="s1"> is new'</span> <span class="o">%</span>
-                            <span class="p">(</span><span class="n">node_name</span><span class="p">,</span><span class="n">plug_name</span><span class="p">,</span> <span class="p">(</span><span class="s1">' weak'</span> <span class="k">if</span> <span class="n">weak_link</span> <span class="k">else</span> 
+                            <span class="p">(</span><span class="n">node_name</span><span class="p">,</span><span class="n">plug_name</span><span class="p">,</span> <span class="p">(</span><span class="s1">' weak'</span> <span class="k">if</span> <span class="n">weak_link</span> <span class="k">else</span>
                             <span class="s1">''</span><span class="p">),</span><span class="n">link_name</span><span class="p">))</span>
                     <span class="k">for</span> <span class="n">nn</span><span class="p">,</span> <span class="n">pn</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">weak_link</span> <span class="ow">in</span> <span class="n">plug</span><span class="o">.</span><span class="n">links_from</span><span class="p">:</span>
                         <span class="n">link_name</span> <span class="o">=</span> <span class="s1">'</span><span class="si">%s</span><span class="s1">:</span><span class="si">%s</span><span class="s1">'</span> <span class="o">%</span> <span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">full_name</span><span class="p">,</span> <span class="n">pn</span><span class="p">)</span>
@@ -2414,7 +2414,7 @@
                             <span class="n">other_weak_link</span> <span class="o">=</span> <span class="n">links_from_dict</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">link_name</span><span class="p">)</span>
                             <span class="k">if</span> <span class="n">weak_link</span> <span class="o">!=</span> <span class="n">other_weak_link</span><span class="p">:</span>
                                 <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">'in plug "</span><span class="si">%s</span><span class="s1">:</span><span class="si">%s</span><span class="s1">": link from </span><span class="si">%s</span><span class="s1"> '</span>
-                                              <span class="s1">'is</span><span class="si">%s</span><span class="s1">weak'</span> <span class="o">%</span> <span class="p">(</span><span class="n">node_name</span><span class="p">,</span> 
+                                              <span class="s1">'is</span><span class="si">%s</span><span class="s1">weak'</span> <span class="o">%</span> <span class="p">(</span><span class="n">node_name</span><span class="p">,</span>
                                                             <span class="n">plug_name</span><span class="p">,</span>
                                                             <span class="n">link_name</span><span class="p">,(</span><span class="s1">' not'</span>
                                                             <span class="k">if</span> <span class="n">weak_link</span> <span class="k">else</span>
@@ -2597,7 +2597,7 @@
 <span class="sd">        streams. They are different from pipelines in that steps are purely</span>
 <span class="sd">        virtual groups, they do not have parameters.</span>
 
-<span class="sd">        Disabling a step acts differently as the pipeline node activation: </span>
+<span class="sd">        Disabling a step acts differently as the pipeline node activation:</span>
 <span class="sd">        other nodes are not inactivated according to their dependencies.</span>
 <span class="sd">        Instead, those steps are not run.</span>
 
@@ -2686,7 +2686,7 @@
         <span class="k">for</span> <span class="n">group</span><span class="p">,</span> <span class="n">processes</span> <span class="ow">in</span> \
                 <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">processes_selection</span><span class="p">[</span><span class="n">selection_name</span><span class="p">]):</span>
             <span class="n">enabled</span> <span class="o">=</span> <span class="p">(</span><span class="n">group</span> <span class="o">==</span> <span class="n">selection_group</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">node_name</span> <span class="ow">in</span> <span class="n">processes</span><span class="p">:</span> 
+            <span class="k">for</span> <span class="n">node_name</span> <span class="ow">in</span> <span class="n">processes</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node_name</span><span class="p">]</span><span class="o">.</span><span class="n">enabled</span> <span class="o">=</span> <span class="n">enabled</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">restore_update_nodes_and_plugs_activation</span><span class="p">()</span>
 

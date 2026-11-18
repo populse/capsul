@@ -356,11 +356,11 @@
                     <span class="n">xml</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">xml</span><span class="p">:</span>
             <span class="n">result</span> <span class="o">=</span> <span class="n">create_xml_process</span><span class="p">(</span><span class="n">process_or_id</span><span class="o">.</span><span class="vm">__module__</span><span class="p">,</span>
-                                        <span class="n">process_or_id</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> 
+                                        <span class="n">process_or_id</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
                                         <span class="n">process_or_id</span><span class="p">,</span> <span class="n">xml</span><span class="p">)()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Cannot find XML description to make function </span><span class="si">{0}</span><span class="s1"> a process'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">process_or_id</span><span class="p">))</span>
-        
+
     <span class="c1"># If the function 'process_or_id' parameter is a class string</span>
     <span class="c1"># description</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">process_or_id</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">)</span> \

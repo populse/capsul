@@ -727,8 +727,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">sizer</span><span class="o">.</span><span class="n">hmin</span> <span class="o">=</span> <span class="n">h</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">changeSize</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">+</span> <span class="n">margin</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sizer</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">+</span> <span class="n">margin</span><span class="p">)</span>
-        
-        
+
+
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_colored_text_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">margin</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
         <span class="n">labelc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_label</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
@@ -1240,25 +1240,25 @@
         <span class="c1">#         rect.setWidth(brect.width())</span>
         <span class="c1">#         self.box_title.setRect(rect)</span>
         <span class="c1">#         self.box.setRect(self.boundingRect())</span>
-        
+
         <span class="c1">################a dd by Irmage OM #############################################</span>
         <span class="k">try</span> <span class="p">:</span>
             <span class="n">dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">()</span><span class="o">.</span><span class="n">dim</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="n">Qt</span><span class="o">.</span><span class="n">QPointF</span><span class="p">):</span>
                 <span class="n">dim</span><span class="o">=</span><span class="p">(</span><span class="n">dim</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span><span class="n">dim</span><span class="o">.</span><span class="n">y</span><span class="p">())</span>
-            
+
             <span class="bp">self</span><span class="o">.</span><span class="n">updateSize</span><span class="p">(</span><span class="n">dim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">dim</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-<span class="c1">#             self.scene().dim[self.box.name] = (dim[0],dim[1]) </span>
+<span class="c1">#             self.scene().dim[self.box.name] = (dim[0],dim[1])</span>
 <span class="c1">#             print("update_node : self.scene().dim ",dim)</span>
 
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="n">dim</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span><span class="o">.</span><span class="n">size</span><span class="p">()</span><span class="o">.</span><span class="n">width</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">box</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span><span class="o">.</span><span class="n">size</span><span class="p">()</span><span class="o">.</span><span class="n">height</span><span class="p">())</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">updateSize</span><span class="p">(</span><span class="n">dim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">dim</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-<span class="c1">#             self.scene().dim[self.box.name] = (dim[0],dim[1]) </span>
+<span class="c1">#             self.scene().dim[self.box.name] = (dim[0],dim[1])</span>
 <span class="c1">#             print("update_node : boundingRect()")</span>
         <span class="c1">##############################################################################</span>
 
-        
+
     <span class="k">def</span><span class="w"> </span><span class="nf">contentsRect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">brect</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QRectF</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
         <span class="n">first</span> <span class="o">=</span> <span class="kc">True</span>
@@ -1772,11 +1772,11 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">Qt</span><span class="o">.</span><span class="n">QPointF</span><span class="p">):</span>
                 <span class="n">pos</span> <span class="o">=</span> <span class="n">Qt</span><span class="o">.</span><span class="n">QPointF</span><span class="p">(</span><span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
             <span class="n">gnode</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
-        
+
         <span class="bp">self</span><span class="o">.</span><span class="n">gnodes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">gnode</span>
 <span class="c1">#         gnode.update_node()</span>
-        
-        
+
+
          <span class="c1">#repositioning 'inputs' node</span>
         <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">'inputs'</span><span class="p">:</span>
             <span class="n">pos_left_most</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
@@ -1787,8 +1787,8 @@
             <span class="n">xl</span> <span class="o">=</span> <span class="n">pos_left_most</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">gnodes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span><span class="o">.</span><span class="n">size</span><span class="p">()</span><span class="o">.</span><span class="n">width</span><span class="p">())</span>
             <span class="n">yl</span> <span class="o">=</span> <span class="n">pos_left_most</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">gnodes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="n">xl</span><span class="p">,</span><span class="n">yl</span><span class="p">)</span>
-<span class="c1">#             gnode.update_node()    </span>
-             
+<span class="c1">#             gnode.update_node()</span>
+
         <span class="c1">#repositioning 'outputs' node</span>
         <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">'outputs'</span><span class="p">:</span>
             <span class="n">pos_right_most</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
@@ -2949,7 +2949,7 @@
                     <span class="n">pos</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">j</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">pos</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">QPointF</span><span class="p">(</span><span class="o">*</span><span class="n">j</span><span class="p">)</span>
-        
+
         <span class="c1">############### add by Irmage OM #######################</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="s1">'node_dimension'</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">six</span><span class="o">.</span><span class="n">iteritems</span><span class="p">(</span><span class="n">pipeline</span><span class="o">.</span><span class="n">node_dimension</span><span class="p">):</span>
@@ -2957,9 +2957,9 @@
                     <span class="n">dim</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span> <span class="n">j</span><span class="o">.</span><span class="n">y</span><span class="p">())</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">dim</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">j</span>
-                    
+
 <span class="c1">#         print("_set_pipeline : ",pos," ; ",dim)</span>
-        <span class="c1">#######################################################            </span>
+        <span class="c1">#######################################################</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">release_pipeline</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">set_pipeline</span><span class="p">(</span><span class="n">pipeline</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="n">pos</span>
@@ -2972,11 +2972,11 @@
                     <span class="n">pipeline</span><span class="o">.</span><span class="n">scene_scale_factor</span><span class="p">,</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">scene_scale_factor</span><span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">reset_initial_nodes_positions</span><span class="p">()</span>
-        
+
         <span class="c1">################" add by Irmage #############################################</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fitInView</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sceneRect</span><span class="p">(),</span> <span class="n">QtCore</span><span class="o">.</span><span class="n">Qt</span><span class="o">.</span><span class="n">KeepAspectRatio</span><span class="p">)</span>
         <span class="c1">#############################################################################</span>
-        
+
 
 <div class="viewcode-block" id="PipelineDeveloperView.set_pipeline">
 <a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.set_pipeline">[docs]</a>
@@ -2996,7 +2996,7 @@
                 <span class="n">pipeline</span><span class="o">.</span><span class="n">pipeline_steps</span><span class="o">.</span><span class="n">on_trait_change</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_reset_pipeline</span><span class="p">,</span> <span class="n">dispatch</span><span class="o">=</span><span class="s1">'ui'</span><span class="p">)</span></div>
 
-                
+
 <div class="viewcode-block" id="PipelineDeveloperView.closeEvent">
 <a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.pipeline_developer_view.PipelineDeveloperView.closeEvent">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">closeEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
@@ -3045,7 +3045,7 @@
             <span class="k">if</span> <span class="n">sip</span><span class="o">.</span><span class="n">isdeleted</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
                 <span class="c1"># prevent 'C++ object has been deleted' error</span>
                 <span class="k">return</span>
-        
+
             <span class="bp">self</span><span class="o">.</span><span class="n">setScene</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">'scene'</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="p">:</span>
@@ -3054,10 +3054,10 @@
                 <span class="c1"># still exists</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">_release</span><span class="p">()</span>
-    
+
                 <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                     <span class="k">pass</span>
-            
+
                 <span class="c1"># the scene is not deleted after all refs are released, even</span>
                 <span class="c1"># after self.setScene(None). This is probably a bug in PyQt:</span>
                 <span class="c1"># the C++ layer keeps ownership of the scene, whereas it should</span>
@@ -4093,7 +4093,7 @@
             <span class="k">return</span>
 
 <span class="c1">#         ############## add by Irmage OM ###################</span>
-<span class="c1">#         dim = getattr(scene.pipeline, 'node_dimension') </span>
+<span class="c1">#         dim = getattr(scene.pipeline, 'node_dimension')</span>
 <span class="c1">#         if dim is not None:</span>
 <span class="c1">#             scene.dim = dim</span>
 <span class="c1">#             print()</span>
@@ -5483,10 +5483,10 @@
 <span class="sd">        """</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">hinted_tuple_hook</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
-            
+
             <span class="k">if</span> <span class="s1">'__tuple__'</span> <span class="ow">in</span> <span class="n">obj</span><span class="p">:</span>
                 <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="s1">'items'</span><span class="p">])</span>
-            
+
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">obj</span>
 
@@ -5504,13 +5504,13 @@
                 <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s1">'No "pipeline_parameters" key found in </span><span class="si">{0}</span><span class="s1">.'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
 
             <span class="k">for</span> <span class="n">trait_name</span><span class="p">,</span> <span class="n">trait_value</span> <span class="ow">in</span> <span class="n">dic</span><span class="p">[</span><span class="s2">"pipeline_parameters"</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                
+
                 <span class="k">if</span> <span class="n">trait_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">user_traits</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
                     <span class="nb">print</span><span class="p">(</span><span class="s1">'No "</span><span class="si">{0}</span><span class="s1">" parameter in pipeline.'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">trait_name</span><span class="p">))</span>
-                    
+
                 <span class="k">try</span><span class="p">:</span>
                     <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">trait_name</span><span class="p">,</span> <span class="n">trait_value</span><span class="p">)</span>
-                    
+
                 <span class="k">except</span> <span class="n">traits</span><span class="o">.</span><span class="n">TraitError</span><span class="p">:</span>
                     <span class="nb">print</span><span class="p">(</span><span class="s2">"Error for the plug </span><span class="si">{0}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">trait_name</span><span class="p">))</span>
 

@@ -323,12 +323,12 @@
             <span class="k">raise</span> <span class="ne">ReferenceError</span><span class="p">(</span>
                 <span class="s1">'The process underlying node </span><span class="si">%s</span><span class="s1">, </span><span class="si">%s</span><span class="s1"> has been destroyed '</span>
                 <span class="s1">'before the node that contains it.'</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
-    
+
     <span class="nd">@process</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_process</span> <span class="o">=</span> <span class="n">value</span>
-    
-    
+
+
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">full_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">parent_pipeline</span><span class="p">:</span>

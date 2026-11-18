@@ -127,7 +127,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">json_filename</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">read_json</span><span class="p">()</span>
-    
+
     <span class="k">def</span><span class="w"> </span><span class="nf">read_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">json_filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">osp</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">json_filename</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">json_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">json_filename</span><span class="p">))</span>
@@ -135,7 +135,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">json_dict</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">modified</span> <span class="o">=</span> <span class="kc">True</span>
-            
+
     <span class="k">def</span><span class="w"> </span><span class="nf">commit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">modified</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">json_filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">parent</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">json_filename</span><span class="p">)</span>
@@ -146,8 +146,8 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">rollback</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">read_json</span><span class="p">()</span>
-    
-    
+
+
 <div class="viewcode-block" id="JSONDBEngine.set_named_directory">
 <a class="viewcode-back" href="../../../api/engine.html#capsul.engine.database_json.JSONDBEngine.set_named_directory">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_named_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
@@ -168,14 +168,14 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">named_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">json_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'named_directory'</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'path'</span><span class="p">)</span></div>
 
-    
+
 <div class="viewcode-block" id="JSONDBEngine.named_directories">
 <a class="viewcode-back" href="../../../api/engine.html#capsul.engine.database_json.JSONDBEngine.named_directories">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">named_directories</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">json_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'named_directory'</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">values</span><span class="p">()</span></div>
 
-    
-        
+
+
 <div class="viewcode-block" id="JSONDBEngine.set_json_value">
 <a class="viewcode-back" href="../../../api/engine.html#capsul.engine.database_json.JSONDBEngine.set_json_value">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_json_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">json_value</span><span class="p">):</span>
@@ -188,8 +188,8 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">json_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">json_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'json_value'</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
 
-    
-    
+
+
 <div class="viewcode-block" id="JSONDBEngine.set_path_metadata">
 <a class="viewcode-back" href="../../../api/engine.html#capsul.engine.database_json.JSONDBEngine.set_path_metadata">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_path_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">named_directory</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -200,7 +200,7 @@
             <span class="p">(</span><span class="n">named_directory</span><span class="p">,</span> <span class="n">path</span><span class="p">)]</span> <span class="o">=</span> <span class="n">metadata</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">modified</span> <span class="o">=</span> <span class="kc">True</span></div>
 
-            
+
 
 <div class="viewcode-block" id="JSONDBEngine.path_metadata">
 <a class="viewcode-back" href="../../../api/engine.html#capsul.engine.database_json.JSONDBEngine.path_metadata">[docs]</a>

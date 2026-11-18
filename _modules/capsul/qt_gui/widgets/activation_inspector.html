@@ -329,7 +329,7 @@
 
 
     <span class="c1">###########################################################################</span>
-    <span class="c1"># Slots   </span>
+    <span class="c1"># Slots</span>
     <span class="c1">###########################################################################</span>
 
 <div class="viewcode-block" id="ActivationInspector.refresh_activation_from_record">
@@ -346,7 +346,7 @@
             <span class="k">if</span> <span class="n">record_pipeline_id</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">id</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="s2">"'</span><span class="si">{0}</span><span class="s2">' recorded activations for pipeline '</span><span class="si">{1}</span><span class="s2">' but not for "</span>
-                    <span class="s2">"'</span><span class="si">{2}</span><span class="s2">'"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">record_file</span><span class="p">,</span> <span class="n">record_pipeline_id</span><span class="p">,</span> 
+                    <span class="s2">"'</span><span class="si">{2}</span><span class="s2">'"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">record_file</span><span class="p">,</span> <span class="n">record_pipeline_id</span><span class="p">,</span>
                                    <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">id</span><span class="p">))</span>
 
             <span class="c1"># Clear the list where the recorded activation is displayed</span>
@@ -436,7 +436,7 @@
 
         <span class="k">return</span> <span class="mi">0</span></div>
 
-        
+
 <div class="viewcode-block" id="ActivationInspector.find_previous">
 <a class="viewcode-back" href="../../../../api/qt_gui.html#capsul.qt_gui.widgets.activation_inspector.ActivationInspector.find_previous">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">find_previous</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -487,7 +487,7 @@
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">""" Command example:</span>
-<span class="sd">    &gt;&gt;&gt; python activation_inspector.py -p funtk.connectivity.conn.Conn </span>
+<span class="sd">    &gt;&gt;&gt; python activation_inspector.py -p funtk.connectivity.conn.Conn</span>
 <span class="sd">        -r ~/tmp/conn_activation.txt</span>
 <span class="sd">    """</span>
     <span class="c1"># Create a tool we can control easily</span>

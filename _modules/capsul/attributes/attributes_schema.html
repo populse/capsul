@@ -141,9 +141,9 @@
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Instantiate EditableAttributes classes that are defined in schema</span>
-        <span class="n">sets</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">k</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="n">k</span><span class="p">)())</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> 
+        <span class="n">sets</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">k</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="n">k</span><span class="p">)())</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span>
                     <span class="nb">dir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="n">k</span><span class="p">),</span> <span class="nb">type</span><span class="p">)</span> <span class="ow">and</span> 
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="n">k</span><span class="p">),</span> <span class="nb">type</span><span class="p">)</span> <span class="ow">and</span>
                        <span class="nb">issubclass</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="n">k</span><span class="p">),</span> <span class="n">EditableAttributes</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">attribute_sets</span> <span class="o">=</span> <span class="n">sets</span></div>
 
@@ -165,7 +165,7 @@
 <a class="viewcode-back" href="../../../api/attributes.html#capsul.attributes.attributes_schema.set_attribute">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">set_attribute</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">'''</span>
-<span class="sd">    </span>
+
 <span class="sd">    '''</span>
     <span class="nb">setattr</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
 
@@ -191,7 +191,7 @@
 
 <span class="sd">    See Capsul :ref:`advanced usage doc &lt;completion&gt;` for details.</span>
 <span class="sd">    '''</span>
-    
+
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">schema_dict</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">ProcessAttributes</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_process</span> <span class="o">=</span> <span class="n">process</span>

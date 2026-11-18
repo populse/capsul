@@ -5,7 +5,7 @@
 <area shape="rect" id="node5" href="#capsul.process.process.Process" target="_top" title="A process is an atomic component that contains a processing." alt="" coords="482,161,554,189"/>
 <area shape="rect" id="node4" href="#capsul.process.process.FileCopyProcess" target="_top" title="A specific process that copies all the input files." alt="" coords="609,57,737,85"/>
 <area shape="rect" id="node8" href="#capsul.process.process.NipypeProcess" target="_top" title="Base class used to wrap nipype interfaces." alt="" coords="792,57,909,85"/>
-<area shape="rect" id="node6" href="#capsul.process.process.InteractiveProcess" target="_top" title="Base class for interactive processes. The value of the is_interactive " alt="" coords="602,109,744,137"/>
+<area shape="rect" id="node6" href="#capsul.process.process.InteractiveProcess" target="_top" title="Base class for interactive processes. The value of the is_interactive" alt="" coords="602,109,744,137"/>
 <area shape="rect" id="node9" href="pipeline.html#capsul.pipeline.pipeline.Pipeline" target="_top" title="Pipeline containing Process nodes, and links between node parameters." alt="" coords="636,161,710,189"/>
 <area shape="rect" id="node10" href="pipeline.html#capsul.pipeline.process_iteration.ProcessIteration" target="_top" title=".. note::" alt="" coords="610,213,736,241"/>
 <area shape="rect" id="node14" href="#capsul.process.xml.XMLProcess" target="_top" title="Base class of all generated classes for processes defined as a Python" alt="" coords="623,265,723,293"/>

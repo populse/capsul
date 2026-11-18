@@ -137,20 +137,20 @@
 <span class="sd">    wants to create a pipeline from an external source (i.e. a source that is</span>
 <span class="sd">    not an installed Python module). For instance, the creation of a pipeline</span>
 <span class="sd">    from an XML representation uses a PipelineConstructor.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    `pipeline`: ConstructedPipeline derived class</span>
 <span class="sd">        the constructed Pipeline class</span>
 <span class="sd">    """</span>
-    
+
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initialize a new empty ConstructedPipeline class that is ready to be</span>
 <span class="sd">        customized by calling methods of the PipelineConstructor. When pipeline</span>
 <span class="sd">        creation is done, the pipeline class can be accessed with the</span>
 <span class="sd">        `pipeline` attribute.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        module: str (mandatory)</span>
@@ -165,10 +165,10 @@
             <span class="s1">'node_position'</span><span class="p">:</span> <span class="p">{}</span>
         <span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="p">(</span><span class="n">ConstructedPipeline</span><span class="p">,),</span> <span class="n">class_kwargs</span><span class="p">)</span>
-        <span class="c1"># self.__calls is simply a shortcut to </span>
+        <span class="c1"># self.__calls is simply a shortcut to</span>
         <span class="c1"># self.pipeline._pipeline_definition_calls</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_calls</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">_pipeline_definition_calls</span>
-    
+
 
 <div class="viewcode-block" id="PipelineConstructor.add_process">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_construction.PipelineConstructor.add_process">[docs]</a>
@@ -177,8 +177,8 @@
 <span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_calls</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s1">'add_process'</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">))</span></div>
 
-    
-    
+
+
 <div class="viewcode-block" id="PipelineConstructor.add_iterative_process">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_construction.PipelineConstructor.add_iterative_process">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_iterative_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -186,8 +186,8 @@
 <span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_calls</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s1">'add_iterative_process'</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">))</span></div>
 
-    
-    
+
+
 <div class="viewcode-block" id="PipelineConstructor.call_process_method">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_construction.PipelineConstructor.call_process_method">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">call_process_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -197,7 +197,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_calls</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s1">'call_process_method'</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">))</span></div>
 
 
-        
+
 <div class="viewcode-block" id="PipelineConstructor.add_link">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_construction.PipelineConstructor.add_link">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -251,8 +251,8 @@
 <span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">node_position</span><span class="p">[</span><span class="n">node_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span></div>
 
-    
-    
+
+
 <div class="viewcode-block" id="PipelineConstructor.set_scene_scale_factor">
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_construction.PipelineConstructor.set_scene_scale_factor">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_scene_scale_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scale</span><span class="p">):</span>
@@ -330,7 +330,7 @@
 <a class="viewcode-back" href="../../../api/pipeline.html#capsul.pipeline.pipeline_construction.ConstructedPipeline.pipeline_definition">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">pipeline_definition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Executes on `self`, all method calls recorded in </span>
+<span class="sd">        Executes on `self`, all method calls recorded in</span>
 <span class="sd">        self._pipeline_definition_calls.</span>
 <span class="sd">        """</span>
         <span class="k">for</span> <span class="n">method_name</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pipeline_definition_calls</span><span class="p">:</span>

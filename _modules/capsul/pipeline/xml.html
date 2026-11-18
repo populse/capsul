@@ -139,7 +139,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">create_xml_pipeline</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">xml_file</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Create a pipeline class given its Capsul XML 2.0 representation.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    module: str (mandatory)</span>
@@ -149,7 +149,7 @@
 <span class="sd">        name of the new pipeline class</span>
 <span class="sd">    xml_file: str (mandatory)</span>
 <span class="sd">        name of file containing the XML description or XML string.</span>
-<span class="sd">    </span>
+
 <span class="sd">    """</span>
     <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">xml_file</span><span class="p">,</span> <span class="s1">'read'</span><span class="p">)</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">xml_file</span><span class="p">):</span>
         <span class="n">xml_pipeline</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">xml_file</span><span class="p">)</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
