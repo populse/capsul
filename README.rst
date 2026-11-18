@@ -9,7 +9,7 @@ CAPSUL
     :target: https://github.com/populse/capsul/blob/master/LICENSE
     :alt: License
 
-.. image:: https://img.shields.io/badge/python-3.9%2C%203.10%2C%203.11-informational
+.. image:: https://img.shields.io/badge/python-3.10%2C%203.11%2C%203.12-informational
     :target: http://github.com/populse/capsul
     :alt: Python
 
