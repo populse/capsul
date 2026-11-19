@@ -390,9 +390,9 @@ def get_data_selector(database, engine=None, fom=None, data_types=None,
             '/home/charles-axel/raw_data',
             fom='raw-bids-1.0',
             upstream_selector={'type': 'exhaustive'})
-        data = list(sel.get_data(
+        data = sel.get_data(
             data_types=['morphologist.capsul.import_t1_mri.ImportT1Mri.input'],
-            data_filters={'.*': {'subject': 'hericart'}}))
+            data_filters={'.*': {'subject': 'hericart'}})
     '''
     if type is None:
         if database_sqlite not in (None, traits.Undefined, ''):
