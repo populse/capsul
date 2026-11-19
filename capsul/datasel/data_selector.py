@@ -232,7 +232,7 @@ class DataSelector:
             else:
                 raise ValueError('data_filters is not recognized')
 
-        if self.need_status:
+        if self.status_for_type:
             self.prepare_status_column()
 
         return data_filters
@@ -395,7 +395,7 @@ def get_data_selector(database, engine=None, fom=None, data_types=None,
             data_filters={'.*': {'subject': 'hericart'}}))
     '''
     if type is None:
-        if database_sqlite is not None:
+        if database_sqlite not in (None, traits.Undefined, ''):
             type = 'sqlite'
         elif 'files_list' in kwargs:
             type = 'files_list'

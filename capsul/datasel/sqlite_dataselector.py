@@ -31,7 +31,7 @@ class SQLiteDataSelector(DataParser):
         if self.database_sqlite in (None, traits.Undefined, ''):
             self.database_sqlite = osp.join(
                 self.database,
-                'capsul-{cinfo.version_major}.{cinfo.version_minor}.sqlite')
+                f'capsul-{cinfo.version_major}.{cinfo.version_minor}.sqlite')
         self.db = sqlite3.connect(self.database_sqlite)
         if init_fom in (None, traits.Undefined, '') and self.db is not None:
             self.fom = list(self.db.execute('SELECT fom_name FROM fom'))[0][0]
