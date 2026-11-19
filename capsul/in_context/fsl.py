@@ -50,7 +50,6 @@ def fsl_command_with_environment(command, use_prefix=True,
         fsl_prefix = os.environ.get('FSL_PREFIX', '')
     else:
         fsl_prefix = ''
-    print('FSL command:', command)
     if use_runtime_env and fsl_runtime_env:
         c0 = list(osp.split(command[0]))
         c0[-1] = '%s%s' % (fsl_prefix, c0[-1])
@@ -80,7 +79,6 @@ def fsl_command_with_environment(command, use_prefix=True,
                 'export FSLDIR="{0}"; export PATH="{0}/bin:$PATH"; . {0}/etc/fslconf/fsl.sh;exec {1}{2} '.format(
                     fsldir, fsl_prefix, command[0]) + \
                     ' '.join("'%s'" % str(i).replace("'", "\\'") for i in command[1:])]
-            print('cmd:', cmd)
     else:
         cmd = ['%s%s%s' % (dir_prefix,
                            fsl_prefix, 
