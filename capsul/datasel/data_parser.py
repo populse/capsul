@@ -15,11 +15,6 @@ class DataParser(DataSelector):
 the FOM description system.
     '''
 
-    def check_parameters(self):
-        super().check_parameters()
-        if self.type_labels in (None, traits.Undefined):
-            self.type_labels = self.data_types
-
     def get_process(self, dtype, dfilt):
         engine = self.get_engine()
         if not hasattr(engine, '_modules_data') \
@@ -60,17 +55,11 @@ the FOM description system.
         return proc, procname, param
 
     def find_items(self, dtype, dfilt, sfilt):
+        '''
+        '''
         profile = False
         if profile:
             t0 = time.time()
-
-        # # FIXME this is a bidouille at the moment.
-        # if osp.basename(self.database) in ('rawdata', 'sourcedata'):
-        #     # assume raw bids, parse every filename to match every possible
-        #     # shape
-        #     exhaustive_parse = True
-        # else:
-        #     exhaustive_parse = False
 
         proc, procname, param = self.get_process(dtype, dfilt)
         engine = self.get_engine()
@@ -93,13 +82,6 @@ the FOM description system.
             paths = walk_upstream(dtype, dfilt, sfilt)
             exhaustive_parse = True
 
-        # elif exhaustive_parse:
-        #     def walk(dirname):
-        #         for p in os.walk(dirname):
-        #             for f in p[2]:
-        #                 yield os.path.join(p[0], f)
-        #
-        #     paths = walk(self.database)
         else:
             paths = glob.iglob(path_pat)
         if profile:
@@ -169,6 +151,41 @@ the FOM description system.
             print('    t3 (fom)  :', t1 - t0)
             t0 = t1
 
-    def prepare_status_column(self):
-        # in filesystem parsing mode: nothing to do
-        pass
+
+class DataFilter(DataSelector):
+
+    def find_items(self, dtype, dfilt, sfilt):
+        '''
+        '''
+        if self.upstream_selector is None:
+            raise ValueError(
+                'DataFilter needs to have an upstream selector as a data '
+                'source.')
+
+        profile = False
+        if profile:
+            t0 = time.time()
+
+        for patt in self.upstream_selector.find_items(dtype, dfilt, sfilt):
+            keep = False
+            attd = patt['attributes']
+            for k, v in dfilt.items():
+                if k not in attd or attd[k] != v:
+                    break
+            else:
+                keep = True
+            if not keep:
+                continue
+
+            do_add = True
+            if sfilt and sfilt != 'absent':
+                status = self.status_str[self.file_status(patt['path'], dtype)]
+                if status != sfilt:
+                    do_add = False
+            if do_add:
+                yield patt
+
+        if profile:
+            t1 = time.time()
+            print('    t3 (fom)  :', t1 - t0)
+            t0 = t1

@@ -34,6 +34,7 @@ class DataSelector:
     '''
 
     class statuses:
+        ''' Status list as an enum '''
         UNDEFINED = -1
         OK = 0
         PRESENT = 1
@@ -77,6 +78,7 @@ class DataSelector:
         statuses.INVALID_BAD: 'invalid_bad',
         statuses.INVALID_ABSENT: 'invalid_absent',
     }
+    ''' string identifiers for status enums '''
 
     def __init__(self, database, engine=None, fom=None, data_types=None,
                  data_filters=None, type_labels=None, status_for_type=None,
@@ -114,6 +116,8 @@ class DataSelector:
             with engine.settings as session:
                 config = session.config("fom", "global")
                 self.fom = config.input_fom
+        if self.type_labels in (None, traits.Undefined):
+            self.type_labels = self.data_types
         if isinstance(self.upstream_selector, dict):
             self.build_upstream_selector()
 
@@ -180,6 +184,20 @@ class DataSelector:
         return data
 
     def find_items(self, dfilt, sfilt):
+        ''' This method needs to be overloaded in concrete classes.
+
+        Its output is a generator, where each element is a dictionary, with 2
+        entries:
+
+        path: str
+            full file path
+        attributes: dict
+            the attributes dictionaty for the file. It generally corresponds to
+            the FOM attributes. In some special DataSelector subclasses like
+            :class:`ExhaustiveDataSelector` or :class:`FilesListSelector` which
+            are meant to be only data sources, the attributes dictionary may be
+            missing.
+        '''
         raise NotImplementedError(
             'DataSelector is an abstract class: you should use one of its '
             'derived classes, or better, use get_data_selector().')
@@ -219,6 +237,10 @@ class DataSelector:
 
         return data_filters
 
+    def prepare_status_column(self):
+        # in filesystem parsing mode: nothing to do
+        pass
+
     def file_status(self, filename, data_type):
         if filename is None:
             return self.statuses.ABSENT
@@ -240,6 +262,10 @@ class DataSelector:
     # specific to Morphologist JSON QC report files
     @staticmethod
     def get_qc_status(proc, path):
+        ''' Get the QC status from a Morphologist JSON QC file.
+
+        To be used in ``status_for_type`` mapping parameter.
+        '''
         import json
 
         if not osp.exists(path):
@@ -257,14 +283,28 @@ class DataSelector:
 
 
 class ExhaustiveDataSelector(DataSelector):
+    ''' This DataSelector walks the entire database directory tree and returns
+    every file. Each element is a dict with one item: "path". No attributes.
+
+    You normally use it as as data source (``upstream_selector``) for a
+    :class:`~.data_parser.DataParser`
+    '''
 
     def find_items(self, dtype, dfilt, sfilt):
+        '''
+        '''
         for p in os.walk(self.database):
             for f in p[2]:
                 yield {'path': os.path.join(p[0], f)}
 
 
 class FilesListSelector(DataSelector):
+    ''' Iterates over a given files list. Each element is a dict with one item:
+    "path". No attributes.
+
+    You normally use it as as data source (``upstream_selector``) for a
+    :class:`~.data_parser.DataParser`
+    '''
 
     def __init__(self, database, files_list, **kwargs):
         super().__init__(database, **kwargs)
@@ -272,17 +312,30 @@ class FilesListSelector(DataSelector):
         self.data_parameters.append('files_list')
 
     def find_items(self, dtype, dfilt, sfilt):
+        '''
+        '''
         for path in self.files_list:
             yield {'path': path}
 
 
 class DictListSelector(DataSelector):
+    ''' Iterates over a given list of files. Each element is a dict with the
+    same shape as the :class:`.data_parser.DataParser` output.
+
+    The ``dict_list`` may be a list of dicts, or a JSON filename.
+
+    You normally use it either directly, or as as data source
+    (``upstream_selector``) for a :class:`~.data_parser.DataFilter`
+    '''
+
     def __init__(self, database, dict_list, **kwargs):
         super().__init__(database, **kwargs)
         self.dict_list = dict_list
         self.data_parameters.append('dict_list')
 
     def find_items(self, dtype, dfilt, sfilt):
+        '''
+        '''
         import json
 
         if isinstance(self.dict_list, str):
@@ -298,12 +351,62 @@ class DictListSelector(DataSelector):
 def get_data_selector(database, engine=None, fom=None, data_types=None,
                       data_filters=None, database_sqlite=None,
                       type_labels=None, status_for_type=None,
-                      index_status=None, **kwargs):
+                      index_status=None, type=None, **kwargs):
     ''' Factory function to build a data selector corresponding to the given
     criterions. Mainly, if ``database_sqlite`` provides a SQLite filename, then
     a SQLite data selector will be returned.
+
+    The ``type`` parameter allows to select the intended data selector. If
+    omitted, the type will be eguesses from other parameters, if possible.
+
+    Currently supported types are:
+
+    sqlite:
+        :class:`~.sqlite_dataselector.SQLiteDataSelector`
+    files_list:
+        :class:`FilesListSelector`
+    dict_list:
+        :class:`DictListSelector`
+    exhaustive:
+        :class:`ExhaustiveDataSelector`
+    parser:
+        :class:`~.data_parser.DataParser`
+    filter:
+        :class:`~.data_parser.DataFilter`
+
+    The ``upstream_selector`` parameter can be used to build a chain of
+    selectors: the value of this parameter is a dictionary defining the
+    upstream selector in the chain, and it may also conain an
+    upstream_selector, and so on.
+
+    The status_for_type is a dictionary of {type: function}. Such functions
+    will be called to evaluate the status of a file of the given type. For
+    instance, you may use the :meth:`DataSelector.get_qc_status` function to
+    read Morphologist QC status files and get a status code from them.
+
+    Ex::
+
+        sel = data_selector.get_data_selector(
+            '/home/charles-axel/raw_data',
+            fom='raw-bids-1.0',
+            upstream_selector={'type': 'exhaustive'})
+        data = list(sel.get_data(
+            data_types=['morphologist.capsul.import_t1_mri.ImportT1Mri.input'],
+            data_filters={'.*': {'subject': 'hericart'}}))
     '''
-    if database_sqlite is not None:
+    if type is None:
+        if database_sqlite is not None:
+            type = 'sqlite'
+        elif 'files_list' in kwargs:
+            type = 'files_list'
+        elif 'dict_list' in kwargs:
+            type = 'dict_list'
+        elif kwargs.get('exhaustive', False):
+            type = 'exhaustive'
+        else:
+            type = 'parser'
+
+    if type == 'sqlite':
         from .sqlite_dataselector import SQLiteDataSelector
         return SQLiteDataSelector(
             database, engine=engine, fom=fom, data_types=data_types,
@@ -311,15 +414,23 @@ def get_data_selector(database, engine=None, fom=None, data_types=None,
             type_labels=type_labels, status_for_type=status_for_type,
             index_status=index_status, **kwargs)
 
-    if 'files_list' in kwargs:
+    elif type == 'files_list':
         return FilesListSelector(database, **kwargs)
 
-    if 'dict_list' in kwargs:
+    elif type == 'dict_list':
         return DictListSelector(database, **kwargs)
 
-    if kwargs.get('exhaustive', False):
+    elif type == 'exhaustive':
         kwargs = {k: v for k, v in kwargs.items() if k != 'exhaustive'}
         return ExhaustiveDataSelector(database, engine=engine, **kwargs)
+
+    elif type == 'filter':
+        from .data_parser import DataFilter
+        return DataFilter(database, engine=engine, fom=fom,
+                          data_types=data_types,
+                          data_filters=data_filters, type_labels=type_labels,
+                          status_for_type=status_for_type,
+                          **kwargs)
 
     from .data_parser import DataParser
     return DataParser(database, engine=engine, fom=fom, data_types=data_types,

@@ -43,6 +43,8 @@ class SQLiteDataSelector(DataParser):
                 f'{self.IndexStatus}')
 
     def find_items(self, dtype, dfilt, sfilt):
+        '''
+        '''
         profile = False
         if profile:
             t0 = time.time()
