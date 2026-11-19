@@ -15,68 +15,10 @@ class DataParser(DataSelector):
 the FOM description system.
     '''
 
-    def __init__(self, database, **kwargs):
-        super().__init__(database,
-                         engine=kwargs.get('engine'),
-                         fom=kwargs.get('fom'),
-                         data_types=kwargs.get('data_types'),
-                         data_filters=kwargs.get('data_filters'))
-        self.type_labels = kwargs.get('type_labels')
-        self.data_parameters.append('type_labels')
-
     def check_parameters(self):
         super().check_parameters()
         if self.type_labels in (None, traits.Undefined):
             self.type_labels = self.data_types
-
-    def find_data(self):
-        data = []
-        profile = False
-        if profile:
-            print('find_data')
-            t0 = time.time()
-
-        data_filters = [{} for i in range(len(self.data_types))]
-        self.status_filters = [{} for i in range(len(self.data_types))]
-        self.need_status = False
-        if self.data_filters:
-            if isinstance(self.data_filters, str):
-                df = eval(self.data_filters)
-            else:
-                df = self.data_filters
-            if isinstance(df, list):
-                data_filters = df
-            elif isinstance(df, dict):
-                for k, v in df.items():
-                    kr = re.compile(k)
-                    cols = [i for i, c in enumerate(self.type_labels)
-                            if kr.match(c)]
-                    if len(cols) == 0:
-                        raise ValueError(
-                            f'data filer column "{k}" is not found')
-                    sf = v.get('file_status')
-                    if sf:
-                        v = {x: y for x, y in v.items() if x != 'file_status'}
-                        self.need_status = True
-                    for i in cols:
-                        data_filters[i].update(v)
-                        if sf:
-                            self.status_filters[i] = sf
-            else:
-                raise ValueError('data_filters is not recognized')
-
-        if self.need_status:
-            self.prepare_status_column()
-
-        for i, dtype in enumerate(self.data_types):
-            items = self.find_items(dtype, data_filters[i],
-                                    self.status_filters[i])
-            data.append((dtype, items))
-            # print(dtype, ':', len(items), 'items')
-            if profile:
-                print('time:', time.time() - t0)
-
-        return data
 
     def get_process(self, dtype, dfilt):
         engine = self.get_engine()
@@ -122,18 +64,16 @@ the FOM description system.
         if profile:
             t0 = time.time()
 
-        # FIXME this is a bidouille at the moment.
-        if osp.basename(self.database) in ('rawdata', 'sourcedata'):
-            # assume raw bids, parse every filename to match every possible
-            # shape
-            exhaustive_parse = True
-        else:
-            exhaustive_parse = False
+        # # FIXME this is a bidouille at the moment.
+        # if osp.basename(self.database) in ('rawdata', 'sourcedata'):
+        #     # assume raw bids, parse every filename to match every possible
+        #     # shape
+        #     exhaustive_parse = True
+        # else:
+        #     exhaustive_parse = False
 
         proc, procname, param = self.get_process(dtype, dfilt)
         engine = self.get_engine()
-
-        data = []
 
         short_procname = procname.rsplit('.')[-1]
         path_pat = getattr(proc, param)
@@ -142,19 +82,31 @@ the FOM description system.
             t1 = time.time()
             print('    t1 (compl):', t1 - t0)
             t0 = t1
-        if exhaustive_parse:
-            def walk(dirname):
-                for p in os.walk(dirname):
-                    for f in p[2]:
-                        yield os.path.join(p[0], f)
 
-            paths = walk(self.database)
+        exhaustive_parse = False
+        if self.upstream_selector:
+            def walk_upstream(dtype, dfilt, sfilt):
+                for item in self.upstream_selector.find_items(dtype, dfilt,
+                                                              sfilt):
+                    yield item['path']
+
+            paths = walk_upstream(dtype, dfilt, sfilt)
+            exhaustive_parse = True
+
+        # elif exhaustive_parse:
+        #     def walk(dirname):
+        #         for p in os.walk(dirname):
+        #             for f in p[2]:
+        #                 yield os.path.join(p[0], f)
+        #
+        #     paths = walk(self.database)
         else:
-            paths = glob.glob(path_pat)
+            paths = glob.iglob(path_pat)
         if profile:
             t1 = time.time()
             print('    t2 (glob) :', t1 - t0)
             t0 = t1
+
         for p in paths:
             for fom_type in ('input', 'output'):
                 pta = engine._modules_data['fom']['fom_pta'][fom_type]
@@ -162,8 +114,19 @@ the FOM description system.
                 if len(attl) == 0:
                     continue  # pattern does not match
                 atts = None
-                # print('path:', p, 'attl:', len(attl), ', proc:', procname)
-                if len(attl) == 1:
+                # print('path:', p, 'attl:', len(attl), ', proc:', procname, short_procname)
+                if exhaustive_parse:
+                    # filter dfilt here because path_pat has not been used
+                    fatts = []
+                    for att in attl:
+                        attd = att[2]
+                        for k, v in dfilt.items():
+                            if k not in attd or attd[k] != v:
+                                break
+                        else:
+                            fatts.append(att)
+                    attl = fatts
+                if len(attl) == 1 and not exhaustive_parse:
                     atts = attl[0]
                 else:
                     com_att = {}  # keep common attributes across PTAs
@@ -199,14 +162,12 @@ the FOM description system.
                         if status != sfilt:
                             do_add = False
                     if do_add:
-                        data.append({'attributes': atts[2], 'path': p})
+                        yield {'attributes': atts[2], 'path': p}
                     break
         if profile:
             t1 = time.time()
             print('    t3 (fom)  :', t1 - t0)
             t0 = t1
-
-        return data
 
     def prepare_status_column(self):
         # in filesystem parsing mode: nothing to do

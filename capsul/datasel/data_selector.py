@@ -4,7 +4,9 @@ from capsul.engine import capsul_engine
 import time
 import traits.api as traits
 import datetime
+import os
 import os.path as osp
+import re
 
 
 class DataSelector:
@@ -77,15 +79,22 @@ class DataSelector:
     }
 
     def __init__(self, database, engine=None, fom=None, data_types=None,
-                 data_filters=None):
+                 data_filters=None, type_labels=None, status_for_type=None,
+                 upstream_selector=None,
+                 **kwargs):
         self.data_parameters = ['database', 'data_types', 'fom',
-                                'data_filters']
+                                'data_filters', 'type_labels',
+                                'upstream_selector']
         self.database = database
         self.fom = fom
         self.engine = engine
         self.data_types = data_types
         self.data_filters = data_filters
-        self.status_for_type = {}
+        self.type_labels = type_labels
+        self.status_for_type = ({} if status_for_type is None
+                                else status_for_type)
+        self.upstream_selector = upstream_selector
+        self.remaining_args = kwargs
 
     def set_parameters(self, **kwargs):
         for p in self.data_parameters:
@@ -105,6 +114,8 @@ class DataSelector:
             with engine.settings as session:
                 config = session.config("fom", "global")
                 self.fom = config.input_fom
+        if isinstance(self.upstream_selector, dict):
+            self.build_upstream_selector()
 
     def get_data(self, **kwargs):
         ''' The main method of the DataSelector class. Performs parsing /
@@ -150,9 +161,63 @@ class DataSelector:
         return self.engine
 
     def find_data(self):
+        data = []
+        profile = False
+        if profile:
+            print('find_data')
+            t0 = time.time()
+
+        data_filters = self.prepare_filters()
+
+        for i, dtype in enumerate(self.data_types):
+            items = list(self.find_items(dtype, data_filters[i],
+                                         self.status_filters[i]))
+            data.append((dtype, items))
+            # print(dtype, ':', len(items), 'items')
+            if profile:
+                print('time:', time.time() - t0)
+
+        return data
+
+    def find_items(self, dfilt, sfilt):
         raise NotImplementedError(
-            'DataSelector is a pure virtual class. Please use one of its '
-            'derived classes, or more conveniently, get_data_selector().')
+            'DataSelector is an abstract class: you should use one of its '
+            'derived classes, or better, use get_data_selector().')
+
+    def prepare_filters(self):
+        data_filters = [{} for i in range(len(self.data_types))]
+        self.status_filters = [{} for i in range(len(self.data_types))]
+        self.need_status = False
+        if self.data_filters:
+            if isinstance(self.data_filters, str):
+                df = eval(self.data_filters)
+            else:
+                df = self.data_filters
+            if isinstance(df, list):
+                data_filters = df
+            elif isinstance(df, dict):
+                for k, v in df.items():
+                    kr = re.compile(k)
+                    cols = [i for i, c in enumerate(self.type_labels)
+                            if kr.match(c)]
+                    if len(cols) == 0:
+                        raise ValueError(
+                            f'data filer column "{k}" is not found')
+                    sf = v.get('file_status')
+                    if sf:
+                        v = {x: y for x, y in v.items() if x != 'file_status'}
+                        self.need_status = True
+                    for i in cols:
+                        data_filters[i].update(v)
+                        if sf:
+                            self.status_filters[i] = sf
+            else:
+                raise ValueError('data_filters is not recognized')
+
+        if self.need_status:
+            self.prepare_status_column()
+
+        return data_filters
 
     def file_status(self, filename, data_type):
         if filename is None:
@@ -161,6 +226,16 @@ class DataSelector:
         if stat_func is not None:
             return stat_func(self, filename)
         return self.statuses.PRESENT
+
+    def build_upstream_selector(self):
+        kwargs = dict(self.upstream_selector)
+        for p in ('database', 'engine', 'data_types', 'fom', 'data_filters',
+                  'type_labels'):
+            if p not in kwargs:
+                v = getattr(self, p)
+                if v not in (None, traits.Undefined, ''):
+                    kwargs[p] = v
+        self.upstream_selector = get_data_selector(**kwargs)
 
     # specific to Morphologist JSON QC report files
     @staticmethod
@@ -181,9 +256,49 @@ class DataSelector:
         return stat[status]
 
 
+class ExhaustiveDataSelector(DataSelector):
+
+    def find_items(self, dtype, dfilt, sfilt):
+        for p in os.walk(self.database):
+            for f in p[2]:
+                yield {'path': os.path.join(p[0], f)}
+
+
+class FilesListSelector(DataSelector):
+
+    def __init__(self, database, files_list, **kwargs):
+        super().__init__(database, **kwargs)
+        self.files_list = files_list
+        self.data_parameters.append('files_list')
+
+    def find_items(self, dtype, dfilt, sfilt):
+        for path in self.files_list:
+            yield {'path': path}
+
+
+class DictListSelector(DataSelector):
+    def __init__(self, database, dict_list, **kwargs):
+        super().__init__(database, **kwargs)
+        self.dict_list = dict_list
+        self.data_parameters.append('dict_list')
+
+    def find_items(self, dtype, dfilt, sfilt):
+        import json
+
+        if isinstance(self.dict_list, str):
+            with open(self.dict_list) as f:
+                self.dict_list = json.load(f)
+        dict_list = self.dict_list
+        if isinstance(dict_list, dict):
+            dict_list = dict_list.get(dtype, [])
+        for path in dict_list:
+            yield path
+
+
 def get_data_selector(database, engine=None, fom=None, data_types=None,
                       data_filters=None, database_sqlite=None,
-                      type_labels=None, index_status=None):
+                      type_labels=None, status_for_type=None,
+                      index_status=None, **kwargs):
     ''' Factory function to build a data selector corresponding to the given
     criterions. Mainly, if ``database_sqlite`` provides a SQLite filename, then
     a SQLite data selector will be returned.
@@ -193,8 +308,21 @@ def get_data_selector(database, engine=None, fom=None, data_types=None,
         return SQLiteDataSelector(
             database, engine=engine, fom=fom, data_types=data_types,
             data_filters=data_filters, database_sqlite=database_sqlite,
-            type_labels=type_labels, index_status=index_status)
+            type_labels=type_labels, status_for_type=status_for_type,
+            index_status=index_status, **kwargs)
+
+    if 'files_list' in kwargs:
+        return FilesListSelector(database, **kwargs)
+
+    if 'dict_list' in kwargs:
+        return DictListSelector(database, **kwargs)
+
+    if kwargs.get('exhaustive', False):
+        kwargs = {k: v for k, v in kwargs.items() if k != 'exhaustive'}
+        return ExhaustiveDataSelector(database, engine=engine, **kwargs)
 
     from .data_parser import DataParser
     return DataParser(database, engine=engine, fom=fom, data_types=data_types,
-                      data_filters=data_filters, type_labels=type_labels)
+                      data_filters=data_filters, type_labels=type_labels,
+                      status_for_type=status_for_type,
+                      **kwargs)
