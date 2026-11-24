@@ -166,11 +166,26 @@ class DataFilter(DataSelector):
         if profile:
             t0 = time.time()
 
+        refilt = {re.compile(k): re.compile(v) for k, v in dfilt.items()}
+
         for patt in self.upstream_selector.find_items(dtype, dfilt, sfilt):
-            keep = False
+            keep = True
             attd = patt['attributes']
-            for k, v in dfilt.items():
-                if k not in attd or attd[k] != v:
+            for k, v in refilt.items():
+                found = False
+                for ka, va in attd.items():
+                    if k.match(ka):
+                        found = True
+                        if not v.match(va):
+                            keep = False
+                            break
+                if not keep:
+                    break
+                if not found:
+                    # no key matches the resquested one: reject
+                    # (this behaviour is sometimes questionable if k is a
+                    # pattern)
+                    keep = False
                     break
             else:
                 keep = True

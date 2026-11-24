@@ -62,9 +62,8 @@ We can also save the data dict and reuse it in a filter selector::
 
     # save using a dict structure
     json_filename = '/tmp/select.json'
-    data_dict = {x[0]: x[1] for x in data}
     with open(json_filename, 'w') as f:
-        json.dump(data_dict, f)
+        json.dump(dict(data), f)
 
     # then use a filter which reads from the JSON file
     # (we could directly use the dict instead of the JSON file, also):
