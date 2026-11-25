@@ -60,8 +60,8 @@ jobs:
       with:
         files: ./coverage.xml
         token: ${{ secrets.CODECOV_TOKEN }}
-        fail_ci_if_error: true
-        verbose: true
+        fail_ci_if_error: false
+        # verbose: true
 
     # Enable tmate debugging of manually-triggered workflows if the input option was provided
     - name: Setup tmate session

@@ -6,9 +6,9 @@ name: tests
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -18,19 +18,22 @@ on:
 jobs:
   tests:
     # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
 
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
         # Run in all these versions of Python
         python-version: ["3.10", "3.11"]
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v7
 
       - name: "Set up Python ${{ matrix.python-version }}"
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v7
         with:
           python-version: "${{ matrix.python-version }}"
 
@@ -38,52 +41,76 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install numpy
-          pip install six>=1.13
+          pip install "six>=1.13"
           pip install traits
           pip install python-dateutil
           pip install nipype
           pip install git+https://github.com/populse/soma-base.git
           pip install git+https://github.com/populse/soma-workflow.git
           pip install git+https://github.com/populse/populse_db.git
-          python setup.py install
 
-      - name: "Run tests"
+      - name: Install coverage
+        if: runner.os == 'Linux' && matrix.python-version == '3.11'
         run: |
-          python -m capsul.test
+          python -m pip install coverage
+
+      - name: Run tests with coverage (Linux)
+        if: runner.os == 'Linux' && matrix.python-version == '3.11'
+        run: |
+          coverage run --branch -m capsul.test -vv
+
+      - name: Run tests (macOS / Windows)
+        if: runner.os != 'Linux' || matrix.python-version != '3.11'
+        run: |
+          python -m capsul.test -vv
+
+      - name: Generate coverage report
+        if: always() && runner.os == 'Linux' && matrix.python-version == '3.11'
+        run: |
+          coverage xml -i
+
+      - name: Upload coverage to Codecov
+        if: always() && runner.os == 'Linux' && matrix.python-version == '3.11' && hashFiles('coverage.xml') != ''
+        uses: codecov/codecov-action@v7.1.1
+        with:
+          files: ./coverage.xml
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
+          # verbose: true
 
   documentation:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    permissions:
+      contents: write
+
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v7
 
-      - name: "Set up Python 3.10"
-        uses: actions/setup-python@v4
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v7
         with:
           python-version: "3.10"
+
       - name: "Install Python dependencies"
         run: |
-          pip3 install setuptools
-          pip3 install numpy 'six>=1.13' 'argparse' 'traits>=4.0' 'populse-db>=2.2' 'PyYAML' 'PyQt5'  # 'soma-base>=5.1' 'soma-workflow>=3.3'
+          python -m pip install --upgrade pip
+          pip install setuptools
+          pip install numpy 'six>=1.13' 'argparse' 'traits>=4.0' 'populse-db>=3.0' 'PyYAML' 'PyQt5'  # 'soma-base>=5.1' 'soma-workflow>=3.3'
           # for docs only
+          sudo apt-get update
           sudo apt-get install -y pandoc graphviz
           pip install sphinx sphinx-gallery pandoc nbsphinx ipykernel
           python -m ipykernel install --user --name python3
-          # while soma-base 5.1 is not in pip yet
-          pushd ..
-          git clone https://github.com/populse/soma-base.git
-          cd soma-base
-          python setup.py install
-          popd
-          # while soma-workflow 3.3 is not in pip yet
-          pushd ..
-          git clone https://github.com/populse/soma-workflow.git
-          cd soma-workflow
-          python setup.py install
-          popd
+          # Install soma-base and soma-workflow from source
+          pip install git+https://github.com/populse/soma-base.git
+          pip install git+https://github.com/populse/soma-workflow.git
 
-      - name: "Build Sphinx Doc"
+      - name: Build Sphinx documentation
         run: |
           export PYTHONPATH=$PWD
           export CAPSUL_SOURCE_DIR=$PWD
@@ -93,10 +120,10 @@ jobs:
           export QT_API=pyqt5
           python -m sphinx -b html source build/html
           touch build/html/.nojekyll
-          cd ..
 
       - name: "Deploy Github Pages"
-        uses: JamesIves/github-pages-deploy-action@4.1.7
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        uses: JamesIves/github-pages-deploy-action@4.9.0
         with:
           # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: gh-pages
