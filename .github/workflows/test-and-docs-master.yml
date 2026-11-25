@@ -123,7 +123,7 @@ jobs:
 
       - name: "Deploy Github Pages"
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-        uses: JamesIves/github-pages-deploy-action@4.9.0
+        uses: JamesIves/github-pages-deploy-action@v4.9.0
         with:
           # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: gh-pages
