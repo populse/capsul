@@ -1,13 +1,25 @@
 ======
 CAPSUL
 ======
-.. image:: https://github.com/populse/capsul/actions/workflows/doc.yml/badge.svg?branch=master
-    :target: https://github.com/populse/capsul/actions/workflows/doc.yml
+.. image:: https://github.com/populse/capsul/actions/workflows/test-and-docs-master.yml/badge.svg?branch=master
+    :target: https://github.com/populse/capsul/actions/workflows/test-and-docs-master.yml
     :alt: Tests
+
+.. image:: https://codecov.io/gh/populse/capsul/branch/master/graph/badge.svg?token=wAWiFqOTdQ
+   :target: https://codecov.io/gh/populse/capsul
+   :alt: Codecov
 
 .. image:: https://img.shields.io/badge/license-CeCILL--B-informational
     :target: https://github.com/populse/capsul/blob/master/LICENSE
     :alt: License
+
+.. image:: https://img.shields.io/pypi/v/capsul.svg
+   :target: https://pypi.org/project/capsul/
+   :alt: PyPI Version
+
+.. image:: https://img.shields.io/pypi/status/capsul.svg
+   :target: https://pypi.org/project/capsul/
+   :alt: PyPI Status
 
 .. image:: https://img.shields.io/badge/python-3.10%2C%203.11%2C%203.12-informational
     :target: http://github.com/populse/capsul
