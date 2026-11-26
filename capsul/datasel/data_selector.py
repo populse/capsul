@@ -405,7 +405,7 @@ class MetadataAssociator(DataSelector):
                 self.upstream_selector.find_items(dtype, dfilt, sfilt),
                 self.metadata):
             item = dict(patt)
-            item.update(meta)
+            item.setdefault('attributes', {}).update(meta)
             yield item
 
 
