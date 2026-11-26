@@ -7,15 +7,95 @@ from capsul.api import Pipeline, Process
 import sqlite3
 import os.path as osp
 import time
+import re
+from functools import lru_cache
 
 
 class SQLiteDataSelector(DataParser):
+    ''' SQLite DataSelector parser.
+
+    Performs more or less the same as :class:`~.data_parser.DataParser` but
+    using a SQLite database requests to avoid actual filesystem parsing.
+
+    The SQLite database contains all FOM-related entries for all files within a
+    dataset. The database can be built using the :meth:`build_sqlite_index`
+    method.
+
+    There is however a notable difference with
+    :class:`~.data_parser.DataParser` in the filtering: in the SQLite
+    implementation here, `data_filters` keys (database columns) are not
+    interpreted as regular expressions (because SQL does not allow it). Values
+    however, are regex, as in :class:`~.data_parser.DataParser` and in
+    :class:`~.data_parser.DataFilter`.
+    '''
 
     IndexStatus = {
         'Use',
         'Force',
         'Set_if_absent'
     }
+
+    @staticmethod
+    @lru_cache(maxsize=256)
+    def _compile(pattern):
+        return re.compile(pattern)
+
+    @staticmethod
+    def _regexp(pattern, value):
+        # SQLite calls _regexp(pattern, value)
+        if pattern is None or value is None:
+            return None
+        return SQLiteDataSelector._compile(pattern).search(value) is not None
+
+    _META = re.compile(r'[.^$*+?{}\[\]\\|()]')   # regex metachars
+    _QUANT = set('*?{+')
+
+    @staticmethod
+    def _glob_escape(s):
+        # GLOB does not have escape chars: we use * ? [ between brackets
+        return re.sub(r'([*?\[])', r'[\1]', s)
+
+    @staticmethod
+    def regex_condition(col, pattern):
+        ''' Internal utility function for SQL ``REGEX`` optimization: according
+        to the regex pattern content, use one of ``WHERE X = y``, or ``GLOB``,
+        or ``GLOB`` + ``REGEX`` to pre-fitler the calls to the python
+        ``_regexp`` function, or last, fallback to ``REGEX``.
+
+        Returns (SQL fragment, parameter) equivalent to
+        `col REGEXP pattern`.
+        '''
+        start = pattern.startswith('^')
+        end = pattern.endswith('$') and not pattern.endswith('\\$')
+        core = pattern[1 if start else 0: -1 if end else None]
+        m = SQLiteDataSelector._META.search(core)
+
+        if m is None:  # pure literal
+            if start and end:
+                # index
+                return f"{col} = ?", [core]
+            if start:
+                # index (prefix)
+                return (f"{col} GLOB ?",
+                        [SQLiteDataSelector._glob_escape(core) + '*'])
+            if end:
+                # scan, in C
+                return (f"{col} GLOB ?",
+                        ['*' + SQLiteDataSelector._glob_escape(core)])
+            # scan, in C
+            return f"instr({col}, ?) > 0", [core]
+
+        # true regex : pre-flter indexable on the literal prefix if possible
+        if start and '|' not in core:
+            prefix = core[: m.start()]
+            # 'abc*' -> 'c' is optional
+            if core[m.start()] in SQLiteDataSelector._QUANT:
+                prefix = prefix[:-1]
+            if prefix:
+                return (f"{col} GLOB ? AND {col} REGEXP ?",
+                        [SQLiteDataSelector._glob_escape(prefix) + '*',
+                         pattern])
+        return f"{col} REGEXP ?", [pattern]
 
     def __init__(self, database, **kwargs):
         super().__init__(database, **kwargs)
@@ -33,6 +113,9 @@ class SQLiteDataSelector(DataParser):
                 self.database,
                 f'capsul-{cinfo.version_major}.{cinfo.version_minor}.sqlite')
         self.db = sqlite3.connect(self.database_sqlite)
+        self.db.create_function("REGEXP", 2, SQLiteDataSelector._regexp,
+                                deterministic=True)
+
         if init_fom in (None, traits.Undefined, '') and self.db is not None:
             self.fom = list(self.db.execute('SELECT fom_name FROM fom'))[0][0]
         if self.index_status in (None, traits.Undefined, ''):
@@ -65,14 +148,22 @@ class SQLiteDataSelector(DataParser):
                 dfilt2[k] = v
             if incompatible:
                 continue
-            where = ' AND '.join(f'({k} == "{v}" OR {k} IS NULL)'
-                                 for k, v in dfilt2.items())
+            where = {}
+            params = []
+            for k, v in dfilt2.items():
+                wherep, paramsp = SQLiteDataSelector.regex_condition(k, v)
+                where[k] = wherep
+                params += paramsp
+            where = ' AND '.join(f'({w} OR {k} IS NULL)'
+                                 for k, w in where.items())
+
             where2 = [f'fom_process = "{procname}"',
                       f'fom_parameter = "{param}"']
             if where != '':
                 where2.insert(0, where)
             sql = f'SELECT {keys} FROM files WHERE ' + ' AND '.join(where2)
-            items = list(self.db.execute(sql))
+            # print('query:', sql, params)
+            items = list(self.db.execute(sql, params))
             if len(items) == 0:
                 continue  # look for next name
             for item in items:
@@ -189,6 +280,8 @@ class SQLiteDataSelector(DataParser):
         return self.statuses.PRESENT
 
     def build_sqlite_index(self, data_type=None):
+        ''' Builds the SQLite database for the given FOM
+        '''
         from capsul.attributes import fom_index
 
         if data_type is not None:

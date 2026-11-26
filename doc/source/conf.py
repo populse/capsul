@@ -334,6 +334,10 @@ extlinks = {
 
 docpath = os.path.join(os.path.dirname(os.path.dirname(
     os.path.dirname(soma.__file__))), 'share', 'doc')
+if not os.path.exists(docpath):
+    docpath = os.path.join(os.path.dirname(os.path.dirname(
+        os.path.dirname(os.path.dirname(os.path.dirname(soma.__file__))))),
+        'share', 'doc')
 
 intersphinx_mapping = {
   'somabase': (os.environ.get('SOMABASE_INTERSPHINX_URL',

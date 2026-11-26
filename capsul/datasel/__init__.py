@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-''' Data selection, parsing, filtering from FOM definitions.
+''' Data selection, parsing, filtering from
+    :py:mod:`FOM definitions <soma.fom>`.
 
 Ex: find all raw T1 MRIs in a Bids sourcedata or rawdata directory::
 
@@ -20,7 +21,7 @@ We could also filter data, using the same selector::
         data_filters={'.*': {'session': '2'}})
 
 The returned ``data`` is a list. Each element of this list is a tuple
-``(data_type, items)``, where ``data_type`` is one of the required ``data_types`` in the query, and items is a list of dicts. Each dict has a ``path`` key, and normally (there are exceptions) an ``attributes`` dict containing FOM attributes.
+``(data_type, items)``, where ``data_type`` is one of the required ``data_types`` in the query, and items is a list of dicts. Each dict has a ``path`` key, and normally (there are exceptions) an ``attributes`` dict containing :py:mod:`FOM attributes <soma.fom>`.
 
 Ex: query some Morphologist outputs in a database::
 

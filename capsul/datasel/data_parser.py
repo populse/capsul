@@ -4,15 +4,23 @@ from .data_selector import DataSelector
 from capsul.attributes.completion_engine import ProcessCompletionEngine
 import re
 import glob
-import os
 import os.path as osp
-import traits.api as traits
 import time
 
 
 class DataParser(DataSelector):
     ''' Data selector which will parse existing files on a filesystem based on
-the FOM description system.
+    the :py:mod:`FOM description system <soma.fom>`.
+
+    The parser allows to perform filtering in the same time, ie will somewhat
+    avoid to walk into directories trees where nothing has to be found, but
+    this optimization is severly limited (patterns are built, then we make use
+    of :py:func:`glob.glob`).
+
+    Filters, given using ``data_filters`` are regular expressions, both keys
+    and values, that is if you are looking for exact
+    ``subject = "charles-axel"``, you should use:
+    ``{"^subject$": "^charles-axel$"}`` to avoid fortuitous matches.
     '''
 
     def get_process(self, dtype, dfilt):
@@ -89,6 +97,8 @@ the FOM description system.
             print('    t2 (glob) :', t1 - t0)
             t0 = t1
 
+        redfilt = {re.compile(k): re.compile(v) for k, v in dfilt.items()}
+
         for p in paths:
             for fom_type in ('input', 'output'):
                 pta = engine._modules_data['fom']['fom_pta'][fom_type]
@@ -101,11 +111,27 @@ the FOM description system.
                     # filter dfilt here because path_pat has not been used
                     fatts = []
                     for att in attl:
+                        keep = True
                         attd = att[2]
-                        for k, v in dfilt.items():
-                            if k not in attd or attd[k] != v:
+                        for k, v in redfilt.items():
+                            found = False
+                            for ka, va in attd.items():
+                                if k.match(ka):
+                                    found = True
+                                    if not v.match(va):
+                                        keep = False
+                                        break
+                            if not keep:
+                                break
+                            if not found:
+                                # no key matches the resquested one: reject
+                                # (this behaviour is sometimes questionable if k is a
+                                # pattern)
+                                keep = False
                                 break
                         else:
+                            keep = True
+                        if keep:
                             fatts.append(att)
                     attl = fatts
                 if len(attl) == 1 and not exhaustive_parse:
@@ -153,6 +179,21 @@ the FOM description system.
 
 
 class DataFilter(DataSelector):
+    ''' Data filter.
+
+    Contrarily to :class:`DataParser` this :class:`DataSelector` does not parse
+    a filesystem directory, nor a list of files as input, but works using an
+    upstream :class:`DataSelector` (using ``upstream_selector``) which feeds it
+    with dictionaries (as output by :class:`DataSelector`). It is thus not
+    based on :py:mod:`FOM descriptions <soma.fom>`.
+
+    It performs filtering based on the ``data_filters`` list or dict.
+
+    Filters, given using ``data_filters`` are regular expressions, both keys
+    and values, that is if you are looking for exact
+    ``subject = "charles-axel"``, you should use:
+    ``{"^subject$": "^charles-axel$"}`` to avoid fortuitous matches.
+    '''
 
     def find_items(self, dtype, dfilt, sfilt):
         '''

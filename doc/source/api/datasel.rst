@@ -21,7 +21,7 @@ capsul.datasel.data_parser submodule
 .. automodule:: capsul.datasel.data_parser
     :members:
 
-capsul.datasel.salite_dataselector submodule
+capsul.datasel.sqlite_dataselector submodule
 --------------------------------------------
 
 .. automodule:: capsul.datasel.sqlite_dataselector

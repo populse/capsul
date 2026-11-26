@@ -127,14 +127,18 @@ class DataSelector:
 
         The keyword arguments allow to specify selection parameters. The base
         ones are listed here, but specialized selectors may support more
-        parameters. Some of them may be given upon construction (see :func:`get_data_selector`), and might be overriden here.
+        parameters. Some of them may be given upon construction (see
+        :func:`get_data_selector`), and might be overriden here.
 
         database: str
             database directory to query
         fom: str
-            the FOM model to apply (ex: 'morphologist-bids-2.0', 'morphologist-auto-1.0', 'raw-bids-1.0'...)
+            the :py:mod:`FOM <soma.fom>` model to apply (ex:
+            ``morphologist-bids-2.0``, ``morphologist-auto-1.0``,
+            ``raw-bids-1.0``...)
         data_types: (mandatory), list of str
-            each element is a process + parameter name in capsul which determines a data type to look for. Ex::
+            each element is a process + parameter name in capsul which
+            determines a data type to look for. Ex::
 
                 ['morphologist.capsul.morphologist.t1mri',
                  'morphologist.capsul.morphologist.Report_report_json']
@@ -193,10 +197,10 @@ class DataSelector:
             full file path
         attributes: dict
             the attributes dictionaty for the file. It generally corresponds to
-            the FOM attributes. In some special DataSelector subclasses like
-            :class:`ExhaustiveDataSelector` or :class:`FilesListSelector` which
-            are meant to be only data sources, the attributes dictionary may be
-            missing.
+            the :py:mod:`FOM <soma.fom>` attributes. In some special
+            DataSelector subclasses like :class:`ExhaustiveDataSelector` or
+            :class:`FilesListSelector` which are meant to be only data sources,
+            the attributes dictionary may be missing.
         '''
         raise NotImplementedError(
             'DataSelector is an abstract class: you should use one of its '
@@ -348,6 +352,63 @@ class DictListSelector(DataSelector):
             yield path
 
 
+class MetadataAssociator(DataSelector):
+    ''' Associate metadata to each element of a DataSelector.
+
+        An upstream_selector needs to be used, and a list (or any iterable) of
+        dicts (metadata) needs to be passed to it. It will add the metadata
+        attributes to each item, so the source selector and the number of
+        elements of the metadata list must match.
+
+        Contrarily to :class:`~.data_parser.DataFilter`, metadata attributes
+        here are not used for selection and filtering, but for assignment to
+        each item.
+
+        Ex::
+
+            sel = data_selector.get_data_selector(
+                data_dir, type='metadata', upstream_selector={'files_list': [
+                    '/home/charles-axel/data/mri1.nii.gz',
+                    '/home/charles-axel/data/mri2.nii.gz']},
+                metadata=[{'subject': 'guillaumot', 'acquisition': '1777'},
+                          {"subject": 'hericart', 'acquisition': '1809'}])
+            data = sel.get_data(
+                data_types=[
+                    'morphologist.capsul.morphologist.Morphologist.t1mri'],
+                fom='morphologist-auto-1.0')
+            data
+            >>> [('morphologist.capsul.morphologist.Morphologist.t1mri',
+                 [{'path': '/home/charles-axel/data/mri1.nii.gz',
+                   'subject': 'guillaumot',
+                   'acquisition': '1777'},
+                  {'path': '/home/charles-axel/data/mri2.nii.gz',
+                   'subject': 'hericart',
+                   'acquisition': '1809'}])]
+    '''
+
+    def __init__(self, *args, **kwargs):
+        if 'metadata' not in kwargs:
+            raise ValueError(
+                'MetadataAssociator must use a "metadata" parameter')
+        super().__init__(*args, **kwargs)
+        self.metadata = kwargs['metadata']
+
+    def find_items(self, dtype, dfilt, sfilt):
+        '''
+        '''
+        if self.upstream_selector is None:
+            raise ValueError(
+                'DataFilter needs to have an upstream selector as a data '
+                'source.')
+
+        for patt, meta in zip(
+                self.upstream_selector.find_items(dtype, dfilt, sfilt),
+                self.metadata):
+            item = dict(patt)
+            item.update(meta)
+            yield item
+
+
 def get_data_selector(database, engine=None, fom=None, data_types=None,
                       data_filters=None, database_sqlite=None,
                       type_labels=None, status_for_type=None,
@@ -357,7 +418,7 @@ def get_data_selector(database, engine=None, fom=None, data_types=None,
     a SQLite data selector will be returned.
 
     The ``type`` parameter allows to select the intended data selector. If
-    omitted, the type will be eguesses from other parameters, if possible.
+    omitted, the type will be guessed from other parameters, if possible.
 
     Currently supported types are:
 
@@ -373,6 +434,8 @@ def get_data_selector(database, engine=None, fom=None, data_types=None,
         :class:`~.data_parser.DataParser`
     filter:
         :class:`~.data_parser.DataFilter`
+    metadata:
+        :class:`MetadataAssociator`
 
     The ``upstream_selector`` parameter can be used to build a chain of
     selectors: the value of this parameter is a dictionary defining the
@@ -415,14 +478,23 @@ def get_data_selector(database, engine=None, fom=None, data_types=None,
             index_status=index_status, **kwargs)
 
     elif type == 'files_list':
-        return FilesListSelector(database, **kwargs)
+        return FilesListSelector(
+            database, engine=engine, data_types=data_types,
+            type_labels=type_labels, status_for_type=status_for_type,
+            **kwargs)
 
     elif type == 'dict_list':
-        return DictListSelector(database, **kwargs)
+        return DictListSelector(
+            database, engine=engine, data_types=data_types,
+            type_labels=type_labels, status_for_type=status_for_type,
+            **kwargs)
 
     elif type == 'exhaustive':
         kwargs = {k: v for k, v in kwargs.items() if k != 'exhaustive'}
-        return ExhaustiveDataSelector(database, engine=engine, **kwargs)
+        return ExhaustiveDataSelector(
+            database, engine=engine, data_types=data_types,
+            type_labels=type_labels, status_for_type=status_for_type,
+            **kwargs)
 
     elif type == 'filter':
         from .data_parser import DataFilter
@@ -431,6 +503,11 @@ def get_data_selector(database, engine=None, fom=None, data_types=None,
                           data_filters=data_filters, type_labels=type_labels,
                           status_for_type=status_for_type,
                           **kwargs)
+    elif type == 'metadata':
+        return MetadataAssociator(
+            database, engine=engine, fom=fom, data_types=data_types,
+            data_filters=data_filters, type_labels=type_labels,
+            status_for_type=status_for_type, **kwargs)
 
     from .data_parser import DataParser
     return DataParser(database, engine=engine, fom=fom, data_types=data_types,
