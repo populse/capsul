@@ -23,6 +23,8 @@ class DataParser(DataSelector):
     ``{"subject": "^charles-axel$"}`` to avoid fortuitous matches.
     '''
 
+    selector_name = 'parser'
+
     def get_process(self, dtype, dfilt):
         engine = self.get_engine()
         if not hasattr(engine, '_modules_data') \
@@ -199,6 +201,8 @@ class DataFilter(DataSelector):
     ``subject = "charles-axel"``, you should use:
     ``{"subject": "^charles-axel$"}`` to avoid fortuitous matches.
     '''
+
+    selector_name = 'filter'
 
     def find_items(self, dtype, dfilt, sfilt):
         '''

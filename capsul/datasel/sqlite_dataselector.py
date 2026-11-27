@@ -22,6 +22,8 @@ class SQLiteDataSelector(DataParser):
     method.
     '''
 
+    selector_name = 'sqlite'
+
     IndexStatus = {
         'Use',
         'Force',

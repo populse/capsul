@@ -80,6 +80,10 @@ class DataSelector:
     }
     ''' string identifiers for status enums '''
 
+    classes_registry = {}
+    ''' registry of all DataSelector types, used in :func:`get_data_selector`
+    '''
+
     def __init__(self, database, engine=None, fom=None, data_types=None,
                  data_filters=None, type_labels=None, status_for_type=None,
                  upstream_selector=None,
@@ -98,10 +102,18 @@ class DataSelector:
         self.upstream_selector = upstream_selector
         self.remaining_args = kwargs
 
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        if getattr(cls, 'selector_name', None) is not None:
+            DataSelector.classes_registry[cls.selector_name] = cls
+
     def set_parameters(self, **kwargs):
         for p in self.data_parameters:
             if p in kwargs:
                 setattr(self, p, kwargs[p])
+        if isinstance(self.upstream_selector, dict):
+            self.build_upstream_selector()
+            self.upstream_selector.set_parameters(**kwargs)
 
     def check_parameters(self):
         if self.data_types in (None, traits.Undefined):
@@ -118,8 +130,8 @@ class DataSelector:
                 self.fom = config.input_fom
         if self.type_labels in (None, traits.Undefined):
             self.type_labels = self.data_types
-        if isinstance(self.upstream_selector, dict):
-            self.build_upstream_selector()
+        if self.upstream_selector is not None:
+            self.upstream_selector.check_parameters()
 
     def get_data(self, **kwargs):
         ''' The main method of the DataSelector class. Performs parsing /
@@ -294,6 +306,8 @@ class ExhaustiveDataSelector(DataSelector):
     :class:`~.data_parser.DataParser`
     '''
 
+    selector_name = 'exhaustive'
+
     def find_items(self, dtype, dfilt, sfilt):
         '''
         '''
@@ -309,6 +323,8 @@ class FilesListSelector(DataSelector):
     You normally use it as as data source (``upstream_selector``) for a
     :class:`~.data_parser.DataParser`
     '''
+
+    selector_name = 'files_list'
 
     def __init__(self, database, files_list, **kwargs):
         super().__init__(database, **kwargs)
@@ -331,6 +347,8 @@ class DictListSelector(DataSelector):
     You normally use it either directly, or as as data source
     (``upstream_selector``) for a :class:`~.data_parser.DataFilter`
     '''
+
+    selector_name = 'dict_list'
 
     def __init__(self, database, dict_list, **kwargs):
         super().__init__(database, **kwargs)
@@ -385,6 +403,8 @@ class MetadataAssociator(DataSelector):
                    'subject': 'hericart',
                    'acquisition': '1809'}])]
     '''
+
+    selector_name = 'metadata'
 
     def __init__(self, *args, **kwargs):
         if 'metadata' not in kwargs:
@@ -510,7 +530,11 @@ def get_data_selector(database, engine=None, fom=None, data_types=None,
             status_for_type=status_for_type, **kwargs)
 
     from .data_parser import DataParser
-    return DataParser(database, engine=engine, fom=fom, data_types=data_types,
-                      data_filters=data_filters, type_labels=type_labels,
-                      status_for_type=status_for_type,
-                      **kwargs)
+
+    cls = DataSelector.classes_registry.get(type)
+    if cls is None:
+        cls = DataParser
+    return cls(database, engine=engine, fom=fom, data_types=data_types,
+               data_filters=data_filters, type_labels=type_labels,
+               status_for_type=status_for_type,
+               **kwargs)
