@@ -14,19 +14,12 @@ from functools import lru_cache
 class SQLiteDataSelector(DataParser):
     ''' SQLite DataSelector parser.
 
-    Performs more or less the same as :class:`~.data_parser.DataParser` but
+    Performs the same as :class:`~.data_parser.DataParser` but
     using a SQLite database requests to avoid actual filesystem parsing.
 
     The SQLite database contains all FOM-related entries for all files within a
     dataset. The database can be built using the :meth:`build_sqlite_index`
     method.
-
-    There is however a notable difference with
-    :class:`~.data_parser.DataParser` in the filtering: in the SQLite
-    implementation here, `data_filters` keys (database columns) are not
-    interpreted as regular expressions (because SQL does not allow it). Values
-    however, are regex, as in :class:`~.data_parser.DataParser` and in
-    :class:`~.data_parser.DataFilter`.
     '''
 
     IndexStatus = {

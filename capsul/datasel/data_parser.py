@@ -3,7 +3,7 @@
 from .data_selector import DataSelector
 from capsul.attributes.completion_engine import ProcessCompletionEngine
 import re
-import glob
+from soma.utils import reglob
 import os.path as osp
 import time
 
@@ -17,10 +17,10 @@ class DataParser(DataSelector):
     this optimization is severly limited (patterns are built, then we make use
     of :py:func:`glob.glob`).
 
-    Filters, given using ``data_filters`` are regular expressions, both keys
-    and values, that is if you are looking for exact
+    Filters values, given using ``data_filters`` are regular expressions,
+    that is if you are looking for exact
     ``subject = "charles-axel"``, you should use:
-    ``{"^subject$": "^charles-axel$"}`` to avoid fortuitous matches.
+    ``{"subject": "^charles-axel$"}`` to avoid fortuitous matches.
     '''
 
     def get_process(self, dtype, dfilt):
@@ -52,9 +52,13 @@ class DataParser(DataSelector):
             pc = ProcessCompletionEngine.get_completion_engine(proc)
             att = pc.get_attribute_values()
             for k, v in att.user_traits().items():
-                val = '*'
+                val = '.*'
                 if k in dfilt:
                     val = dfilt[k]
+                    if not val.startswith('^') and not val.startswith('.*'):
+                        val = f'.*{val}'
+                    if not val.endswith('$') and not val.startswith('.*'):
+                        val = f'{val}.*'
                 setattr(att, k, val)
             # print('completion values:', att.export_to_dict())
             pc.complete_parameters()
@@ -91,13 +95,14 @@ class DataParser(DataSelector):
             exhaustive_parse = True
 
         else:
-            paths = glob.iglob(path_pat)
+            paths = reglob.reglob(self.database,
+                                  osp.relpath(path_pat, self.database))
         if profile:
             t1 = time.time()
             print('    t2 (glob) :', t1 - t0)
             t0 = t1
 
-        redfilt = {re.compile(k): re.compile(v) for k, v in dfilt.items()}
+        redfilt = {k: re.compile(v) for k, v in dfilt.items()}
 
         for p in paths:
             for fom_type in ('input', 'output'):
@@ -115,12 +120,12 @@ class DataParser(DataSelector):
                         attd = att[2]
                         for k, v in redfilt.items():
                             found = False
-                            for ka, va in attd.items():
-                                if k.match(ka):
-                                    found = True
-                                    if not v.match(va):
-                                        keep = False
-                                        break
+                            if k in attd:
+                                va = attd[k]
+                                found = True
+                                if not v.match(va):
+                                    keep = False
+                                    break
                             if not keep:
                                 break
                             if not found:
@@ -189,10 +194,10 @@ class DataFilter(DataSelector):
 
     It performs filtering based on the ``data_filters`` list or dict.
 
-    Filters, given using ``data_filters`` are regular expressions, both keys
-    and values, that is if you are looking for exact
+    Filters values, given using ``data_filters`` are regular expressions,
+    that is if you are looking for exact
     ``subject = "charles-axel"``, you should use:
-    ``{"^subject$": "^charles-axel$"}`` to avoid fortuitous matches.
+    ``{"subject": "^charles-axel$"}`` to avoid fortuitous matches.
     '''
 
     def find_items(self, dtype, dfilt, sfilt):
@@ -207,19 +212,19 @@ class DataFilter(DataSelector):
         if profile:
             t0 = time.time()
 
-        refilt = {re.compile(k): re.compile(v) for k, v in dfilt.items()}
+        refilt = {k: re.compile(v) for k, v in dfilt.items()}
 
         for patt in self.upstream_selector.find_items(dtype, dfilt, sfilt):
             keep = True
             attd = patt['attributes']
             for k, v in refilt.items():
                 found = False
-                for ka, va in attd.items():
-                    if k.match(ka):
-                        found = True
-                        if not v.match(va):
-                            keep = False
-                            break
+                if k in attd:
+                    found = True
+                    va = attd[k]
+                    if not v.match(va):
+                        keep = False
+                        break
                 if not keep:
                     break
                 if not found:

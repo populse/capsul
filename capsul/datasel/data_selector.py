@@ -455,7 +455,7 @@ def get_data_selector(database, engine=None, fom=None, data_types=None,
             upstream_selector={'type': 'exhaustive'})
         data = sel.get_data(
             data_types=['morphologist.capsul.import_t1_mri.ImportT1Mri.input'],
-            data_filters={'.*': {'subject': 'hericart'}})
+            data_filters={'.*': {'subject': '^hericart$'}})
     '''
     if type is None:
         if database_sqlite not in (None, traits.Undefined, ''):
